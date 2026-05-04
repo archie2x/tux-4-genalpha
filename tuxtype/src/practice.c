@@ -273,7 +273,14 @@ int Phrases(wchar_t* pphrase )
 
         if (tmpsurf)
         {
-          SDL_BlitSurface(tmpsurf, NULL, screen, &phr_text_rect);
+          /* find_next_wrap measures with SimpleText but we render with
+           * BlackOutline_w (adds outline pixels), so the rendered surface
+           * can be slightly wider than wrap suggests. Clip the source so
+           * nothing spills past the prompt/typed rects. */
+          SDL_Rect src = {0, 0,
+              (tmpsurf->w > phr_text_rect.w) ? phr_text_rect.w : tmpsurf->w,
+              tmpsurf->h};
+          SDL_BlitSurface(tmpsurf, &src, screen, &phr_text_rect);
           SDL_DestroySurface(tmpsurf);
           tmpsurf = NULL;
         }
@@ -287,18 +294,36 @@ int Phrases(wchar_t* pphrase )
         DEBUGCODE
         {
           wchar_t buf[200];
-          wcsncpy(buf, &phrases[cur_phrase][prev_wrap], cursor - prev_wrap); 
+          wcsncpy(buf, &phrases[cur_phrase][prev_wrap], cursor - prev_wrap);
           buf[cursor - prev_wrap]= '\0';
           fprintf(stderr, "wrap_pt = %d\t cursor = %d\t prev_wrap = %d\n",
                           wrap_pt, cursor, prev_wrap);
           fprintf(stderr, "Text typed so far is: %S\n", buf);
         }
 
+        int typed_w = 0;
         if (tmpsurf)
         {
-          SDL_BlitSurface(tmpsurf, NULL, screen, &user_text_rect);
+          SDL_Rect src = {0, 0,
+              (tmpsurf->w > user_text_rect.w) ? user_text_rect.w : tmpsurf->w,
+              tmpsurf->h};
+          SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
+          typed_w = src.w;
           SDL_DestroySurface(tmpsurf);
           tmpsurf = NULL;
+        }
+        /* Underline cursor — shows where the next char will land,
+         * with a 1px drop shadow for depth. */
+        {
+          SDL_Rect cur = {user_text_rect.x + typed_w,
+                          user_text_rect.y + user_text_rect.h - 4,
+                          medfontsize / 2, 2};
+          if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
+              cur.w = user_text_rect.x + user_text_rect.w - cur.x;
+          SDL_Rect shadow = {cur.x + 1, cur.y + 1, cur.w, cur.h};
+          const SDL_PixelFormatDetails* pf = SDL_GetPixelFormatDetails(screen->format);
+          SDL_FillSurfaceRect(screen, &shadow, SDL_MapRGB(pf, NULL,   0,   0,   0));
+          SDL_FillSurfaceRect(screen, &cur,    SDL_MapRGB(pf, NULL, 255, 255, 255));
         }
 
         /* Update timer: */
@@ -825,12 +850,33 @@ int Phrases(wchar_t* pphrase )
                                    medfontsize, &white,
                                    cursor - prev_wrap);
 
+          int typed_w = 0;
+          SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen, &user_text_rect);
           if (tmpsurf)
           {
-            SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen, &user_text_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &user_text_rect);
+            SDL_Rect src = {0, 0,
+                (tmpsurf->w > user_text_rect.w) ? user_text_rect.w : tmpsurf->w,
+                tmpsurf->h};
+            SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
+            typed_w = src.w;
             SDL_DestroySurface(tmpsurf);
             tmpsurf = NULL;
+          }
+          {
+            SDL_Rect cur = {user_text_rect.x + typed_w,
+                            user_text_rect.y + user_text_rect.h - 4,
+                            medfontsize / 2, 2};
+            if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
+                cur.w = user_text_rect.x + user_text_rect.w - cur.x;
+            if (cur.w > 0) {
+                SDL_Rect shadow = {cur.x + 1, cur.y + 1, cur.w, cur.h};
+                const SDL_PixelFormatDetails* pf =
+                    SDL_GetPixelFormatDetails(screen->format);
+                SDL_FillSurfaceRect(screen, &shadow,
+                    SDL_MapRGB(pf, NULL, 0, 0, 0));
+                SDL_FillSurfaceRect(screen, &cur,
+                    SDL_MapRGB(pf, NULL, 255, 255, 255));
+            }
           }
 
 
@@ -893,17 +939,47 @@ int Phrases(wchar_t* pphrase )
           /* If player has completed phrase, celebrate! */
           if (cursor == wcslen(phrases[cur_phrase]))
           {
-			/* Annoncing the result */ 
+			/* Annoncing the result */
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,
 			      gettext("Wow. you completed sentence with %s characters in \
 			      %s time, your speed is %s word per minut and \
 			      percentage of accuracy is %s"),chars_typed_str,time_str,
 			      wpm_str,accuracy_str);
-            /* Draw Tux celebrating: */
+            /* Phrase complete: clear the typed-line area, show a banner, and
+             * auto-advance after a short pause. Without this, the next phrase
+             * would just start drawing on top of the finished one with no
+             * visible "done" feedback. */
             {
+              Uint32 cel_start = SDL_GetTicks();
+              const Uint32 CELEBRATE_MS = 1500;
               int done = 0;
 
               PlaySound(cheer);
+
+              /* Drain any queued input so the keystroke that completed the
+               * phrase doesn't immediately dismiss the celebration. */
+              while (SDL_PollEvent(&event)) { /* discard */ }
+
+              /* Wipe the typed-line area to a clean slate. */
+              SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
+              SDL_BlitSurface(time_label_srfc,     NULL, screen, &time_label);
+              SDL_BlitSurface(chars_label_srfc,    NULL, screen, &chars_typed_label);
+              SDL_BlitSurface(cpm_label_srfc,      NULL, screen, &cpm_label);
+              SDL_BlitSurface(wpm_label_srfc,      NULL, screen, &wpm_label);
+              SDL_BlitSurface(errors_label_srfc,   NULL, screen, &errors_label);
+              SDL_BlitSurface(accuracy_label_srfc, NULL, screen, &accuracy_label);
+
+              /* Big yellow banner so completion is unmistakable. */
+              SDL_Surface* banner =
+                  BlackOutline(gettext("Done!"), bigfontsize, &yellow);
+              if (banner) {
+                  SDL_Rect br;
+                  br.x = (screen->w - banner->w) / 2;
+                  br.y = (screen->h - banner->h) / 2 - 40;
+                  br.w = banner->w; br.h = banner->h;
+                  SDL_BlitSurface(banner, NULL, screen, &br);
+                  SDL_DestroySurface(banner);
+              }
 
               while (!done)
               {
@@ -913,6 +989,8 @@ int Phrases(wchar_t* pphrase )
                     ||(event.type == SDL_EVENT_MOUSE_BUTTON_DOWN))
                     done = 1;
                 }
+                if (SDL_GetTicks() - cel_start >= CELEBRATE_MS)
+                  done = 1;
 
                 /* Draw Tux: */
                 SDL_BlitSurface(CurrentBkgd(), &tux_loc, screen, &tux_loc);
@@ -920,7 +998,7 @@ int Phrases(wchar_t* pphrase )
                   SDL_BlitSurface(tux_win->frame[tux_win->cur], NULL, screen, &tux_loc);
                 T4K_UpdateRect(screen, NULL);
                 NEXT_FRAME(tux_win);
-                SDL_Delay(200);
+                SDL_Delay(80);
               }
             }
 
@@ -1068,7 +1146,11 @@ static void calc_font_sizes(void)
 {
   fontsize = (screen->h)/28;
   medfontsize = fontsize * 1.5;
+  /* t4k_common caches one TTF_Font per requested size and caps at 40
+   * (see MAX_FONT_SIZE in t4k_sdl.c). Going beyond just spams stderr
+   * and falls back to 40 anyway, so clamp here. */
   bigfontsize = fontsize * 4;
+  if (bigfontsize > 40) bigfontsize = 40;
 }
 
 static int practice_load_media(void)

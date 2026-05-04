@@ -99,8 +99,13 @@ SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c,
      * expects UTF-8). A naive byte-cast truncates 'ü' (U+00FC) to 0xFC and
      * SDL_ttf rejects it as invalid UTF-8 — that's why umlauts/accents
      * rendered blank. Inline encoder avoids locale dependence of wcstombs. */
+    /* length == 0 means "no chars typed yet" in the practice echo area —
+     * return NULL so the caller skips rendering. (Old behavior fell back
+     * to wcslen(t), which redrew the whole prompt under the user's typed
+     * line before they had typed anything.) */
+    if (length <= 0) return NULL;
     char utf8[4096];
-    int max = (length > 0) ? length : (int)wcslen(t);
+    int max = length;
     int o = 0;
     for (int i = 0; i < max && o + 4 < (int)sizeof(utf8); i++) {
         wchar_t cp = t[i];
