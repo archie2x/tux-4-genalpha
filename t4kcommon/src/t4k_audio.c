@@ -168,6 +168,29 @@ void T4K_AudioEnable(bool enabled)
     if (g_mixer) MIX_SetMixerGain(g_mixer, enabled ? 1.0f : 0.0f);
 }
 
+/* Volume APIs. Tuxtype's UI uses 0..128 (the SDL2_mixer convention).
+ * SDL3_mixer uses 0.0..1.0 gain on tracks. */
+static float vol_to_gain(int vol)
+{
+    if (vol <= 0) return 0.0f;
+    if (vol >= 128) return 1.0f;
+    return (float)vol / 128.0f;
+}
+
+void T4K_SetMusicVolume(int volume)
+{
+    if (!t4k_audio_ensure() || !g_music_track) return;
+    MIX_SetTrackGain(g_music_track, vol_to_gain(volume));
+}
+
+void T4K_SetSfxVolume(int volume)
+{
+    if (!t4k_audio_ensure()) return;
+    float g = vol_to_gain(volume);
+    for (int i = 0; i < SFX_TRACK_POOL; i++)
+        if (g_sfx_tracks[i]) MIX_SetTrackGain(g_sfx_tracks[i], g);
+}
+
 void T4K_AudioToggle(void)
 {
     T4K_AudioEnable(!g_audio_on);

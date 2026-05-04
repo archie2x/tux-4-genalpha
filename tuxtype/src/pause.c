@@ -165,7 +165,6 @@ int Pause(void)
 		}
 
 		if (settings.sys_sound) {
-			/* Audio volume + SFX preview stubbed for SDL3 port (task #13). */
 			const int MIX_MAX_VOLUME = 128;
 			if (sfx_volume > MIX_MAX_VOLUME) sfx_volume = MIX_MAX_VOLUME;
 			if (sfx_volume < 0) sfx_volume = 0;
@@ -174,7 +173,15 @@ int Pause(void)
 
 			if ((mus_volume != old_mus_volume) ||
 			    (sfx_volume != old_sfx_volume)) {
+				/* Apply to the mixer immediately so the user hears the
+				 * change while dragging the slider. */
+				if (mus_volume != old_mus_volume)
+					T4K_SetMusicVolume(mus_volume);
 				if (sfx_volume != old_sfx_volume) {
+					T4K_SetSfxVolume(sfx_volume);
+					/* Play a tick sound as feedback (capped to avoid spam). */
+					if (pause_sfx && tocks % 4 == 0)
+						T4K_PlaySound(pause_sfx);
 					tocks++;
 				}
 				draw_vols(sfx_volume, mus_volume);

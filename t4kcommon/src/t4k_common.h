@@ -1380,6 +1380,17 @@ const char* T4K_RelocatablePath( const char* exe_relative );
 
 //==============================================================================
 //
+//  T4K_SetMusicVolume / T4K_SetSfxVolume
+//
+//! \brief
+//!     Set music or SFX volume. Range 0..128 (SDL2_mixer convention).
+//!     Internally mapped to SDL3_mixer's 0.0..1.0 track gain.
+//!
+void T4K_SetMusicVolume( int volume );
+void T4K_SetSfxVolume( int volume );
+
+//==============================================================================
+//
 //  T4K_CheckFile
 //
 //! \brief
