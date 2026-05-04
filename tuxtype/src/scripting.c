@@ -472,9 +472,11 @@ int XMLLesson(void)
 
       start = loc - (loc % 8);
 
-      for (i = start; i <  MIN(start + 8, num_scripts); i++) 
+      for (i = start; i <  MIN(start + 8, num_scripts); i++)
       {
         titleRects[i % 8].x = screen->w/2 - (titles[i]->w/2);
+        titleRects[i % 8].w = titles[i]->w;
+        titleRects[i % 8].h = titles[i]->h;
         if (i == loc)
         {   /* Draw selected text in yellow:  */
           SDL_BlitSurface(select[loc], NULL, screen, &titleRects[i%8]);
