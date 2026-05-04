@@ -731,7 +731,11 @@ int Phrases(wchar_t* pphrase )
 
         /****************************************************/
         /*  ---------- If user typed correct character, handle it: --------------- */
-        if (phrases[cur_phrase][cursor] == event.key.key || (settings.braille && phrases[cur_phrase][cursor] == tmp))
+        /* SDL3 dropped event.key.keysym.unicode (the typed glyph with Shift
+         * applied). Use `tmp`, which the switch above + toupper-on-shift
+         * already resolved to the actual character — works for upper/lower
+         * case letters and shifted symbols. */
+        if (phrases[cur_phrase][cursor] == tmp)
         {
           cursor++;
           correct_chars++;
