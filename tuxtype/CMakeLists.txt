@@ -135,6 +135,12 @@ endif()
 # ---------------------------------------------------------------------------
 install(TARGETS tuxtype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+# tuxtype's SetupPaths checks for these dirs at startup. They normally hold
+# user-modifiable data + per-machine config, populated by the package manager
+# or first run. For a relocatable install we just create them empty.
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/${PROJECT_NAME})
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME})
+
 # Replace the 148 autotools Makefile.am files with a single recursive copy
 # of the data tree. The runtime looks under DATA_PREFIX (= share/tuxtype).
 install(DIRECTORY data/

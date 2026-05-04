@@ -34,6 +34,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int fs_res_x = 0;
 int fs_res_y = 0;
 
+/* Runtime-resolved path prefixes. Initialized once on first call.
+ * Lets the binary be relocatable: if data exists at <exe_dir>/../share/tuxtype
+ * (the layout produced by `cmake --install --prefix anywhere`), use that;
+ * otherwise fall back to the compile-time DATA_PREFIX/etc baked in via -D. */
+static char rt_data_prefix[FNLEN];
+static char rt_var_prefix[FNLEN];
+static char rt_conf_prefix[FNLEN];
+
+static void init_runtime_paths(void)
+{
+    static int initialized = 0;
+    if (initialized) return;
+    initialized = 1;
+
+    /* If <exe_dir>/../share/tuxtype exists, derive var + conf alongside it.
+     * T4K_RelocatablePath returns a pointer to its own static buffer that
+     * gets clobbered by subsequent calls, so copy each result before the
+     * next call. */
+    const char* p = T4K_RelocatablePath("../share/tuxtype");
+    if (p) {
+        strncpy(rt_data_prefix, p, FNLEN - 1);
+        p = T4K_RelocatablePath("../var/tuxtype");
+        strncpy(rt_var_prefix, p ? p : VAR_PREFIX, FNLEN - 1);
+        p = T4K_RelocatablePath("../etc/tuxtype");
+        strncpy(rt_conf_prefix, p ? p : CONF_PREFIX, FNLEN - 1);
+        return;
+    }
+
+    /* Fallback: compile-time prefixes baked in by CMake (-DDATA_PREFIX=...). */
+    strncpy(rt_data_prefix, DATA_PREFIX, FNLEN - 1);
+    strncpy(rt_var_prefix,  VAR_PREFIX,  FNLEN - 1);
+    strncpy(rt_conf_prefix, CONF_PREFIX, FNLEN - 1);
+}
+
+const char* tt_data_prefix(void) { init_runtime_paths(); return rt_data_prefix; }
+const char* tt_var_prefix(void)  { init_runtime_paths(); return rt_var_prefix; }
+const char* tt_conf_prefix(void) { init_runtime_paths(); return rt_conf_prefix; }
+
 /* The SDL_Window we created (also handed off to t4k_common). Declared
  * extern in globals.h so the rest of tuxtype (titlescreen.c, etc.) can
  * pass it to SDL_SetWindowMouseGrab / SDL_WarpMouseInWindow / etc. */
@@ -382,14 +420,15 @@ int SetupPaths(const char* theme_dir)
   settings.use_english = 1; // default is to use English if we cannot find theme
   char fn[FNLEN];           // used later when setting settings.user_settings_path
 
-  if (CheckFile(DATA_PREFIX))
+  const char* data_prefix = tt_data_prefix();
+  if (CheckFile(data_prefix))
   {
-    strncpy(settings.default_data_path, DATA_PREFIX, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.default_data_path\n", DATA_PREFIX);}
+    strncpy(settings.default_data_path, data_prefix, FNLEN - 1);
+    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.default_data_path\n", data_prefix);}
   }
   else
   {
-    fprintf(stderr, "Error - DATA_PREFIX = '%s' not found!\n", DATA_PREFIX);
+    fprintf(stderr, "Error - data prefix = '%s' not found!\n", data_prefix);
     return 0;
   }
 
@@ -454,28 +493,30 @@ int SetupPaths(const char* theme_dir)
   /* such as custom word lists, high scores, etc:                       */
   /* This will generally be /var/lib/tuxtype (distro-provided pkg)      */
   /* or /usr/local/etc/tuxtype (locally-built and installed pkg)        */
-  if (CheckFile(VAR_PREFIX))
+  const char* var_prefix = tt_var_prefix();
+  if (CheckFile(var_prefix))
   {
-    strncpy(settings.var_data_path, VAR_PREFIX, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.var_data_path\n", VAR_PREFIX);}
+    strncpy(settings.var_data_path, var_prefix, FNLEN - 1);
+    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.var_data_path\n", var_prefix);}
   }
   else
   {
-    fprintf(stderr, "Error - VAR_PREFIX = '%s' not found!\n", VAR_PREFIX);
+    fprintf(stderr, "Error - var prefix = '%s' not found!\n", var_prefix);
     return 0;
   }
 
   /* Now check for CONF_PREFIX (for program wide settings that apply to all users). */ 
   /* This would typically be /etc/tuxtype if tuxtype is installed by a distro pkg,  */
   /* or /usr/local/etc/tuxtype if the package is built locally                      */
-  if (CheckFile(CONF_PREFIX))
+  const char* conf_prefix = tt_conf_prefix();
+  if (CheckFile(conf_prefix))
   {
-    strncpy(settings.global_settings_path, CONF_PREFIX, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.global_settings_path\n", CONF_PREFIX);}
+    strncpy(settings.global_settings_path, conf_prefix, FNLEN - 1);
+    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.global_settings_path\n", conf_prefix);}
   }
   else
   {
-    fprintf(stderr, "Error - CONF_PREFIX = '%s' not found!\n", CONF_PREFIX);
+    fprintf(stderr, "Error - conf prefix = '%s' not found!\n", conf_prefix);
     return 0;
   }
 

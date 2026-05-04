@@ -1358,6 +1358,28 @@ void T4K_AddDataPrefix( const char* path );
 
 //==============================================================================
 //
+//  T4K_RelocatablePath
+//
+//! \brief
+//!     Resolve a path relative to the running executable. Lets a tux4kids
+//!     binary find its data without a hardcoded install prefix — works for
+//!     any layout where bin/ and share/ are siblings (the standard outcome
+//!     of `cmake --install --prefix anywhere`).
+//!
+//! \param
+//!     exe_relative - Path relative to the executable's directory, e.g.
+//!                    "../share/tuxtype". A trailing slash is fine but
+//!                    not required.
+//!
+//! \return
+//!     Pointer to a static buffer holding the absolute path if the target
+//!     exists on disk; NULL otherwise. The buffer is overwritten by
+//!     subsequent calls; caller must copy if it needs to persist.
+//!
+const char* T4K_RelocatablePath( const char* exe_relative );
+
+//==============================================================================
+//
 //  T4K_CheckFile
 //
 //! \brief

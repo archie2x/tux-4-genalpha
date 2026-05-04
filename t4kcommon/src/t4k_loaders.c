@@ -168,6 +168,20 @@ const char* find_file(const char* base_name)
 	return tmp_path;
     return "";
 }
+
+/* Resolve a path relative to the running executable. Returns a pointer to
+ * a static buffer with the absolute path if it exists on disk, else NULL.
+ * The buffer is overwritten by subsequent calls. */
+const char* T4K_RelocatablePath(const char* exe_relative)
+{
+    static char tmp[T4K_PATH_MAX];
+    /* SDL3: returns a string owned by SDL — do NOT SDL_free it (changed
+     * from SDL2). Stable across calls. */
+    const char* base = SDL_GetBasePath();
+    if (!base) return NULL;
+    snprintf(tmp, T4K_PATH_MAX, "%s%s", base, exe_relative);
+    return T4K_CheckFile(tmp) ? tmp : NULL;
+}
 #ifdef HAVE_RSVG
 
 int get_number_of_frames_from_svg(const char* file_name) {

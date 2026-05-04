@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
    T4K_Tts_init();
    T4K_Tts_set_volume(settings.tts_volume);
    
-   T4K_AddDataPrefix(DATA_PREFIX);
+   T4K_AddDataPrefix(tt_data_prefix());
   
   /* FIXME: we should check config files/environment variables like LANG! */
   /* NOTE what should we do if LANG is something without a theme - should */

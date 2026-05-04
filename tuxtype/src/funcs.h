@@ -128,6 +128,13 @@ void SaveSettings(void);
 int SetupPaths(const char* theme_dir);
 void Cleanup(void);
 
+/* Runtime path resolvers — relocatable: prefer paths relative to the
+ * executable (<exe_dir>/../share/tuxtype etc.), fall back to the compile-time
+ * DATA_PREFIX/VAR_PREFIX/CONF_PREFIX baked in via -D. */
+const char* tt_data_prefix(void);
+const char* tt_var_prefix(void);
+const char* tt_conf_prefix(void);
+
 /* In theme.c: */
 void ChooseTheme(void);
 
