@@ -790,9 +790,12 @@ int PlayLaserGame(int diff_level)
 
   /* Stop music: */
   if ((settings.sys_sound) && (T4K_IsPlayingMusic()))
-/* Mix_HaltMusic stubbed for SDL3 port */
+      T4K_AudioMusicUnload();
 
   laser_unload_data();
+
+  /* Restore the mouse cursor — we hid it at the start of the game. */
+  SDL_ShowCursor();
 
   return 1;
 }

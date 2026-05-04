@@ -235,7 +235,15 @@ void RunMainMenu(void)
 
     //T4K_PrerenderMenu(MENU_LESSONS);
 
-    run_menu(MENU_MAIN, false);
+    /* Loop until the user actually picks Quit (T4K_RunMenu returns QUIT).
+     * Pressing ESC at the main menu returns STOP — we just re-show it
+     * instead of exiting the whole program. Restore the cursor each
+     * iteration in case a game/Pause left it hidden. */
+    int rc;
+    do {
+        SDL_ShowCursor();
+        rc = run_menu(MENU_MAIN, false);
+    } while (rc != QUIT);
     DEBUGMSG(debug_menu, "Leaving RunMainMenu()\n");
 }
 
@@ -610,9 +618,11 @@ static int chooseWordlist(void)
 
       start = loc - (loc % 8);
 
-      for (i = start; i< MIN(start + 8,lists); i++) 
+      for (i = start; i< MIN(start + 8,lists); i++)
       {
         titleRects[i % 8].x = screen->w/2 - (titles[i]->w/2);
+        titleRects[i % 8].w = titles[i]->w;
+        titleRects[i % 8].h = titles[i]->h;
         if (i == loc)
         {
 			/* Draw selected text in yellow:  */

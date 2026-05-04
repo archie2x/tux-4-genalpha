@@ -47,6 +47,15 @@ static ResSwitchCallback internal_res_switch_callback = NULL;
 #define T4K_LOGICAL_H 480
 static SDL_Surface* t4k_backing = NULL;
 
+/* Idle cursor hiding: show cursor whenever the mouse moves; hide it again
+ * after T4K_CURSOR_IDLE_MS of stillness. Driven by t4k_event_filter (resets
+ * timer on motion) + t4k_present (polls each frame). */
+#define T4K_CURSOR_IDLE_MS 2000
+static Uint64 last_mouse_motion_ms = 0;
+static bool cursor_visible = true;
+
+static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event);
+
 /* window size */
 int win_res_x = T4K_LOGICAL_W;
 int win_res_y = T4K_LOGICAL_H;
@@ -79,10 +88,12 @@ void T4K_RegisterWindow(SDL_Window* w)
 	SDL_PixelFormat fmt = win_surf ? win_surf->format : SDL_PIXELFORMAT_RGBA8888;
 	t4k_backing = SDL_CreateSurface(T4K_LOGICAL_W, T4K_LOGICAL_H, fmt);
 	screen = t4k_backing;
+	SDL_SetEventFilter(t4k_event_filter, NULL);
     }
     else
     {
 	screen = NULL;
+	SDL_SetEventFilter(NULL, NULL);
     }
 }
 
@@ -114,12 +125,66 @@ static void t4k_compute_present_rect(SDL_Rect* out)
     }
 }
 
+/* SDL event filter: rewrite mouse coordinates from window-space into the
+ * 640x480 backing-surface space all hit-tests are written against. Without
+ * this, fullscreen / non-1:1 windows would receive clicks the rest of the
+ * code can't match against any rect. Installed once, in T4K_RegisterWindow. */
+static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
+{
+    (void)userdata;
+    if (!t4k_window) return true;
+
+    float* px = NULL;
+    float* py = NULL;
+    switch (event->type)
+    {
+        case SDL_EVENT_MOUSE_MOTION:
+            last_mouse_motion_ms = SDL_GetTicks();
+            if (!cursor_visible) { SDL_ShowCursor(); cursor_visible = true; }
+            px = &event->motion.x; py = &event->motion.y; break;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            px = &event->button.x; py = &event->button.y; break;
+        case SDL_EVENT_MOUSE_WHEEL:
+            px = &event->wheel.mouse_x; py = &event->wheel.mouse_y; break;
+        default:
+            return true;
+    }
+
+    int win_w = T4K_LOGICAL_W, win_h = T4K_LOGICAL_H;
+    SDL_GetWindowSize(t4k_window, &win_w, &win_h);
+    SDL_Surface* ws = SDL_GetWindowSurface(t4k_window);
+    int surf_w = ws ? ws->w : win_w;
+    int surf_h = ws ? ws->h : win_h;
+
+    SDL_Rect dst;
+    t4k_compute_present_rect(&dst);
+    if (dst.w <= 0 || dst.h <= 0) return true;
+
+    /* event coords are in window-logical units; scale to surface units,
+     * subtract the present-rect offset, then scale into 640x480. */
+    float sx = (float)surf_w / (float)win_w;
+    float sy = (float)surf_h / (float)win_h;
+    float surf_x = (*px) * sx;
+    float surf_y = (*py) * sy;
+    *px = (surf_x - dst.x) * (float)T4K_LOGICAL_W / (float)dst.w;
+    *py = (surf_y - dst.y) * (float)T4K_LOGICAL_H / (float)dst.h;
+    return true;
+}
+
 /* Push the backing surface to the window, scaling to fit + letterboxing. */
 static void t4k_present(void)
 {
     if (!t4k_window || !t4k_backing) return;
     SDL_Surface* ws = SDL_GetWindowSurface(t4k_window);
     if (!ws) return;
+
+    if (cursor_visible &&
+        SDL_GetTicks() - last_mouse_motion_ms > T4K_CURSOR_IDLE_MS)
+    {
+        SDL_HideCursor();
+        cursor_visible = false;
+    }
     SDL_Rect dst;
     t4k_compute_present_rect(&dst);
     /* Clear the letterbox area to black before scaling the backing in. */

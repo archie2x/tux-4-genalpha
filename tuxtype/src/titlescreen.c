@@ -220,12 +220,13 @@ void TitleScreen(void)
     /* --- wait  --- */
     while ((SDL_GetTicks() - start_time) < logo_msec)
     {
-        /* Check to see if user pressed escape */
+        /* ESC skips the splash and proceeds to the menu (it doesn't
+         * exit the program — that's reserved for the Quit menu item). */
         if (SDL_PollEvent(&event)
                 && event.type==SDL_EVENT_KEY_DOWN
                 && event.key.key == SDLK_ESCAPE)
         {
-            return;
+            break;
         }
         SDL_Delay(50);
     }
