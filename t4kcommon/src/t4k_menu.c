@@ -101,7 +101,8 @@ static const int buf_size = 512;
 static const int MAX_PAGE_SIZE = 8;
 
 /* actions available while viewing the menu */
-enum { NONE, CLICK, PAGEUP, PAGEDOWN, STOP_ESC, RESIZED };
+/* STOP_ESC = ESC key (or X button on submenu); STOP_QUIT = X button at root. */
+enum { NONE, CLICK, PAGEUP, PAGEDOWN, STOP_ESC, STOP_QUIT, RESIZED };
 
 /* menus is a global array when user can save up to 10 loaded menus.
    From outside this file we identify menu trees by their ids (indexes in this array)
@@ -675,12 +676,13 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				using_scroll = 0;
 			    }
 
-			    /* "Stop" button - go to main menu: */
+			    /* "Stop" (X) button: at root, quit the program; on a
+			     * submenu, behave like ESC and pop one level. */
 			    else if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
 			    {
 				if(snd_click)
 				    T4K_PlaySound(snd_click);
-				action = STOP_ESC;
+				action = (menu->parent == NULL) ? STOP_QUIT : STOP_ESC;
 			    }
 			    else if(loc != -1) //If focus is set from scrolling, use click to activate
 			    {
@@ -1007,6 +1009,11 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			}
 			stop = true;
 			break;
+
+		    case STOP_QUIT:
+			T4K_FreeSurfaceArray(menu_item_unselected, items);
+			T4K_FreeSurfaceArray(menu_item_selected, items);
+			return QUIT;
 
 		    case PAGEUP:
 			menu->first_entry -= menu->entries_per_screen;

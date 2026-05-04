@@ -99,7 +99,11 @@ void GraphicsInit(void)
     fs_res_y = RES_Y;
   }
 
-  Uint32 win_flags = 0;
+  /* RESIZABLE makes macOS show the green native-fullscreen traffic-light
+   * button (and lets the user drag-resize). Our backing surface stays at a
+   * fixed 640x480 logical resolution; t4k_present() rescales each frame, so
+   * any window size adapts automatically. */
+  Uint32 win_flags = SDL_WINDOW_RESIZABLE;
   int win_w = RES_X, win_h = RES_Y;
   if (settings.fullscreen == 1) {
     win_flags |= SDL_WINDOW_FULLSCREEN;

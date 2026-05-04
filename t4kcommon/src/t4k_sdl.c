@@ -47,12 +47,13 @@ static ResSwitchCallback internal_res_switch_callback = NULL;
 #define T4K_LOGICAL_H 480
 static SDL_Surface* t4k_backing = NULL;
 
-/* Idle cursor hiding: show cursor whenever the mouse moves; hide it again
- * after T4K_CURSOR_IDLE_MS of stillness. Driven by t4k_event_filter (resets
- * timer on motion) + t4k_present (polls each frame). */
+/* Idle cursor hiding: any mouse activity (motion, button) makes the cursor
+ * visible; after T4K_CURSOR_IDLE_MS of stillness, hide it again. Driven by
+ * t4k_event_filter (resets the timer) + t4k_present (polls each frame).
+ * We query SDL_CursorVisible() instead of caching, so direct SDL_*Cursor
+ * calls elsewhere can't desync our state. */
 #define T4K_CURSOR_IDLE_MS 2000
-static Uint64 last_mouse_motion_ms = 0;
-static bool cursor_visible = true;
+static Uint64 last_mouse_activity_ms = 0;
 
 static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event);
 
@@ -88,6 +89,7 @@ void T4K_RegisterWindow(SDL_Window* w)
 	SDL_PixelFormat fmt = win_surf ? win_surf->format : SDL_PIXELFORMAT_RGBA8888;
 	t4k_backing = SDL_CreateSurface(T4K_LOGICAL_W, T4K_LOGICAL_H, fmt);
 	screen = t4k_backing;
+	last_mouse_activity_ms = SDL_GetTicks();
 	SDL_SetEventFilter(t4k_event_filter, NULL);
     }
     else
@@ -139,8 +141,6 @@ static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
     switch (event->type)
     {
         case SDL_EVENT_MOUSE_MOTION:
-            last_mouse_motion_ms = SDL_GetTicks();
-            if (!cursor_visible) { SDL_ShowCursor(); cursor_visible = true; }
             px = &event->motion.x; py = &event->motion.y; break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -150,6 +150,11 @@ static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
         default:
             return true;
     }
+
+    /* Any mouse activity counts: refresh the idle timer and ensure the
+     * cursor is shown. SDL_ShowCursor is a no-op if already visible. */
+    last_mouse_activity_ms = SDL_GetTicks();
+    if (!SDL_CursorVisible()) SDL_ShowCursor();
 
     int win_w = T4K_LOGICAL_W, win_h = T4K_LOGICAL_H;
     SDL_GetWindowSize(t4k_window, &win_w, &win_h);
@@ -179,11 +184,10 @@ static void t4k_present(void)
     SDL_Surface* ws = SDL_GetWindowSurface(t4k_window);
     if (!ws) return;
 
-    if (cursor_visible &&
-        SDL_GetTicks() - last_mouse_motion_ms > T4K_CURSOR_IDLE_MS)
+    if (SDL_CursorVisible() &&
+        SDL_GetTicks() - last_mouse_activity_ms > T4K_CURSOR_IDLE_MS)
     {
         SDL_HideCursor();
-        cursor_visible = false;
     }
     SDL_Rect dst;
     t4k_compute_present_rect(&dst);
