@@ -51,70 +51,32 @@ void playsound(int snd)
 }
 
 
-// play sound with optional repeats, or -1 for infinite
+/* SDL3 port note: SDL3_mixer is a complete API rewrite (MIX_Mixer/MIX_Audio/
+ * MIX_Track) and we haven't done that port yet (task #13). All audio is
+ * stubbed; these functions are now no-ops. The public API shape is preserved
+ * so callers don't need to change. */
+
 void PlaySoundLoop(Mix_Chunk* snd, int loops)
 {
-  if(!snd)
-    return;
-  if (!settings.sys_sound)
-    return;
-
-  Mix_PlayChannel(-1, snd, loops);
+  (void)snd; (void)loops;
 }
 
-// halt a channel or -1 for all
 void audioHaltChannel(int channel)
 {
-    Mix_HaltChannel(channel);
+  (void)channel;
 }
 
-/* MusicLoad attempts to load and play the music file 
- * Note: loops == -1 means forever
- */
 void MusicLoad(const char* musicFilename, int loops)
 {
-  Mix_Music* tmp_music = NULL;
-
-  if (!settings.sys_sound) return;
-  if (!musicFilename) return;
-
-  tmp_music = LoadMusic(musicFilename);
-
-  if (tmp_music)
-  {
-    MusicUnload(); //Unload previous defaultMusic
-    defaultMusic = tmp_music;
-    Mix_PlayMusic(defaultMusic, loops);
-  }
+  (void)musicFilename; (void)loops;
 }
 
-
-/* MusicUnload attempts to unload any music data that was
- * loaded using the audioMusicLoad function
- */
 void MusicUnload(void)
 {
-  if (!settings.sys_sound) return;
-
-  if (defaultMusic)
-  {
-    Mix_FreeMusic(defaultMusic);
-    defaultMusic = NULL;
-  }
+  defaultMusic = NULL;
 }
 
-
-/* audioMusicPlay attempts to play the passed music data. 
- * if a music file was loaded using the audioMusicLoad
- * it will be stopped and unloaded
- * Note: loops == -1 means forever
- */
 void MusicPlay(Mix_Music* musicData, int loops)
-{ 
-  if (!settings.sys_sound) return;
-  if (!musicData) return;
-
-  /* Stop previous music before playing new one: */
-  MusicUnload();	
-  Mix_PlayMusic(musicData, loops);
+{
+  (void)musicData; (void)loops;
 }

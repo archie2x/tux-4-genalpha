@@ -27,15 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define T4K_GLOBALS_H
 
 
-// Translation stuff (now works for Mac and Win too!): 
-#include "config.h"
+// Translation stuff (now works for Mac and Win too!):
 #include "gettext.h"
 #define _(String) gettext (String)
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
 #include "t4k_common.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #define REG_RGBA 16,16,96,96
 #define SEL_RGBA 16,16,128,128
@@ -52,6 +51,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 extern SDL_Thread *tts_thread;
 extern int text_to_speech_status;
 
+/* SDL3: registered by host app via T4K_RegisterWindow(). Used by
+ * T4K_GetScreen, T4K_UpdateRect, T4K_SwitchScreenMode, T4K_ChangeWindowSize. */
+extern SDL_Window* t4k_window;
 
 extern int debug_status;
 

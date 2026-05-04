@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "funcs.h"
 #include "SDL_extras.h"
 #include "mysetenv.h"
+#include "braille.h"
 
 static SDL_Surface* win_bkgd = NULL;
 static SDL_Surface* fullscr_bkgd = NULL;
@@ -347,26 +348,25 @@ SDL_Surface* LoadImage(const char* datafile, int mode)
   {
     case IMG_REGULAR:
     { 
-      final_pic = SDL_DisplayFormat(tmp_pic);
-      SDL_FreeSurface(tmp_pic);
+      final_pic = SDL_DuplicateSurface(tmp_pic);
+      SDL_DestroySurface(tmp_pic);
       break;
     }
 
     case IMG_ALPHA:
     {
-      final_pic = SDL_DisplayFormatAlpha(tmp_pic);
-      SDL_FreeSurface(tmp_pic);
+      final_pic = SDL_DuplicateSurface(tmp_pic);
+      SDL_DestroySurface(tmp_pic);
       break;
     }
 
     case IMG_COLORKEY:
     {
       SDL_LockSurface(tmp_pic);
-      SDL_SetColorKey(tmp_pic,
-                      (SDL_SRCCOLORKEY | SDL_RLEACCEL),
-                      SDL_MapRGB(tmp_pic->format, 255, 255, 0));
-      final_pic = SDL_DisplayFormat(tmp_pic);
-      SDL_FreeSurface(tmp_pic);
+      SDL_SetSurfaceColorKey(tmp_pic, true,
+                      SDL_MapRGB(SDL_GetPixelFormatDetails(tmp_pic->format), NULL, 255, 255, 0));
+      final_pic = SDL_DuplicateSurface(tmp_pic);
+      SDL_DestroySurface(tmp_pic);
       break;
     }
 
@@ -427,7 +427,7 @@ int LoadBothBkgds(const char* datafile)
   }
   
   if (ret == 2) //orig won't be used at all
-    SDL_FreeSurface(orig);
+    SDL_DestroySurface(orig);
     
   DEBUGCODE
   {
@@ -441,20 +441,19 @@ SDL_Surface* CurrentBkgd(void)
 {
   if (!screen)
     return NULL;
-  if (screen->flags & SDL_FULLSCREEN)
-    return fullscr_bkgd;
-  else
-    return win_bkgd;
+  /* SDL3: fullscreen state is on the window now, not the surface. For first
+   * launch we always use windowed bkgd. Tracked properly via settings later. */
+  return win_bkgd;
 }
 
 void FreeBothBkgds(void)
 {
   if (win_bkgd)
-    SDL_FreeSurface(win_bkgd);
+    SDL_DestroySurface(win_bkgd);
   win_bkgd = NULL;
 
   if (fullscr_bkgd)
-    SDL_FreeSurface(fullscr_bkgd);
+    SDL_DestroySurface(fullscr_bkgd);
   fullscr_bkgd = NULL;
 }
 
@@ -512,69 +511,25 @@ void FreeSprite(sprite* gfx )
   for (x = 0; x < gfx->num_frames; x++)
   {
     if (gfx->frame[x])
-      SDL_FreeSurface(gfx->frame[x]);
+      SDL_DestroySurface(gfx->frame[x]);
   }
   if (gfx->default_img)
-    SDL_FreeSurface(gfx->default_img);
+    SDL_DestroySurface(gfx->default_img);
   free(gfx);
 }
 
 /***************************
 	LoadSound : Load a sound/music patch from a file.
 ****************************/
-Mix_Chunk* LoadSound(const char* datafile )
-{ 
-  Mix_Chunk* tempChunk = NULL;
-  char fn[FNLEN];
-
-  /* First look under theme path if desired: */
-  if (!settings.use_english)
-  {
-    sprintf(fn , "%s/sounds/%s", settings.theme_data_path, datafile);
-    tempChunk = Mix_LoadWAV(fn);
-    if (tempChunk)
-      return tempChunk;
-  }
-
-  /* If nothing loaded yet, try default path: */
-  if (!tempChunk)
-  {
-    sprintf(fn , "%s/sounds/%s", settings.default_data_path, datafile);
-    tempChunk = Mix_LoadWAV(fn);
-    if (tempChunk)
-      return tempChunk;
-  }
-  // We never want to get here...
-  fprintf(stderr, "LoadSound() - could not load %s\n", datafile);
+/* SDL3 port: stubbed — SDL3_mixer is a complete API rewrite (task #13). */
+Mix_Chunk* LoadSound(const char* datafile)
+{
+  (void)datafile;
   return NULL;
 }
 
-
-/************************
-	LoadMusic : Load
-	music from a datafile
-*************************/
-Mix_Music* LoadMusic(const char* datafile )
-{ 
-  Mix_Music* temp_music = NULL;
-  char fn[FNLEN];
-
-  /* First look under theme path if desired: */
-  if (!settings.use_english)
-  {
-    sprintf(fn , "%s/sounds/%s", settings.theme_data_path, datafile);
-    temp_music = Mix_LoadMUS(fn);
-    if (temp_music)
-      return temp_music;
-  }
-
-  /* If nothing loaded yet, try default path: */
-  if (!temp_music)
-  {
-    sprintf(fn , "%s/sounds/%s", settings.default_data_path, datafile);
-    temp_music = Mix_LoadMUS(fn);
-    return temp_music;
-  }
-  // We never want to get here...
-  return temp_music;
+Mix_Music* LoadMusic(const char* datafile)
+{
+  (void)datafile;
+  return NULL;
 }

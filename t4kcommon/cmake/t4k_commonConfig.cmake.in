@@ -1,0 +1,9 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(SDL3 CONFIG)
+find_dependency(SDL3_image CONFIG)
+
+include("${CMAKE_CURRENT_LIST_DIR}/t4k_common-targets.cmake")
+
+check_required_components(t4k_common)

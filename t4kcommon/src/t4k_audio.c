@@ -3,122 +3,64 @@
 
    Audio-related functions.
 
+   STUBBED for the initial SDL3 port — see task #13. SDL3_mixer is a complete
+   API rewrite (MIX_Mixer/MIX_Audio/MIX_Track) and deserves a focused port.
+   These functions are no-ops so the rest of the library can compile and run
+   silently. The public API shape (Mix_Chunk pointers, Mix_Music pointers) is
+   preserved via opaque forward-declared types in t4k_common.h.
+
    Copyright 2003, 2006, 2009, 2010.
-Authors: Sam Hart, Jesse Andrews, David Bruce, Brendan Luchen
-Project email: <tuxmath-devel@lists.sourceforge.net>
-Project website: http://tux4kids.alioth.debian.org
-
-t4k_audio.c is part of the t4k_common library.
-
-t4k_common is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-t4k_common is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-
-
+   Authors: Sam Hart, Jesse Andrews, David Bruce, Brendan Luchen
+   GPL v3 or later. */
 
 #include "t4k_common.h"
 #include "t4k_globals.h"
 
 static bool audio_enabled = true;
-static int music_loops = 0;
-static Mix_Music *default_music = NULL;
 
-const char* MUSIC_DIR = "sounds";
-
-// play sound once and exit
 void T4K_PlaySound(Mix_Chunk* sound)
 {
-    T4K_PlaySoundLoop(sound, 0);
+    (void)sound;
 }
 
-// play sound "loops" times, -1 for infinite
 void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops)
 {
-    if(sound && audio_enabled)
-	Mix_PlayChannel(-1, sound, loops);
+    (void)sound;
+    (void)loops;
 }
 
-void T4K_AudioHaltChannel( int channel )
+void T4K_AudioHaltChannel(int channel)
 {
-    Mix_HaltChannel(channel);
+    (void)channel;
 }
 
-/* audioMusicLoad attempts to load and play the music file
- * Note: loops == -1 means forever
- */
 void T4K_AudioMusicLoad(char* music_path, int loops)
 {
-    if (audio_enabled)
-    {
-	default_music = T4K_LoadMusic(music_path);
-	T4K_AudioMusicPlay(default_music, loops);
-    }
-    //  T4K_AudioMusicUnload(); // make sure defaultMusic is clear
-    //  default_music = T4K_LoadMusic(music_path);
-    //  music_loops = loops;
-    //  if (audio_enabled)
-    //    Mix_PlayMusic(default_music, loops);
+    (void)music_path;
+    (void)loops;
 }
 
-/* audioMusicUnload attempts to unload any music data that was
- * loaded using the audioMusicLoad function
- */
-void T4K_AudioMusicUnload()
+void T4K_AudioMusicUnload(void)
 {
-    if(default_music)
-	Mix_FreeMusic(default_music);
-    default_music = NULL;
 }
 
-bool T4K_IsPlayingMusic()
+bool T4K_IsPlayingMusic(void)
 {
-    return (default_music != NULL);
+    return false;
 }
 
-/* audioMusicPlay attempts to play the passed music data.
- * if a music file was loaded using the audioMusicLoad
- * it will be stopped and unloaded
- * Note: loops == -1 means forever
- */
-void T4K_AudioMusicPlay(Mix_Music *musicData, int loops)
+void T4K_AudioMusicPlay(Mix_Music* musicData, int loops)
 {
-    if (musicData != default_music)
-    {
-	T4K_AudioMusicUnload(); //FIXME this feels buggy...
-    }
-    music_loops = loops;
-    if (audio_enabled)
-	Mix_PlayMusic(musicData, loops);
+    (void)musicData;
+    (void)loops;
 }
 
 void T4K_AudioEnable(bool enabled)
 {
-    if (audio_enabled == enabled) 
-	return;
-
     audio_enabled = enabled;
-    if (audio_enabled)
-    {
-	if (default_music)
-	    Mix_PlayMusic(default_music, music_loops);
-    }
-    else
-    {
-	Mix_HaltChannel(-1);
-	Mix_FadeOutMusic(100);
-    }
 }
 
-void T4K_AudioToggle()
+void T4K_AudioToggle(void)
 {
-    T4K_AudioEnable(!audio_enabled);   
+    audio_enabled = !audio_enabled;
 }

@@ -59,9 +59,15 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <wchar.h>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_mixer.h"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+
+/* Audio is stubbed in this initial SDL3 port — SDL3_mixer is a full rewrite
+ * (MIX_Mixer/MIX_Audio/MIX_Track), to be tackled as a follow-up. We keep the
+ * Mix_Chunk* / Mix_Music* shape in our public API as opaque forward-declared
+ * types so tuxtype's call sites don't have to change yet. */
+typedef struct Mix_Chunk Mix_Chunk;
+typedef struct Mix_Music Mix_Music;
 
 //TTS Macros
 #define DEFAULT_VALUE 30
@@ -941,20 +947,18 @@ typedef void (*ResSwitchCallback)(int resx, int resy);
 void T4K_OnResolutionSwitch( ResSwitchCallback callback );
 
 //==============================================================================
-// 
-//  T4K_WaitForEvent
+//
+//  T4K_RegisterWindow
 //
 //! \brief
-//!     Block application until SDL receives an appropriate event.
-//!     Use sparingly.
+//!     Register the SDL_Window* the application created with SDL_CreateWindow.
+//!     Required after SDL3 because t4k_common no longer creates the screen
+//!     surface itself; T4K_GetScreen, T4K_UpdateRect, T4K_SwitchScreenMode and
+//!     T4K_ChangeWindowSize all operate on the registered window.
 //!
-//! \param
-//!     events        - A single or OR'd combination of event masks.
-//! 
-//! \return 
-//!     The event type received.
+//! \param window The SDL_Window* to use, or NULL to clear.
 //!
-SDL_EventType T4K_WaitForEvent( SDL_EventMask events );
+void T4K_RegisterWindow(SDL_Window* window);
 
 //==============================================================================
 //

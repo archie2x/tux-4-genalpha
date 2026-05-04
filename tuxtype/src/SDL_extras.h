@@ -31,10 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SDL_EXTRAS_H
 #define SDL_EXTRAS_H
 
-// Need this so the #ifdef HAVE_LIBSDL_PANGO will work:
-#include "../config.h"
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
+#include <t4k_common.h>  /* sprite, MAX_SPRITE_FRAMES, color constants, WIPE_* enum */
 
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -49,30 +47,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define amask 0xff000000
 #endif
 
-/* the colors we use throughout the game */
-static const SDL_Color black 		= {0x00, 0x00, 0x00, 0x00};
-static const SDL_Color gray 		= {0x80, 0x80, 0x80, 0x00};
-static const SDL_Color dark_blue	= {0x00, 0x00, 0x60, 0x00};
-static const SDL_Color red 		= {0xff, 0x00, 0x00, 0x00};
-static const SDL_Color white 		= {0xff, 0xff, 0xff, 0x00};
-static const SDL_Color yellow 		= {0xff, 0xff, 0x00, 0x00};
-
-
-
-/* FIXME get rid of these 'evil' macros */
+/* SDL3 port note: `black`, `gray`, `dark_blue`, `red`, `white`, `yellow`,
+ * `sprite`, `MAX_SPRITE_FRAMES`, `ERASE_MARGIN` are provided by t4k_common.h
+ * (included from funcs.h). NEXT_FRAME and REWIND are still tuxtype-local: */
 #define NEXT_FRAME(SPRITE) if ((SPRITE)->num_frames) (SPRITE)->cur = (((SPRITE)->cur)+1) % (SPRITE)->num_frames;
 #define REWIND(SPRITE) (SPRITE)->cur = 0;
-#define MAX_SPRITE_FRAMES 30
-//extra bkgd border around "erased" images.
-#define ERASE_MARGIN 5
-
-
-typedef struct {
-  SDL_Surface* frame[MAX_SPRITE_FRAMES];
-  SDL_Surface* default_img;
-  int num_frames;
-  int cur;
-} sprite;
 
 
 /* "Public" function prototypes: */

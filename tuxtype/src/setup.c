@@ -34,91 +34,70 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int fs_res_x = 0;
 int fs_res_y = 0;
 
+/* The SDL_Window we created (also handed off to t4k_common). Declared
+ * extern in globals.h so the rest of tuxtype (titlescreen.c, etc.) can
+ * pass it to SDL_SetWindowMouseGrab / SDL_WarpMouseInWindow / etc. */
+SDL_Window* tt_window = NULL;
+
 /* Local function prototypes: */
 static void seticon(void);
 static int load_settings_fp(FILE* fp);
 static int load_settings_filename(const char* fn);
 
 /***************************
-	GraphicsInit: Initializes the graphic system
+	GraphicsInit: Initializes the graphic system (SDL3 port).
 ****************************/
 void GraphicsInit(void)
 {
-  const SDL_VideoInfo* video_info = SDL_GetVideoInfo();
-  Uint32 surface_mode = 0;
+  DEBUGCODE { fprintf(stderr, "Entering GraphicsInit()\n"); }
 
-  DEBUGCODE
-  { fprintf(stderr, "Entering GraphicsInit()\n"); };
-
-  //Set application's icon:
-  seticon();
-  //Set caption:
-  SDL_WM_SetCaption("Tux Typing", "TuxType");
-
-  if (video_info->hw_available)
-  {
-    surface_mode = SDL_HWSURFACE;
-    LOG("HW mode\n");
-  }
-  else
-  {
-    surface_mode = SDL_SWSURFACE;
-    LOG("SW mode\n");
+  /* SDL3: get desktop resolution for fullscreen mode. */
+  const SDL_DisplayMode* dm = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+  if (dm) {
+    fs_res_x = dm->w;
+    fs_res_y = dm->h;
+  } else {
+    fs_res_x = RES_X;
+    fs_res_y = RES_Y;
   }
 
-  // Determine the current resolution: this will be used as the
-  // fullscreen resolution, if the user wants fullscreen.
-  DEBUGCODE
-  {
-    fprintf(stderr, "Current resolution: w %d, h %d.\n", 
-            video_info->current_w, video_info->current_h);
+  Uint32 win_flags = 0;
+  int win_w = RES_X, win_h = RES_Y;
+  if (settings.fullscreen == 1) {
+    win_flags |= SDL_WINDOW_FULLSCREEN;
+    win_w = fs_res_x;
+    win_h = fs_res_y;
   }
 
-  /* For fullscreen, we try to use current resolution from OS: */
-  
-  fs_res_x = video_info->current_w;
-  fs_res_y = video_info->current_h;
-
-  if (settings.fullscreen == 1)
-  {
-    screen = SDL_SetVideoMode(fs_res_x, fs_res_y, BPP, SDL_FULLSCREEN | surface_mode);
-    if (screen == NULL)
-    {
-      fprintf(stderr,
-            "\nWarning: I could not open the display in fullscreen mode.\n"
-            "The Simple DirectMedia error that occured was:\n"
-            "%s\n\n", SDL_GetError());
-      settings.fullscreen = 0;
-    }
-  }
-
-  /* Either fullscreen not requested, or couldn't get fullscreen in SDL: */
-  if (settings.fullscreen == 0)
-  {
-    screen = SDL_SetVideoMode(RES_X, RES_Y, BPP, surface_mode);
-  }
-
-  /* Failed to get a usable screen - must bail out! */
-  if (screen == NULL)
-  {
+  tt_window = SDL_CreateWindow("Tux Typing", win_w, win_h, win_flags);
+  if (!tt_window && settings.fullscreen) {
     fprintf(stderr,
-          "\nError: I could not open the display.\n"
-          "The Simple DirectMedia error that occured was:\n"
-          "%s\n\n", SDL_GetError());
+            "\nWarning: I could not open fullscreen mode: %s\n", SDL_GetError());
+    settings.fullscreen = 0;
+    tt_window = SDL_CreateWindow("Tux Typing", RES_X, RES_Y, 0);
+  }
+
+  if (!tt_window) {
+    fprintf(stderr,
+            "\nError: I could not open the display: %s\n", SDL_GetError());
     exit(2);
   }
 
+  /* Tell t4k_common about the window. It allocates a fixed-resolution
+   * backing surface (640x480) that all rendering targets — t4k_common
+   * scale-blits it onto the actual window surface in T4K_UpdateRect.
+   * Use T4K_GetScreen() so tuxtype draws to the same backing. */
+  T4K_RegisterWindow(tt_window);
+  screen = T4K_GetScreen();
+
+  /* seticon() commented out — SDL3 expects an SDL_Surface* via
+   * SDL_SetWindowIcon; do that in a follow-up. */
+
   InitBlitQueue();
 
-
-
-  DEBUGCODE 
-  {
-    video_info = SDL_GetVideoInfo();
-    fprintf(stderr, "-SDL VidMode successfully set to %ix%ix%i\n",
-            video_info->current_w,
-            video_info->current_h,
-            video_info->vfmt->BitsPerPixel);
+  DEBUGCODE {
+    fprintf(stderr, "-SDL VidMode successfully set to %ix%i\n",
+            screen ? screen->w : 0, screen ? screen->h : 0);
   }
 
 	LOG( "GraphicsInit():END\n" );
@@ -134,25 +113,14 @@ void LibInit(Uint32 lib_flags)
 {
   LOG( "LibInit():\n-About to init SDL Library\n" );
 
-  /* Initialize video: */
-  if (SDL_Init(SDL_INIT_VIDEO) < 0)
+  /* SDL3: SDL_Init returns bool (true=success) instead of int<0. */
+  if (!SDL_Init(SDL_INIT_VIDEO))
   {
-    fprintf(stderr, "Couldn't initialize SDL: %s\n",
-    SDL_GetError());
+    fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
     exit(2);
   }
-  /* Initialize audio if desired: */
-  if (settings.sys_sound)
-  {
-    if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
-    {
-      fprintf(stderr, "Couldn't initialize SDL Sound: %s\n",
-              SDL_GetError());
-      settings.sys_sound = 0;
-    }
-    else
-      LOG("SDL_InitSubSystem(SDL_INIT_AUDIO) succeeded\n");
-  }
+  /* Audio is stubbed in this port (task #13). */
+  settings.sys_sound = 0;
 
 // atexit(SDL_Quit); // fire and forget... 
 
@@ -161,54 +129,8 @@ void LibInit(Uint32 lib_flags)
   DEBUGCODE
   { fprintf(stderr, "settings.sys_sound = %d\n", settings.sys_sound); }
 
-  /* FIXME should read settings before we do this: */ 
-  if (settings.sys_sound) //can be turned off with "--nosound" runtime flag
-  {
-    int initted = 1;
-
-    /* For SDL_mixer 1.2.10 and later, we must call Mix_Init() before any */
-    /* other SDL_mixer functions. We can see what types of audio files    */
-    /* are supported at this time (ogg and mod are required):             */
-
-#ifdef HAVE_MIX_INIT
-    int flags = MIX_INIT_OGG | MIX_INIT_MP3 | MIX_INIT_MOD | MIX_INIT_FLAC;
-    initted = Mix_Init(flags);
-
-    /* Just give warnings if MP3 or FLAC not supported: */
-    if((initted & MIX_INIT_MP3) != MIX_INIT_MP3)
-      LOG("NOTE - MP3 playback not supported\n");
-    if((initted & MIX_INIT_FLAC) != MIX_INIT_FLAC)
-      LOG("NOTE - MP3 playback not supported\n");
-
-    /* We must have Ogg and Mod support to have sound: */
-    if((initted & (MIX_INIT_OGG | MIX_INIT_MOD)) != (MIX_INIT_OGG | MIX_INIT_MOD))
-    {
-      fprintf(stderr, "Mix_Init: Failed to init required ogg and mod support!\n");
-      fprintf(stderr, "Mix_Init: %s\n", Mix_GetError());
-      settings.sys_sound = 0;
-      initted = 0;
-    }
-    else
-      LOG("Mix_Init() succeeded\n");
-#endif
-
-    DOUT(initted);
-
-    /* If Mix_Init() succeeded (or wasn't required), set audio parameters: */
-    if(initted)
-    {
-      LOG("About to call Mix_OpenAudio():\n");
-//    if (Mix_OpenAudio(22050, AUDIO_S16, 1, 2048) == -1)
-      if(Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 1, 2048) ==
-		      -1)
-      {
-        fprintf(stderr, "Warning: Mix_OpenAudio() failed\n - Reasons: %s\n", SDL_GetError());
-        settings.sys_sound = 0;
-      }
-      else
-        LOG("Mix_OpenAudio() successful\n");
-    }
-  }
+  /* Audio init stubbed for SDL3 port (task #13). settings.sys_sound is
+   * forced to 0 above so this block never runs. */
 
   LOG( "-about to init SDL text library (SDL_ttf or SDL_Pango\n" );
 
@@ -434,7 +356,7 @@ void SaveSettings(void)
 	fprintf( settingsFile, "tts_volume=%d\n", settings.tts_volume);
 
 
-// 	if (screen->flags & SDL_FULLSCREEN){
+// 	if ((tt_window ? (SDL_GetWindowFlags(tt_window) & SDL_WINDOW_FULLSCREEN) : 0)){
 // 		fprintf( settingsFile, "fullscreen=%s\n", "1");
 // 	} else {
 // 		fprintf( settingsFile, "fullscreen=%s\n", "0");
@@ -641,18 +563,19 @@ static void seticon(void)
   }
 
   /* Set up key for transparency: */
-  colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
-  SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);              
+  colorkey = SDL_MapRGB(SDL_GetPixelFormatDetails(icon->format), NULL, 255, 0, 255);
+  SDL_SetSurfaceColorKey(icon, true, colorkey);
 
-  SDL_WM_SetIcon(icon,NULL);
+  /* SDL3: SDL_SetWindowIcon takes the window pointer. */
+  if (tt_window) SDL_SetWindowIcon(tt_window, icon);
 
-  SDL_FreeSurface(icon);
+  SDL_DestroySurface(icon);
 }
 
 
 void Cleanup(void)
 {
-  SDL_FreeSurface(screen);
+  SDL_DestroySurface(screen);
   screen = NULL;
   Cleanup_SDL_Text();
   SDL_Quit();

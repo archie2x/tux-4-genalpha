@@ -38,8 +38,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INPUT_METHODS_H
 #define INPUT_METHODS_H
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 //#include "i18n.h"
+
+/* SDL3 removed the SDL_keysym struct; the keyboard event has its fields
+ * inline now and Unicode input has moved to SDL_EVENT_TEXT_INPUT. The
+ * input-methods code below was written against the old struct. We define
+ * a minimal compat struct so the IM source compiles unchanged; callers
+ * (playgame.c) construct one from the SDL3 event. Real Unicode input via
+ * SDL_StartTextInput is a follow-up. */
+typedef struct {
+    SDL_Keycode sym;
+    SDL_Scancode scancode;
+    SDL_Keymod mod;
+    wchar_t unicode;
+} SDL_keysym;
 
 
 /* ***************************************************************************

@@ -43,8 +43,15 @@ int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
 
   iconv_t conv_descr;
   size_t bytes_converted;
-  size_t in_length = (size_t)UTF_BUF_LENGTH;
-  size_t out_length = (size_t)UTF_BUF_LENGTH;
+  /* in_length must be the actual UTF-8 byte count, not the buffer size —
+   * otherwise iconv reads past the input into uninitialized memory and
+   * produces garbage trailing wchars (FIFTEEN → FIFTEENN etc). */
+  size_t in_length = strlen(UTF8_word);
+  size_t out_length = (size_t)(UTF_BUF_LENGTH - 1) * sizeof(wchar_t);
+
+  /* Zero the temp buffer so any "leftover" bytes after the converted output
+   * are guaranteed to be a wchar null terminator. */
+  memset(temp_wchar, 0, sizeof(temp_wchar));
 
   if(max_length > UTF_BUF_LENGTH)
   {
@@ -68,6 +75,7 @@ int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
                           (char**) &wchar_start, &out_length);
   iconv_close(conv_descr);
   wcsncpy(wide_word, temp_wchar, max_length);
+  wide_word[max_length - 1] = L'\0';
 
   DEBUGCODE {fprintf(stderr, "ConvertToUTF8(): wide_word = %S\n", wide_word);}
 

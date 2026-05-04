@@ -2,7 +2,7 @@
 AC_INIT([Tux Typing],[1.8.3],[tux4kids-tuxtype-dev@lists.alioth.debian.org],[tuxtype])
 AC_CONFIG_SRCDIR([src/playgame.c])
 
-AC_PREREQ(2.61)
+AC_PREREQ([2.72])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -21,7 +21,7 @@ AC_DEFINE_UNQUOTED([PROGRAM_NAME], "$PACKAGE", [Tux Typing])
 AC_SUBST(NAME_VERSION)
 
 # To link gettext library
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 dnl NOTE - build using external intl lib:
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18])
@@ -269,7 +269,15 @@ LIBS="$LIBS $T4K_COMMON_LIBS"
 
 AC_FUNC_ALLOCA
 AC_HEADER_DIRENT
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro 'STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  C89 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS([argz.h error.h errno.h fcntl.h float.h iconv.h inttypes.h langinfo.h libintl.h limits.h locale.h malloc.h stddef.h stdint.h stdio_ext.h stdlib.h string.h strings.h sys/param.h unistd.h wchar.h])
 
 

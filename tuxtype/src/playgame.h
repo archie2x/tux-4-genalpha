@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __PLAYGAME_H__
 #define __PLAYGAME_H__
 
-#include "config.h"
+
 #include "SDL_extras.h"
 
 //definitions

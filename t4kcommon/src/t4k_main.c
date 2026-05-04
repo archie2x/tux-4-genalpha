@@ -26,10 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "t4k_common.h"
 #include "t4k_globals.h"
-
-#ifdef HAVE_LIBSDL_NET
-#include "SDL_net.h"
-#endif
+#include <stdlib.h>
 
 int debug_status;
 
@@ -42,8 +39,8 @@ int InitT4KCommon(int debug_flags)
 {
     fprintf(stderr, "Initializing " PACKAGE_STRING "\n");
 
-    /* Video: */
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    /* Video. SDL3 SDL_Init returns bool (true=success) instead of int<0. */
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
 	fprintf(stderr,
 		"\nError: I could not initialize video!\n"
@@ -52,36 +49,20 @@ int InitT4KCommon(int debug_flags)
 	return 0;
     }
 
-    /* Audio: */
-    if (SDL_Init(SDL_INIT_AUDIO) < 0)
-    {
-        fprintf(stderr,
-	    "\nWarning: I could not initialize audio!\n"
-	    "The Simple DirectMedia error that occured was:\n"
-	    "%s\n\n", SDL_GetError());
-    }
+    /* Audio is stubbed in this initial port (task #13). */
 
     /* TTS */
     if(T4K_Tts_init())
     {
         fprintf(stderr,"\nWarning: I could not initialize Tts!\n");
     }
-    
-    /* Text (either SDL_ttf or SDL_Pango): */
+
+    /* Text (SDL3_ttf): */
     if (!T4K_Setup_SDL_Text())
     {
-	fprintf( stderr, "Couldn't initialize text (SDL_ttf or SDL_Pango)\n");
+	fprintf( stderr, "Couldn't initialize text (SDL3_ttf)\n");
 	return 0;
     }
-
-#ifdef HAVE_LIBSDL_NET
-    /* Networking: */
-    if (SDLNet_Init() < 0)
-    {
-        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-	return 0;
-    }
-#endif
 
     /* Seed random-number generator: */
     srand(SDL_GetTicks());
@@ -93,28 +74,13 @@ int InitT4KCommon(int debug_flags)
 
 void CleanupT4KCommon(void)
 {
-    int frequency, channels, n_timesopened;
-    Uint16 format;
+    /* Audio is stubbed (task #13) — nothing to close here. */
 
-    // Close the audio mixer. We have to do this at least as many times
-    // as it was opened.
-    n_timesopened = Mix_QuerySpec(&frequency, &format, &channels);
-    while (n_timesopened)
-    {
-	Mix_CloseAudio();
-	n_timesopened--;
-    }
-    
     T4K_UnloadMenus();
-    // Unload SDL_Pango or SDL_ttf:
+    /* Unload SDL3_ttf: */
     T4K_Cleanup_SDL_Text();
-    
-#ifdef HAVE_LIBSDL_NET
-    /* Quit networking if appropriate: */
-    SDLNet_Quit();
-#endif
 
-    // Finally, quit SDL
+    /* Finally, quit SDL */
     SDL_Quit();
 }
 
@@ -123,10 +89,10 @@ int T4K_HandleStdEvents (const SDL_Event* event)
 {
     int ret = 0;
 
-    if (event->type != SDL_KEYDOWN)
+    if (event->type != SDL_EVENT_KEY_DOWN)
 	return 0;
 
-    SDLKey key = event->key.keysym.sym;
+    SDL_Keycode key = event->key.key;
 
     /* Toggle screen mode: */
     if (key == SDLK_F10)

@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_compiler.h"
 #include "t4k_common.h"
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef HAVE_LIBPNG
 #include <dirent.h>
@@ -587,13 +589,13 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 	    height = h;
 	}
 	final_pic = T4K_zoom(loaded_pic, width, height);
-	SDL_FreeSurface(loaded_pic);
+	SDL_DestroySurface(loaded_pic);
 	loaded_pic = final_pic;
 	final_pic = NULL;
     }
 
     final_pic = set_format(loaded_pic, mode);
-    SDL_FreeSurface(loaded_pic);
+    SDL_DestroySurface(loaded_pic);
     DEBUGMSG(debug_loaders, "Leaving load_image()\n\n");
 
     return final_pic;
@@ -621,22 +623,22 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 	case IMG_REGULAR:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_REGULAR mode.\n");
-		return SDL_DisplayFormat(img);
+		return SDL_DuplicateSurface(img);
 	    }
 
 	case IMG_ALPHA:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
-		return SDL_DisplayFormatAlpha(img);
+		return SDL_DuplicateSurface(img);
 	    }
 
 	case IMG_COLORKEY:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
 		SDL_LockSurface(img);
-		SDL_SetColorKey(img, (SDL_SRCCOLORKEY | SDL_RLEACCEL),
-			SDL_MapRGB(img->format, 255, 255, 0));
-		return SDL_DisplayFormat(img);
+		SDL_SetSurfaceColorKey(img, true,
+			SDL_MapRGB(SDL_GetPixelFormatDetails(img->format), NULL, 255, 255, 0));
+		return SDL_DuplicateSurface(img);
 	    }
 
 	default:
@@ -666,9 +668,9 @@ SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height)
     }
 
     /* turn off transparency, since it's the background */
-    SDL_SetAlpha(orig, SDL_RLEACCEL, SDL_ALPHA_OPAQUE);
-    final_pic = SDL_DisplayFormat(orig); /* optimize the format */
-    SDL_FreeSurface(orig);
+    SDL_SetSurfaceBlendMode(orig, SDL_BLENDMODE_NONE);
+    final_pic = SDL_DuplicateSurface(orig); /* optimize the format */
+    SDL_DestroySurface(orig);
 
     return final_pic;
 }
@@ -869,14 +871,14 @@ void T4K_FreeSprite(sprite* gfx)
 	DEBUGMSG(debug_loaders, ".");
 	if (gfx->frame[x])
 	{
-	    SDL_FreeSurface(gfx->frame[x]);
+	    SDL_DestroySurface(gfx->frame[x]);
 	    gfx->frame[x] = NULL;
 	}
     }
 
     if (gfx->default_img)
     {
-	SDL_FreeSurface(gfx->default_img);
+	SDL_DestroySurface(gfx->default_img);
 	gfx->default_img = NULL;
     }
 
@@ -1046,7 +1048,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
     Uint8 r, g, b, a;
     int x, y, count;
     Uint32(*getpixel) (SDL_Surface *, int, int) =
-	getpixels[surf->format->BytesPerPixel];
+	getpixels[SDL_BYTESPERPIXEL(surf->format)];
 
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -1127,7 +1129,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
 		    for (x = 0; x < surf->w; x++)
 		    {
-			SDL_GetRGBA(getpixel(surf, x, y), surf->format, &r, &g, &b, &a);
+			SDL_GetRGBA(getpixel(surf, x, y), SDL_GetPixelFormatDetails(surf->format), NULL, &r, &g, &b, &a);
 
 			png_rows[y][x * 4 + 0] = r;
 			png_rows[y][x * 4 + 1] = g;
@@ -1164,44 +1166,17 @@ void savePNG(SDL_Surface* surf, char* fn)
 #endif //HAVE_LIBPNG
 
 
-/* LoadSound : Load a sound/music patch from a file. */
-Mix_Chunk* T4K_LoadSound( char *datafile )
+/* T4K_LoadSound / T4K_LoadMusic — stubbed in this initial SDL3 port (task #13).
+ * SDL3_mixer is a complete API rewrite; until that port lands, these return
+ * NULL. T4K_PlaySound and friends in t4k_audio.c are also no-ops. */
+Mix_Chunk* T4K_LoadSound(char *datafile)
 {
-    Mix_Chunk* tempChunk = NULL;
-    char fn[T4K_PATH_MAX];
-
-    sprintf(fn, SOUNDS_DIR "/%s", datafile);
-    tempChunk = Mix_LoadWAV(fn);
-    if (!tempChunk)
-    {
-	fprintf(stderr, "T4K_LoadSound(): %s not found\n\n", fn);
-    }
-    return tempChunk;
+    (void)datafile;
+    return NULL;
 }
 
-/* LoadMusic : Load music from a datafile */
-Mix_Music* T4K_LoadMusic(char *datafile )
+Mix_Music* T4K_LoadMusic(char *datafile)
 {
-    char tempfn[T4K_PATH_MAX];
-    const char* fn = NULL;
-    Mix_Music* tempMusic = NULL;
-
-    sprintf(tempfn, SOUNDS_DIR "/%s", datafile);
-
-    fn = find_file(tempfn);
-
-    if (1 != T4K_CheckFile(fn))
-    {
-	fprintf(stderr, "T4K_LoadMusic(): Music '%s' not found\n\n", fn);
-	return NULL;
-    }
-
-    tempMusic = Mix_LoadMUS(fn);
-
-    if (!tempMusic)
-    {
-	fprintf(stderr, "T4K_LoadMusic(): %s not loaded successfully\n", fn);
-	printf("Error was: %s\n\n", Mix_GetError());
-    }
-    return tempMusic;
+    (void)datafile;
+    return NULL;
 }

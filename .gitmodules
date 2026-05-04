@@ -1,0 +1,8 @@
+[submodule "t4kcommon"]
+	path = t4kcommon
+	url = git@github.com:archie2x/t4kcommon.git
+	branch = a2x/sdl3_port
+[submodule "tuxtype"]
+	path = tuxtype
+	url = git@github.com:archie2x/tuxtype.git
+	branch = a2x/sdl3_port
