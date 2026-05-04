@@ -21,6 +21,9 @@
 static MIX_Mixer*  g_mixer       = NULL;
 static MIX_Track*  g_music_track = NULL;
 static MIX_Track*  g_sfx_tracks[SFX_TRACK_POOL] = {0};
+/* Parallel array: which Mix_Chunk is on each track, for per-sound
+ * IsPlaying / Stop lookups. SDL3_mixer can't tell us this directly. */
+static Mix_Chunk*  g_sfx_audio[SFX_TRACK_POOL] = {0};
 static int         g_next_sfx    = 0;
 static bool        g_audio_on    = true;
 static int         g_music_loops = 0;
@@ -117,8 +120,35 @@ void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops)
     if (!t4k_audio_ensure()) return;
     MIX_Track* track = t4k_pick_sfx_track();
     if (!track) return;
+    /* Record which chunk is on this track so IsPlayingSound / StopSound
+     * can find it. Index match is guaranteed: g_sfx_tracks[i] / g_sfx_audio[i]. */
+    for (int i = 0; i < SFX_TRACK_POOL; i++) {
+        if (g_sfx_tracks[i] == track) { g_sfx_audio[i] = sound; break; }
+    }
     MIX_SetTrackAudio(track, sound);
     t4k_play_with_loops(track, loops);
+}
+
+bool T4K_IsPlayingSound(Mix_Chunk* sound)
+{
+    if (!sound || !g_mixer) return false;
+    for (int i = 0; i < SFX_TRACK_POOL; i++) {
+        if (g_sfx_audio[i] == sound &&
+            g_sfx_tracks[i] && MIX_TrackPlaying(g_sfx_tracks[i]))
+            return true;
+    }
+    return false;
+}
+
+void T4K_StopSound(Mix_Chunk* sound)
+{
+    if (!sound || !g_mixer) return;
+    for (int i = 0; i < SFX_TRACK_POOL; i++) {
+        if (g_sfx_audio[i] == sound && g_sfx_tracks[i]) {
+            MIX_StopTrack(g_sfx_tracks[i], 0);
+            g_sfx_audio[i] = NULL;
+        }
+    }
 }
 
 void T4K_AudioHaltChannel(int channel)

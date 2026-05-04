@@ -1756,6 +1756,12 @@ void T4K_PlaySoundLoop( Mix_Chunk* sound,
                         int        loops
                       );
 
+/* True iff the given Mix_Chunk is currently playing on any SFX track. */
+bool T4K_IsPlayingSound( Mix_Chunk* sound );
+
+/* Stop any SFX track that is currently playing the given Mix_Chunk. */
+void T4K_StopSound( Mix_Chunk* sound );
+
 //==============================================================================
 // 
 //  T4K_AudioHaltChannel

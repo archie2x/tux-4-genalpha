@@ -535,7 +535,7 @@ int PlayCascade(int diflevel)
 
 
     if (settings.sys_sound)
-      ((void)0);
+      T4K_AudioMusicUnload();
 
     DrawBackground();
 
@@ -549,8 +549,8 @@ int PlayCascade(int diflevel)
 		if(settings.tts)
 			stop_tts_announcer();
   
-        if (settings.sys_sound) 
-          ((void)0);
+        if (settings.sys_sound)
+          PlaySound(sound[WIN_WAV]);
 
         if (curlevel < 4)  /* Advance to next level */
         {
@@ -591,7 +591,7 @@ int PlayCascade(int diflevel)
 			stop_tts_announcer();        
 
         if (settings.sys_sound)
-          ((void)0);
+          PlaySound(sound[LOSE_WAV]);
 
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("yep you miss it. hahh hahh haa. game over! goodbye!"));
 			
@@ -1060,7 +1060,7 @@ static void FreeGame(void)
     for (i = 0; i < NUM_WAVES; ++i)
     {
       if (sound[i])
-        ((void)0);
+        MIX_DestroyAudio(sound[i]);
       sound[i] = NULL;
     }
   }
@@ -1332,8 +1332,8 @@ static void AddSplat(int* splats, struct fishypoo* f, int* curlives, int* frame)
   if (*curlives <= 0)
     *curlives = 0;
 
-  if (settings.sys_sound) 
-    ((void)0);
+  if (settings.sys_sound)
+    PlaySound(sound[SPLAT_WAV]);
 
   LOG("Enterint AddSplat()\n");
 }
@@ -1560,13 +1560,13 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
 				tux_object.dx = 0;
 				tux_object.endx = tux_object.x;
 
-				if (settings.sys_sound) ((void)0);
+				if (settings.sys_sound) PlaySound(sound[BITE_WAV]);
 
 			} else if (tux_object.state == TUX_STANDING) {
 				LOG( "***EXCUSE ME!** - in CheckCollision()\n" );
 
-				if (settings.sys_sound && !0)
-					((void)0);
+				if (settings.sys_sound)
+					PlaySound(sound[EXCUSEME_WAV]);
 			}
 		}
 	}
@@ -1621,17 +1621,16 @@ static void MoveTux( int frame, int fishies )
 					tux_object.dx = WALKING_SPEED;
 					tux_object.state = TUX_WALKING;
 
-					//stop running sound (if playing)                                               
-					if (settings.sys_sound && 0)
-						((void)0);
+					if (settings.sys_sound && T4K_IsPlayingSound(sound[RUN_WAV]))
+						T4K_StopSound(sound[RUN_WAV]);
 				} else {
-					if (time_to_splat > frame) 
+					if (time_to_splat > frame)
 						tux_object.dx = float_restrict( MIN_RUNNING_SPEED, abs(tux_object.endx - tux_object.x) / (time_to_splat-frame), MAX_RUNNING_SPEED );
 					else {
 						tux_object.dx = MAX_RUNNING_SPEED;
-						if (settings.sys_sound && !0)
+						if (settings.sys_sound && !T4K_IsPlayingSound(sound[RUN_WAV]))
 							if (abs(tux_object.endx - tux_object.x) > 50)
-								((void)0);
+								PlaySound(sound[RUN_WAV]);
 					}
 
 					tux_object.state = TUX_RUNNING;
