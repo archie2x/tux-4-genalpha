@@ -22,10 +22,8 @@ option(BUILD_TESTING "Build t4k_test smoke-test program" ON)
 # ---------------------------------------------------------------------------
 find_package(SDL3 REQUIRED CONFIG)
 find_package(SDL3_image REQUIRED CONFIG)
+find_package(SDL3_mixer REQUIRED CONFIG)
 find_package(SDL3_ttf REQUIRED CONFIG)
-# NOTE: SDL3_mixer is intentionally NOT used in this initial port.
-# Audio is stubbed in src/t4k_audio.c. See task #13 for the real port —
-# SDL3_mixer is a complete API rewrite (MIX_Mixer/MIX_Audio/MIX_Track).
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBXML2 REQUIRED IMPORTED_TARGET libxml-2.0)
@@ -94,6 +92,7 @@ target_compile_definitions(t4k_common PRIVATE
     COMMON_DATA_PREFIX="${T4K_DATA_PREFIX}"
     USE_T4K_PREFIX=1
     HAVE_LIBSDL_IMAGE=1
+    HAVE_LIBSDL_MIXER=1
     HAVE_LIBSDL_TTF=1
     HAVE_LIBPNG=1
     HAVE_LIBXML2=1
@@ -112,12 +111,13 @@ target_compile_definitions(t4k_common PRIVATE
     GNULIB_UNISTR_U8_UCTOMB=1
 )
 
-# SDL3, SDL3_image are exposed by t4k_common.h → PUBLIC
+# SDL3, SDL3_image, SDL3_mixer are exposed by t4k_common.h → PUBLIC
 # SDL3_ttf, libxml2, libpng, intl, iconv are implementation only → PRIVATE
 target_link_libraries(t4k_common
     PUBLIC
         SDL3::SDL3
         SDL3_image::SDL3_image
+        SDL3_mixer::SDL3_mixer
     PRIVATE
         SDL3_ttf::SDL3_ttf
         PkgConfig::LIBXML2

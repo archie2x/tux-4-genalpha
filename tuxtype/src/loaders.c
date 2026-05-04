@@ -520,16 +520,30 @@ void FreeSprite(sprite* gfx )
 
 /***************************
 	LoadSound : Load a sound/music patch from a file.
+	Tries the theme path first, then falls back to default.
 ****************************/
-/* SDL3 port: stubbed — SDL3_mixer is a complete API rewrite (task #13). */
 Mix_Chunk* LoadSound(const char* datafile)
 {
-  (void)datafile;
-  return NULL;
+  Mix_Chunk* tmp = NULL;
+  char fn[FNLEN];
+  if (!settings.use_english) {
+    sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
+    tmp = T4K_LoadSound(fn);
+    if (tmp) return tmp;
+  }
+  sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
+  return T4K_LoadSound(fn);
 }
 
 Mix_Music* LoadMusic(const char* datafile)
 {
-  (void)datafile;
-  return NULL;
+  Mix_Music* tmp = NULL;
+  char fn[FNLEN];
+  if (!settings.use_english) {
+    sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
+    tmp = T4K_LoadMusic(fn);
+    if (tmp) return tmp;
+  }
+  sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
+  return T4K_LoadMusic(fn);
 }

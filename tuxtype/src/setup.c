@@ -157,8 +157,8 @@ void LibInit(Uint32 lib_flags)
     fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
     exit(2);
   }
-  /* Audio is stubbed in this port (task #13). */
-  settings.sys_sound = 0;
+  /* Audio: SDL3_mixer init lazily on first use via t4k_common's T4K_PlaySound
+   * etc. The settings.sys_sound flag remains as the per-user enable. */
 
 // atexit(SDL_Quit); // fire and forget... 
 

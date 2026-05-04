@@ -61,13 +61,13 @@
 #include <wchar.h>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
-/* Audio is stubbed in this initial SDL3 port — SDL3_mixer is a full rewrite
- * (MIX_Mixer/MIX_Audio/MIX_Track), to be tackled as a follow-up. We keep the
- * Mix_Chunk* / Mix_Music* shape in our public API as opaque forward-declared
- * types so tuxtype's call sites don't have to change yet. */
-typedef struct Mix_Chunk Mix_Chunk;
-typedef struct Mix_Music Mix_Music;
+/* SDL3_mixer unified MIX_Audio for what was Mix_Chunk (sfx) and Mix_Music
+ * (music). Tuxtype/tuxmath still use the historical type names everywhere
+ * — alias them so call sites don't have to change. */
+typedef MIX_Audio Mix_Chunk;
+typedef MIX_Audio Mix_Music;
 
 //TTS Macros
 #define DEFAULT_VALUE 30

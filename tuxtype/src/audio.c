@@ -51,32 +51,39 @@ void playsound(int snd)
 }
 
 
-/* SDL3 port note: SDL3_mixer is a complete API rewrite (MIX_Mixer/MIX_Audio/
- * MIX_Track) and we haven't done that port yet (task #13). All audio is
- * stubbed; these functions are now no-ops. The public API shape is preserved
- * so callers don't need to change. */
+/* Thin delegation to t4k_common's SDL3_mixer-backed audio. */
 
 void PlaySoundLoop(Mix_Chunk* snd, int loops)
 {
-  (void)snd; (void)loops;
+  if (!settings.sys_sound) return;
+  T4K_PlaySoundLoop(snd, loops);
 }
 
 void audioHaltChannel(int channel)
 {
-  (void)channel;
+  T4K_AudioHaltChannel(channel);
 }
 
 void MusicLoad(const char* musicFilename, int loops)
 {
-  (void)musicFilename; (void)loops;
+  if (!settings.sys_sound || !musicFilename) return;
+  Mix_Music* m = LoadMusic(musicFilename);
+  if (m) {
+    MusicUnload();
+    defaultMusic = m;
+    T4K_AudioMusicPlay(m, loops);
+  }
 }
 
 void MusicUnload(void)
 {
+  T4K_AudioMusicUnload();
   defaultMusic = NULL;
 }
 
 void MusicPlay(Mix_Music* musicData, int loops)
 {
-  (void)musicData; (void)loops;
+  if (!settings.sys_sound || !musicData) return;
+  MusicUnload();
+  T4K_AudioMusicPlay(musicData, loops);
 }

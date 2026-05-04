@@ -1180,17 +1180,43 @@ void savePNG(SDL_Surface* surf, char* fn)
 #endif //HAVE_LIBPNG
 
 
-/* T4K_LoadSound / T4K_LoadMusic — stubbed in this initial SDL3 port (task #13).
- * SDL3_mixer is a complete API rewrite; until that port lands, these return
- * NULL. T4K_PlaySound and friends in t4k_audio.c are also no-ops. */
-Mix_Chunk* T4K_LoadSound(char *datafile)
+/* T4K_LoadSound / T4K_LoadMusic: in SDL3_mixer there's no distinction —
+ * MIX_Audio handles both short SFX and longer music. We resolve the file
+ * via find_file (data prefix list, then COMMON_DATA_PREFIX) and load it
+ * through the mixer maintained by t4k_audio.c. */
+extern MIX_Mixer* t4k_audio_get_mixer(void);  /* forward decl */
+
+static MIX_Audio* t4k_load_audio(char* datafile, bool predecode)
 {
-    (void)datafile;
-    return NULL;
+    if (!datafile) return NULL;
+    char rel[T4K_PATH_MAX];
+    /* Try as-is, then under sounds/<name> for SFX-style basenames. */
+    const char* path = T4K_CheckFile(datafile) ? datafile : NULL;
+    if (!path) {
+        snprintf(rel, T4K_PATH_MAX, "sounds/%s", datafile);
+        path = find_file(rel);
+        if (!path || !path[0]) path = find_file(datafile);
+    }
+    if (!path || !path[0]) {
+        fprintf(stderr, "T4K_LoadAudio: '%s' not found\n", datafile);
+        return NULL;
+    }
+    MIX_Mixer* mixer = t4k_audio_get_mixer();
+    if (!mixer) return NULL;
+    MIX_Audio* a = MIX_LoadAudio(mixer, path, predecode);
+    if (!a) fprintf(stderr, "T4K_LoadAudio: MIX_LoadAudio('%s') failed: %s\n",
+                    path, SDL_GetError());
+    return a;
 }
 
-Mix_Music* T4K_LoadMusic(char *datafile)
+Mix_Chunk* T4K_LoadSound(char* datafile)
 {
-    (void)datafile;
-    return NULL;
+    /* SFX: predecode for low-latency playback. */
+    return t4k_load_audio(datafile, true);
+}
+
+Mix_Music* T4K_LoadMusic(char* datafile)
+{
+    /* Music: stream from disk to keep memory low. */
+    return t4k_load_audio(datafile, false);
 }

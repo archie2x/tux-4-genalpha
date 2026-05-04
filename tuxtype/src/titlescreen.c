@@ -1276,15 +1276,17 @@ int load_sound_data(void)
 {
     int i = 0;
 
+    /* Pass basenames; T4K_LoadSound resolves them via t4k_common's
+     * registered data-prefix list (set in main.c via T4K_AddDataPrefix). */
     static char* sound_filenames[NUM_SOUNDS] = {
-        DATA_PREFIX "/sounds/harp.wav",        
-        DATA_PREFIX "/sounds/pop.wav",
-        DATA_PREFIX "/sounds/laser.wav",
-        DATA_PREFIX "/sounds/buzz.wav",
-        DATA_PREFIX "/sounds/alarm.wav",
-        DATA_PREFIX "/sounds/shieldsdown.wav",        
-        DATA_PREFIX "/sounds/explosion.wav",
-        DATA_PREFIX "/sounds/tock.wav"
+        "harp.wav",
+        "pop.wav",
+        "laser.wav",
+        "buzz.wav",
+        "alarm.wav",
+        "shieldsdown.wav",
+        "explosion.wav",
+        "tock.wav"
     };
 
 
@@ -1293,16 +1295,15 @@ int load_sound_data(void)
     {
         for (i = 0; i < NUM_SOUNDS; i++)
         {
-            sounds[i] = NULL; /* Mix_LoadWAV stubbed for SDL3 port (task #13) */
+            sounds[i] = T4K_LoadSound(sound_filenames[i]);
 
             if (sounds[i] == NULL)
             {
-                fprintf(stderr,
-                        "\nError: I couldn't load a sound file:\n"
-                        "%s\n"
-                        "The Simple DirectMedia error that occured was:\n"
-                        "%s\n\n", sound_filenames[i], SDL_GetError());
-                return 0;
+                /* Not fatal — keep going with whatever sounds did load.
+                 * Audio is best-effort; the gameplay just goes silent for
+                 * that effect. */
+                fprintf(stderr, "Could not load sound file '%s': %s\n",
+                        sound_filenames[i], SDL_GetError());
             }
         }
     }
