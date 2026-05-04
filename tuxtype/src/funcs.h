@@ -134,6 +134,7 @@ void Cleanup(void);
 const char* tt_data_prefix(void);
 const char* tt_var_prefix(void);
 const char* tt_conf_prefix(void);
+const char* tt_locale_dir(void);
 
 /* In theme.c: */
 void ChooseTheme(void);

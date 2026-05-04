@@ -41,6 +41,7 @@ int fs_res_y = 0;
 static char rt_data_prefix[FNLEN];
 static char rt_var_prefix[FNLEN];
 static char rt_conf_prefix[FNLEN];
+static char rt_locale_dir[FNLEN];
 
 static void init_runtime_paths(void)
 {
@@ -59,6 +60,8 @@ static void init_runtime_paths(void)
         strncpy(rt_var_prefix, p ? p : VAR_PREFIX, FNLEN - 1);
         p = T4K_RelocatablePath("../etc/tuxtype");
         strncpy(rt_conf_prefix, p ? p : CONF_PREFIX, FNLEN - 1);
+        p = T4K_RelocatablePath("../share/locale");
+        strncpy(rt_locale_dir, p ? p : LOCALEDIR, FNLEN - 1);
         return;
     }
 
@@ -66,11 +69,13 @@ static void init_runtime_paths(void)
     strncpy(rt_data_prefix, DATA_PREFIX, FNLEN - 1);
     strncpy(rt_var_prefix,  VAR_PREFIX,  FNLEN - 1);
     strncpy(rt_conf_prefix, CONF_PREFIX, FNLEN - 1);
+    strncpy(rt_locale_dir, LOCALEDIR, FNLEN - 1);
 }
 
 const char* tt_data_prefix(void) { init_runtime_paths(); return rt_data_prefix; }
 const char* tt_var_prefix(void)  { init_runtime_paths(); return rt_var_prefix; }
 const char* tt_conf_prefix(void) { init_runtime_paths(); return rt_conf_prefix; }
+const char* tt_locale_dir(void)  { init_runtime_paths(); return rt_locale_dir; }
 
 /* The SDL_Window we created (also handed off to t4k_common). Declared
  * extern in globals.h so the rest of tuxtype (titlescreen.c, etc.) can

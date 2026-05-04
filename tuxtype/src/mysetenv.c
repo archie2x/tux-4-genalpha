@@ -44,28 +44,10 @@ int my_setenv (const char * name, const char * value)
    }
 #endif
 
-#ifdef HAVE_PUTENV
-  {
-   char* buffer = (char*)malloc(namelen+1+valuelen+1);
-   if (!buffer)
-     return -1; /* no need to set errno = ENOMEM */
-   memcpy(buffer,name,namelen);
-   if (value != NULL) {
-     buffer[namelen] = '=';
-     memcpy(buffer+namelen+1,value,valuelen);
-     buffer[namelen+1+valuelen] = 0;
-   } else
-     buffer[namelen] = 0;
-   return putenv(buffer);
-  }
-
-#else
-#ifdef HAVE_SETENV
-   return setenv(name,value,1);
-#else
-   /* Uh oh, neither putenv() nor setenv() ... */
-   fprintf(stderr, "my_setenv() - neither HAVE_PUTENV nor HAVE_SETENV defined\n");
-   return -1;
-#endif
-#endif
+  /* The HAVE_PUTENV / HAVE_SETENV autoconf macros aren't defined under our
+   * CMake build. setenv(3) is POSIX and present on every supported target,
+   * so call it directly. (mysetenv.c was originally a Windows shim from the
+   * gettext FAQ; on Windows we additionally update the OS-side env above.) */
+  (void)namelen; (void)valuelen;
+  return setenv(name, value, 1);
 }

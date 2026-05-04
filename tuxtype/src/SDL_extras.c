@@ -95,14 +95,32 @@ SDL_Surface* BlackOutline(const char* t, int font_size, const SDL_Color* c)
 
 SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c, int length)
 {
-    /* Convert wide-char to UTF-8 and forward — t4k_common's BlackOutline_w
-     * exists too but has been historically guarded; safer to convert here. */
+    /* Convert wide-char to UTF-8 then forward to T4K_BlackOutline (which
+     * expects UTF-8). A naive byte-cast truncates 'ü' (U+00FC) to 0xFC and
+     * SDL_ttf rejects it as invalid UTF-8 — that's why umlauts/accents
+     * rendered blank. Inline encoder avoids locale dependence of wcstombs. */
     char utf8[4096];
-    int max = (length > 0 && length < (int)sizeof(utf8)/4) ? length : (int)wcslen(t);
-    /* Naive ASCII conversion for first launch; non-Latin handled later. */
-    int i;
-    for (i = 0; i < max && i < (int)sizeof(utf8)-1; i++) utf8[i] = (char)t[i];
-    utf8[i] = '\0';
+    int max = (length > 0) ? length : (int)wcslen(t);
+    int o = 0;
+    for (int i = 0; i < max && o + 4 < (int)sizeof(utf8); i++) {
+        wchar_t cp = t[i];
+        if (cp < 0x80) {
+            utf8[o++] = (char)cp;
+        } else if (cp < 0x800) {
+            utf8[o++] = (char)(0xC0 | (cp >> 6));
+            utf8[o++] = (char)(0x80 | (cp & 0x3F));
+        } else if (cp < 0x10000) {
+            utf8[o++] = (char)(0xE0 | (cp >> 12));
+            utf8[o++] = (char)(0x80 | ((cp >> 6) & 0x3F));
+            utf8[o++] = (char)(0x80 | (cp & 0x3F));
+        } else {
+            utf8[o++] = (char)(0xF0 | (cp >> 18));
+            utf8[o++] = (char)(0x80 | ((cp >> 12) & 0x3F));
+            utf8[o++] = (char)(0x80 | ((cp >> 6) & 0x3F));
+            utf8[o++] = (char)(0x80 | (cp & 0x3F));
+        }
+    }
+    utf8[o] = '\0';
     return T4K_BlackOutline(utf8, font_size, c);
 }
 

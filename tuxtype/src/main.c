@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.h"
 #include "funcs.h"
+#include "mysetenv.h"
 #include "SDL_extras.h"
 
 SDL_Surface* screen;
@@ -169,17 +170,30 @@ int main(int argc, char *argv[])
   {
     char *s1, *s2, *s3, *s4;
 
+    /* GNU gettext caches the message catalog the first time it is consulted.
+     * Setting LANG / LANGUAGE later doesn't dislodge the cache, so propagate
+     * the chosen theme's locale into the environment *before* the first
+     * setlocale/bindtextdomain — otherwise the user always sees English
+     * even after picking another language. */
+    if (settings.theme_locale_name[0]) {
+        char short_lang[6];
+        snprintf(short_lang, sizeof(short_lang), "%s", settings.theme_locale_name);
+        short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
+        my_setenv("LANG",     settings.theme_locale_name);
+        my_setenv("LANGUAGE", short_lang);
+    }
+
     s1 = setlocale(LC_ALL, "");
-    s2 = bindtextdomain(PACKAGE, TUXLOCALE);
+    s2 = bindtextdomain(PACKAGE, tt_locale_dir());
     s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
     s4 = textdomain(PACKAGE);
 
     DEBUGCODE
     {
       fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-      fprintf(stderr, "TUXLOCALE = %s\n", TUXLOCALE);
+      fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
       fprintf(stderr, "setlocale(LC_ALL, \"\") returned: %s\n", s1);
-      fprintf(stderr, "bindtextdomain(PACKAGE, TUXLOCALE) returned: %s\n", s2);
+      fprintf(stderr, "bindtextdomain returned: %s\n", s2);
       fprintf(stderr, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n", s3);
       fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
       fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));

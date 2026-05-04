@@ -177,6 +177,11 @@ int Phrases(wchar_t* pphrase )
     return 0;
   }
 
+  /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+   * reaches us as SDL_EVENT_TEXT_INPUT. SDL3 never delivers composed glyphs
+   * via SDL_EVENT_KEY_DOWN — that only carries raw keycodes. */
+  SDL_StartTextInput(tt_window);
+
   /* If we got a phrase string arg, use it, otherwise we */
   /* load practice phrases from  the default file:       */
   if (pphrase != NULL
@@ -614,10 +619,30 @@ int Phrases(wchar_t* pphrase )
 		}
 		else
 		{
-			check_key = 1;
+			/* Typed characters now arrive via SDL_EVENT_TEXT_INPUT (handled
+			 * below) — that's the only way to see composed glyphs like ü.
+			 * KEY_DOWN remains responsible only for control keys whose
+			 * handlers in the switch above already set state=0/1, which
+			 * short-circuits the comparison block. */
+			check_key = 0;
 		}
-      } 
+      }
       /* End of "if(event.type == SDL_EVENT_KEY_DOWN)" block  --*/
+
+      else if (event.type == SDL_EVENT_TEXT_INPUT)
+      {
+		  /* event.text.text is a UTF-8 string; one composed glyph at a
+		   * time in practice, but be defensive — only consume the first. */
+		  wchar_t typed = 0;
+		  mbstate_t mbs = {0};
+		  if (mbrtowc(&typed, event.text.text, strlen(event.text.text), &mbs) > 0)
+		  {
+			  tmp = typed;
+			  key = GetIndex(tmp);
+			  shift_pressed = 0; /* TEXT_INPUT is already correctly cased. */
+			  check_key = 1;
+		  }
+      }
       else if (event.type == SDL_EVENT_KEY_UP)
 		{
 			/* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
@@ -693,7 +718,9 @@ int Phrases(wchar_t* pphrase )
 		}
 		/* End of "if(event.type == SDL_EVENT_KEY_UP)" block  --*/
 		
-		if((check_key && event.type == SDL_EVENT_KEY_DOWN)  || (check_key && event.type == SDL_EVENT_KEY_UP && settings.braille))
+		if(check_key && (event.type == SDL_EVENT_KEY_DOWN
+		                || event.type == SDL_EVENT_TEXT_INPUT
+		                || (event.type == SDL_EVENT_KEY_UP && settings.braille)))
 		{
         /* If state has changed as direct result of keypress (e.g. F10), leave */
         /* poll event loop so we don't treat it as a simple 'wrong' key: */
@@ -1018,6 +1045,8 @@ int Phrases(wchar_t* pphrase )
     SDL_Delay(30); /* FIXME should keep frame rate constant */
 
   }while (!quit);  /* ------- End of main event loop ------------- */
+
+  SDL_StopTextInput(tt_window);
 
   savekeyboard();
 

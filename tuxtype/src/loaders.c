@@ -85,16 +85,16 @@ void LoadLang(void)
   char buf [30];
   char tts_language[10];
   s1 = setlocale(LC_ALL, settings.theme_locale_name);
-  s2 = bindtextdomain(PACKAGE, TUXLOCALE);
+  s2 = bindtextdomain(PACKAGE, tt_locale_dir());
   s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
   s4 = textdomain(PACKAGE);
 
   DEBUGCODE
   {
     fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-    fprintf(stderr, "TUXLOCALE = %s\n", TUXLOCALE);
+    fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
     fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n", settings.theme_locale_name, s1);
-    fprintf(stderr, "bindtextdomain(PACKAGE, TUXLOCALE) returned: %s\n", s2);
+    fprintf(stderr, "bindtextdomain returned: %s\n", s2);
     fprintf(stderr, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n", s3);
     fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
     fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));

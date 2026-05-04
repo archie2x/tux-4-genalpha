@@ -109,6 +109,11 @@ int playing_level,fish_left,curlives;
 *************************************************************************/
 int PlayCascade(int diflevel)
 {
+  /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+   * reaches us as SDL_EVENT_TEXT_INPUT. SDL3 only delivers composed glyphs
+   * via TEXT_INPUT — KEY_DOWN carries raw keycodes only. */
+  SDL_StartTextInput(tt_window);
+
   char filename[FNLEN];
   int still_playing = 1;
   playing_level = 1;
@@ -174,6 +179,7 @@ int PlayCascade(int diflevel)
   {
     fprintf(stderr, "PlayCascade() - LoadTuxAnims() failed - returning to menu!\n\n\n");
     FreeGame();
+    SDL_StopTextInput(tt_window);
     return 0;
   }
   
@@ -191,6 +197,7 @@ int PlayCascade(int diflevel)
     fprintf(stderr, "PlayCascade() - did not find all needed characters in theme's "
                     "keyboard.lst file - returning to menu!\n\n\n");
     FreeGame();
+    SDL_StopTextInput(tt_window);
     return 0;
   }
 
@@ -399,37 +406,32 @@ int PlayCascade(int diflevel)
               /* Some other key - player is actually typing!!!!!!!! */
               /*----------------------------------------------------*/
 
-				/* Store each keys till a key released */
+				/* Braille mode still works off raw KEY_DOWN. For everything
+				 * else, typed glyphs come via SDL_EVENT_TEXT_INPUT below —
+				 * SDL3 only delivers composed chars (e.g. ü) that way. */
 				if(settings.braille)
 				{
 				   pressed_letters[braille_iter] = event.key.key;
                    braille_iter++;
-                   pressed_letters[braille_iter] = L'\0';   
-				}
-				else
-				{
-					/* See what Unicode value was typed: */
-					key_unicode = event.key.key;
-
-					DEBUGCODE
-					{fprintf(stderr, "\nkey_unicode = %d\twchar_t = %lc\t\n", key_unicode, key_unicode);}
-
-					/* For now, the cascade game is case-insensitive for input, */
-					/* with only uppercase for answers:                         */
-					if (key_unicode >= 97 && key_unicode <= 122)
-					key_unicode -= 32;  //convert lowercase to uppercase
-					if (key_unicode >= 224 && key_unicode <= 255)
-					key_unicode -= 32; //same for non-US Western European chars
-					if ((key_unicode >= 256) && (key_unicode <= 382))  // Fix for other letters, such as the hungarian letter O with double acute
-						key_unicode -= 1;
-					LOG ("After checking for lower case:\n");
-					DEBUGCODE
-					{fprintf(stderr, "key_unicode = %d\twchar_t = %lc\\n\n", key_unicode, key_unicode);}
-
-					/* Now update with case-folded value: */
-					UpdateTux(key_unicode, fishies, frame);
+                   pressed_letters[braille_iter] = L'\0';
 				}
             }
+          }
+          else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille)
+          {
+				wchar_t typed = 0;
+				mbstate_t mbs = {0};
+				if (mbrtowc(&typed, event.text.text, strlen(event.text.text), &mbs) > 0)
+				{
+					key_unicode = typed;
+					if (key_unicode >= 97 && key_unicode <= 122)
+						key_unicode -= 32;  //convert lowercase to uppercase
+					if (key_unicode >= 224 && key_unicode <= 255)
+						key_unicode -= 32; //same for non-US Western European chars
+					if ((key_unicode >= 256) && (key_unicode <= 382))
+						key_unicode -= 1;
+					UpdateTux(key_unicode, fishies, frame);
+				}
           }
           else if (event.type == SDL_EVENT_KEY_UP)
 			{
@@ -670,6 +672,8 @@ int PlayCascade(int diflevel)
   LOG( "->Done with level... cleaning up\n" );
 
   FreeGame();
+
+  SDL_StopTextInput(tt_window);
 
   LOG( "->PlayCascade(): END\n" );
 

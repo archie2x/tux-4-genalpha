@@ -117,6 +117,10 @@ int PlayLaserGame(int diff_level)
 	LOG( "starting Comet Zap game\n" );
 	DOUT( diff_level );
 
+	/* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+	 * reaches us as SDL_EVENT_TEXT_INPUT — KEY_DOWN can't see composed glyphs. */
+	SDL_StartTextInput(tt_window);
+
 	SDL_HideCursor();
 	laser_load_data();
 
@@ -233,44 +237,34 @@ int PlayLaserGame(int diff_level)
 				if(key == SDLK_F3)
 					tts_announcer_switch = 4;
 
-				/* --- eat other keys until level wait has passed --- */ 
-				if (level_start_wait > 0) 
+				/* --- eat other keys until level wait has passed --- */
+				if (level_start_wait > 0)
 					key = SDLK_UNKNOWN;
-				
-				key_unicode = event.key.key;
-				//key_unicode = event.key.key & 0xff;
 
-				DEBUGCODE
-				{
-				  fprintf(stderr, "key_unicode = %d\n", key_unicode);
-				}
-
-				/* For now, tuxtype is case-insensitive for input, */
-                                /* with only uppercase for answers:                */
-                                if (key_unicode >= 97 && key_unicode <= 122)
-                                  key_unicode -= 32;  //convert lowercase to uppercase
-                                if (key_unicode >= 224 && key_unicode <= 255)
-                                  key_unicode -= 32; //same for non-US chars
-                                if ((key_unicode >= 256) && (key_unicode <= 382))  // Fix for other letters, such as the hungarian letter O with double acute
-                                    key_unicode -= 1;
-
-				LOG ("After checking for lower case:\n");
-				DEBUGCODE
-				{
-				  fprintf(stderr,
-                                   "key_unicode = %d\n", key_unicode);
-				}
-				
-				/* Store each keys till a key released */
+				/* Braille mode tracks raw KEY_DOWN. Everything else routes
+				 * typed characters through SDL_EVENT_TEXT_INPUT below — that
+				 * is the only path that sees composed glyphs (ü/ö/é). */
 				if(settings.braille)
 				{
 				   pressed_letters[braille_iter] = event.key.key;
                    braille_iter++;
-                   pressed_letters[braille_iter] = L'\0';   
+                   pressed_letters[braille_iter] = L'\0';
 				}
-				else
+			}
+			else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille
+			         && level_start_wait <= 0)
+			{
+				wchar_t typed = 0;
+				mbstate_t mbs = {0};
+				if (mbrtowc(&typed, event.text.text, strlen(event.text.text), &mbs) > 0)
 				{
-					/* Now update with case-folded value: */
+					key_unicode = typed;
+					if (key_unicode >= 97 && key_unicode <= 122)
+						key_unicode -= 32;
+					if (key_unicode >= 224 && key_unicode <= 255)
+						key_unicode -= 32;
+					if ((key_unicode >= 256) && (key_unicode <= 382))
+						key_unicode -= 1;
 					ans[ans_num++] = key_unicode;
 				}
 			}
@@ -796,6 +790,8 @@ int PlayLaserGame(int diff_level)
 
   /* Restore the mouse cursor — we hid it at the start of the game. */
   SDL_ShowCursor();
+
+  SDL_StopTextInput(tt_window);
 
   return 1;
 }
