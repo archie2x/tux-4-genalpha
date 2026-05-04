@@ -41,3 +41,19 @@ buildw32/
 
 # Ignore backup files:
 *~
+
+# CMake out-of-tree artifacts (super-project conventions):
+_build/
+_stage/
+compile_commands.json
+
+# macOS Finder metadata:
+.DS_Store
+._*
+
+# Emacs cruft:
+\#*\#
+.\#*
+*.elc
+auto-save-list/
+flycheck_*.el

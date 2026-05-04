@@ -1,0 +1,35 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/_build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "${presetName}",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        },
+        {
+            "name": "Debug",
+            "displayName": "Debug",
+            "inherits": "base"
+        },
+        {
+            "name": "Release",
+            "displayName": "Release (-O3, no asserts)",
+            "inherits": "base"
+        },
+        {
+            "name": "RelWithDebInfo",
+            "displayName": "Release with debug info",
+            "inherits": "base"
+        }
+    ],
+    "buildPresets": [
+        { "name": "Debug",          "configurePreset": "Debug" },
+        { "name": "Release",        "configurePreset": "Release" },
+        { "name": "RelWithDebInfo", "configurePreset": "RelWithDebInfo" }
+    ]
+}

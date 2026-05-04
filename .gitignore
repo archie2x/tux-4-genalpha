@@ -1,4 +1,14 @@
-/build/
+/_build/
+/_stage/
 /compile_commands.json
-/stage
+
+# macOS Finder metadata:
 .DS_Store
+._*
+
+# Emacs cruft:
+\#*\#
+.\#*
+*.elc
+auto-save-list/
+flycheck_*.el
