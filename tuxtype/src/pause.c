@@ -114,9 +114,15 @@ int Pause(int in_game)
 					    	tocks = 0;
 					break;
 				case SDL_EVENT_KEY_DOWN:
-					if (event.key.key == SDLK_SPACE) 
+					/* SPACE or ESC always returns to caller (game or
+					 * options menu). 'Q' quits to menu, but only when
+					 * we're paused from a game — from options it's a
+					 * no-op so the user can't accidentally drop their
+					 * place in the menu. */
+					if (event.key.key == SDLK_SPACE
+					 || event.key.key == SDLK_ESCAPE)
 						paused = 0;
-					if (event.key.key == SDLK_ESCAPE) {
+					if (event.key.key == SDLK_Q && in_game) {
 						paused = 0;
 						quit = 1;
 					}
@@ -315,41 +321,33 @@ static void pause_draw(void)
     }
   }
 
-  t = BlackOutline(gettext("Paused!"), pause_font_size2, &white);
+  if (g_pause_in_game)
+  {
+    t = BlackOutline(gettext("Paused!"), pause_font_size2, &white);
+    if (t)
+    {
+      s.y = screen->h/2 - 180; //60;
+      s.x = screen->w/2 - t->w/2;
+      SDL_BlitSurface(t, NULL, screen, &s);
+      SDL_DestroySurface(t);
+    }
+  }
+
+  t = BlackOutline(gettext("'SPACE' or 'ESC' to return."), pause_font_size1, &white);
   if (t)
   {
-	s.y = screen->h/2 - 180; //60;
-	s.x = screen->w/2 - t->w/2;
-	SDL_BlitSurface(t, NULL, screen, &s);
-	SDL_DestroySurface(t);
+    s.y = screen->h/2 + (g_pause_in_game ? 160 : 180);
+    s.x = screen->w/2 - t->w/2;
+    SDL_BlitSurface(t, NULL, screen, &s);
+    SDL_DestroySurface(t);
   }
 
   if (g_pause_in_game)
   {
-    t = BlackOutline(gettext("Press escape again to return to menu"), pause_font_size1, &white);
-    if (t)
-    {
-      s.y = screen->h/2 + 160;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
-    }
-
-    t = BlackOutline(gettext("Press space bar to return to game"), pause_font_size1, &white);
+    t = BlackOutline(gettext("'Q' to quit."), pause_font_size1, &white);
     if (t)
     {
       s.y = screen->h/2 + 200;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
-    }
-  }
-  else
-  {
-    t = BlackOutline(gettext("Press space or escape to return to menu"), pause_font_size1, &white);
-    if (t)
-    {
-      s.y = screen->h/2 + 180;
       s.x = screen->w/2 - t->w/2;
       SDL_BlitSurface(t, NULL, screen, &s);
       SDL_DestroySurface(t);
