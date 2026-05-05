@@ -117,7 +117,7 @@ msgid "Space Cadet"
 msgstr "Espazioko mutil-txikia"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Editatu hitz zerrendak"
 
 # types of games
@@ -161,7 +161,7 @@ msgid "Commander"
 msgstr "Komandantea"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Konfiguratu hizkuntza"
 
 #: src/titlescreen.c:103

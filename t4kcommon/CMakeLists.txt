@@ -91,6 +91,11 @@ target_include_directories(t4k_common
 target_compile_definitions(t4k_common PRIVATE
     COMMON_DATA_PREFIX="${T4K_DATA_PREFIX}"
     USE_T4K_PREFIX=1
+    # Without ENABLE_NLS, gettext.h falls into its "disabled NLS" branch
+    # where the _() macro is the identity function, so menu titles
+    # rendered inside t4k_common never get translated even though the
+    # consumer (tuxtype) bound the textdomain. Use real libintl here too.
+    ENABLE_NLS=1
     HAVE_LIBSDL_IMAGE=1
     HAVE_LIBSDL_MIXER=1
     HAVE_LIBSDL_TTF=1

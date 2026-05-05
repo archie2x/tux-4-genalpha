@@ -117,7 +117,7 @@ msgid "Space Cadet"
 msgstr "Kidato cha kwanza"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Hariri ordodha za neno"
 
 # types of games
@@ -161,7 +161,7 @@ msgid "Commander"
 msgstr "Kidato cha nne"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Chagua lugha"
 
 #: src/titlescreen.c:103

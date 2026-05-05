@@ -278,6 +278,9 @@ void T4K_Tts_set_volume(int volume);
 void T4K_Tts_set_rate(int rate);
 void T4K_Tts_set_pitch(int pitch);
 void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
+void T4K_Tts_wait(void);
+void T4K_Tts_cancel(void);
+void T4K_Tts_stop(void);
 
 
 

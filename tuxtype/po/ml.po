@@ -115,7 +115,7 @@ msgid "Space Cadet"
 msgstr "ആകാശ പറവകള്‍ "
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "വാക്കുകളുടെ ശേഖരം"
 
 #: src/titlescreen.c:100
@@ -155,7 +155,7 @@ msgid "Commander"
 msgstr "കമാന്‍ഡര്‍"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "ഭാഷ മാറ്റുക"
 
 #: src/titlescreen.c:103

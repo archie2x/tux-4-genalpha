@@ -300,6 +300,8 @@ void ChooseTheme(void)
       for (i = start; i<MIN(start+8,themes); i++)
       {
         titleRects[i%8].x = 160 - (titles[i]->w/2);
+        titleRects[i%8].w = titles[i]->w;
+        titleRects[i%8].h = titles[i]->h;
 
         if (i == loc){
           SDL_BlitSurface(select[loc], NULL, screen, &titleRects[i%8]);

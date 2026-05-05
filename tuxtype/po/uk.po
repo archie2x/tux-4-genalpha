@@ -109,7 +109,7 @@ msgid "Space Cadet"
 msgstr "Курсант"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Редагувати списки слів"
 
 #: src/titlescreen.c:100
@@ -149,7 +149,7 @@ msgid "Commander"
 msgstr "Командир"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Установка мови"
 
 #: src/titlescreen.c:103

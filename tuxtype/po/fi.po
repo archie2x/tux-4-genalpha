@@ -113,7 +113,7 @@ msgid "Space Cadet"
 msgstr "Avaruuskadetti"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Muokkaa Sanalistoja"
 
 #: src/titlescreen.c:100
@@ -153,7 +153,7 @@ msgid "Commander"
 msgstr "Päällikkö"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Aseta Kieli"
 
 #: src/titlescreen.c:103

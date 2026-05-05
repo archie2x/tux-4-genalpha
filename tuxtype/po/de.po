@@ -117,7 +117,7 @@ msgid "Space Cadet"
 msgstr "Weltraum-Kadett"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Wortlisten bearbeiten"
 
 # types of games
@@ -161,7 +161,7 @@ msgid "Commander"
 msgstr "Kommandant"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Sprache einstellen"
 
 #: src/titlescreen.c:103

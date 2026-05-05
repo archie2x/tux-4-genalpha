@@ -113,7 +113,7 @@ msgid "Space Cadet"
 msgstr "קאדט-חלל"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "ערוך רשימת מילים"
 
 #: src/titlescreen.c:100
@@ -153,7 +153,7 @@ msgid "Commander"
 msgstr "מפקד"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "הגדרות שפה"
 
 #: src/titlescreen.c:103

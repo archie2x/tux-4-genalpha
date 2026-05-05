@@ -113,7 +113,7 @@ msgid "Space Cadet"
 msgstr "Uzay Tertibi"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Kelime Listelerini Düzenle"
 
 #: src/titlescreen.c:100
@@ -153,7 +153,7 @@ msgid "Commander"
 msgstr "Kumandan"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Ayar Dili"
 
 #: src/titlescreen.c:103

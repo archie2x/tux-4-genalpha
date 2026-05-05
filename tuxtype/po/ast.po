@@ -115,7 +115,7 @@ msgid "Space Cadet"
 msgstr "Cadete Espacial"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Editar les Llistes de Pallabres"
 
 #: src/titlescreen.c:100
@@ -155,7 +155,7 @@ msgid "Commander"
 msgstr "Comandante"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Llingua"
 
 #: src/titlescreen.c:103

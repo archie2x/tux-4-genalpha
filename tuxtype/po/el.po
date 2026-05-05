@@ -114,7 +114,7 @@ msgid "Space Cadet"
 msgstr "Αστροναύτης"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Επεξεργασία καταλόγων με λέξεις"
 
 #: src/titlescreen.c:100
@@ -154,7 +154,7 @@ msgid "Commander"
 msgstr "Διοικητής"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Ρυθμίσεις Γλώσσας"
 
 #: src/titlescreen.c:103

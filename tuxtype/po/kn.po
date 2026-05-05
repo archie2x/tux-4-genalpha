@@ -114,7 +114,7 @@ msgid "Space Cadet"
 msgstr "ಸ್ಪೇಸ್ ಕ್ಯಾಡೆಟ್"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "ಪದಗಳ ಪಟ್ಟಿಯನ್ನು ಸಂಪಾದಿಸು"
 
 #: src/titlescreen.c:100
@@ -154,7 +154,7 @@ msgid "Commander"
 msgstr "ಕಮಾಂಡರ್"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "ಸೆಟ್‌ಅಪ್ ಭಾಷೆ"
 
 #: src/titlescreen.c:103

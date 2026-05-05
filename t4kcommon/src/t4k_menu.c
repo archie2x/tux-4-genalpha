@@ -898,7 +898,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 					_(menu->submenu[loc + menu->first_entry]->title));
 				else
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
-					_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+					_(menu->submenu[loc + menu->first_entry]->title),((menu->submenu[loc + menu->first_entry]->desc && menu->submenu[loc + menu->first_entry]->desc[0]) ? ({ const char* _d = menu->submenu[loc + menu->first_entry]->desc; (_d && _d[0]) ? _(_d) : ""; }) : ""));
 
 			}
 
@@ -916,7 +916,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
 			// Set and render new description text
 			{
-			    char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
+			    char *desc = ((menu->submenu[loc + menu->first_entry]->desc && menu->submenu[loc + menu->first_entry]->desc[0]) ? ({ const char* _d = menu->submenu[loc + menu->first_entry]->desc; (_d && _d[0]) ? _(_d) : ""; }) : "");
 			    char out[256];
 			    int char_width;
 			    // Clear old rendered text:
@@ -1047,7 +1047,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			/* Set and render new description text when menu is scrolled - Nalin */
 			if(action == PAGEUP || action == PAGEDOWN)
 			{
-				char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
+				char *desc = ((menu->submenu[loc + menu->first_entry]->desc && menu->submenu[loc + menu->first_entry]->desc[0]) ? ({ const char* _d = menu->submenu[loc + menu->first_entry]->desc; (_d && _d[0]) ? _(_d) : ""; }) : "");
 				char out[256];
 				int char_width;
 				// Clear old rendered text:
@@ -1070,7 +1070,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 		    		_(menu->submenu[loc + menu->first_entry]->title));
 			    else
 				    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
-    				_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+    				_(menu->submenu[loc + menu->first_entry]->title),((menu->submenu[loc + menu->first_entry]->desc && menu->submenu[loc + menu->first_entry]->desc[0]) ? ({ const char* _d = menu->submenu[loc + menu->first_entry]->desc; (_d && _d[0]) ? _(_d) : ""; }) : ""));
             }
 			/* whole menu will be redrawn so there is no need to draw anything now */
 			break;

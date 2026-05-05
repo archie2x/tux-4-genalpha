@@ -115,7 +115,7 @@ msgid "Space Cadet"
 msgstr "వింహగ పక్షులు"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "పదముల జాబితాను సరిచేయి"
 
 #: src/titlescreen.c:100
@@ -155,7 +155,7 @@ msgid "Commander"
 msgstr "ఆదేశకుడు"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "భాషను అమర్చు"
 
 #: src/titlescreen.c:103

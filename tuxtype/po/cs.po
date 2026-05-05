@@ -134,7 +134,7 @@ msgstr "Nováček"
 
 #
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Uprav seznamy slov"
 
 #
@@ -183,7 +183,7 @@ msgstr "Kapitán"
 
 #
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Vyber jazyk"
 
 #

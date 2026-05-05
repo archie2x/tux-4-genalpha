@@ -112,7 +112,7 @@ msgid "Space Cadet"
 msgstr "अंतरिक्ष कैडेट"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "शब्द सूचियाँ संपादित करें"
 
 #: src/titlescreen.c:100
@@ -152,7 +152,7 @@ msgid "Commander"
 msgstr "कमांडर"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "भाषा का सेटअप "
 
 #: src/titlescreen.c:103

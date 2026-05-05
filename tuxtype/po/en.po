@@ -93,7 +93,7 @@ msgid "Space Cadet"
 msgstr ""
 
 #: src/titlescreen.c:74
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr ""
 
 #: src/titlescreen.c:75
@@ -129,7 +129,7 @@ msgid "Commander"
 msgstr ""
 
 #: src/titlescreen.c:77
-msgid "Setup Language"
+msgid "Language"
 msgstr ""
 
 #: src/titlescreen.c:78

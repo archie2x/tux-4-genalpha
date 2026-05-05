@@ -114,7 +114,7 @@ msgid "Space Cadet"
 msgstr "우주 비행 훈련생"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "단어 목록 편집하기"
 
 #: src/titlescreen.c:100
@@ -154,7 +154,7 @@ msgid "Commander"
 msgstr "사령관"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "언어 설정"
 
 #: src/titlescreen.c:103

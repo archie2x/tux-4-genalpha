@@ -34,7 +34,7 @@ msgstr "Li che o li gap xha dizh ah"
 msgid "Music Volume"
 msgstr "Xha dizh ah"
 
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Gui cho dizh xho lent niy"
 
 msgid "Fish"
@@ -101,7 +101,7 @@ msgstr "Bru"
 msgid "Setup Keyboard"
 msgstr "Gui xha mub tak mkel dizh"
 
-msgid "Setup Language"
+msgid "Language"
 msgstr "Xe dizh"
 
 #work Cosas que estan abajo de construccion.

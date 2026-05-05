@@ -40,9 +40,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DOUT(x) if (settings.debug_on) fprintf(stderr, "%s = %d\n", #x, x);
 
 /* TTS functions tuxtype calls but t4k_common.h doesn't declare publicly. */
-void T4K_Tts_wait(void);
-void T4K_Tts_cancel(void);
-void T4K_Tts_stop(void);
 
 #include "SDL_extras.h"
 

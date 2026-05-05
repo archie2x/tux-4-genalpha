@@ -114,7 +114,7 @@ msgid "Space Cadet"
 msgstr "Космический кадет"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "Редактирование списка слов"
 
 #: src/titlescreen.c:100
@@ -154,7 +154,7 @@ msgid "Commander"
 msgstr "Капитан"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "Выбор языка"
 
 #: src/titlescreen.c:103

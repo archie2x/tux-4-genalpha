@@ -115,7 +115,7 @@ msgid "Space Cadet"
 msgstr "ମହାକାଶ ଛାତ୍ରସୈନିକ"
 
 #: src/titlescreen.c:99
-msgid "Edit Word Lists"
+msgid "Word Lists"
 msgstr "ଶବ୍ଦ ତାଲିକାଗୁଡ଼ିକୁ ସମ୍ପାଦନ କରନ୍ତୁ"
 
 #: src/titlescreen.c:100
@@ -155,7 +155,7 @@ msgid "Commander"
 msgstr "ସେନାପତି"
 
 #: src/titlescreen.c:102
-msgid "Setup Language"
+msgid "Language"
 msgstr "ଭାଷା ବିନ୍ୟାସ କରନ୍ତୁ"
 
 #: src/titlescreen.c:103
