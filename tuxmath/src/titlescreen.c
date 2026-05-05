@@ -175,7 +175,7 @@ void TitleScreen(void)
         SDL_DestroySurface(logo);
     }
 
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
     /* Play "harp" greeting sound lifted from Tux Paint */
     playsound(SND_HARP);
@@ -210,8 +210,8 @@ void TitleScreen(void)
     {
         /* Check to see if user pressed escape */
         if (SDL_PollEvent(&event)
-                && event.type==SDL_KEYDOWN
-                && event.key.keysym.sym == SDLK_ESCAPE)
+                && event.type==SDL_EVENT_KEY_DOWN
+                && event.key.key == SDLK_ESCAPE)
         {
             return;
         }
@@ -220,10 +220,10 @@ void TitleScreen(void)
 
     /* NOTE: do we need this ? */
     if (true)
-        SDL_WM_GrabInput(SDL_GRAB_OFF); /* in case of a freeze, this traps the cursor */
+        SDL_WM_GrabInput(false); /* in case of a freeze, this traps the cursor */
     else  // NOTE- the accompanying "if" is inside the DEBUGCODE macro
-        SDL_WM_GrabInput(SDL_GRAB_ON);  /* User input goes to TuxMath, not window manager */
-    SDL_ShowCursor(1);
+        SDL_WM_GrabInput(true);  /* User input goes to TuxMath, not window manager */
+    SDL_ShowCursor();
 
 
     /* Tux and Title animations */
@@ -259,7 +259,7 @@ void TitleScreen(void)
         {
             /* Draw the entire background, over a black screen if necessary */
             if(current_bkg()->w != screen->w || current_bkg()->h != screen->h)
-                SDL_FillSurfaceRect(screen, &screen->clip_rect, 0);
+                SDL_FillSurfaceRect(screen, &(SDL_Rect){0,0,(screen)->w,(screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */, 0);
 
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect);
 
@@ -273,9 +273,9 @@ void TitleScreen(void)
             SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_anim);
             SDL_BlitSurface(title, NULL, screen, &title_anim);
 
-            SDL_UpdateRect(screen, tux_anim.x, tux_anim.y, tux_anim.w,
+            /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, tux_anim.x, tux_anim.y, tux_anim.w,
                     min(tux_anim.h + tux_pix_skip, screen->h - tux_anim.y));
-            SDL_UpdateRect(screen, title_anim.x, title_anim.y,
+            /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, title_anim.x, title_anim.y,
                     min(title_anim.w + title_pix_skip, screen->w - title_anim.x), title_anim.h);
 
             T4K_Throttle(1000/ANIM_FPS, &timer);
@@ -309,7 +309,7 @@ void DrawTitleScreen(void)
     SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect);
     SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_rect);
     SDL_BlitSurface(title, NULL, screen, &title_rect);
-    //SDL_UpdateRect(screen, 0, 0, 0, 0);
+    ///* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 }
 
 /* Render and position all titlescreen items to match current
@@ -364,8 +364,8 @@ int RenderTitleScreen(void)
         title = T4K_LoadImageOfBoundingBox(title_path, IMG_ALPHA, title_rect.w, title_rect.h);
         if(title)
         {
-            title_rect.w = title->clip_rect.w;
-            title_rect.h = title->clip_rect.h;
+            title_rect.w = (SDL_Rect){0,0,(title)->w,(title)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */.w;
+            title_rect.h = (SDL_Rect){0,0,(title)->w,(title)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */.h;
         }
         else
         {
@@ -399,8 +399,8 @@ int RenderTitleScreen(void)
    return 1 if events require full redraw */
 int HandleTitleScreenEvents(const SDL_Event* evt)
 {
-    if (evt->type == SDL_KEYDOWN)
-        if (evt->key.keysym.sym == SDLK_F10)
+    if (evt->type == SDL_EVENT_KEY_DOWN)
+        if (evt->key.key == SDLK_F10)
             HandleTitleScreenResSwitch(T4K_GetScreen()->w, T4K_GetScreen()->h);
 
     return handle_easter_egg(evt);
@@ -632,7 +632,7 @@ void ShowMessageWrap( int font_size, const char* str )
             }
         }
 
-        SDL_UpdateRect( screen, 0, 0, 0, 0 );
+        /* SDL_UpdateRect dropped — caller updates window */ (void)( screen, 0, 0, 0, 0 );
 
         while(!finished)
         {
@@ -640,11 +640,11 @@ void ShowMessageWrap( int font_size, const char* str )
             {
                 switch(event.type)
                 {
-                    case SDL_QUIT:
+                    case SDL_EVENT_QUIT:
                         {
                             cleanup();
                         }
-                    case SDL_MOUSEBUTTONDOWN:
+                    case SDL_EVENT_MOUSE_BUTTON_DOWN:
                         {
                             /* close button pressed */
                             if(T4K_inRect(stop_rect, event.button.x, event.button.y ))
@@ -678,9 +678,9 @@ void ShowMessageWrap( int font_size, const char* str )
                                 inprogress = 0;  
                             }
                         }
-                    case SDL_KEYDOWN:
+                    case SDL_EVENT_KEY_DOWN:
                         {
-                            switch( event.key.keysym.sym )
+                            switch( event.key.key )
                             { 
                                 case SDLK_LEFT:
                                     {
@@ -696,7 +696,7 @@ void ShowMessageWrap( int font_size, const char* str )
                                         finished = 1;
                                         break;
                                     }
-                                case SDLK_q:
+                                case SDLK_Q:
                                     {
                                         finished = 1;
                                         inprogress = 0;
@@ -783,7 +783,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     }
 
     /* and update: */
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
     while (!finished)
     {
@@ -791,12 +791,12 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
         {
             switch (event.type)
             {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                     {
                         cleanup();
                     }
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     /* "Stop" button - go to main menu: */
                     {
                         if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
@@ -806,7 +806,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
                             break;
                         }
                     }
-                case SDL_KEYDOWN:
+                case SDL_EVENT_KEY_DOWN:
                     {
                         finished = 1;
                         playsound(SND_TOCK);
@@ -1095,11 +1095,11 @@ int handle_easter_egg(const SDL_Event* evt)
 
         if (eggtimer < SDL_GetTicks() ) //time's up
         {
-            SDL_ShowCursor(SDL_ENABLE);
+            SDL_ShowCursor();
             //SDL_FillSurfaceRect(screen, &cursor, 0);
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
-            SDL_WarpMouse(cursor.x, cursor.y);
-            SDL_UpdateRect(screen, cursor.x, cursor.y, cursor.w, cursor.h); //egg->x, egg->y, egg->w, egg->h);
+            SDL_WarpMouseInWindow(t4k_window, cursor.x, cursor.y);
+            /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, cursor.x, cursor.y, cursor.w, cursor.h); //egg->x, egg->y, egg->w, egg->h);
             egg_active = 0;
         }
         return 1;
@@ -1107,23 +1107,23 @@ int handle_easter_egg(const SDL_Event* evt)
     else //if not, see if the user clicked Tux's beak
     {
         eggtimer = 0;
-        if (evt->type == SDL_MOUSEBUTTONDOWN &&
+        if (evt->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
                 T4K_inRect(beak, evt->button.x, evt->button.y) )
         {
-            SDL_ShowCursor(SDL_DISABLE);
+            SDL_HideCursor();
 
             //animate
             while (tuxframe != 0)
             {
                 SDL_BlitSurface(current_bkg(), &tux_rect, screen, &tux_rect);
                 SDL_BlitSurface(Tux->frame[--tuxframe], NULL, screen, &tux_rect);
-                SDL_UpdateRect(screen, tux_rect.x, tux_rect.y, tux_rect.w, tux_rect.h);
+                /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, tux_rect.x, tux_rect.y, tux_rect.w, tux_rect.h);
                 SDL_Delay(GOBBLE_ANIM_MS / Tux->num_frames);
             }
 
             eggtimer = SDL_GetTicks() + EASTER_EGG_MS;
             egg_active = 1;
-            SDL_WarpMouse(tux_rect.x + tux_rect.w / 2, tux_rect.y + tux_rect.h - egg->h);
+            SDL_WarpMouseInWindow(t4k_window, tux_rect.x + tux_rect.w / 2, tux_rect.y + tux_rect.h - egg->h);
 
         }
 

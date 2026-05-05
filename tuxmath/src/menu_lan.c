@@ -98,7 +98,7 @@ int ConnectToServer(void)
     /* Draw Tux (use "reset" flavor so Tux gets drawn immediately): */
     HandleTitleScreenAnimations_Reset(true);
     /* and update: */
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
     while (!finished)
     {
@@ -163,12 +163,12 @@ int ConnectToServer(void)
         {
             switch (event.type)
             {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                     {
                         cleanup();
                     }
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     /* "Stop" button - go to main menu: */
                     { 
                         if (T4K_inRect(stopRect, event.button.x, event.button.y ))
@@ -184,7 +184,7 @@ int ConnectToServer(void)
         /* Draw Tux: */
         HandleTitleScreenAnimations();
         /* and update: */
-        SDL_UpdateRect(screen, 0, 0, 0, 0);
+        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
         /* Wait so we keep frame rate constant: */
         T4K_Throttle(20, &timer);
     }  // End of while (!finished) loop
@@ -304,19 +304,19 @@ int Pregame(void)
         //Draw status of other players:
         draw_player_table();
 
-        SDL_UpdateRect(screen, 0, 0, 0, 0);
+        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
         //Check SDL events:
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                     {
                         cleanup();
                     }
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     /* "Stop" button - go to main menu: */
                     {
                         if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
@@ -335,9 +335,9 @@ int Pregame(void)
                         }
 
                     }
-                case SDL_KEYDOWN:
+                case SDL_EVENT_KEY_DOWN:
                     {
-                        switch (event.key.keysym.sym)
+                        switch (event.key.key)
                         {
                             case SDLK_ESCAPE:
                                 {

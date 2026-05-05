@@ -15,3 +15,15 @@ SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom, int sm
     if (!src) return NULL;
     return SDL_DuplicateSurface(src);
 }
+
+/* LAN/network play stubs. The original tuxmath used SDL_net for LAN
+ * multiplayer; SDL_net doesn't have an SDL3 release yet, and the
+ * networking code isn't ifdef-gated everywhere. Stub everything to
+ * return zeros so single-player still works. */
+const char* LAN_PlayerName(int i)        { (void)i; return ""; }
+int         LAN_PlayerScore(int i)       { (void)i; return 0; }
+int         LAN_PlayerMine(int i)        { (void)i; return 0; }
+int         LAN_PlayerConnected(int i)   { (void)i; return 0; }
+int         LAN_MyIndex(void)            { return 0; }
+int         LAN_RequestIndex(void)       { return 0; }
+

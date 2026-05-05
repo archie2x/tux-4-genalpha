@@ -1,5 +1,6 @@
 #include "comets_graphics.h"
 
+#include "draw_utils.h"
 #include "fileops.h"
 #include "frame_counter.h"
 #include "globals.h"
@@ -20,7 +21,7 @@ void comets_draw_background(SDL_Surface *bkgd, int wave)
     {
         DEBUGMSG(debug_game,"Wave %d\n", wave);
         old_wave = wave;
-        bgcolor = SDL_MapRGB(screen->format,
+        bgcolor = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL,
                 64,
                 64 + ((wave * 32) % 192),
                 128 - ((wave * 16) % 128) );

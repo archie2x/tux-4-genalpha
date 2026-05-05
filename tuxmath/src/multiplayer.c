@@ -254,10 +254,10 @@ void showWinners(int* winners, int num)
         //reveal text specifying the winner
         SDL_FillSurfaceRect(screen, &box, 0);
         draw_text(text, center);
-        SDL_UpdateRect(screen, box.x, box.y, box.w, box.h);
+        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, box.x, box.y, box.w, box.h);
 
         while (SDL_PollEvent(&evt) )
-            if (evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_ESCAPE)
+            if (evt.type == SDL_EVENT_KEY_DOWN && evt.key.key == SDLK_ESCAPE)
                 skip = 1;
         if (skip)
             break;

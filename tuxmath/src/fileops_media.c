@@ -268,7 +268,7 @@ int load_sound_data(void)
     {
         for (i = 0; i < NUM_SOUNDS; i++)
         {
-            sounds[i] = Mix_LoadWAV(sound_filenames[i]);
+            sounds[i] = T4K_LoadSound((char*)sound_filenames[i]);
 
             if (sounds[i] == NULL)
             {

@@ -464,21 +464,21 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
         /* Handle any incoming events: */
         while (SDL_PollEvent(&event) > 0)
         {
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_EVENT_QUIT)
             {
                 /* Window close event - quit! */
                 quit = 1;
                 done = 1;
             }
-            else if (event.type == SDL_KEYDOWN)
+            else if (event.type == SDL_EVENT_KEY_DOWN)
             {
-                if (event.key.keysym.sym == SDLK_ESCAPE)
+                if (event.key.key == SDLK_ESCAPE)
                 {
                     /* Escape key - quit! */
                     done = 1;
                 }
             }
-            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
             {
                 done = 1;
             }

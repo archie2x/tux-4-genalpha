@@ -1055,7 +1055,7 @@ void comets_write_message(const game_message *msg)
                 rect.x = msg->x;              // left justified
             rect.y = msg->y;
             //FIXME alpha blending doesn't seem to work properly
-            SDL_SetAlpha(surf, SDL_SRCALPHA, msg->alpha);
+            /* SDL_SetAlpha dropped */ (void)(surf, 0, msg->alpha);
             SDL_BlitSurface(surf, NULL, screen, &rect);
             SDL_DestroySurface(surf);
         }
@@ -1082,17 +1082,17 @@ void comets_handle_user_events(void)
 
         T4K_HandleStdEvents(&event);
 
-        if (event.type == SDL_QUIT)
+        if (event.type == SDL_EVENT_QUIT)
         {
             user_quit_received = GAME_OVER_WINDOW_CLOSE;
         }
-        else if (event.type == SDL_KEYDOWN)
+        else if (event.type == SDL_EVENT_KEY_DOWN)
         {
-            key = event.key.keysym.sym;
-            mod = event.key.keysym.mod;
+            key = event.key.key;
+            mod = event.key.mod;
             comets_key_event(key, mod);
         }
-        else if (event.type == SDL_MOUSEBUTTONDOWN)
+        else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
         {
             comets_mouse_event(event);
         }
@@ -2227,9 +2227,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_QUIT
-                            || event.type == SDL_KEYDOWN
-                            || event.type == SDL_MOUSEBUTTONDOWN)
+                    if  (event.type == SDL_EVENT_QUIT
+                            || event.type == SDL_EVENT_KEY_DOWN
+                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2326,9 +2326,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_QUIT
-                            || event.type == SDL_KEYDOWN
-                            || event.type == SDL_MOUSEBUTTONDOWN)
+                    if  (event.type == SDL_EVENT_QUIT
+                            || event.type == SDL_EVENT_KEY_DOWN
+                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2466,9 +2466,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_QUIT
-                            || event.type == SDL_KEYDOWN
-                            || event.type == SDL_MOUSEBUTTONDOWN)
+                    if  (event.type == SDL_EVENT_QUIT
+                            || event.type == SDL_EVENT_KEY_DOWN
+                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2808,7 +2808,7 @@ void comets_mouse_event(SDL_Event event)
 {
     int keypad_w, keypad_h, x, y, row, column;
     SDL_Keycode key = SDLK_UNKNOWN;
-    SDL_Keymod mod = event.key.keysym.mod;
+    SDL_Keymod mod = event.key.mod;
     keypad_w = 0;
     keypad_h = 0;
 
@@ -3009,7 +3009,7 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
         }
     }
     else if (key == SDLK_TAB
-            || key == SDLK_p)
+            || key == SDLK_P)
     {
         /* [TAB] or [P]: Pause! (if settings allow) */
         if (Opts_AllowPause())
@@ -3057,16 +3057,16 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
         //    digits[2] = key - SDLK_0;
         tux_pressing = 1;
     }
-    else if (key >= SDLK_KP0 && key <= SDLK_KP9)
+    else if (key >= SDLK_KP_0 && key <= SDLK_KP_9)
     {
         /* Keypad [0]-[9]: Add a new digit: */
         for (i = 0; i < MC_MAX_DIGITS-1; ++i)
             digits[i] = digits[i+1];
-        digits[MC_MAX_DIGITS-1] = key - SDLK_KP0;
+        digits[MC_MAX_DIGITS-1] = key - SDLK_KP_0;
 
         //    digits[0] = digits[1];
         //    digits[1] = digits[2];
-        //    digits[2] = key - SDLK_KP0;
+        //    digits[2] = key - SDLK_KP_0;
         tux_pressing = 1;
     }
     /* support for negative answer input DSB */
@@ -3080,7 +3080,7 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
     else if (     /* Effort to make logical operators clear: */
             (
              ( /* HACK this hard-codes the plus sign to the US layout: */
-               (key == SDLK_EQUALS) && (mod & KMOD_SHIFT)
+               (key == SDLK_EQUALS) && (mod & SDL_KMOD_SHIFT)
              ) 
              ||
              (
@@ -3141,24 +3141,24 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
 
     else if(key == SDLK_PAGEUP)
     {
-		volume = Mix_Volume(-1,-1);
-		Mix_Volume(-1,volume + 10);
+		volume = /* Mix_Volume dropped */ (void)(-1,-1);
+		/* Mix_Volume dropped */ (void)(-1,volume + 10);
 	}	
 
     else if(key == SDLK_PAGEDOWN)
     {
-		volume = Mix_Volume(-1,-1);
-		Mix_Volume(-1,volume - 10);	}	
+		volume = /* Mix_Volume dropped */ (void)(-1,-1);
+		/* Mix_Volume dropped */ (void)(-1,volume - 10);	}	
 
     else if(key == SDLK_HOME)
     {
-		volume = Mix_VolumeMusic(-1);
-		Mix_VolumeMusic(volume + 10);	}	
+		volume = /* Mix_VolumeMusic dropped */ (void)(-1);
+		/* Mix_VolumeMusic dropped */ (void)(volume + 10);	}	
 
     else if(key == SDLK_END)
     {
-		volume = Mix_VolumeMusic(-1);
-		Mix_VolumeMusic(volume - 10);
+		volume = /* Mix_VolumeMusic dropped */ (void)(-1);
+		/* Mix_VolumeMusic dropped */ (void)(volume - 10);
 	}	
 
 	

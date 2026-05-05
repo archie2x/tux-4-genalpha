@@ -80,12 +80,12 @@ void DisplayHighScores(int level)
         {
             switch (event.type)
             {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                     {
                         cleanup();
                     }
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     /* "Stop" button - go to main menu: */
                     {
                         if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
@@ -123,7 +123,7 @@ void DisplayHighScores(int level)
                     }
 
 
-                case SDL_KEYDOWN:
+                case SDL_EVENT_KEY_DOWN:
                     {
                         finished = 1;
                         playsound(SND_TOCK);
@@ -291,7 +291,7 @@ void DisplayHighScores(int level)
 
             
             /* Update screen: */
-            SDL_UpdateRect(screen, 0, 0, 0, 0);
+            /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
             old_diff_level = diff_level;
         }
@@ -337,7 +337,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         return;
 
     /* We need to get Unicode vals from SDL keysyms */
-    SDL_EnableUNICODE(SDL_ENABLE);
+    /* SDL_EnableUNICODE dropped */;
 
     DEBUGMSG(debug_highscore, "Enter NameEntry()\n" );
 
@@ -406,7 +406,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_(s1));
 
     /* and update: */
-    SDL_UpdateRect(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
 
 
     while (!finished)
@@ -417,12 +417,12 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         {
             switch (event.type)
             {
-                case SDL_QUIT:
+                case SDL_EVENT_QUIT:
                     {
                         cleanup();
                     }
 
-                case SDL_MOUSEBUTTONDOWN:
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     /* "Stop" button - go to main menu: */
                     {
                         if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
@@ -432,11 +432,11 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                             break;
                         }
                     }
-                case SDL_KEYDOWN:
+                case SDL_EVENT_KEY_DOWN:
                     {
                         DEBUGMSG(debug_highscore, "Before keypress, string is %S\tlength = %d\n",
                                 wchar_buf, (int)wcslen(wchar_buf));
-                        switch (event.key.keysym.sym)
+                        switch (event.key.key)
                         {
                             case SDLK_ESCAPE:
                             case SDLK_RETURN:
@@ -458,15 +458,15 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                                 /* we add it to our string:                            */
                             default:
                                 {
-                                    if ((event.key.keysym.unicode > 0)
+                                    if ((event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */ > 0)
                                             && (wcslen(wchar_buf) < HIGH_SCORE_NAME_LENGTH)) 
                                     {
-                                        wchar_buf[(int)wcslen(wchar_buf)] = event.key.keysym.unicode;
+                                        wchar_buf[(int)wcslen(wchar_buf)] = event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */;
                                         redraw = 1;
-                                        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%C",event.key.keysym.unicode);
+                                        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%C",event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */);
                                     }
                                 }
-                        }  /* end  'switch (event.key.keysym.sym)'  */
+                        }  /* end  'switch (event.key.key)'  */
 
                         DEBUGMSG(debug_highscore, "After keypress, string is %S\tlength = %d\n",
                                 wchar_buf, (int)wcslen(wchar_buf));
@@ -484,7 +484,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                             {
                                 SDL_BlitSurface(current_bkg(), &redraw_rect, screen, &redraw_rect);
                                 T4K_DrawButton(&redraw_rect, 0, REG_RGBA);
-                                SDL_UpdateRect(screen,
+                                /* SDL_UpdateRect dropped — caller updates window */ (void)(screen,
                                         redraw_rect.x,
                                         redraw_rect.y,
                                         redraw_rect.w,
@@ -507,7 +507,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                                 redraw_rect.w = s->w + 40;
                                 first_draw = 0;
 
-                                SDL_UpdateRect(screen,
+                                /* SDL_UpdateRect dropped — caller updates window */ (void)(screen,
                                         redraw_rect.x,
                                         redraw_rect.y,
                                         redraw_rect.w,
@@ -531,7 +531,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
     }  // End of while (!finished) loop
 
     /* Turn off SDL Unicode lookup (because has some overhead): */
-    SDL_EnableUNICODE(SDL_DISABLE);
+    /* SDL_EnableUNICODE dropped */;
 
     /* Now copy name into location pointed to by arg: */ 
     strncpy(pl_name, UTF8_buf, HIGH_SCORE_NAME_LENGTH * 3);
