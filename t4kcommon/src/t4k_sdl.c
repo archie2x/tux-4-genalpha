@@ -620,6 +620,10 @@ void T4K_DarkenScreen(Uint8 bits)
     Uint32 rm = SDL_GetPixelFormatDetails(screen->format)->Rmask;
     Uint32 gm = SDL_GetPixelFormatDetails(screen->format)->Gmask;
     Uint32 bm = SDL_GetPixelFormatDetails(screen->format)->Bmask;
+    /* Preserve alpha. Without this, on ARGB surfaces the cleared alpha
+     * channel makes the darkened backing transparent at present time and
+     * the dim is invisible. */
+    Uint32 am = SDL_GetPixelFormatDetails(screen->format)->Amask;
 
 
     int x, y;
@@ -636,7 +640,8 @@ void T4K_DarkenScreen(Uint8 bits)
 	{
 	    *p = (((*p&rm)>>bits)&rm)
 		| (((*p&gm)>>bits)&gm)
-		| (((*p&bm)>>bits)&bm);
+		| (((*p&bm)>>bits)&bm)
+		| ((*p)&am);
 	    p++;
 	}
     }

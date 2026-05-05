@@ -77,8 +77,9 @@ int Pause(void)
 
 	SDL_ShowCursor();
 
-	// Darken the screen...
-	DarkenScreen(1); 
+	// Darken the screen — bits=2 (quarter brightness) keeps the volume
+	// sliders and labels readable; bits=1 (half) was too pale.
+	DarkenScreen(2);
 
 	pause_draw();
 
