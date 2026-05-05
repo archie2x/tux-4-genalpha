@@ -6,3 +6,7 @@
 	path = tuxtype
 	url = git@github.com:archie2x/tuxtype.git
 	branch = a2x/sdl3_port
+[submodule "tuxmath"]
+	path = tuxmath
+	url = git@github.com:archie2x/tuxmath.git
+	branch = master

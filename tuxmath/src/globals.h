@@ -32,7 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define GLOBALS_H
 
 // Translation stuff (now works for Mac and Win too!): 
+#ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+#endif
+#endif
 #include "gettext.h"
 #include <locale.h>
 #define _(String) gettext (String)

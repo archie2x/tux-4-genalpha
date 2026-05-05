@@ -34,13 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #ifndef NOSOUND
-#include "SDL_mixer.h"
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
-#include "SDL_image.h"
-#include "SDL_rotozoom.h"
+#include <SDL3_image/SDL_image.h>
+/* SDL_rotozoom dropped — use SDL_BlitSurfaceScaled */
 
 #include "factoroids.h"
 #include "factoroids_graphics.h"
@@ -1358,7 +1357,7 @@ int FF_destroy_asteroid(int i, float xspeed, float yspeed)
 void game_handle_user_events(void)
 {
     SDL_Event event;
-    SDLKey key;
+    SDL_Keycode key;
     int roto = 0; //rotation flag
 
     while (SDL_PollEvent(&event) > 0)

@@ -5,7 +5,7 @@
 #include "factoroids.h"
 #include "frame_counter.h"
 #include "draw_utils.h"
-#include "SDL_rotozoom.h"
+/* SDL_rotozoom dropped — use SDL_BlitSurfaceScaled */
 
 /* definitions for cockpit buttons */
 #define BUTTONW 24
@@ -101,7 +101,7 @@ extern int FF_game;
 
 SDL_Surface* current_bkgd(void)
 {
-    return screen->flags & SDL_FULLSCREEN ? scaled_bkgd : bkgd;
+    return screen->flags & SDL_WINDOW_FULLSCREEN ? scaled_bkgd : bkgd;
 }
 
 

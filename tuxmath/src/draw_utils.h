@@ -2,8 +2,7 @@
 #define DRAW_UTILS_H
 
 #define SCALE_EXPONENT 0.7
-
-#include <SDL_video.h>
+#include <SDL3/SDL.h>
 
 
 float get_scale();

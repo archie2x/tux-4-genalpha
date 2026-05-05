@@ -1,167 +1,156 @@
-# This file implements a build for TuxMath using CMake
-# License information can be found in doc/COPYING.txt
-#
-# Copyright 2008-2011 by Timothy E. Holy
-#
-# This was based on many examples, but a particular debt is owed to
-# Peter K�mmel of the LyX project.
+cmake_minimum_required(VERSION 3.25)
 
-# NOTE - the CMake build basically works, but is not completely 
-# up-to-date and does not check for as many libs, headers,
-# programs, and functions.  The Autotools build is the basis
-# for official releases and is more consistently maintained.
+# CMP0140: return(PROPAGATE ...) used by vendored Internationalization.cmake
+if(POLICY CMP0140)
+    cmake_policy(SET CMP0140 NEW)
+endif()
 
-project(TuxMath)
+project(tuxmath
+    VERSION 2.0.4
+    DESCRIPTION "Tux of Math Command — educational math game (SDL3 port)"
+    HOMEPAGE_URL "https://github.com/tux4kids/tuxmath"
+    LANGUAGES C
+)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+include(GNUInstallDirs)
 
-set(TUXMATH_VERSION "2.0.4")
-set(TUXMATHADMIN_VERSION "0.1.1")
-message("Building TuxMath version ${TUXMATH_VERSION}")
+# Bake link-time library locations into the installed binary's rpath so
+# tuxmath can find libt4k_common.dylib without DYLD_LIBRARY_PATH.
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+if(APPLE)
+    set(CMAKE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}")
+else()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+endif()
 
-## Setting up CMake itself
-cmake_minimum_required(VERSION 2.6)
-set(CMAKE_MODULE_PATH "${TuxMath_SOURCE_DIR}/cmake-modules")
-set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS true)
+option(ENABLE_I18N "Build with gettext/i18n support" ON)
 
-#message("CMP: ${CMAKE_MODULE_PATH}")
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+find_package(SDL3       REQUIRED CONFIG)
+find_package(SDL3_image REQUIRED CONFIG)
+find_package(SDL3_ttf   REQUIRED CONFIG)
+find_package(SDL3_mixer REQUIRED CONFIG)
 
-include(T4K_Sugar)
+# Either built as part of a parent super-project (add_subdirectory(t4kcommon)
+# above us → target already defined) or against an installed t4kcommon.
+if(NOT TARGET t4k_common::t4k_common)
+    find_package(t4k_common REQUIRED CONFIG)
+endif()
 
-## Choose a debug build set
-t4k_gentle_set(CMAKE_BUILD_TYPE Debug)
+find_package(Intl  REQUIRED)
+find_package(Iconv REQUIRED)
 
-## Decide on our build-type: installed or relocatable
-## Linux (& Windows?) would be installed, Mac relocatable
-## Someday we might supply a Linux relocatable package; this would be
-## specified by executing cmake -DTUXMATH_BUILD_TYPE=relocatable
-if (APPLE)
-  set(TUXMATH_BUILD_TYPE relocatable CACHE STRING "Installed or relocatable")
-else (APPLE)
-  set(TUXMATH_BUILD_TYPE installed CACHE STRING "Installed or relocatable")
-endif (APPLE)
+# ---------------------------------------------------------------------------
+# Runtime path-prefix definitions baked into the binary
+# ---------------------------------------------------------------------------
+set(TUXMATH_DATA_PREFIX "${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}"
+    CACHE PATH "Runtime data dir baked into tuxmath binary"
+)
+set(TUXMATH_VAR_PREFIX "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/${PROJECT_NAME}"
+    CACHE PATH "Runtime var (modifiable user data) dir"
+)
+set(TUXMATH_CONF_PREFIX "${CMAKE_INSTALL_FULL_SYSCONFDIR}/${PROJECT_NAME}"
+    CACHE PATH "Runtime config dir"
+)
 
-message("TBT IS ${TUXMATH_BUILD_TYPE}")
+# ---------------------------------------------------------------------------
+# tuxmath executable — networking (SDL_net) and the admin tool dropped for
+# the SDL3 port. Bring them back as separate targets if anyone wants them.
+# ---------------------------------------------------------------------------
+add_executable(tuxmath
+    src/audio.c
+    src/campaign.c
+    src/comets.c
+    src/comets_graphics.c
+    src/credits.c
+    src/draw_utils.c
+    src/factoroids.c
+    src/factoroids_graphics.c
+    src/fileops.c
+    src/fileops_media.c
+    src/frame_counter.c
+    src/game.c
+    src/highscore.c
+    src/lessons.c
+    src/mathcards.c
+    src/menu.c
+    src/mysetenv.c
+    src/options.c
+    src/setup.c
+    src/titlescreen.c
+    src/tuxmath.c
+)
 
-if (TUXMATH_BUILD_TYPE MATCHES installed)
-  message("The installation location is ${CMAKE_INSTALL_PREFIX}")
-endif (TUXMATH_BUILD_TYPE MATCHES installed)
+target_compile_definitions(tuxmath PRIVATE
+    DATA_PREFIX="${TUXMATH_DATA_PREFIX}"
+    VAR_PREFIX="${TUXMATH_VAR_PREFIX}"
+    CONF_PREFIX="${TUXMATH_CONF_PREFIX}"
+    LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
+    PACKAGE="${PROJECT_NAME}"
+    VERSION="${PROJECT_VERSION}"
+    ENABLE_NLS=1
+    HAVE_LIBT4K_COMMON=1
+)
 
-## Define the extra paths
-#set (DATA_TUXMATH ${tuxmath_SOURCE_DIR}/data)
-#set (DOC_TUXMATH ${tuxmath_SOURCE_DIR}/doc)
-#set (PO_TUXMATH ${tuxmath_SOURCE_DIR}/po)
+target_link_libraries(tuxmath PRIVATE
+    t4k_common::t4k_common
+    SDL3::SDL3
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
+    SDL3_mixer::SDL3_mixer
+    Intl::Intl
+    Iconv::Iconv
+    m
+)
 
-## Set up OS-specific path & build information
-if (APPLE)
-  set(TUXMATH_MACOSX_BUNDLE_NAME tuxmath)
-  set(MACOSX_BUNDLE_BUNDLE_VERSION ${TUXMATH_VERSION})
-  set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${TUXMATH_VERSION})
-  set(MACOSX_BUNDLE_LONG_VERSION_STRING ${TUXMATH_VERSION})
-  set(MACOSX_BUNDLE_ICON_FILE tuxmath.icns)
-  set(TUXMATH_DATA_PREFIX ${TUXMATH_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
-  set(LOCALE_DIR ${TUXMATH_MACOSX_BUNDLE_NAME}.app/Contents/Resources/locale)
-  set (TUXMATH_EXTRA_INCLUDE ${TuxMath_SOURCE_DIR}/macosx)
-  # OS X SDL Framework does not have a pre-built libSDLmain, so we
-  # instead include SDLmain.m as a source file
-  set (TUXMATH_EXTRA_SRC ${TuxMath_SOURCE_DIR}/macosx/SDLMain.m)
-  # Build universal binaries 
-  set(CMAKE_OSX_ARCHITECTURES ppc i386)    
-elseif (UNIX)
-  # A non-apple Unix (Linux, Solaris, etc.)
-  # This is where one would test for installed/relocatable, if that
-  # choice is implemented.  For now we just provide installed.
-  set (TUXMATH_DATA_PREFIX ${CMAKE_INSTALL_PREFIX}/share/tuxmath)
-  set (LOCALE_DIR ${CMAKE_INSTALL_PREFIX}/share/locale)
-elseif (MINGW)
-  set (BUILD_MINGW32 TRUE)
-  t4k_include_definition(BUILD_MINGW32)
-  add_definitions(-DPROGRAM_NAME="TuxMath")
-  if (CMAKE_BUILD_TYPE MATCHES Debug)
-    set (TUXMATH_DATA_PREFIX "${CMAKE_SOURCE_DIR}/data" CACHE STRING "Data files")
-  elseif (TUXMATH_BUILD_TYPE MATCHES relocatable)
-    set (TUXMATH_DATA_PREFIX "./data" CACHE STRING "Data files")
-  else() # installed
-    string( REPLACE "\\" "/" TUXMATH_DATA_PREFIX "$ENV{USERPROFILE}/Tux4Kids")
-  endif()
-endif (APPLE)
-#message("TDP ${TUXMATH_DATA_PREFIX}")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(tuxmath PRIVATE -Wall -Wno-unused -Wno-deprecated-declarations)
+endif()
 
+# ---------------------------------------------------------------------------
+# i18n
+# ---------------------------------------------------------------------------
+if(ENABLE_I18N)
+    include(Internationalization OPTIONAL RESULT_VARIABLE _i18n_found)
+    if(_i18n_found)
+        i18n_targets(tuxmath DOMAIN tuxmath
+            PO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/po"
+        )
+    else()
+        message(WARNING "Internationalization.cmake not found — translations disabled")
+    endif()
+endif()
 
-## Decide on whether we're going to build with internationalization
-# We can't build with internationalization unless the build computer
-# supports msgfmt
-find_package(MSGFMT)
-if (NOT DEFINED ENABLE_NLS OR NOT MSGFMT_FOUND)
-  # You can disable NLS with -DENABLE_NLS=false
-  set(ENABLE_NLS ${MSGFMT_FOUND})
-endif (NOT DEFINED ENABLE_NLS OR NOT MSGFMT_FOUND)
-if (NOT ENABLE_NLS)
-  message("Internationalization disabled")
-endif (NOT ENABLE_NLS)
-# Even if the build computer supports gettext/msgfmt, we may not be
-# able to guarantee that the computers on which it is installed provides
-# runtime support for gettext.  So we may have to build gettext.
-if (ENABLE_NLS)
-  if (APPLE)
-    set(TUXMATH_BUILD_INTL true)
-  endif (APPLE)
-else (ENABLE_NLS)
-  set(TUXMATH_BUILD_INTL false)  # No point in building intl if no NLS
-endif (ENABLE_NLS)
-message("ENABLE_NLS ${ENABLE_NLS}")
-set(HAVE_GETTEXT ENABLE_NLS)
-# Check to see if we have SDL_Pango support for the right-to-left languages
-if (ENABLE_NLS)
-  find_package(SDL_Pango)
-  set(SDL_Pango ${SDLPANGO_FOUND})  # For the config.h file
-endif (ENABLE_NLS)
+# ---------------------------------------------------------------------------
+# Install
+# ---------------------------------------------------------------------------
+install(TARGETS tuxmath RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/${PROJECT_NAME})
+install(DIRECTORY DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME})
 
-## Don't think we need SDL_gfx anymore:
-##FIND_PACKAGE(SDL_gfx REQUIRED)
+install(DIRECTORY data/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
+    FILES_MATCHING
+        PATTERN "*.png"
+        PATTERN "*.svg"
+        PATTERN "*.jpg"
+        PATTERN "*.gif"
+        PATTERN "*.wav"
+        PATTERN "*.ogg"
+        PATTERN "*.mp3"
+        PATTERN "*.ttf"
+        PATTERN "*.txt"
+        PATTERN "*.xml"
+        PATTERN "*.lst"
+)
 
-# Check for libRSVG for SVG support
-
-include(FindPkgConfig OPTIONAL)
-
-if(PKG_CONFIG_FOUND)
-  include(FindPkgConfig)
-  PKG_CHECK_MODULES(RSVG librsvg-2.0)
-  if(RSVG_FOUND)
-    PKG_CHECK_MODULES(CAIRO cairo)
-    if(CAIRO_FOUND)
-      set(HAVE_RSVG 1)  # For the config.h file
-    endif(CAIRO_FOUND)
-  endif(RSVG_FOUND)
-endif(PKG_CONFIG_FOUND)
-
-
-## Run configure checks
-if (TUXMATH_BUILD_INTL)
-  include(ConfigureChecksIntl)
-endif (TUXMATH_BUILD_INTL)
-include(ConfigureChecks)
-
-## Add subdirectories
-if (TUXMATH_BUILD_INTL)
-  set(INTL_BINARY_DIR ${CMAKE_BINARY_DIR}/intl)
-  set(INTL_SOURCE_DIR ${CMAKE_SOURCE_DIR}/intl)
-  set(TOP_SRC_DIR ${CMAKE_BINARY_DIR})
-  set(PREFIX ${CMAKE_BINARY_DIR})
-  add_subdirectory(intl)
-endif (TUXMATH_BUILD_INTL)
-add_subdirectory(src)
-add_subdirectory(data)
-add_subdirectory(doc)
-if (ENABLE_NLS)
-  set(LOCALE_INSTALL_DIR ${CMAKE_BINARY_DIR}/src/${LOCALE_DIR})
-  add_subdirectory(po)
-endif (ENABLE_NLS)
-
-message("TMBD ${TuxMath_BINARY_DIR}")
-#message("TMBN ${TUXMATH_MACOSX_BUNDLE_NAME}")
-
-if (APPLE)
-   add_subdirectory(macosx)
-endif (APPLE)
-
+message(STATUS "tuxmath configuration:")
+message(STATUS "  data prefix : ${TUXMATH_DATA_PREFIX}")
+message(STATUS "  var prefix  : ${TUXMATH_VAR_PREFIX}")
+message(STATUS "  conf prefix : ${TUXMATH_CONF_PREFIX}")
+message(STATUS "  i18n        : ${ENABLE_I18N}")
+message(STATUS "  t4k_common  : ${t4k_common_DIR}")

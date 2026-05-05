@@ -7,11 +7,14 @@ if(POLICY CMP0140)
 endif()
 
 project(tux4kids
-    DESCRIPTION "Tux4Kids super-project: t4kcommon + tuxtype (SDL3 port)"
+    DESCRIPTION "Tux4Kids super-project: t4kcommon + tuxtype + tuxmath (SDL3 port)"
     LANGUAGES C
 )
 
-# Both subprojects are submodules pinned at known-compatible revisions
-# (a2x/sdl3_port branch). Build them in dependency order.
+# Subprojects are submodules pinned at known-compatible revisions
+# (a2x/sdl3_port branch). Build in dependency order.
 add_subdirectory(t4kcommon)
 add_subdirectory(tuxtype)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/CMakeLists.txt")
+    add_subdirectory(tuxmath)
+endif()

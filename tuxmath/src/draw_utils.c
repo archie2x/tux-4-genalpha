@@ -1,3 +1,4 @@
+#include <math.h>
 #include <t4k_common.h>
 
 #include "draw_utils.h"

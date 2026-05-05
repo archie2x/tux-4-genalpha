@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef HAVE_LIBSDL_NET
 
 #include "transtruct.h"
-#include "SDL_net.h"
+/* SDL_net dropped — networking disabled */
 
 
 typedef struct {

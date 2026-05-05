@@ -1,7 +1,6 @@
 #ifndef COMETS_H
 #define COMETS_H
-
-#include <SDL_video.h>
+#include <SDL3/SDL.h>
 
 #include "mathcards.h"
 

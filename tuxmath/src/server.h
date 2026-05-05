@@ -36,8 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config.h"
 
 #ifdef HAVE_LIBSDL_NET
-
-#include "SDL_net.h"
+/* SDL_net dropped — networking disabled */
 
 #define NAME_SIZE 50
 #define DEFAULT_SERVER_NAME "TuxMath LAN Server"

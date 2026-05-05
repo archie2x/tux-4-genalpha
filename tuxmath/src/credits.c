@@ -29,8 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "tuxmath.h"
 #include "options.h"

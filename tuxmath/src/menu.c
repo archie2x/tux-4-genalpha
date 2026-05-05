@@ -642,7 +642,7 @@ int RunLoginMenu(void)
     int level;
     int i;
     char *trailer = NULL;
-    SDLMod mod;
+    SDL_Keymod mod;
 
     DEBUGMSG(debug_menu, "Entering RunLoginMenu()");
     // Check for & read user_login_questions file

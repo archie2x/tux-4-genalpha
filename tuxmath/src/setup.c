@@ -40,16 +40,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /* SDL includes: -----------------*/
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #ifndef NOSOUND
-#include "SDL_mixer.h"
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
-
-#include "SDL_image.h"
+#include <SDL3_image/SDL_image.h>
 
 #ifdef HAVE_LIBSDL_NET
-#include "SDL_net.h"
+/* SDL_net dropped — networking disabled */
 #endif
 
 /* C library includes: -----------------*/
@@ -750,7 +749,7 @@ void initialize_SDL(void)
 
         if (Opts_GetGlobalOpt(FULLSCREEN))
         {
-            screen = SDL_SetVideoMode(fs_res_x, fs_res_y, PIXEL_BITS, SDL_FULLSCREEN | surfaceMode);
+            screen = SDL_SetVideoMode(fs_res_x, fs_res_y, PIXEL_BITS, SDL_WINDOW_FULLSCREEN | surfaceMode);
             if (screen == NULL)
             {
                 fprintf(stderr,

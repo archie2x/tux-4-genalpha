@@ -97,7 +97,7 @@ SDL_Rect bkg_rect,
 /* This syntax is full of fluffy kittens! (note: kittens sold separately) */
 SDL_Surface* current_bkg()
 { 
-    if (T4K_GetScreen()->flags & SDL_FULLSCREEN)
+    if (T4K_GetScreen()->flags & SDL_WINDOW_FULLSCREEN)
         return fs_bkg;
     return win_bkg; 
 }
@@ -107,7 +107,7 @@ SDL_Surface* current_bkg()
 /* the "other" one.                                              */
 void set_current_bkg(SDL_Surface* new_bkg)
 {
-    if(screen->flags & SDL_FULLSCREEN)
+    if(screen->flags & SDL_WINDOW_FULLSCREEN)
     {
         if(fs_bkg != NULL)
             SDL_FreeSurface(fs_bkg);
@@ -540,7 +540,7 @@ void ShowMessageWrap( int font_size, const char* str )
     int maxline;
     Uint32 timer = 0;
 
-    if(screen->flags & SDL_FULLSCREEN)
+    if(screen->flags & SDL_WINDOW_FULLSCREEN)
         nline = T4K_LineWrap( str, strings, 70, MAX_LINES, MAX_LINEWIDTH );
     else
         nline = T4K_LineWrap( str, strings, 35, MAX_LINES, MAX_LINEWIDTH );

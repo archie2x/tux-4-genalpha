@@ -32,12 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "SDL.h"
-#include "SDL_image.h"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 #ifndef NOSOUND
-#include "SDL_mixer.h"
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 /* Make sure we don't try to call network code if we built without */
@@ -193,7 +192,7 @@ static void comets_draw(void);
 static void comets_handle_game_over(int comets_status);
 
 static SDL_Surface* current_bkgd()
-{ return screen->flags & SDL_FULLSCREEN ? scaled_bkgd : bkgd; } //too clever for my brain to process
+{ return screen->flags & SDL_WINDOW_FULLSCREEN ? scaled_bkgd : bkgd; } //too clever for my brain to process
 
 static int check_extra_life(void);
 static int check_exit_conditions(void);
@@ -211,7 +210,7 @@ static void reset_comets(void);
 static int num_comets_alive(void);
 
 static void comets_mouse_event(SDL_Event event);
-static void comets_key_event(SDLKey key, SDLMod mod);
+static void comets_key_event(SDL_Keycode key, SDL_Keymod mod);
 static void free_on_exit(void);
 
 static void help_add_comet(const char* formula_str, const char* ans_str);
@@ -278,7 +277,7 @@ int comets_game(MC_MathGame* mgame)
 
     //see if the option matches the actual screen
     //FIXME figure out how this is happening so we don't need this workaround
-    if (Opts_GetGlobalOpt(FULLSCREEN) == !(screen->flags & SDL_FULLSCREEN) )
+    if (Opts_GetGlobalOpt(FULLSCREEN) == !(screen->flags & SDL_WINDOW_FULLSCREEN) )
     {
         fprintf(stderr, "\nWarning: Opts_GetGlobalOpt(FULLSCREEN) does not match"
                 " actual screen resolution! Resetting selected option.\n");
@@ -1075,8 +1074,8 @@ void comets_write_messages(void)
 void comets_handle_user_events(void)
 {
     SDL_Event event;
-    SDLKey key;
-    SDLMod mod;
+    SDL_Keycode key;
+    SDL_Keymod mod;
 
     while (SDL_PollEvent(&event) > 0)
     {
@@ -2808,8 +2807,8 @@ int add_comet(void)
 void comets_mouse_event(SDL_Event event)
 {
     int keypad_w, keypad_h, x, y, row, column;
-    SDLKey key = SDLK_UNKNOWN;
-    SDLMod mod = event.key.keysym.mod;
+    SDL_Keycode key = SDLK_UNKNOWN;
+    SDL_Keymod mod = event.key.keysym.mod;
     keypad_w = 0;
     keypad_h = 0;
 
@@ -2991,7 +2990,7 @@ void comets_mouse_event(SDL_Event event)
 
 /* called by either key presses or mouse clicks on */
 /* on-screen keypad */
-void comets_key_event(SDLKey key, SDLMod mod)
+void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
 {
     int i;
     key_pressed = 1;   // Signal back in cases where waiting on any key
