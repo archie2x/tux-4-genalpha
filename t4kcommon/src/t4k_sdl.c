@@ -69,6 +69,11 @@ int fs_res_y = 0;
  * pointer here so T4K_GetScreen()/T4K_UpdateRect()/T4K_SwitchScreenMode work
  * unchanged for callers. tuxtype (or any consumer) calls this after creating
  * its window. */
+SDL_Window* T4K_GetWindow(void)
+{
+    return t4k_window;
+}
+
 void T4K_RegisterWindow(SDL_Window* w)
 {
     t4k_window = w;

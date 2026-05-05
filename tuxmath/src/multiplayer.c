@@ -29,6 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "tuxmath.h"
 #include "multiplayer.h"
 #include "game.h"
@@ -36,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "fileops.h"
 #include "highscore.h"
 #include "credits.h"
+#include "comets.h"
 
 int params[NUM_PARAMS] = {0, 0, 0, 0};
 
@@ -267,7 +271,17 @@ void showWinners(int* winners, int num)
     SDL_FillSurfaceRect(screen, NULL, 0);
     draw_text(text, center);
     T4K_UpdateRect(screen, NULL);
-    T4K_WaitForEvent(SDL_KEYDOWNMASK | SDL_MOUSEBUTTONDOWNMASK);
+    /* Wait for any key-down or mouse-button-down event. */
+    {
+        SDL_Event ev;
+        for (;;) {
+            if (SDL_WaitEvent(&ev)) {
+                if (ev.type == SDL_EVENT_KEY_DOWN ||
+                    ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
+                    ev.type == SDL_EVENT_QUIT) break;
+            }
+        }
+    }
 }
 
 int initMP()

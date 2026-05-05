@@ -665,11 +665,7 @@ void handle_command_args(int argc, char* argv[])
 
 void initialize_SDL(void)
 {
-    //NOTE - SDL_Init() and friends now in InitT4KCommon()
-
-    // Audio parameters
-    int frequency, channels, n_timesopened;
-    Uint16 format;
+    /* SDL3: SDL_Init / SDL_CreateWindow handled by t4k_common. */
 
     /* Init common library */
     if(!InitT4KCommon(debug_status))
@@ -679,115 +675,66 @@ void initialize_SDL(void)
         exit(1);
     }
 
-    /* Init SDL Video: */
-    screen = NULL;
-
-
-    /* Init SDL Audio: */
-    Opts_SetSoundHWAvailable(0);  // By default no sound HW
+    /* Init SDL Audio: t4k_common opens the mixer lazily on first use; we
+     * just trust the option here. SDL3_mixer no longer has Mix_OpenAudio
+     * on this code path. */
+    Opts_SetSoundHWAvailable(1);
 #ifndef NOSOUND
-    if (Opts_GetGlobalOpt(USE_SOUND))
-    {
-        if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, AUDIO_S16SYS, 2, 2048) < 0)
-        {
-            fprintf(stderr,
-                    "\nWarning: I could not set up audio for 44100 Hz "
-                    "16-bit stereo.\n"
-                    "The Simple DirectMedia error that occured was:\n"
-                    "%s\n\n", SDL_GetError());
-
-        }
-        n_timesopened = Mix_QuerySpec(&frequency,&format,&channels);
-        if (n_timesopened > 0)
-            Opts_SetSoundHWAvailable(1);
-        else
-            frequency = format = channels = 0; //more helpful than garbage
-        DEBUGMSG(debug_setup, "Sound mixer: frequency = %d, "
-                "format = %x, "
-                "channels = %d, "
-                "n_timesopened = %d\n",
-                frequency,format,channels,n_timesopened);
-    }
+    if (!Opts_GetGlobalOpt(USE_SOUND))
+        Opts_SetSoundHWAvailable(0);
+#else
+    Opts_SetSoundHWAvailable(0);
 #endif
-    /* If couldn't set up sound, deselect sound options: */
     if(!Opts_SoundHWAvailable())
     {
-        DEBUGMSG(debug_setup, "Sound setup failed - deselecting sound options\n");        
         Opts_SetGlobalOpt(USE_SOUND, 0);
         Opts_SetGlobalOpt(MENU_SOUND, 0);
         Opts_SetGlobalOpt(MENU_MUSIC, 0);
     }
 
-
-
-    {
-        const SDL_VideoInfo *videoInfo;
-        Uint32 surfaceMode;
-        videoInfo = SDL_GetVideoInfo();
-        if (videoInfo->hw_available)
-        {
-            surfaceMode = SDL_HWSURFACE;
-            DEBUGMSG(debug_setup, "HW mode\n");
-        }
-        else
-        {
-            surfaceMode = SDL_SWSURFACE;
-            DEBUGMSG(debug_setup, "SW mode\n");
-        }
-
-        // Determine the current resolution: this will be used as the
-        // fullscreen resolution, if the user wants fullscreen.
-        DEBUGMSG(debug_setup, "Current resolution: w %d, h %d.\n",videoInfo->current_w,videoInfo->current_h);
-        if (Opts_GetGlobalOpt(FULLSCREEN) && Opts_CustomRes()) {
-          fs_res_x = Opts_WindowWidth();
-          fs_res_y = Opts_WindowHeight();
-          DEBUGMSG(debug_setup, "Full screen mode custom resolution: w %d, h %d.\n",fs_res_x,fs_res_y);
-        } else {
-          fs_res_x = videoInfo->current_w;
-          fs_res_y = videoInfo->current_h;
-        }
-
-        if (Opts_GetGlobalOpt(FULLSCREEN))
-        {
-            screen = SDL_SetVideoMode(fs_res_x, fs_res_y, PIXEL_BITS, SDL_WINDOW_FULLSCREEN | surfaceMode);
-            if (screen == NULL)
-            {
-                fprintf(stderr,
-                        "\nWarning: I could not open the display in fullscreen mode.\n"
-                        "The Simple DirectMedia error that occured was:\n"
-                        "%s\n\n", SDL_GetError());
-                Opts_SetGlobalOpt(FULLSCREEN, 0);
-            }
-        }
-
-        if (!Opts_GetGlobalOpt(FULLSCREEN))
-        {
-            screen = SDL_SetVideoMode(Opts_WindowWidth(), Opts_WindowHeight(), PIXEL_BITS, surfaceMode);
-        }
-
-        if (screen == NULL)
-        {
-            fprintf(stderr,
-                    "\nError: I could not open the display.\n"
-                    "The Simple DirectMedia error that occured was:\n"
-                    "%s\n\n", SDL_GetError());
-            cleanup_on_error();
-            exit(1);
-        }
-
-        seticon();
-
-        SDL_WM_SetCaption("Tux, of Math Command", "TuxMath");
-
-
+    /* SDL3: create the window and hand it to t4k_common. */
+    const SDL_DisplayMode* dm = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+    if (dm) {
+        fs_res_x = (Opts_GetGlobalOpt(FULLSCREEN) && Opts_CustomRes())
+                   ? Opts_WindowWidth() : dm->w;
+        fs_res_y = (Opts_GetGlobalOpt(FULLSCREEN) && Opts_CustomRes())
+                   ? Opts_WindowHeight() : dm->h;
+    } else {
+        fs_res_x = Opts_WindowWidth();
+        fs_res_y = Opts_WindowHeight();
     }
+
+    Uint32 win_flags = SDL_WINDOW_RESIZABLE;
+    int win_w = Opts_WindowWidth(), win_h = Opts_WindowHeight();
+    if (Opts_GetGlobalOpt(FULLSCREEN)) {
+        win_flags |= SDL_WINDOW_FULLSCREEN;
+        win_w = fs_res_x; win_h = fs_res_y;
+    }
+
+    SDL_Window* w = SDL_CreateWindow("Tux, of Math Command", win_w, win_h, win_flags);
+    if (!w && Opts_GetGlobalOpt(FULLSCREEN)) {
+        Opts_SetGlobalOpt(FULLSCREEN, 0);
+        w = SDL_CreateWindow("Tux, of Math Command",
+                             Opts_WindowWidth(), Opts_WindowHeight(), 0);
+    }
+    if (!w) {
+        fprintf(stderr, "Could not open the display: %s\n", SDL_GetError());
+        cleanup_on_error();
+        exit(1);
+    }
+
+    T4K_RegisterWindow(w);
+    screen = T4K_GetScreen();
+    seticon();
 }
 
 
 void load_data_files(void)
 {
-    /* Tell libt4k_common where TuxMath-specific data can be found */
-    T4K_AddDataPrefix(DATA_PREFIX);
+    /* Prefer relocatable path so the binary works from any install root.
+     * Falls back to the compile-time DATA_PREFIX bake-in (-D). */
+    const char* p = T4K_RelocatablePath("../share/tuxmath");
+    T4K_AddDataPrefix(p ? p : DATA_PREFIX);
     if (!load_sound_data())
     {
         fprintf(stderr, "\nCould not load sound file - attempting to proceed without sound.\n");
@@ -896,15 +843,12 @@ void cleanup_memory(void)
 
     for (i = 0; i < NUM_SOUNDS; i++)
     {
-        if (sounds[i])
-            Mix_FreeChunk(sounds[i]);
+        /* sound resources owned by t4k_common; nothing to free here */
         sounds[i] = NULL;
     }
 
     for (i = 0; i < NUM_MUSICS; i++)
     {
-        if (musics[i])
-            Mix_FreeMusic(musics[i]);
         musics[i] = NULL;
     }
 
@@ -969,32 +913,11 @@ void cleanup_memory(void)
 
 void seticon(void)
 {
-    int masklen;
-    Uint8* mask;
-    SDL_Surface* icon;
-
-
-    /* Load icon into a surface: */
-    icon = IMG_Load(DATA_PREFIX "/images/icons/icon.png");
-    if (icon == NULL)
-    {
-        fprintf(stderr,
-                "\nWarning: I could not load the icon image: %s\n"
-                "The Simple DirectMedia error that occured was:\n"
-                "%s\n\n", DATA_PREFIX "/images/icons/icon.png", SDL_GetError());
-        return;
-    }
-
-    /* Create mask: */
-    masklen = (((icon -> w) + 7) / 8) * (icon -> h);
-    mask = malloc(masklen * sizeof(Uint8));
-    memset(mask, 0xFF, masklen);
-
-    /* Set icon: */
-    SDL_WM_SetIcon(icon, mask);
-
-    /* Free icon surface & mask: */
-    free(mask);
+    /* SDL3: SDL_SetWindowIcon takes the SDL_Surface*; mask not needed. */
+    SDL_Surface* icon = IMG_Load(DATA_PREFIX "/images/icons/icon.png");
+    if (!icon) return;
+    SDL_Window* w = T4K_GetWindow();
+    if (w) SDL_SetWindowIcon(w, icon);
     SDL_DestroySurface(icon);
 }
 

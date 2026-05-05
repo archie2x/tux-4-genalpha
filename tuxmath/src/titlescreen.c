@@ -218,11 +218,9 @@ void TitleScreen(void)
         SDL_Delay(50);
     }
 
-    /* NOTE: do we need this ? */
-    if (true)
-        SDL_WM_GrabInput(false); /* in case of a freeze, this traps the cursor */
-    else  // NOTE- the accompanying "if" is inside the DEBUGCODE macro
-        SDL_WM_GrabInput(true);  /* User input goes to TuxMath, not window manager */
+    /* SDL3: SDL_SetWindowMouseGrab if needed; default false. */
+    SDL_Window* w = T4K_GetWindow();
+    if (w) SDL_SetWindowMouseGrab(w, false);
     SDL_ShowCursor();
 
 
@@ -341,17 +339,18 @@ int RenderTitleScreen(void)
             }
         }
 
-        bkg_rect = current_bkg()->clip_rect;
-        bkg_rect.x = (screen->w - bkg_rect.w) / 2;
-        bkg_rect.y = (screen->h - bkg_rect.h) / 2;
+        bkg_rect.x = (screen->w - current_bkg()->w) / 2;
+        bkg_rect.y = (screen->h - current_bkg()->h) / 2;
+        bkg_rect.w = current_bkg()->w;
+        bkg_rect.h = current_bkg()->h;
 
         /* Tux in lower left corner of the screen */
         T4K_SetRect(&tux_rect, tux_pos);
         Tux = T4K_LoadSpriteOfBoundingBox(tux_path, IMG_ALPHA, tux_rect.w, tux_rect.h);
         if(Tux && Tux->frame[0])
         {
-            tux_rect.w = Tux->frame[0]->clip_rect.w;
-            tux_rect.h = Tux->frame[0]->clip_rect.h;
+            tux_rect.w = Tux->frame[0]->w;
+            tux_rect.h = Tux->frame[0]->h;
         }
         else
         {
@@ -397,7 +396,7 @@ int RenderTitleScreen(void)
 /* handle titlescreen events (easter egg)
    this function should be called from event loops
    return 1 if events require full redraw */
-int HandleTitleScreenEvents(const SDL_Event* evt)
+int HandleTitleScreenEvents(SDL_Event* evt)
 {
     if (evt->type == SDL_EVENT_KEY_DOWN)
         if (evt->key.key == SDLK_F10)
@@ -409,9 +408,10 @@ int HandleTitleScreenEvents(const SDL_Event* evt)
 /* handle a resolution switch. Tux et. al. may need to be resized
    and/or repositioned
    */
-int HandleTitleScreenResSwitch(int new_w, int new_h)
+void HandleTitleScreenResSwitch(int new_w, int new_h)
 {
-    return RenderTitleScreen();
+    (void)new_w; (void)new_h;
+    RenderTitleScreen();
 }
 
 /* handle all titlescreen blitting
@@ -1027,20 +1027,15 @@ void update_screen(int *frame) {
     /* -- First erase everything we need to -- */
     for (i = 0; i < numupdates; i++)
         if (blits[i].type == 'E')
-            SDL_LowerBlit(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
-    //        SNOW_erase();
+            SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
 
     /* -- then draw -- */
     for (i = 0; i < numupdates; i++)
         if (blits[i].type == 'D')
             SDL_BlitSurface(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
-    //        SNOW_draw();
 
-    /* -- update the screen only where we need to! -- */
-    //        if (SNOW_on)
-    //                SDL_UpdateRects(screen, SNOW_add( (SDL_Rect*)&dstupdate, numupdates ), SNOW_rects);
-    //        else
-    SDL_UpdateRects(screen, numupdates, dstupdate);
+    /* SDL3: present whole window surface; per-rect updates dropped. */
+    T4K_UpdateRect(screen, NULL);
 
     numupdates = 0;
     *frame = *frame + 1;
@@ -1098,7 +1093,7 @@ int handle_easter_egg(const SDL_Event* evt)
             SDL_ShowCursor();
             //SDL_FillSurfaceRect(screen, &cursor, 0);
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
-            SDL_WarpMouseInWindow(t4k_window, cursor.x, cursor.y);
+            SDL_WarpMouseInWindow(T4K_GetWindow(), cursor.x, cursor.y);
             /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, cursor.x, cursor.y, cursor.w, cursor.h); //egg->x, egg->y, egg->w, egg->h);
             egg_active = 0;
         }
@@ -1123,7 +1118,7 @@ int handle_easter_egg(const SDL_Event* evt)
 
             eggtimer = SDL_GetTicks() + EASTER_EGG_MS;
             egg_active = 1;
-            SDL_WarpMouseInWindow(t4k_window, tux_rect.x + tux_rect.w / 2, tux_rect.y + tux_rect.h - egg->h);
+            SDL_WarpMouseInWindow(T4K_GetWindow(), tux_rect.x + tux_rect.w / 2, tux_rect.y + tux_rect.h - egg->h);
 
         }
 

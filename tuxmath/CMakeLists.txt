@@ -75,8 +75,10 @@ add_executable(tuxmath
     src/game.c
     src/highscore.c
     src/lessons.c
+    src/linewrap.c
     src/mathcards.c
     src/menu.c
+    src/multiplayer.c
     src/mysetenv.c
     src/options.c
     src/sdl3_compat.c

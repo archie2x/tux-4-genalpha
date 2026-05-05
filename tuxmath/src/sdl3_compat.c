@@ -6,6 +6,16 @@
  * SDL_Renderer with angle for a proper fix). */
 
 #include <SDL3/SDL.h>
+#include "sdl3_compat.h"
+
+/* qsort comparator for descending score; used by the LAN game-over code
+ * which still compiles (and silently runs as single-player) in this port. */
+int compare_scores(const void* p1, const void* p2)
+{
+    const lan_player_type* a = (const lan_player_type*)p1;
+    const lan_player_type* b = (const lan_player_type*)p2;
+    return b->score - a->score;
+}
 
 /* Returns a fresh duplicate of src — angle/zoom ignored.
  * Real rotation would need SDL_Renderer or pre-rendered frames. */
@@ -26,4 +36,9 @@ int         LAN_PlayerMine(int i)        { (void)i; return 0; }
 int         LAN_PlayerConnected(int i)   { (void)i; return 0; }
 int         LAN_MyIndex(void)            { return 0; }
 int         LAN_RequestIndex(void)       { return 0; }
+
+/* Server stubs */
+int  OurServerRunning(void)              { return 0; }
+int  SrvrGameInProgress(void)            { return 0; }
+void StopServer(void)                    { }
 

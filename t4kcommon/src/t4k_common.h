@@ -966,6 +966,17 @@ void T4K_RegisterWindow(SDL_Window* window);
 
 //==============================================================================
 //
+//  T4K_GetWindow
+//
+//! \brief
+//!     Returns the registered SDL_Window* (or NULL if none has been set).
+//!     Useful for callers that need to invoke SDL_Window-scoped APIs like
+//!     SDL_WarpMouseInWindow or SDL_SetWindowMouseGrab.
+//!
+SDL_Window* T4K_GetWindow(void);
+
+//==============================================================================
+//
 //  T4K_zoom
 //
 //! \brief 

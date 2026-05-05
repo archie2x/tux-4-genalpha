@@ -246,8 +246,8 @@ int comets_halted_recvd(char* buf);
 int erase_comet_on_screen(comet_type* zapped_comet, int answered_by);
 //MC_FlashCard* search_queue_by_id(int id);
 comet_type* search_comets_by_id(int id);
-int compare_scores(const void* p1, const void* p2);
 #endif
+int compare_scores(const void* p1, const void* p2);
 /******************************************************/
 
 void print_current_quests(void);
@@ -3141,25 +3141,23 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
 
     else if(key == SDLK_PAGEUP)
     {
-		volume = /* Mix_Volume dropped */ (void)(-1,-1);
-		/* Mix_Volume dropped */ (void)(-1,volume + 10);
-	}	
+		volume = 0; /* Mix_Volume dropped */
+	}
 
     else if(key == SDLK_PAGEDOWN)
     {
-		volume = /* Mix_Volume dropped */ (void)(-1,-1);
-		/* Mix_Volume dropped */ (void)(-1,volume - 10);	}	
+		volume = 0; /* Mix_Volume dropped */
+	}
 
     else if(key == SDLK_HOME)
     {
-		volume = /* Mix_VolumeMusic dropped */ (void)(-1);
-		/* Mix_VolumeMusic dropped */ (void)(volume + 10);	}	
+		volume = 0; /* Mix_VolumeMusic dropped */
+	}
 
     else if(key == SDLK_END)
     {
-		volume = /* Mix_VolumeMusic dropped */ (void)(-1);
-		/* Mix_VolumeMusic dropped */ (void)(volume - 10);
-	}	
+		volume = 0; /* Mix_VolumeMusic dropped */
+	}
 
 	
 }
@@ -4152,7 +4150,7 @@ int tts_announcer(void *unused)
 }
 void start_tts_announcer_thread(){
 	extern SDL_Thread *tts_announcer_thread;
-	tts_announcer_thread = SDL_CreateThread(tts_announcer,NULL);
+	tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts_announcer", NULL);
 }
 
 void stop_tts_announcer_thread(){

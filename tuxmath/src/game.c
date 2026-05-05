@@ -59,7 +59,7 @@ int pause_game(void)
 
 #ifndef NOSOUND
     if(Opts_GetGlobalOpt(USE_SOUND))
-        /* T4K_AudioMusicResume not yet implemented */ /* TODO: implement */();
+        /* T4K_AudioMusicResume not yet implemented */;
 #endif
 
     return (pause_quit);

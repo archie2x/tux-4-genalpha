@@ -248,18 +248,18 @@ int load_sound_data(void)
     int i = 0;
 
     static char* sound_filenames[NUM_SOUNDS] = {
-        DATA_PREFIX "/sounds/harp.wav",
-        DATA_PREFIX "/sounds/pop.wav",
-        DATA_PREFIX "/sounds/tock.wav",
-        DATA_PREFIX "/sounds/laser.wav",
-        DATA_PREFIX "/sounds/buzz.wav",
-        DATA_PREFIX "/sounds/alarm.wav",
-        DATA_PREFIX "/sounds/shieldsdown.wav",
-        DATA_PREFIX "/sounds/explosion.wav",
-        DATA_PREFIX "/sounds/sizzling.wav",
-        DATA_PREFIX "/sounds/towerclock.wav",
-        DATA_PREFIX "/sounds/cheer.wav",
-        DATA_PREFIX "/sounds/engine.wav"
+        "sounds/harp.wav",
+        "sounds/pop.wav",
+        "sounds/tock.wav",
+        "sounds/laser.wav",
+        "sounds/buzz.wav",
+        "sounds/alarm.wav",
+        "sounds/shieldsdown.wav",
+        "sounds/explosion.wav",
+        "sounds/sizzling.wav",
+        "sounds/towerclock.wav",
+        "sounds/cheer.wav",
+        "sounds/engine.wav"
     };
 
 
