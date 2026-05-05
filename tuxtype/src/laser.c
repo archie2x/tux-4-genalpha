@@ -750,7 +750,7 @@ int PlayLaserGame(int diff_level)
 			if(settings.tts)
 				stop_tts_announcer();
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Game Paused!"));
-			quit = Pause();
+			quit = Pause(1);
 			if(quit == 0){
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 					//Call announcer function in thread which annonces the word to type

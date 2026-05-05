@@ -50,8 +50,14 @@ static void pause_unload_media(void);
 /**********************
 Pause : Pause the game
 ***********************/
-int Pause(void)
+/* in_game = 1 when called from gameplay (text mentions returning to game,
+ *               return value 1 = quit-to-menu).
+ * in_game = 0 when called from a menu (Volume Settings) — text mentions
+ *               returning to menu, return value is ignored. */
+static int g_pause_in_game = 1;
+int Pause(int in_game)
 {
+	g_pause_in_game = in_game;
 	int paused = 1;
 	int sfx_volume=0;
 	int old_sfx_volume;
@@ -318,22 +324,36 @@ static void pause_draw(void)
 	SDL_DestroySurface(t);
   }
 
-  t = BlackOutline(gettext("Press escape again to return to menu"), pause_font_size1, &white);
-  if (t)
+  if (g_pause_in_game)
   {
-    s.y = screen->h/2 + 160;
-    s.x = screen->w/2 - t->w/2;
-    SDL_BlitSurface(t, NULL, screen, &s);
-    SDL_DestroySurface(t);
-  }
+    t = BlackOutline(gettext("Press escape again to return to menu"), pause_font_size1, &white);
+    if (t)
+    {
+      s.y = screen->h/2 + 160;
+      s.x = screen->w/2 - t->w/2;
+      SDL_BlitSurface(t, NULL, screen, &s);
+      SDL_DestroySurface(t);
+    }
 
-  t = BlackOutline(gettext("Press space bar to return to game"), pause_font_size1, &white);
-  if (t)
+    t = BlackOutline(gettext("Press space bar to return to game"), pause_font_size1, &white);
+    if (t)
+    {
+      s.y = screen->h/2 + 200;
+      s.x = screen->w/2 - t->w/2;
+      SDL_BlitSurface(t, NULL, screen, &s);
+      SDL_DestroySurface(t);
+    }
+  }
+  else
   {
-    s.y = screen->h/2 + 200;
-    s.x = screen->w/2 - t->w/2;
-    SDL_BlitSurface(t, NULL, screen, &s);
-    SDL_DestroySurface(t);
+    t = BlackOutline(gettext("Press space or escape to return to menu"), pause_font_size1, &white);
+    if (t)
+    {
+      s.y = screen->h/2 + 180;
+      s.x = screen->w/2 - t->w/2;
+      SDL_BlitSurface(t, NULL, screen, &s);
+      SDL_DestroySurface(t);
+    }
   }
 
   LOG("Leaving pause_draw()\n");

@@ -102,7 +102,7 @@ sprite* LoadSprite(const char* name, int MODE);
 void Opts_Initialize(void);
 
 /* In pause.c: */
-int  Pause(void);
+int  Pause(int in_game);
 
 
 /* In playgame.c: */

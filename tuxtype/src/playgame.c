@@ -371,9 +371,9 @@ int PlayCascade(int diflevel)
 					stop_tts_announcer();
 				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Game Paused."));
                 
-                /* Pause() returns 1 if quitting, */
+                /* Pause(1) returns 1 if quitting, */
                 /* 0 if returning to game:        */                
-                if (Pause() == 1)
+                if (Pause(1) == 1)
                 {
                   playing_level = 0;
                   still_playing = 0;
