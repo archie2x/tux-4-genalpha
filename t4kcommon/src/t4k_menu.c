@@ -136,7 +136,7 @@ const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
  * snapshot/animation flicker described in the SDL3 port notes. */
 const float desc_panel_pos[4] = {0.05, 0.13, 0.3, 0.40};
 const char* stop_path = "menu/stop.svg";
-const char* back_path = "menu/left.svg";
+const char* back_path = "menu/up.svg";
 const char* prev_path = "menu/left.svg";
 const char* next_path = "menu/right.svg";
 const char* prev_gray_path = "menu/left_gray.svg";

@@ -65,4 +65,3 @@ compile_commands.json
 *.elc
 auto-save-list/
 flycheck_*.el
-.DS_Store

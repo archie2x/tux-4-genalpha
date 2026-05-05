@@ -13,13 +13,13 @@
     </menu>
     <menu title="Training" sprite="lesson" entries="2" desc="Train alphabets and phrase typing">
         <item title="Basic Lessons" sprite="lesson" run="RUN_LESSONS" desc="Train basic alphabets" />
-        <item title="Phrase Typing" sprite="practice" run="RUN_PHRASE_TYPING" desc="Train typing sentences" />
+        <item title="Phrase Typing" sprite="list" run="RUN_PHRASE_TYPING" desc="Train typing sentences" />
     </menu>
     <menu title="Options" sprite="tux_config" entries="4" desc="Additional options">
-        <item title="Setup Language" sprite="tux_config" run="RUN_SET_LANGUAGE" desc="Set your language" />
-        <item title="Edit Word Lists" sprite="list" run="RUN_EDIT_WORDLIST" desc="Add or remove words" />
-        <item title="Setup Braille Keys" sprite="keyboard" run="RUN_SET_BRAILLE_KEYS" desc="Choose your own keys for representing braille dots" />
-        <item title="Volume Settings" sprite="tux_config" run="RUN_SET_VOLUME" desc="Adjust music and sound effects volume" />
+        <item title="Volume" sprite="tux_config" run="RUN_SET_VOLUME" desc="Adjust music and sound effects volume" />
+        <item title="Language" sprite="tux_config" run="RUN_SET_LANGUAGE" desc="Set your language" />
+        <item title="Word Lists" sprite="list" run="RUN_EDIT_WORDLIST" desc="Add or remove words" />
+        <item title="Braille Keys" sprite="keyboard" run="RUN_SET_BRAILLE_KEYS" desc="Choose your own keys for representing braille dots" />
     </menu>
     <item title="Project Info" sprite="alone" run="RUN_PROJECT_INFO" desc="See the project info" />
     <item title="Quit" sprite="quit" run="RUN_QUIT" desc="Exit to your desktop" />
