@@ -110,13 +110,13 @@ void set_current_bkg(SDL_Surface* new_bkg)
     if(screen->flags & SDL_WINDOW_FULLSCREEN)
     {
         if(fs_bkg != NULL)
-            SDL_FreeSurface(fs_bkg);
+            SDL_DestroySurface(fs_bkg);
         fs_bkg = new_bkg;
     }
     else
     {
         if(win_bkg != NULL)
-            SDL_FreeSurface(win_bkg);
+            SDL_DestroySurface(win_bkg);
         win_bkg = new_bkg;
     }
 }
@@ -160,7 +160,7 @@ void TitleScreen(void)
     start_time = SDL_GetTicks();
 
     /* display the Standby screen */
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
     logo = T4K_LoadImage(standby_path, IMG_REGULAR);
     if(logo)
@@ -172,7 +172,7 @@ void TitleScreen(void)
         logo_rect.h = logo->h;
 
         SDL_BlitSurface(logo, NULL, screen, &logo_rect);
-        SDL_FreeSurface(logo);
+        SDL_DestroySurface(logo);
     }
 
     SDL_UpdateRect(screen, 0, 0, 0, 0);
@@ -192,9 +192,9 @@ void TitleScreen(void)
     {
         fprintf(stderr, "Backgrounds were not properly loaded, exiting");
         if(fs_bkg)
-            SDL_FreeSurface(fs_bkg);
+            SDL_DestroySurface(fs_bkg);
         if(win_bkg)
-            SDL_FreeSurface(win_bkg);
+            SDL_DestroySurface(win_bkg);
         return;
     }
 
@@ -259,7 +259,7 @@ void TitleScreen(void)
         {
             /* Draw the entire background, over a black screen if necessary */
             if(current_bkg()->w != screen->w || current_bkg()->h != screen->h)
-                SDL_FillRect(screen, &screen->clip_rect, 0);
+                SDL_FillSurfaceRect(screen, &screen->clip_rect, 0);
 
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect);
 
@@ -482,25 +482,25 @@ void free_titlescreen(void)
 
     if(egg)
     {
-        SDL_FreeSurface(egg);
+        SDL_DestroySurface(egg);
         egg = NULL;
     }
 
     if(title)
     {
-        SDL_FreeSurface(title);
+        SDL_DestroySurface(title);
         title = NULL;
     }
 
     if(fs_bkg)
     {
-        SDL_FreeSurface(fs_bkg);
+        SDL_DestroySurface(fs_bkg);
         fs_bkg = NULL;
     }
 
     if(win_bkg)
     {
-        SDL_FreeSurface(win_bkg);
+        SDL_DestroySurface(win_bkg);
         win_bkg = NULL;
     }
 }
@@ -627,7 +627,7 @@ void ShowMessageWrap( int font_size, const char* str )
                 rtext.y += (s1->h+15);  
                 SDL_BlitSurface( s1, NULL, screen, &rtext );
 
-                SDL_FreeSurface( s1 );
+                SDL_DestroySurface( s1 );
                 s1 = NULL;
             }
         }
@@ -820,10 +820,10 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
         T4K_Throttle(20, &timer);
     }  // End of while (!finished) loop
 
-    SDL_FreeSurface(s1);
-    SDL_FreeSurface(s2);
-    SDL_FreeSurface(s3);
-    SDL_FreeSurface(s4);
+    SDL_DestroySurface(s1);
+    SDL_DestroySurface(s2);
+    SDL_DestroySurface(s3);
+    SDL_DestroySurface(s4);
 }
 
 /* Was in playgame.c in tuxtype: */
@@ -900,7 +900,7 @@ void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
                                        src.w= screen->w;
                                        src.h= screen->h;
                                        SDL_BlitSurface(newbkg,NULL, screen,&src);
-                                       SDL_Flip(screen);
+                                       T4K_UpdateRect(screen, NULL);
 
                                        break;
                                    }
@@ -940,7 +940,7 @@ void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
                                        src.w =screen->w;
                                        src.h =screen->h;
                                        SDL_BlitSurface(newbkg, NULL,screen, &src);
-                                       SDL_Flip(screen);
+                                       T4K_UpdateRect(screen, NULL);
 
                                        break;
                                    }
@@ -996,7 +996,7 @@ void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
                                      src.w =screen->w;
                                      src.h =screen->h;
                                      SDL_BlitSurface(newbkg, NULL,screen, &src);
-                                     SDL_Flip(screen);
+                                     T4K_UpdateRect(screen, NULL);
 
                                      break;
                                  }
@@ -1096,7 +1096,7 @@ int handle_easter_egg(const SDL_Event* evt)
         if (eggtimer < SDL_GetTicks() ) //time's up
         {
             SDL_ShowCursor(SDL_ENABLE);
-            //SDL_FillRect(screen, &cursor, 0);
+            //SDL_FillSurfaceRect(screen, &cursor, 0);
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
             SDL_WarpMouse(cursor.x, cursor.y);
             SDL_UpdateRect(screen, cursor.x, cursor.y, cursor.w, cursor.h); //egg->x, egg->y, egg->w, egg->h);

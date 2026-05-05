@@ -1102,7 +1102,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
      * Cleanup temp surface 
      */
     if (src_converted) {
-        SDL_FreeSurface(rz_src);
+        SDL_DestroySurface(rz_src);
     }
 
     /*
@@ -1257,7 +1257,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
      * Cleanup temp surface 
      */
     if (src_converted) {
-        SDL_FreeSurface(rz_src);
+        SDL_DestroySurface(rz_src);
     }
 
     /*
@@ -1371,7 +1371,7 @@ SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory)
      * Cleanup temp surface 
      */
     if (src_converted) {
-        SDL_FreeSurface(rz_src);
+        SDL_DestroySurface(rz_src);
     }
 
     /*

@@ -80,7 +80,7 @@ int ConnectToServer(void)
             loc.x = (screen->w/2) - (s->w/2);
             loc.y = 110;
             SDL_BlitSurface(s, NULL, screen, &loc);
-            SDL_FreeSurface(s);
+            SDL_DestroySurface(s);
         }
 
         s = T4K_BlackOutline(_("Please wait"),
@@ -90,7 +90,7 @@ int ConnectToServer(void)
             loc.x = (screen->w/2) - (s->w/2);
             loc.y = 140;
             SDL_BlitSurface(s, NULL, screen, &loc);
-            SDL_FreeSurface(s);
+            SDL_DestroySurface(s);
         }
         s = NULL;
     }
@@ -416,12 +416,12 @@ int Pregame(void)
         T4K_Throttle(loop_msec, &timer);
     }  // End while(status = PREGAME_WAITING)
 
-    SDL_FreeSurface(play_surf);    //we know these can't be NULL from check above
-    SDL_FreeSurface(pause_surf);
-    SDL_FreeSurface(ready_title);
-    SDL_FreeSurface(notready_title);
-    SDL_FreeSurface(ready_subtitle);
-    SDL_FreeSurface(notready_subtitle);
+    SDL_DestroySurface(play_surf);    //we know these can't be NULL from check above
+    SDL_DestroySurface(pause_surf);
+    SDL_DestroySurface(ready_title);
+    SDL_DestroySurface(notready_title);
+    SDL_DestroySurface(ready_subtitle);
+    SDL_DestroySurface(notready_subtitle);
 
     return status;
 }
@@ -461,7 +461,7 @@ void draw_player_table(void)
         loc.x = name_x;
         loc.y = screen->h * 0.45;
         SDL_BlitSurface(surf, NULL, screen, &loc);
-        SDL_FreeSurface(surf);
+        SDL_DestroySurface(surf);
         surf = NULL;
     }
 
@@ -476,7 +476,7 @@ void draw_player_table(void)
         loc.x = name_x;
         loc.y += surf->h;
         SDL_BlitSurface(surf, NULL, screen, &loc);
-        SDL_FreeSurface(surf);
+        SDL_DestroySurface(surf);
         surf = NULL;
     }
 
@@ -498,7 +498,7 @@ void draw_player_table(void)
                 loc.x = name_x;
                 loc.y += surf->h;
                 SDL_BlitSurface(surf, NULL, screen, &loc);
-                SDL_FreeSurface(surf);
+                SDL_DestroySurface(surf);
                 surf = NULL;
             }
             if(LAN_PlayerReady(i))
@@ -516,7 +516,7 @@ void draw_player_table(void)
             {
                 loc.x = ready_x;
                 SDL_BlitSurface(surf, NULL, screen, &loc);
-                SDL_FreeSurface(surf);
+                SDL_DestroySurface(surf);
                 surf = NULL;
             }
         }

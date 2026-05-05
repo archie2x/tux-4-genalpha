@@ -883,7 +883,7 @@ void cleanup_memory(void)
     for (i = 0; i < NUM_IMAGES; i++)
     {
         if (images[i])
-            SDL_FreeSurface(images[i]);
+            SDL_DestroySurface(images[i]);
         images[i] = NULL;
     }
 
@@ -995,7 +995,7 @@ void seticon(void)
 
     /* Free icon surface & mask: */
     free(mask);
-    SDL_FreeSurface(icon);
+    SDL_DestroySurface(icon);
 }
 
 

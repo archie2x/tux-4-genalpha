@@ -34,7 +34,7 @@ void draw_line(SDL_Surface* surface, int x1, int y1, int x2, int y2, int red, in
     Uint32 pixel;
     SDL_Rect dest;
 
-    pixel = SDL_MapRGB(surface->format, red, grn, blu);
+    pixel = SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format), NULL, red, grn, blu);
 
     dx = x2 - x1;
     dy = y2 - y1;
@@ -73,7 +73,7 @@ void draw_line(SDL_Surface* surface, int x1, int y1, int x2, int y2, int red, in
         dest.w = 3;
         dest.h = y2 - y1;
 
-        SDL_FillRect(surface, &dest, pixel);
+        SDL_FillSurfaceRect(surface, &dest, pixel);
     }
 }
 
@@ -138,7 +138,7 @@ void putpixel(SDL_Surface* surface, int x, int y, Uint32 pixel)
     dest.w = 3;
     dest.h = 4;
 
-    SDL_FillRect(surface, &dest, pixel);
+    SDL_FillSurfaceRect(surface, &dest, pixel);
 #endif
 }
 
@@ -203,7 +203,7 @@ void draw_nums(float zoom, const char* str, int x, int y, SDL_Color* col)
 
         SDL_Rect pos = {x, y};
         SDL_BlitSurface(surf, NULL, T4K_GetScreen(), &pos);
-        SDL_FreeSurface(surf);
+        SDL_DestroySurface(surf);
     }
 }
 

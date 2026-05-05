@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <SDL3_mixer/SDL_mixer.h>
 #endif
 #include <SDL3_image/SDL_image.h>
-/* SDL_rotozoom dropped — use SDL_BlitSurfaceScaled */
+extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom, int smooth);
 
 #include "factoroids.h"
 #include "factoroids_graphics.h"
@@ -269,7 +269,7 @@ void factors(void)
         tux_img = cockpit_tux_image(num);
 
         factoroids_draw(asteroid, &tuxship, laser, bonus, bonus_time, digits, wave, score, num, tux_img, button_pressed);
-        SDL_Flip(screen);
+        T4K_UpdateRect(screen, NULL);
 
         game_status = check_exit_conditions();
 
@@ -285,7 +285,7 @@ void factors(void)
         {
             //...when the music's over, turn out the lights!
             //...oops, wrong song! Actually, we just pick next music at random:
-            if (!Mix_PlayingMusic())
+            if (!T4K_IsPlayingMusic())
             {
                 T4K_AudioMusicLoad(game_music_filenames[(rand() % NUM_MUSICS)], T4K_AUDIO_PLAY_ONCE);
             }
@@ -341,7 +341,7 @@ void fractions(void)
         FF_handle_asteroids();
         FF_handle_answer();
         factoroids_draw(asteroid, &tuxship, laser, bonus, bonus_time, digits, wave, score, num, tux_img, button_pressed);
-        SDL_Flip(screen);
+        T4K_UpdateRect(screen, NULL);
 
         game_status = check_exit_conditions();
 
@@ -355,7 +355,7 @@ void fractions(void)
 #ifndef NOSOUND
         if (Opts_UsingSound())
         {
-            if (!Mix_PlayingMusic())
+            if (!T4K_IsPlayingMusic())
             {
                 T4K_AudioMusicLoad(game_music_filenames[(rand() % 3)], T4K_AUDIO_PLAY_ONCE);
             }
@@ -374,8 +374,8 @@ static int FF_init(void)
     int i;
     mouse_reset = 0;
 
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-    SDL_Flip(screen);
+    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+    T4K_UpdateRect(screen, NULL);
     SDL_ShowCursor(0);
 
     /* Settings to let us track mouse movement even beyond edge of screen
@@ -822,7 +822,7 @@ static void FF_add_level(void)
             rect.y=(screen->h/2)-(images[IMG_GOOD]->h/2);
             factoroids_draw(asteroid, &tuxship, laser, bonus, bonus_time, digits, wave, score, num, tux_img, button_pressed);
             SDL_BlitSurface(images[IMG_GOOD],NULL,screen,&rect);
-            SDL_Flip(screen);
+            T4K_UpdateRect(screen, NULL);
 
             FC_frame_end();
         }
@@ -872,7 +872,7 @@ static int FF_over(int game_status)
                 dest_message.h = images[IMG_GAMEOVER_WON]->h;
 
                 SDL_BlitSurface(images[IMG_GAMEOVER_WON], NULL, screen, &dest_message);
-                SDL_Flip(screen);
+                T4K_UpdateRect(screen, NULL);
 
                 wait_for_input();
                 break;
@@ -894,7 +894,7 @@ static int FF_over(int game_status)
                 dest_message.h = images[IMG_GAMEOVER]->h;
 
                 SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest_message);
-                SDL_Flip(screen);
+                T4K_UpdateRect(screen, NULL);
 
                 wait_for_input();
                 break;

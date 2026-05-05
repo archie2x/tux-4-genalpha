@@ -79,6 +79,7 @@ add_executable(tuxmath
     src/menu.c
     src/mysetenv.c
     src/options.c
+    src/sdl3_compat.c
     src/setup.c
     src/titlescreen.c
     src/tuxmath.c
@@ -93,6 +94,8 @@ target_compile_definitions(tuxmath PRIVATE
     VERSION="${PROJECT_VERSION}"
     ENABLE_NLS=1
     HAVE_LIBT4K_COMMON=1
+    HAVE_SCANDIR=1
+    HAVE_ALPHASORT=1
 )
 
 target_link_libraries(tuxmath PRIVATE

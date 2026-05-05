@@ -226,8 +226,8 @@ void briefPlayer(int stage)
 	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_text);
 
     //background is dark blue with a black text area
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 32));
-    SDL_FillRect(screen, &textarea, 0);
+    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 32));
+    SDL_FillSurfaceRect(screen, &textarea, 0);
 
     //show this stage's text
     DEBUGMSG(debug_game, "Briefing\n");
@@ -239,9 +239,9 @@ void briefPlayer(int stage)
 
     DEBUGMSG(debug_game, "Finished briefing\n");
 
-    SDL_FreeSurface(loadedsprite);
+    SDL_DestroySurface(loadedsprite);
     if (icon != loadedsprite)
-        SDL_FreeSurface(icon);
+        SDL_DestroySurface(icon);
 }
 
 void readStageSettings(int stage)

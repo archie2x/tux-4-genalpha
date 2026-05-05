@@ -404,7 +404,7 @@ int credits(void)
 
     /* Clear window: */
 
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
+    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
 
     /* Draw title: */
@@ -454,7 +454,7 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
         if(s)
         {           
             line_height = s->h;
-            SDL_FreeSurface(s);
+            SDL_DestroySurface(s);
         }
     }
 
@@ -495,7 +495,7 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
         dest.w = subscreen.w;
         dest.h = speed;
 
-        SDL_FillRect(screen, &dest, SDL_MapRGB(screen->format, 0, 0, 0));
+        SDL_FillSurfaceRect(screen, &dest, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
         ++scroll;
 
@@ -526,7 +526,7 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
             }
         }
 
-        SDL_Flip(screen);
+        T4K_UpdateRect(screen, NULL);
 
         /* Pause (keep frame-rate event) */
         now_time = SDL_GetTicks();
@@ -607,8 +607,8 @@ void draw_text(char * str, int offset)
                         dest.w = 3;
                         dest.h = 3;
 
-                        SDL_FillRect(screen, &dest,
-                                SDL_MapRGB(screen->format, r, g, b));
+                        SDL_FillSurfaceRect(screen, &dest,
+                                SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, r, g, b));
                     }
                 }
             }
@@ -655,7 +655,7 @@ void draw_text(char* str, SDL_Rect dest)
 
     dest.x -= surf->w / 2; //center text
     SDL_BlitSurface(surf, NULL, screen, &dest);
-    SDL_FreeSurface(surf);
+    SDL_DestroySurface(surf);
     DEBUGMSG(debug_titlescreen, "done\n");
 }
 #endif

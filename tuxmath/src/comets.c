@@ -365,7 +365,7 @@ int comets_game(MC_MathGame* mgame)
 #ifndef NOSOUND
         if(Opts_GetGlobalOpt(USE_SOUND))
         {
-            if (!Mix_PlayingMusic())
+            if (!T4K_IsPlayingMusic())
             {
                 T4K_AudioMusicLoad(comets_music_filenames[(rand() % NUM_MUSICS)], T4K_AUDIO_PLAY_ONCE);
             }
@@ -417,8 +417,8 @@ int comets_initialize(void)
     DEBUGCODE(debug_game) print_game_options(stderr, 0);
 
     /* Clear window: */
-    SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
-    SDL_Flip(screen);
+    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+    T4K_UpdateRect(screen, NULL);
 
     comets_status = GAME_IN_PROGRESS;
     gameover_counter = -1;
@@ -656,9 +656,9 @@ void comets_cleanup(void)
 #ifndef NOSOUND
     if(Opts_GetGlobalOpt(USE_SOUND))
     {
-        if (Mix_PlayingMusic())
+        if (T4K_IsPlayingMusic())
         {
-            Mix_HaltMusic();
+            T4K_AudioMusicUnload();
         }
     }
 #endif
@@ -719,7 +719,7 @@ void comets_handle_help(void)
 #ifndef NOSOUND
     if(Opts_GetGlobalOpt(USE_SOUND))
     {
-        if (!Mix_PlayingMusic())
+        if (!T4K_IsPlayingMusic())
         {
             T4K_AudioMusicLoad(comets_music_filenames[(rand() % NUM_MUSICS)], T4K_AUDIO_PLAY_ONCE);
         }
@@ -1006,8 +1006,8 @@ void help_add_comet(const char* formula_str, const char* ans_str)
 
     strncpy(comets[0].flashcard.formula_string,formula_str, MC_MaxFormulaSize() );
     strncpy(comets[0].flashcard.answer_string,ans_str,MC_MaxAnswerSize() );
-    if(comets[0].formula_surf) SDL_FreeSurface(comets[0].formula_surf);
-    if(comets[0].answer_surf) SDL_FreeSurface(comets[0].answer_surf);
+    if(comets[0].formula_surf) SDL_DestroySurface(comets[0].formula_surf);
+    if(comets[0].answer_surf) SDL_DestroySurface(comets[0].answer_surf);
     comets[0].formula_surf = T4K_BlackOutline(comets[0].flashcard.formula_string, comet_fontsize, &white);
     comets[0].answer_surf = T4K_BlackOutline(comets[0].flashcard.answer_string, comet_fontsize, &white);
 }
@@ -1057,7 +1057,7 @@ void comets_write_message(const game_message *msg)
             //FIXME alpha blending doesn't seem to work properly
             SDL_SetAlpha(surf, SDL_SRCALPHA, msg->alpha);
             SDL_BlitSurface(surf, NULL, screen, &rect);
-            SDL_FreeSurface(surf);
+            SDL_DestroySurface(surf);
         }
     }
 }
@@ -1568,9 +1568,9 @@ void comets_handle_comets(void)
                     comets[i].alive = 0;
                     comets[i].expl = -1;
                     if(comets[i].answer_surf)
-                    {SDL_FreeSurface(comets[i].answer_surf); comets[i].answer_surf = NULL; }
+                    {SDL_DestroySurface(comets[i].answer_surf); comets[i].answer_surf = NULL; }
                     if(comets[i].formula_surf)
-                    {SDL_FreeSurface(comets[i].formula_surf); comets[i].formula_surf = NULL; }
+                    {SDL_DestroySurface(comets[i].formula_surf); comets[i].formula_surf = NULL; }
                     if (bonus_comet_counter > 1 && comets[i].zapped) {
                         bonus_comet_counter--;
                         DEBUGMSG(debug_game, "bonus_comet_counter is now %d\n",bonus_comet_counter);
@@ -2021,7 +2021,7 @@ void comets_draw(void)
 #endif
 
     /* Swap buffers: */
-    SDL_Flip(screen);
+    T4K_UpdateRect(screen, NULL);
 }
 
 
@@ -2270,7 +2270,7 @@ void comets_handle_game_over(int game_status)
 
                 /* draw_console_image(tux_img);*/
 
-                SDL_Flip(screen);
+                T4K_UpdateRect(screen, NULL);
                 FC_frame_end();
             }
             while (looping);
@@ -2349,7 +2349,7 @@ void comets_handle_game_over(int game_status)
                     /* Make this blink: */
                     if ((FC_sprite_counter / 2) % 4)
                         SDL_BlitSurface(surf, NULL, screen, &loc);
-                    SDL_FreeSurface(surf);
+                    SDL_DestroySurface(surf);
                     surf = NULL;
                 }
 
@@ -2361,7 +2361,7 @@ void comets_handle_game_over(int game_status)
                     loc.w = surf->w;
                     loc.h = surf->h;
                     SDL_BlitSurface(surf, NULL, screen, &loc);
-                    SDL_FreeSurface(surf);
+                    SDL_DestroySurface(surf);
                     surf = NULL;
                 }
 
@@ -2389,7 +2389,7 @@ void comets_handle_game_over(int game_status)
                             loc.y += surf->h;
                             SDL_BlitSurface(surf, NULL, screen, &loc);
                             entries++;
-                            SDL_FreeSurface(surf);
+                            SDL_DestroySurface(surf);
                             surf = NULL;
                         }
                     }
@@ -2420,7 +2420,7 @@ void comets_handle_game_over(int game_status)
 
                 /* draw_console_image(tux_img);*/
 
-                SDL_Flip(screen);
+                T4K_UpdateRect(screen, NULL);
                 FC_frame_end();
             }
             while (looping);
@@ -2475,7 +2475,7 @@ void comets_handle_game_over(int game_status)
                 }
 
                 SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest_message);
-                SDL_Flip(screen);
+                T4K_UpdateRect(screen, NULL);
 
                 FC_frame_end();
             }
@@ -2534,12 +2534,12 @@ void reset_level(void)
 
     if (bkgd != NULL)
     {
-        SDL_FreeSurface(bkgd);
+        SDL_DestroySurface(bkgd);
         bkgd = NULL;
     }
     if (scaled_bkgd != NULL)
     {
-        SDL_FreeSurface(scaled_bkgd);
+        SDL_DestroySurface(scaled_bkgd);
         scaled_bkgd = NULL;
     }
 
@@ -2745,8 +2745,8 @@ int add_comet(void)
     /* If we make it to here, create a new comet!*/
     comets[com_found].answer = comets[com_found].flashcard.answer;
     comets[com_found].alive = 1;
-    if(comets[com_found].formula_surf) SDL_FreeSurface(comets[com_found].formula_surf);
-    if(comets[com_found].answer_surf) SDL_FreeSurface(comets[com_found].answer_surf);
+    if(comets[com_found].formula_surf) SDL_DestroySurface(comets[com_found].formula_surf);
+    if(comets[com_found].answer_surf) SDL_DestroySurface(comets[com_found].answer_surf);
     comets[com_found].formula_surf = T4K_BlackOutline(comets[com_found].flashcard.formula_string, comet_fontsize, &white);
     comets[com_found].answer_surf = T4K_BlackOutline(comets[com_found].flashcard.answer_string, comet_fontsize, &white);
     //  num_comets_alive++;
@@ -3194,9 +3194,9 @@ void reset_comets(void)
         comets[i].answer = 0;
         MC_ResetFlashCard(&(comets[i].flashcard));
         comets[i].bonus = 0;
-        if(comets[i].formula_surf) SDL_FreeSurface(comets[i].formula_surf);
+        if(comets[i].formula_surf) SDL_DestroySurface(comets[i].formula_surf);
         comets[i].formula_surf = NULL;
-        if(comets[i].answer_surf) SDL_FreeSurface(comets[i].answer_surf);
+        if(comets[i].answer_surf) SDL_DestroySurface(comets[i].answer_surf);
         comets[i].answer_surf = NULL;
     }
 }
@@ -3237,12 +3237,12 @@ void free_on_exit(void)
         DEBUGMSG(debug_game,"About to free surfaces for comet %d\n", i);
         if (comets[i].formula_surf)
         {
-            SDL_FreeSurface(comets[i].formula_surf);
+            SDL_DestroySurface(comets[i].formula_surf);
             comets[i].formula_surf = NULL;
         }
         if (comets[i].answer_surf)
         {
-            SDL_FreeSurface(comets[i].answer_surf);
+            SDL_DestroySurface(comets[i].answer_surf);
             comets[i].answer_surf = NULL;
         }
     }
@@ -3280,19 +3280,19 @@ void free_on_exit(void)
     /* Free background: */
     if (bkgd)
     {
-        SDL_FreeSurface(bkgd);
+        SDL_DestroySurface(bkgd);
         bkgd = NULL;
     }
     if (scaled_bkgd)
     {
-        SDL_FreeSurface(scaled_bkgd);
+        SDL_DestroySurface(scaled_bkgd);
         scaled_bkgd = NULL;
     }
 
 #ifdef HAVE_LIBSDL_NET  
     if(player_left_surf)
     {
-        SDL_FreeSurface(player_left_surf);
+        SDL_DestroySurface(player_left_surf);
         player_left_surf = NULL;
     }
 #endif
@@ -3352,12 +3352,12 @@ void comets_recalc_positions(int xres, int yres)
         //  Re-render the numbers of any living comets at the new resolution:
         if(comets[i].formula_surf != NULL)  //for safety, but shouldn't occur if comet is alive
         {
-            SDL_FreeSurface(comets[i].formula_surf);
+            SDL_DestroySurface(comets[i].formula_surf);
             comets[i].formula_surf = T4K_BlackOutline(comets[i].flashcard.formula_string, comet_fontsize, &white);
         }
         if(comets[i].answer_surf != NULL)
         {
-            SDL_FreeSurface(comets[i].answer_surf);
+            SDL_DestroySurface(comets[i].answer_surf);
             comets[i].answer_surf = T4K_BlackOutline(comets[i].flashcard.answer_string, comet_fontsize, &white);
         }
     }
@@ -3457,9 +3457,9 @@ int powerup_add_comet(void)
     powerup_comet->comet.answer = powerup_comet->comet.flashcard.answer;
     powerup_comet->comet.alive = 1;
     if(powerup_comet->comet.formula_surf)
-        SDL_FreeSurface(powerup_comet->comet.formula_surf);
+        SDL_DestroySurface(powerup_comet->comet.formula_surf);
     if(powerup_comet->comet.answer_surf)
-        SDL_FreeSurface(powerup_comet->comet.answer_surf);
+        SDL_DestroySurface(powerup_comet->comet.answer_surf);
     powerup_comet->comet.formula_surf = T4K_BlackOutline(powerup_comet->comet.flashcard.formula_string, comet_fontsize, &white);
     powerup_comet->comet.answer_surf = T4K_BlackOutline(powerup_comet->comet.flashcard.answer_string, comet_fontsize, &white);
 
@@ -3505,9 +3505,9 @@ void comets_handle_powerup(void)
             powerup_comet->comet.alive = 0;
             powerup_comet->comet.expl = -1;
             if(powerup_comet->comet.answer_surf)
-            {SDL_FreeSurface(powerup_comet->comet.answer_surf); powerup_comet->comet.answer_surf = NULL; }
+            {SDL_DestroySurface(powerup_comet->comet.answer_surf); powerup_comet->comet.answer_surf = NULL; }
             if(powerup_comet->comet.formula_surf)
-            {SDL_FreeSurface(powerup_comet->comet.formula_surf); powerup_comet->comet.formula_surf = NULL; }
+            {SDL_DestroySurface(powerup_comet->comet.formula_surf); powerup_comet->comet.formula_surf = NULL; }
             if(powerup_comet->comet.zapped)
             {
                 switch(powerup_comet->type)
@@ -3749,8 +3749,8 @@ int lan_add_comet(MC_FlashCard* fc)
     MC_CopyCard(fc, &(comets[com_found].flashcard));
     comets[com_found].answer = fc->answer;
     comets[com_found].alive = 1;
-    if(comets[com_found].formula_surf) SDL_FreeSurface(comets[com_found].formula_surf);
-    if(comets[com_found].answer_surf) SDL_FreeSurface(comets[com_found].answer_surf);
+    if(comets[com_found].formula_surf) SDL_DestroySurface(comets[com_found].formula_surf);
+    if(comets[com_found].answer_surf) SDL_DestroySurface(comets[com_found].answer_surf);
     comets[com_found].formula_surf = T4K_BlackOutline(comets[com_found].flashcard.formula_string, comet_fontsize, &white);
     comets[com_found].answer_surf = T4K_BlackOutline(comets[com_found].flashcard.answer_string, comet_fontsize, &white);
     //  num_comets_alive++;
@@ -3915,7 +3915,7 @@ int player_left_recvd(char* buf)
     name = buf + strlen("PLAYER_LEFT\t");
     snprintf(_tmpbuf, sizeof(_tmpbuf), _("%s has left the game."), name);
     if(player_left_surf)
-        SDL_FreeSurface(player_left_surf);
+        SDL_DestroySurface(player_left_surf);
     player_left_surf = T4K_BlackOutline( _tmpbuf, fontsize, &white);
     player_left_time = SDL_GetTicks();
     player_left_pos.y = T4K_GetScreen()->h - player_left_surf->h;

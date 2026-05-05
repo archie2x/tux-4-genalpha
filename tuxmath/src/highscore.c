@@ -190,7 +190,7 @@ void DisplayHighScores(int level)
                     T4K_DrawButton(&button_rect, 15, 0, 0, 32, 192);
                     /* Now blit text and free surface: */
                     SDL_BlitSurface(srfc, NULL, screen, &text_rect);
-                    SDL_FreeSurface(srfc);
+                    SDL_DestroySurface(srfc);
                     srfc = NULL;
                 }
 
@@ -236,7 +236,7 @@ void DisplayHighScores(int level)
                     text_rect.w = srfc->w;
                     text_rect.h = srfc->h;
                     SDL_BlitSurface(srfc, NULL, screen, &text_rect);
-                    SDL_FreeSurface(srfc);
+                    SDL_DestroySurface(srfc);
                     srfc = NULL;
                     /* note where score table will start: */
                     score_table_y = text_rect.y + text_rect.h;
@@ -263,7 +263,7 @@ void DisplayHighScores(int level)
 
                 /* Clear out old surfaces and update: */
                 if (score_surfs[i])               /* this should not happen! */
-                    SDL_FreeSurface(score_surfs[i]);
+                    SDL_DestroySurface(score_surfs[i]);
                 if (HS_Score(diff_level, i) == Opts_LastScore() && frame % 5 < 2)
                     score_surfs[i] = T4K_BlackOutline(N_(score_strings[i]), player_font_size, &yellow);
                 else
@@ -283,7 +283,7 @@ void DisplayHighScores(int level)
                 score_rects[i].w = max_width;
 
                 SDL_BlitSurface(score_surfs[i], NULL, screen, &score_rects[i]);
-                SDL_FreeSurface(score_surfs[i]);
+                SDL_DestroySurface(score_surfs[i]);
                 score_surfs[i] = NULL;
             }
             strcat(tts_temp,". Press space or escape to return to main menu.");
@@ -374,7 +374,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
             loc.x = (screen->w/2) - (surf->w/2);
             loc.y = 110;
             SDL_BlitSurface(surf, NULL, screen, &loc);
-            SDL_FreeSurface(surf);
+            SDL_DestroySurface(surf);
         }
 
         surf = T4K_BlackOutline(_(s2),
@@ -384,7 +384,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
             loc.x = (screen->w/2) - (surf->w/2);
             loc.y = 140;
             SDL_BlitSurface(surf, NULL, screen, &loc);
-            SDL_FreeSurface(surf);
+            SDL_DestroySurface(surf);
         }
 
         surf = T4K_BlackOutline(_(s3),
@@ -394,7 +394,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
             loc.x = (screen->w/2) - (surf->w/2);
             loc.y = 170;
             SDL_BlitSurface(surf, NULL, screen, &loc);
-            SDL_FreeSurface(surf);
+            SDL_DestroySurface(surf);
         }
 
     }
@@ -512,7 +512,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                                         redraw_rect.y,
                                         redraw_rect.w,
                                         redraw_rect.h);
-                                SDL_FreeSurface(s);
+                                SDL_DestroySurface(s);
                                 s = NULL;
                             }
                         }
