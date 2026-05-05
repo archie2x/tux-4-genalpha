@@ -38,21 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
 {
-  wchar_t temp_wchar[UTF_BUF_LENGTH];
-  wchar_t* wchar_start = temp_wchar;
-
-  iconv_t conv_descr;
-  size_t bytes_converted;
-  /* in_length must be the actual UTF-8 byte count, not the buffer size —
-   * otherwise iconv reads past the input into uninitialized memory and
-   * produces garbage trailing wchars (FIFTEEN → FIFTEENN etc). */
-  size_t in_length = strlen(UTF8_word);
-  size_t out_length = (size_t)(UTF_BUF_LENGTH - 1) * sizeof(wchar_t);
-
-  /* Zero the temp buffer so any "leftover" bytes after the converted output
-   * are guaranteed to be a wchar null terminator. */
-  memset(temp_wchar, 0, sizeof(temp_wchar));
-
   if(max_length > UTF_BUF_LENGTH)
   {
     fprintf(stderr, "ConvertFromUTF8() - error - requested string length %d exceeds buffer length %d\n",
@@ -62,24 +47,35 @@ int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
 
   DEBUGCODE {fprintf(stderr, "ConvertFromUTF8(): UTF8_word = %s\n", UTF8_word);}
 
-  /* NOTE although we *should* be just able to pass "wchar_t" as the out_type, */
-  /* iconv_open() segfaults on Windows if this is done - grrr....             */
-#ifdef WIN32
-  conv_descr = iconv_open("UTF-16LE", "UTF-8");
-#else
-  conv_descr = iconv_open("wchar_t", "UTF-8");
-#endif
+  /* mbstowcs respects the current LC_CTYPE locale, so it correctly
+   * decodes multi-byte UTF-8 — Devanagari, Cyrillic, etc. — into wchar_t
+   * code points. Force LC_CTYPE to UTF-8 here so the conversion works
+   * even if the theme's theme_locale_name doesn't include .UTF-8 (e.g.
+   * Hindi ships "hi_IN" without the suffix and macOS won't infer it).
+   *
+   * Old code used iconv("wchar_t", "UTF-8") which works on GNU iconv but
+   * is not a recognized encoding on macOS's libiconv, so the conversion
+   * silently failed and every non-ASCII word produced 0 wide chars. */
+  char* prev_ctype = setlocale(LC_CTYPE, NULL);
+  char  saved_ctype[64];
+  if (prev_ctype) { strncpy(saved_ctype, prev_ctype, sizeof(saved_ctype)-1); saved_ctype[sizeof(saved_ctype)-1] = '\0'; }
+  else            { saved_ctype[0] = '\0'; }
+  if (!setlocale(LC_CTYPE, "en_US.UTF-8"))
+      setlocale(LC_CTYPE, "C.UTF-8");
 
-  bytes_converted = iconv(conv_descr,
-                          (char**) &UTF8_word, &in_length,
-                          (char**) &wchar_start, &out_length);
-  iconv_close(conv_descr);
-  wcsncpy(wide_word, temp_wchar, max_length);
-  wide_word[max_length - 1] = L'\0';
+  size_t n = mbstowcs(wide_word, UTF8_word, (size_t)max_length - 1);
 
-  DEBUGCODE {fprintf(stderr, "ConvertToUTF8(): wide_word = %S\n", wide_word);}
+  if (saved_ctype[0]) setlocale(LC_CTYPE, saved_ctype);
+  if (n == (size_t)-1)
+  {
+    fprintf(stderr, "ConvertFromUTF8(): invalid UTF-8 in '%s'\n", UTF8_word);
+    wide_word[0] = L'\0';
+    return -1;
+  }
+  wide_word[n] = L'\0';
 
-  return wcslen(wide_word);
+  DEBUGCODE {fprintf(stderr, "ConvertFromUTF8(): wide_word = %ls\n", wide_word);}
+  return (int)n;
 }
 
 

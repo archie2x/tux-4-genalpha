@@ -1639,7 +1639,22 @@ static TTF_Font* get_font(int size)
     }
 
     if(font_list[size] == NULL)
+    {
+	/* Load the default (Latin) font as primary, then chain the theme
+	 * font as a fallback so glyphs missing from the default — e.g.
+	 * Devanagari, Bengali — get rendered from the theme font. UI
+	 * chrome (English menu labels) stays in Andika; theme content
+	 * (Hindi wordlist titles, Hindi falling fish) renders via the
+	 * theme font automatically. */
 	font_list[size] = load_font(DEFAULT_FONT_NAME, size);
+	const char* theme_font = T4K_AskFontName();
+	if (font_list[size] && theme_font &&
+	    strcmp(theme_font, DEFAULT_FONT_NAME) != 0)
+	{
+	    TTF_Font* fb = load_font(theme_font, size);
+	    if (fb) TTF_AddFallbackFont(font_list[size], fb);
+	}
+    }
     return font_list[size];
 }
 

@@ -85,6 +85,12 @@ void LoadLang(void)
   char buf [30];
   char tts_language[10];
   s1 = setlocale(LC_ALL, settings.theme_locale_name);
+  /* Tell t4k_common which font to use for text rendering this theme.
+   * Without this, every menu/wordlist title fell back to the default
+   * Latin font, which has no Devanagari/Bengali/etc. glyphs — Hindi
+   * lists rendered as empty rows. */
+  if (settings.theme_font_name[0])
+      T4K_SetFontName(settings.theme_font_name);
   s2 = bindtextdomain(PACKAGE, tt_locale_dir());
   s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
   s4 = textdomain(PACKAGE);

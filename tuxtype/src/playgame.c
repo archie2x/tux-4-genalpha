@@ -1469,7 +1469,12 @@ static void MoveFishies(int *fishies, int *splats, int *lifes, int *frame)
   {
     if (fish_object[i].alive) 
     {
-      for (j = 0; j < fish_object[i].len; j++)
+      /* Erase one extra slot past the word — Indic conjuncts (and some
+       * accented Latin) can render wider than fish_sprite.w, spilling
+       * into the slot to the right; without this last-slot erase, the
+       * trailing pixels of the last char leave a streak as the fish
+       * moves down. */
+      for (j = 0; j <= fish_object[i].len; j++)
         EraseSprite( fish_sprite, fish_object[i].x + (fish_sprite->frame[0]->w*j), fish_object[i].y );
 	            
       fish_object[i].y += fish_object[i].dy;
