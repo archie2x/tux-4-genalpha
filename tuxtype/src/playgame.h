@@ -106,6 +106,7 @@ typedef struct {
 struct fishypoo {
     int alive;
     int can_eat;
+    int excused;        /* set after we play the "excuse me" SFX once */
     wchar_t* word;
     double x, y;
     int    w;

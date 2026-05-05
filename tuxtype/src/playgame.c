@@ -616,8 +616,12 @@ int PlayCascade(int diflevel)
 
       LOG( "--->Starting Ending Animation\n" );
 
-      for ( i=0; i<= done_frames; i++ ) 
+      for ( i=0; i<= done_frames; i++ )
       {
+        /* Drain the event queue each frame — without this the OS treats
+         * the process as hung after a few hundred ms of no event activity. */
+        SDL_PumpEvents();
+
         temp_text_count = (temp_text_count+1) % temp_text_frames;
 
         text_rect.y -= END_FRAME_DY;
@@ -635,7 +639,10 @@ int PlayCascade(int diflevel)
         DrawObject(level[diflevel], 1, 1);
         draw_bar(curlevel - 1, diflevel, curlives, oldlives, fish_left, oldfish_left);
 
-        next_tux_frame();
+        /* Match MoveTux's pacing — advance the animation every 3rd frame
+         * (≈5 fps) so the win/lose Tux doesn't flap his arms wildly. */
+        if ((i % 3) == 0)
+            next_tux_frame();
 //        SNOW_update();
         /* Do all pending blits and increment frame counter: */
         UpdateScreen(&frame);
@@ -1184,6 +1191,7 @@ static void SpawnFishies(int diflevel, int* fishies, int* frame)
   fish_object[*fishies].len = wcslen(new_word); //using wchar_t[] now
   fish_object[*fishies].alive = 1;
   fish_object[*fishies].can_eat = 0;
+  fish_object[*fishies].excused = 0;
   fish_object[*fishies].w = fish_sprite->frame[0]->w * fish_object[*fishies].len;
   fish_object[*fishies].x = rand() % (screen->w - fish_object[*fishies].w);
   fish_object[*fishies].y = 0;
@@ -1570,8 +1578,13 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
 			} else if (tux_object.state == TUX_STANDING) {
 				LOG( "***EXCUSE ME!** - in CheckCollision()\n" );
 
-				if (settings.sys_sound)
+				/* Play "excuse me" once per fish — without the per-fish
+				 * latch, every frame Tux stays under the same fish would
+				 * retrigger it. */
+				if (settings.sys_sound && !fish_object[i].excused) {
 					PlaySound(sound[EXCUSEME_WAV]);
+					fish_object[i].excused = 1;
+				}
 			}
 		}
 	}
