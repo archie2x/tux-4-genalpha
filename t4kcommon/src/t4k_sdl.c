@@ -681,16 +681,6 @@ void T4K_SwitchScreenMode(void)
 {
     if (!t4k_window) return;
 
-#ifdef __APPLE__
-    /* macOS already gives the user a native fullscreen control: the green
-     * traffic-light button (which uses Cocoa Spaces — menu bar reveals on
-     * hover, ⌃⌘F also works). SDL_SetWindowFullscreen() goes through a
-     * different path that disables those controls and traps the user
-     * until they re-press F10. Easier for everyone to just no-op F10 here
-     * and tell macOS users to use the green button. */
-    return;
-#endif
-
     bool was_fullscreen = (SDL_GetWindowFlags(t4k_window) & SDL_WINDOW_FULLSCREEN) != 0;
 
     if (!SDL_SetWindowFullscreen(t4k_window, !was_fullscreen))
