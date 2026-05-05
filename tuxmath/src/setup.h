@@ -40,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 void setup(int argc, char * argv[]);
 void cleanup(void);
 void cleanup_on_error(void);
+const char* tm_data_prefix(void);
 extern void initialize_options_user(void);
 /* for debugging gettext behavior */
 void print_locale_info(FILE* fp);

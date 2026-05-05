@@ -153,6 +153,12 @@ install(DIRECTORY data/
         PATTERN "*.lst"
 )
 
+# Mission/lesson config files have no extension, so they need their own
+# install rule (FILES_MATCHING above only takes globbed patterns).
+install(DIRECTORY data/missions
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
+)
+
 message(STATUS "tuxmath configuration:")
 message(STATUS "  data prefix : ${TUXMATH_DATA_PREFIX}")
 message(STATUS "  var prefix  : ${TUXMATH_VAR_PREFIX}")

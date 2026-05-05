@@ -250,6 +250,10 @@ int run_academy(void)
     while (chosen_lesson >= 0)
     {
         DEBUGMSG(debug_menu, "chosen_lesson: %d\n", chosen_lesson);
+        /* Guard against menu returning an index when no lessons were
+         * found on disk (lesson_list_filenames stays NULL in that case). */
+        if (!lesson_list_filenames || chosen_lesson >= num_lessons)
+            break;
         if (Opts_GetGlobalOpt(MENU_SOUND))
             playsound(SND_POP);
 

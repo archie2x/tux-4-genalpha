@@ -4105,13 +4105,13 @@ int tts_announcer(void *unused)
 				}
 			}
 			
-			/*Odering the fishes with respect to y axis
-			 * we only sort and announce the last three
-			 * comets other wise it causes segfault */
+			/* Order by y-axis descending. We announce the lowest
+			 * three comets (closest to the cities). Bound the sort
+			 * by `iter` so we never read past the alive-count. */
 			if (iter != 0)
 			{
-				for (i = 0; i < 3; i++){
-					for(j = 0; j < 3; j++){
+				for (i = 0; i < iter; i++){
+					for(j = 0; j + 1 < iter; j++){
 						if (comets[order[j]].y < comets[order[j+1]].y){
 							y_axis = order[j+1];
 							order[j+1] = order[j];
@@ -4120,9 +4120,10 @@ int tts_announcer(void *unused)
 					}
 				}
 				
-				/* Announces only last three comets 
-				 * to avoid confusion for a listener*/
-				for (i = 0; i < 3 ; i++)
+				/* Announce up to the lowest three comets,
+				 * but never more than are actually alive. */
+				int n_announce = (iter < 3) ? iter : 3;
+				for (i = 0; i < n_announce; i++)
 				{
 					if (tts_announcer_switch == 0)
 						goto end;

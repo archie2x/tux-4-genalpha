@@ -729,12 +729,24 @@ void initialize_SDL(void)
 }
 
 
+/* Cached runtime data prefix — relocatable lookup the first time, then
+ * the compile-time fallback. Exposed via tm_data_prefix() so other TUs
+ * can build paths to data files without hard-coding DATA_PREFIX. */
+static char tm_rt_data_prefix[PATH_MAX];
+
+const char* tm_data_prefix(void)
+{
+    if (tm_rt_data_prefix[0]) return tm_rt_data_prefix;
+    const char* p = T4K_RelocatablePath("../share/tuxmath");
+    strncpy(tm_rt_data_prefix, p ? p : DATA_PREFIX, PATH_MAX - 1);
+    return tm_rt_data_prefix;
+}
+
 void load_data_files(void)
 {
     /* Prefer relocatable path so the binary works from any install root.
      * Falls back to the compile-time DATA_PREFIX bake-in (-D). */
-    const char* p = T4K_RelocatablePath("../share/tuxmath");
-    T4K_AddDataPrefix(p ? p : DATA_PREFIX);
+    T4K_AddDataPrefix(tm_data_prefix());
     if (!load_sound_data())
     {
         fprintf(stderr, "\nCould not load sound file - attempting to proceed without sound.\n");
