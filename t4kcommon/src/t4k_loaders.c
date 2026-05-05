@@ -643,7 +643,14 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 	case IMG_ALPHA:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
-		return SDL_DuplicateSurface(img);
+		/* SDL2 defaulted alpha-channel surfaces to BLENDMODE_BLEND;
+		 * SDL3 defaults to BLENDMODE_NONE, which makes soft edges
+		 * look hard-cut or fully opaque (visible on Comet Zap's
+		 * glowing tails). Set blend explicitly to restore SDL2
+		 * behavior. */
+		SDL_Surface* dup = SDL_DuplicateSurface(img);
+		if (dup) SDL_SetSurfaceBlendMode(dup, SDL_BLENDMODE_BLEND);
+		return dup;
 	    }
 
 	case IMG_COLORKEY:
