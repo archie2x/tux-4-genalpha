@@ -26,6 +26,8 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "SDL_extras.h"
 #include "convert_utf.h"
 #include "braille.h"
+#include <ctype.h>
+#include <wctype.h>
 
 #define MAX_PHRASES 256
 #define MAX_PHRASE_LENGTH 256
@@ -1899,31 +1901,31 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 		
 		if (phrases[cur_phrase][i] == L',')
 		{
-			wcscat(temp,gettext(L"comma"));
+			wcscat(temp,L"comma");
 		}
 		else if (phrases[cur_phrase][i] == L'.')
 		{
-			wcscat(temp,gettext(L"full stop"));
+			wcscat(temp,L"full stop");
 		}
 		else if (phrases[cur_phrase][i] == L'\'')
 		{
-			wcscat(temp,gettext(L"apostophe"));
+			wcscat(temp,L"apostophe");
 		}
 		else if (phrases[cur_phrase][i] == L';')
 		{
-			wcscat(temp,gettext(L"semicolon"));
+			wcscat(temp,L"semicolon");
 		}		
 		else if (phrases[cur_phrase][i] == L':')
 		{
-			wcscat(temp,gettext(L"colon"));
+			wcscat(temp,L"colon");
 		}
 		else if (phrases[cur_phrase][i] == L'?')
 		{
-			wcscat(temp,gettext(L"Qustion mark"));
+			wcscat(temp,L"Qustion mark");
 		}
 		else if (phrases[cur_phrase][i] == L'-')
 		{
-			wcscat(temp,gettext(L"Hyphen"));
+			wcscat(temp,L"Hyphen");
 		}		
 		else
 		{

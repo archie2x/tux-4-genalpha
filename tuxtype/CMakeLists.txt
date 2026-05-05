@@ -105,6 +105,7 @@ target_compile_definitions(tuxtype PRIVATE
     PACKAGE="${PROJECT_NAME}"
     VERSION="${PROJECT_VERSION}"
     NO_RAND_THEME=1
+    ENABLE_NLS=1
 )
 
 target_link_libraries(tuxtype PRIVATE
@@ -114,6 +115,7 @@ target_link_libraries(tuxtype PRIVATE
     SDL3_ttf::SDL3_ttf
     Intl::Intl
     Iconv::Iconv
+    m
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")

@@ -464,8 +464,12 @@ void HandleTitleScreenAnimations_Reset(bool reset)
     }
 
     if (egg_active) { //if we need to, draw the egg cursor
-        //who knows why GetMouseState() doesn't take Sint16's...
-        SDL_GetMouseState((int*)(&cursor.x), (int*)(&cursor.y));
+        /* SDL3's SDL_GetMouseState takes float* (not int*); read into floats
+         * and convert into the cursor rect's int x/y. */
+        float mx = 0, my = 0;
+        SDL_GetMouseState(&mx, &my);
+        cursor.x = (int)mx;
+        cursor.y = (int)my;
         cursor.x -= egg->w / 2; //center vertically
         SDL_BlitSurface(egg, NULL, screen, &cursor);
         T4K_UpdateRect(screen, &cursor);

@@ -14,6 +14,7 @@
 
 #include "t4k_common.h"
 #include "t4k_globals.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 #define SFX_TRACK_POOL 8

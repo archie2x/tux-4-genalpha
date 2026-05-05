@@ -55,6 +55,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include <stdio.h>  /* DEBUGCODE/DEBUGMSG below use stderr+fprintf+fflush. */
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>

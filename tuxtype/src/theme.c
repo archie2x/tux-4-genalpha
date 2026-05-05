@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
+#include <ctype.h>
 
 
 #define MAX_LANGUAGES 100

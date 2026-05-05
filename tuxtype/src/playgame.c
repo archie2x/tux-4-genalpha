@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "playgame.h"
 #include "snow.h"
 #include "SDL_extras.h"
+#include <ctype.h>
 #include "input_methods.h"
 #include "braille.h"
 

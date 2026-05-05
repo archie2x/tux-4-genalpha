@@ -241,7 +241,8 @@ MenuNode *menu_TranslateNode(xmlNode *node) {
     }
 
     if(node->type == XML_ELEMENT_NODE) {
-	xmlAttr *current, *child;
+	xmlAttr *current;
+	xmlNode *child; /* node->children is xmlNode*, not xmlAttr*. */
 	tnode = create_empty_node();
 
 	for(current = node->properties; current; current = current->next) {

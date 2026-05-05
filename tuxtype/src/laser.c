@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include "laser.h"
 #include "braille.h"
+#include <ctype.h>
 
 
 #define FPS (1000 / 15)   /* 15 fps max */
