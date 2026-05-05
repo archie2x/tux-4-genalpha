@@ -182,6 +182,14 @@ int handle_activity(int act, int param)
             DEBUGMSG(debug_menu, "activity: RUN_SET_BRAILLE_KEYS\n");
             break;
 
+        case RUN_SET_VOLUME:
+            DEBUGMSG(debug_menu, "activity: RUN_SET_VOLUME\n");
+            /* Reuse Pause()'s volume-slider UI. Its return code (1=quit,
+             * 0=continue) is irrelevant outside a game — the user just
+             * dismisses with SPACE/ESC and returns to the menu. */
+            Pause();
+            break;
+
         case RUN_PROJECT_INFO:
             DEBUGMSG(debug_menu, "activity: RUN_PROJECT_INFO\n");
             ProjectInfo();
@@ -211,7 +219,10 @@ void LoadMenus(void)
     T4K_SetActivitiesList(N_OF_ACTIVITIES, activities);
     /* main menu */
     T4K_LoadMenu(MENU_MAIN, "main_menu.xml");
-    T4K_SetMenuFontSize(MF_BESTFIT, 0);
+    /* UNIFORM picks one font size shared across the root menu and all
+     * submenus, so each screen consistently shows the same number of
+     * buttons (BESTFIT alone sized each submenu independently). */
+    T4K_SetMenuFontSize(MF_UNIFORM, 0);
     T4K_PrerenderAll();
 }
 

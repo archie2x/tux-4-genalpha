@@ -113,7 +113,7 @@ static MenuNode* menus[N_OF_MENUS];
 /* stop button, left and right arrow positions do not
    depend on currently displayed menu */
 SDL_Rect menu_rect, stop_rect, prev_rect, next_rect, menu_title_rect;
-SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
+SDL_Surface *stop_button, *back_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 /* Surfaces for "tooltips" description panel: */
 SDL_Surface *desc_prerendered = NULL, *desc_panel = NULL;
 
@@ -124,7 +124,10 @@ SDL_Surface *desc_prerendered = NULL, *desc_panel = NULL;
 
 /* TODO: maybe it is better to move these constants into a config file ? */
 /* X Y W H */
-const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
+/* Menu buttons start at y=0.13 (top of desc panel) instead of 0.23 to
+ * recover vertical space — extra room lets MF_BESTFIT pack a fourth
+ * button per screen. */
+const float menu_pos[4] = {0.38, 0.13, 0.55, 0.82};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
@@ -133,6 +136,7 @@ const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
  * snapshot/animation flicker described in the SDL3 port notes. */
 const float desc_panel_pos[4] = {0.05, 0.13, 0.3, 0.40};
 const char* stop_path = "menu/stop.svg";
+const char* back_path = "menu/left.svg";
 const char* prev_path = "menu/left.svg";
 const char* next_path = "menu/right.svg";
 const char* prev_gray_path = "menu/left_gray.svg";
@@ -276,7 +280,9 @@ MenuNode *menu_TranslateNode(xmlNode *node) {
 	    i = 0;
 	    for(child = node->children; child; child = child->next) {
 		if(child->type == XML_ELEMENT_NODE) {
-		    tnode->submenu[i++] = menu_TranslateNode(child);
+		    MenuNode* sub = menu_TranslateNode(child);
+		    if (sub) sub->parent = tnode;  /* link upward for back-nav */
+		    tnode->submenu[i++] = sub;
 		}
 	    }
 	}
@@ -492,7 +498,12 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 		SDL_BlitSurface(menu->submenu[menu->first_entry + i]->icon->default_img, NULL, T4K_GetScreen(), &menu->submenu[menu->first_entry + i]->icon_rect);
 	}
 
-	SDL_BlitSurface(stop_button, NULL, T4K_GetScreen(), &stop_rect);
+	{
+	    /* Submenu → "back" arrow icon; root menu → "stop" X icon. */
+	    SDL_Surface* corner =
+	        (menu->parent && back_button) ? back_button : stop_button;
+	    if (corner) SDL_BlitSurface(corner, NULL, T4K_GetScreen(), &stop_rect);
+	}
 
 	/* check if there is a need to draw menu arrows */
 	if(menu->entries_per_screen < menu->submenu_size)
@@ -1220,7 +1231,10 @@ void prerender_menu(MenuNode* menu)
     button_h = (1.0 + 2.0 * text_h_gap) * max_text_h;
     button_w = max_text_w + ( (found_icons ? 1.0 : 0.0) + 2.0 * text_w_gap) * button_h;
 
-    menu->entries_per_screen = (int) ( (menu_rect.h - button_gap * button_h) /
+    /* First button sits flush at menu_rect.y (aligned with the desc panel
+     * top). Subsequent buttons are stacked with `button_gap*button_h` of
+     * padding between them. */
+    menu->entries_per_screen = (int) ( (menu_rect.h + button_gap * button_h) /
 	    ( (1.0 + button_gap) * button_h ) );
 
     for(i = 0; i < menu->submenu_size; i++)
@@ -1228,7 +1242,7 @@ void prerender_menu(MenuNode* menu)
 	curr_node = menu->submenu[i];
 	curr_node->button_rect.x = menu_rect.x;
 	imod = i % menu->entries_per_screen;
-	curr_node->button_rect.y = menu_rect.y + imod * button_h + (imod + 1) * button_gap * button_h;
+	curr_node->button_rect.y = menu_rect.y + imod * (1.0 + button_gap) * button_h;
 	curr_node->button_rect.w = button_w;
 	curr_node->button_rect.h = button_h;
 
@@ -1264,7 +1278,12 @@ void T4K_PrerenderMenu(int index)
 {
     if (font_strategy == MF_EXACTLY)
 	menus[index]->font_size = default_font_size;
-    else 
+    else if (font_strategy == MF_UNIFORM)
+	; /* set_font_size(true) already ran in T4K_PrerenderAll and picked
+	   * one shared size for every menu. Don't re-fit per-menu here —
+	   * that would clobber the uniform value with each menu's own
+	   * BESTFIT result. */
+    else
 	set_menu_font_size(menus[index]);
 
     prerender_menu(menus[index]);
@@ -1379,14 +1398,23 @@ void set_font_size(bool uniform)
     {
 	if (menus[j])
 	    for (i = 0; i < menus[j]->submenu_size; ++i)
-		find_longest_text(menus[j]->submenu[i], &w);
+	    {
+		/* Existing code dropped the return value, so `longest` stayed
+		 * NULL and the function early-returned without doing anything
+		 * — every menu kept its independent BESTFIT size. */
+		char* candidate = find_longest_text(menus[j]->submenu[i], &w);
+		if (candidate) longest = candidate;
+	    }
     }
 
     if(!longest) return;
 
-    for (i = 0; i < N_OF_MENUS; ++i)
-	if (menus[i])
-	    set_font_size_explicitly(menus[i], binsearch(min_font_size, max_font_size, _(longest)) );
+    {
+        int chosen = binsearch(min_font_size, max_font_size, _(longest));
+        for (i = 0; i < N_OF_MENUS; ++i)
+            if (menus[i])
+                set_font_size_explicitly(menus[i], chosen);
+    }
 }
 
 void set_menu_font_size(MenuNode* menu)
@@ -1473,6 +1501,12 @@ void T4K_PrerenderAll()
     if(stop_button)
 	SDL_DestroySurface(stop_button);
     stop_button = T4K_LoadImageOfBoundingBox(stop_path, IMG_ALPHA, stop_rect.w, stop_rect.h);
+    /* "Back" variant for submenus — arrow icon instead of X. Click on it
+     * is already handled the same way (STOP_ESC vs STOP_QUIT diverged by
+     * menu->parent), so only the visual swap is needed. */
+    if(back_button)
+	SDL_DestroySurface(back_button);
+    back_button = T4K_LoadImageOfBoundingBox(back_path, IMG_ALPHA, stop_rect.w, stop_rect.h);
     /* move button to the right */
     stop_rect.x = T4K_GetScreen()->w - stop_button->w;
 
