@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define SUMMARY_EXTENSION ".txt"
 #else
 #define SUMMARY_EXTENSION ""
-#endif 
+#endif
 
 static char* summary_filenames[NUM_SUMMARIES] = {
     "summary1" SUMMARY_EXTENSION,
@@ -114,7 +114,7 @@ static char* get_file_name(char *fullpath);
 /* STOLEN from tuxpaint */
 
 /*
-   Removes a single '\' or '/' from end of path 
+   Removes a single '\' or '/' from end of path
    */
 static char *remove_slash(char *path)
 {
@@ -210,7 +210,7 @@ static char* high_scores_file_path = NULL;
 static char* last_config_file_name = NULL;
 
 char *get_user_data_dir ()
-{ 
+{
     if (! user_data_dir)
     {
 #ifdef BUILD_MINGW32
@@ -226,7 +226,7 @@ char *get_user_data_dir ()
 #endif
     }
 
-    return user_data_dir;  
+    return user_data_dir;
 }
 
 /* This function sets the user data directory, and also sets a flag
@@ -354,7 +354,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     /* First look in current working directory:  */
     getcwd(opt_path, PATH_MAX); /* get current working directory */
     /* add separating '/' unless cwd is '/' : */
-    if (0 != strcmp("/", opt_path)) 
+    if (0 != strcmp("/", opt_path))
     {
         strcat(opt_path, "/");
     }
@@ -384,7 +384,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     /* Next try matching filename as absolute:      */
     /* Supply leading '/' if not already there:   */
     if (0 == strncmp ("/", filename, 1))
-    { 
+    {
         strcpy(opt_path, filename);
     }
     else
@@ -437,7 +437,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
             fclose(fp);
             fp = NULL;
         }
-    }  
+    }
 
     /* Next look in missions/lessons folder (for prepared "lessons curriculum"):      */
     strcpy(opt_path, tm_data_prefix());
@@ -462,7 +462,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
             fclose(fp);
             fp = NULL;
         }
-    }  
+    }
 
     /* Next look in missions/arcade folder (for high score competition):      */
     strcpy(opt_path, tm_data_prefix());
@@ -487,7 +487,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
             fclose(fp);
             fp = NULL;
         }
-    }  
+    }
 
     /* Look in user's hidden .tuxmath directory  */
     /* find $HOME and tack on file name: */
@@ -656,8 +656,7 @@ int parse_lesson_file_directory(void)
         }
         /* Now copy the rest of the first line into the list: */
         /* Note that "length + 1" is needed so that the final \0 is copied! */
-        memmove(lesson_list_titles[lessons], &name_buf[i], length + 1); 
-
+        memmove(lesson_list_titles[lessons], &name_buf[i], length + 1);
 
         /* Increment the iterator for correctly-parsed lesson files */
         lessons++;
@@ -1050,7 +1049,7 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
     /* make sure we start at beginning: */
     rewind(fp);
 
-    /* read in top line (lesson title), removing initial "# "          */ 
+    /* read in top line (lesson title), removing initial "# "          */
     {
         char* p1, *p2;
         fgets (buf, PATH_MAX, fp);
@@ -1068,7 +1067,7 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
     rewind(fp);
 
     while (fgets (buf, PATH_MAX, fp))
-    { 
+    {
         /* "parameter" and "value" will contain the non-whitespace chars */
         /* before and after the '=' sign, respectively.  e.g.:           */
         /*                                                               */
@@ -1128,7 +1127,7 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
 
         /* skip leading whitespace */
         while (isspace(*value))
-        { 
+        {
             ++value;
         }
 
@@ -1149,18 +1148,18 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
 
         /* Now ready to handle each name/value pair! */
 
-        /* Set general game_options struct (see tuxmath.h): */ 
+        /* Set general game_options struct (see tuxmath.h): */
         //    if(0 == strcasecmp(parameter, "per_user_config"))
         //    {
         //      /* Only let administrator change this setting */
-        //      if (file_type == GLOBAL_CONFIG_FILE) 
+        //      if (file_type == GLOBAL_CONFIG_FILE)
         //      {
         //        int v = str_to_bool(value);
         //        if (v != -1)
         //          Opts_SetGlobalOpt(PER_USER_CONFIG, v);
         //      }
         //    }
-        //                                 
+        //
         //    else if(0 == strcasecmp(parameter, "homedir"))
         //    {
         //      /* Only let administrator change this setting */
@@ -1322,7 +1321,7 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         else if(0 == strcasecmp(parameter, "starting_comets"))
         {
             Opts_SetStartingComets(atoi(value));
-        }          
+        }
 
         else if(0 == strcasecmp(parameter, "extra_comets_per_wave"))
         {
@@ -1379,9 +1378,9 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
                 ival = atoi(value);
             if (!parse_option(game, parameter, ival, file_type) )
                 fprintf(stderr, "Sorry, I couldn't set %s\n", parameter);
-            //        
+            //
             //      if (file_type != GLOBAL_CONFIG_FILE)
-            //        MC_SetOp(parameter, ival); 
+            //        MC_SetOp(parameter, ival);
             //      else
             //      {
             //        if(0 != strcasecmp(parameter, "homedir"))
@@ -1407,18 +1406,26 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         free(parameter);
     }
     //handle min > max by disallowing operation
-    if (MC_GetOpt(game, MIN_AUGEND) > MC_GetOpt(game, MAX_AUGEND) || 
-            MC_GetOpt(game, MIN_ADDEND) > MC_GetOpt(game, MAX_ADDEND) )
+    if (MC_GetOpt(game, MIN_AUGEND) > MC_GetOpt(game, MAX_AUGEND) ||
+        MC_GetOpt(game, MIN_ADDEND) > MC_GetOpt(game, MAX_ADDEND))
+    {
         MC_SetOpt(game, ADDITION_ALLOWED, 0);
-    if (MC_GetOpt(game, MIN_MINUEND) > MC_GetOpt(game, MAX_MINUEND) || 
-            MC_GetOpt(game, MIN_SUBTRAHEND) > MC_GetOpt(game, MAX_SUBTRAHEND) )
+    }
+    if (MC_GetOpt(game, MIN_MINUEND) > MC_GetOpt(game, MAX_MINUEND) ||
+        MC_GetOpt(game, MIN_SUBTRAHEND) > MC_GetOpt(game, MAX_SUBTRAHEND))
+    {
         MC_SetOpt(game, SUBTRACTION_ALLOWED, 0);
-    if (MC_GetOpt(game, MIN_MULTIPLICAND) > MC_GetOpt(game, MAX_MULTIPLICAND) || 
-            MC_GetOpt(game, MIN_MULTIPLIER) > MC_GetOpt(game, MAX_MULTIPLIER) )
+    }
+    if (MC_GetOpt(game, MIN_MULTIPLICAND) > MC_GetOpt(game, MAX_MULTIPLICAND) ||
+        MC_GetOpt(game, MIN_MULTIPLIER) > MC_GetOpt(game, MAX_MULTIPLIER))
+    {
         MC_SetOpt(game, MULTIPLICATION_ALLOWED, 0);
-    if (MC_GetOpt(game, MIN_DIVISOR) > MC_GetOpt(game, MAX_DIVISOR) || 
-            MC_GetOpt(game, MIN_QUOTIENT) > MC_GetOpt(game, MAX_QUOTIENT) )
+    }
+    if (MC_GetOpt(game, MIN_DIVISOR) > MC_GetOpt(game, MAX_DIVISOR) ||
+        MC_GetOpt(game, MIN_QUOTIENT) > MC_GetOpt(game, MAX_QUOTIENT))
+    {
         MC_SetOpt(game, DIVISION_ALLOWED, 0);
+    }
     if (MC_GetOpt(game, MIN_TYPING_NUM) > MC_GetOpt(game, MAX_TYPING_NUM) )
         MC_SetOpt(game, TYPING_PRACTICE_ALLOWED, 0);
 
@@ -1561,9 +1568,9 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# the list whether or not they are answered correctly, and #\n"
             "# the game continues as long as there is a surviving city. #\n"
             "############################################################\n"
-            "\n";                                                           
+            "\n";
 
-        vcomments[ADDITION_ALLOWED] = 
+        vcomments[ADDITION_ALLOWED] =
             "\n############################################################\n"
             "#                                                          #\n"
             "#               Selecting Math Operations                  #\n"
@@ -1608,7 +1615,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# from 1 (yes) to 0 (no), any negative operand limits will #\n"
             "# be reset to 0.                                           #\n"
             "############################################################\n\n";
-        vcomments[MIN_AUGEND] = 
+        vcomments[MIN_AUGEND] =
             "\n############################################################\n"
             "#                                                          #\n"
             "#      Minimum and Maximum Values for Operand Ranges       #\n"
@@ -1627,19 +1634,17 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "############################################################\n"
             "\n# Addition operands:\n"
             "# augend + addend = sum\n\n";
-        vcomments[MIN_MINUEND] = 
-            "\n# Subtraction operands:\n"
-            "# minuend - subtrahend = difference\n\n";
-        vcomments[MIN_MULTIPLIER] = 
-            "\n# Multiplication operands:\n"
-            "# multiplier * multiplicand = product\n\n";
-        vcomments[MIN_DIVISOR] = 
-            "\n# Division operands:\n"
-            "# dividend / divisor = quotiend\n\n";
+        vcomments[MIN_MINUEND]    = "\n# Subtraction operands:\n"
+                                    "# minuend - subtrahend = difference\n\n";
+        vcomments[MIN_MULTIPLIER] = "\n# Multiplication operands:\n"
+                                    "# multiplier * multiplicand = product\n\n";
+        vcomments[MIN_DIVISOR]    = "\n# Division operands:\n"
+                                    "# dividend / divisor = quotiend\n\n";
         vcomments[MIN_TYPING_NUM] =
             "\n# Typing practice:\n";
-        vcomments[QUESTION_COPIES] = 
-            "\n\n\n############################################################\n"
+        vcomments[QUESTION_COPIES] =
+            "\n\n\n############################################################"
+            "\n"
             "#                                                          #\n"
             "#                   Advanced Options                       #\n"
             "#                                                          #\n"
@@ -1674,7 +1679,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# missed question will reappear. This can be set anywhere  #\n"
             "# from 1 to 10.                                            #\n"
             "#                                                          #\n"
-            "# The defaults for these values result in a 'mission'      #\n" 
+            "# The defaults for these values result in a 'mission'      #\n"
             "# for Tux that is accomplished by answering all            #\n"
             "# questions correctly with at least one surviving city.    #\n"
             "############################################################\n\n";
@@ -1699,7 +1704,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# The formats are set independently for each of the four   #\n"
             "# math operations. All parameters are type 'boolean'.      #\n"
             "############################################################\n\n";
-        vcomments[MAX_ANSWER] = 
+        vcomments[MAX_ANSWER] =
             "\n############################################################\n"
             "#                                                          #\n"
             "# Parameter: max_answer (integer)                          #\n"
@@ -1710,7 +1715,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# is 999, which is as high as it can be set. It can be set #\n"
             "# lower to fine-tune the list for certain 'lessons'.       #\n"
             "############################################################\n\n";
-        vcomments[MAX_QUESTIONS] = 
+        vcomments[MAX_QUESTIONS] =
             "\n############################################################\n"
             "#                                                          #\n"
             "# Parameter: max_questions (integer)                       #\n"
@@ -1720,7 +1725,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# list. Default is 5000 - only severe taskmasters will     #\n"
             "# need to raise it!                                        #\n"
             "############################################################\n\n";
-        vcomments[RANDOMIZE] = 
+        vcomments[RANDOMIZE] =
             "\n############################################################\n"
             "#                                                          #\n"
             "# Parameter: randomize (boolean)                           #\n"
@@ -1730,7 +1735,6 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "# at the start of the game. Otherwise, the questions       #\n"
             "# appear in the order the program generates them.          #\n"
             "############################################################\n\n";
-
     }
     DEBUGMSG(debug_fileops, "Entering write_config_file()\n");
 
@@ -1758,53 +1762,55 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     if (verbose)
     {
         //use_sound comment
-    } 
+    }
     fprintf(fp, "use_sound = %d\n", Opts_GetGlobalOpt(USE_SOUND) );
 
     if (verbose)
     {
-        fprintf (fp, "\n############################################################\n" 
-                "#                                                          #\n"
-                "#                Advanced Comet Speed Options              #\n"
-                "#                                                          #\n"
-                "# Parameter: starting_comets (integer)                     #\n"
-                "# Default: 2                                               #\n"
-                "# Parameter: extra_comets_per_wave (integer)               #\n"
-                "# Default: 2                                               #\n"
-                "# Parameter: max_comets (integer)                          #\n"
-                "# Default: 10                                              #\n"
-                "# Parameter: speed (float)                                 #\n"
-                "# Default: 1.00                                            #\n"
-                "# Parameter: max_speed (float)                             #\n"
-                "# Default: 10.00                                           #\n"
-                "# Parameter: speedup_factor (float)                        #\n"
-                "# Default: 1.20                                            #\n"
-                "# Parameter: bonus_comet_interval (integer)                #\n"
-                "# Default: 10                                              #\n"
-                "# Parameter: bonus_speed_ratio (float)                     #\n"
-                "# Default: 1.50                                            #\n"
-                "# Parameter: slow_after_wrong (bool)                       #\n"
-                "# Default: 0                                               #\n"
-                "#                                                          #\n"
-                "# (for 'feedback' speed control system):                   #\n"
-                "# Parameter: danger_level (float)                          #\n"
-                "# Default: 0.35                                            #\n"
-                "# Parameter: danger_level_speedup (float)                  #\n"
-                "# Default: 1.1                                             #\n"
-                "# Parameter: danger_level_max (float)                      #\n"
-                "# Default: 0.9                                             #\n"
-                "# Parameter: city_explode_handicap (float)                 #\n"
-                "# Default: 0                                               #\n"
-                "#                                                          #\n"
-                "# The comet number parameters and initial/max speed apply  #\n"
-                "# whether or not the feedback system is activated.         #\n"
-                "#                                                          #\n"
-                "# 'speedup_factor' and 'slow_after_wrong' only apply if    #\n"
-                "# feedback is not activated.                               #\n"
-                "#                                                          #\n"
-                "# The 'danger_level_*' and 'city_explode_handicap'         #\n"
-                "# parameters are only used if feedback is activated.       #\n"
-                "############################################################\n\n");
+        fprintf(
+            fp,
+            "\n############################################################\n"
+            "#                                                          #\n"
+            "#                Advanced Comet Speed Options              #\n"
+            "#                                                          #\n"
+            "# Parameter: starting_comets (integer)                     #\n"
+            "# Default: 2                                               #\n"
+            "# Parameter: extra_comets_per_wave (integer)               #\n"
+            "# Default: 2                                               #\n"
+            "# Parameter: max_comets (integer)                          #\n"
+            "# Default: 10                                              #\n"
+            "# Parameter: speed (float)                                 #\n"
+            "# Default: 1.00                                            #\n"
+            "# Parameter: max_speed (float)                             #\n"
+            "# Default: 10.00                                           #\n"
+            "# Parameter: speedup_factor (float)                        #\n"
+            "# Default: 1.20                                            #\n"
+            "# Parameter: bonus_comet_interval (integer)                #\n"
+            "# Default: 10                                              #\n"
+            "# Parameter: bonus_speed_ratio (float)                     #\n"
+            "# Default: 1.50                                            #\n"
+            "# Parameter: slow_after_wrong (bool)                       #\n"
+            "# Default: 0                                               #\n"
+            "#                                                          #\n"
+            "# (for 'feedback' speed control system):                   #\n"
+            "# Parameter: danger_level (float)                          #\n"
+            "# Default: 0.35                                            #\n"
+            "# Parameter: danger_level_speedup (float)                  #\n"
+            "# Default: 1.1                                             #\n"
+            "# Parameter: danger_level_max (float)                      #\n"
+            "# Default: 0.9                                             #\n"
+            "# Parameter: city_explode_handicap (float)                 #\n"
+            "# Default: 0                                               #\n"
+            "#                                                          #\n"
+            "# The comet number parameters and initial/max speed apply  #\n"
+            "# whether or not the feedback system is activated.         #\n"
+            "#                                                          #\n"
+            "# 'speedup_factor' and 'slow_after_wrong' only apply if    #\n"
+            "# feedback is not activated.                               #\n"
+            "#                                                          #\n"
+            "# The 'danger_level_*' and 'city_explode_handicap'         #\n"
+            "# parameters are only used if feedback is activated.       #\n"
+            "############################################################\n\n");
     }
 
     if(verbose)
@@ -1920,7 +1926,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     fprintf(fp, "danger_level_max = %.2f\n", Opts_DangerLevelMax());
 
     if (verbose)
-    { 
+    {
         fprintf (fp, "\n# (Feedback) Set the handicap for hitting cities.\n"
                 "# When bigger than 0, this causes the game to slow down\n"
                 "# by an extra amount after a wave in which one or more\n"
@@ -1932,33 +1938,35 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
 
     if(verbose)
     {
-        fprintf (fp, "\n\n############################################################\n" 
-                "#                                                          #\n"
-                "#                  Managing User Settings                  #\n"
-                "#                                                          #\n"
-                "# Parameter: per_user_config (boolean)                     #\n"
-                "# Default: 1                                               #\n"
-                "# Parameter: homedir (string)                              #\n"
-                "# Default: <none supplied>                                 #\n"
-                "#                                                          #\n"
-                "# 'per_user_config' determines whether Tuxmath will look   #\n"
-                "# in the user's home directory for settings. Default is 1  #\n"
-                "# (yes). If set to 0, the program will ignore the user's   #\n"
-                "# .tuxmath file and use the the global settings in the     #\n"
-                "# installation-wide config file.                           #\n"
-                "#                                                          #\n"
-                "# 'homedir' allows you to specify the location to look for #\n"
-                "# user home directories. You probably do not want to       #\n"
-                "# specify this unless all users share the same login       #\n"
-                "# account. See the README for details on configuration.    #\n"
-                "# To enable this feature, remove the '#' comment mark and  #\n"
-                "# set the path as desired.                                 #\n"
-                "#                                                          #\n"
-                "# These settings cannot be changed by an ordinary user, as #\n"
-                "# they are ignored unless the config file is Tuxmath's     #\n"
-                "# global config file. Thus, users cannot 'lock themselves  #\n"
-                "# out' by accidentally setting per_user_config to 0.       #\n"
-                "############################################################\n\n");
+        fprintf(
+            fp,
+            "\n\n############################################################\n"
+            "#                                                          #\n"
+            "#                  Managing User Settings                  #\n"
+            "#                                                          #\n"
+            "# Parameter: per_user_config (boolean)                     #\n"
+            "# Default: 1                                               #\n"
+            "# Parameter: homedir (string)                              #\n"
+            "# Default: <none supplied>                                 #\n"
+            "#                                                          #\n"
+            "# 'per_user_config' determines whether Tuxmath will look   #\n"
+            "# in the user's home directory for settings. Default is 1  #\n"
+            "# (yes). If set to 0, the program will ignore the user's   #\n"
+            "# .tuxmath file and use the the global settings in the     #\n"
+            "# installation-wide config file.                           #\n"
+            "#                                                          #\n"
+            "# 'homedir' allows you to specify the location to look for #\n"
+            "# user home directories. You probably do not want to       #\n"
+            "# specify this unless all users share the same login       #\n"
+            "# account. See the README for details on configuration.    #\n"
+            "# To enable this feature, remove the '#' comment mark and  #\n"
+            "# set the path as desired.                                 #\n"
+            "#                                                          #\n"
+            "# These settings cannot be changed by an ordinary user, as #\n"
+            "# they are ignored unless the config file is Tuxmath's     #\n"
+            "# global config file. Thus, users cannot 'lock themselves  #\n"
+            "# out' by accidentally setting per_user_config to 0.       #\n"
+            "############################################################\n\n");
     }
     fprintf(fp, "per_user_config = %d\n", Opts_GetGlobalOpt(PER_USER_CONFIG));
     fprintf(fp, "# homedir = /servervolume/tuxmath_users\n");
@@ -2069,7 +2077,7 @@ int write_pregame_summary(MC_MathGame* game)
         strcat(filepath2, summary_filenames[i]);
         /* now change the name: */
         rename(filepath1, filepath2);
-    } 
+    }
 
     /* summary_filenames[0] (i.e. 'summary1') should now be vacant:     */
     get_user_data_dir_with_subdir(filepath1);
@@ -2149,8 +2157,8 @@ int write_postgame_summary(MC_MathGame* game)
         /* Avoid divide-by-zero errror: */
         if (total_answered)
         {
-            fprintf(fp, "Percent Correct:\t%d %%\n", 
-                    ((MC_NumAnsweredCorrectly(game) * 100)/ total_answered) );
+            fprintf(fp, "Percent Correct:\t%d %%\n",
+                    ((MC_NumAnsweredCorrectly(game) * 100) / total_answered));
         }
         else
             fprintf(fp, "Percent Correct: (not applicable)\n");
@@ -2417,7 +2425,7 @@ static int str_to_bool(const char* val)
             ||(0 == strcasecmp(val, "off")))
     {
         return 0;
-    }  
+    }
 
     return -1;
 

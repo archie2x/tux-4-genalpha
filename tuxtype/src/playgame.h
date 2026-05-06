@@ -1,12 +1,12 @@
 /*
    playgame.h:
 
-   
+
    Typedefs and #defines used in playgame.c
 
    Copyright 2000, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -25,7 +25,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 //NOTE: it looks like all this stuff is only used in playgame.c, so
 //why do we have it in a header file??
@@ -156,7 +155,7 @@ struct splatter {
 
 struct splatter null_splat;
 
-//Structure for passing address of data to threded function 
+//Structure for passing address of data to threded function
 struct tts_announcer_cascade_data_struct
 {
 	int *address_of_fishies;

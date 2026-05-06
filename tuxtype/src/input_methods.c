@@ -3,14 +3,14 @@
    by David Bruce <davidstuartbruce@gmail.com> for use in Tux Typing and other
    Tux4Kids programs - 2009-2010.  Adaptation for Tux Typing assisted by Mark
    K. Kim.  Revised version licensed under GPLv3 or later as described below.
-  
+
    The upstream "pristine" version of this file can be obtained from
    http://www.tuxpaint.org
 
    Input method handling
    Copyright 2007, 2009, 2010 by Mark K. Kim, David Bruce and others.
-   
-   For adapted version in Tux Math, Tux Typing, and t4k_common library:   
+
+   For adapted version in Tux Math, Tux Typing, and t4k_common library:
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -29,7 +29,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 /*
 * See the LANGUAGE-SPECIFIC IM FUNCTIONS section for instructions on adding
@@ -1815,7 +1814,7 @@ void im_init(IM_DATA* im, int lang)
 
   #ifdef DEBUG
   assert(0 <= im->lang && im->lang < NUM_LANGS);
-  
+
   if(im_event_fns[im->lang])
     printf("Initializing IM for %s...\n", lang_prefixes[im->lang]);
   #endif

@@ -5,7 +5,7 @@
 
    Copyright 2000, 2003, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,7 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 
 //TTS Parameters
 #define DEFAULT_VALUE 30
@@ -53,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* NOTE only SDL_extras.c/.h now knows about SDL_ttf or SDL_Pango. */
 
-// Translation stuff: 
+// Translation stuff:
 #include "gettext.h"
 #include <locale.h>
 #include <iconv.h>
@@ -64,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /* FIXME don't think this is needed (done elsewhere) */
-#ifdef WIN32 
+#ifdef WIN32
 #undef DATA_PREFIX
 #define DATA_PREFIX "./data"
 #endif
@@ -139,7 +138,7 @@ extern struct braille_dict braille_key_value_map[100];
 /* Default values for game_option_type struct */
 /* They can be changed in the struct to other values at run-time */
 #define DEFAULT_FONT_NAME       "AndikaDesRevG.ttf"
-#define DEFAULT_GAME_FONT       "AndikaDesRevG.ttf" 
+#define DEFAULT_GAME_FONT "AndikaDesRevG.ttf"
 #define DEFAULT_MENU_FONT_SIZE	20
 #define GAME_FONT_SIZE	20
 #define DEFAULT_LOCALE	        "en_US.UTF-8"
@@ -174,17 +173,15 @@ extern SDL_Window* tt_window;
 extern int fs_res_x;
 extern int fs_res_y;
 
-
-
 /* #defines for run-time debugging output:
  *
  * - Use LOG if you want to output a string LOG( "Hello World");
- *   
+ *
  * - Use DOUT if you want to output a value of a variable and the
  *   name of the variable gives enough context:
  *   DOUT( specialCode );  would add to stderr: "specialCode = 1\n" or
  *   whatever value specialCode had
- *   
+ *
  * - Use DEBUGCODE if you need to do something more complicated like
  *   DEBUGCODE { fprintf(stderr, "examining letter %d\n", x); }
  *   since DOUT(x) "x = 1\n" gives little information since x is used
@@ -238,28 +235,54 @@ extern int fs_res_y;
 #define MUSIC_FADE_OUT_MS	80
 
 /* Menu Prototypes */
-enum Game_Type { 
-  QUIT_GAME, CASCADE, OPTIONS, LESSONS,
-  INSTRUCT_CASCADE, CASCADE1, CASCADE2, CASCADE3, CASCADE4,
-  INSTRUCT_LASER, LASER1, LASER2, LASER3, LASER4,
-  PHRASE_TYPING, ASDF, ALL, MAIN, SET_LANGUAGE, PROJECT_INFO, NOT_CODED,
-  LEVEL1, LEVEL2, LEVEL3, LEVEL4, LASER, INSTRUCT, EDIT_WORDLIST, NONE};
+enum Game_Type
+{
+    QUIT_GAME,
+    CASCADE,
+    OPTIONS,
+    LESSONS,
+    INSTRUCT_CASCADE,
+    CASCADE1,
+    CASCADE2,
+    CASCADE3,
+    CASCADE4,
+    INSTRUCT_LASER,
+    LASER1,
+    LASER2,
+    LASER3,
+    LASER4,
+    PHRASE_TYPING,
+    ASDF,
+    ALL,
+    MAIN,
+    SET_LANGUAGE,
+    PROJECT_INFO,
+    NOT_CODED,
+    LEVEL1,
+    LEVEL2,
+    LEVEL3,
+    LEVEL4,
+    LASER,
+    INSTRUCT,
+    EDIT_WORDLIST,
+    NONE
+};
 
 //Game difficulty levels
 enum { EASY, MEDIUM, HARD, INSANE, INF_PRACT };
 #define NUM_LEVELS  4
 
-enum 
+enum
 {
-  WIN_WAV,
-  BITE_WAV,
-  LOSE_WAV,
-  RUN_WAV,
-  SPLAT_WAV,
-  WINFINAL_WAV,
-  EXCUSEME_WAV,
-  PAUSE_WAV,
-  NUM_WAVES
+    WIN_WAV,
+    BITE_WAV,
+    LOSE_WAV,
+    RUN_WAV,
+    SPLAT_WAV,
+    WINFINAL_WAV,
+    EXCUSEME_WAV,
+    PAUSE_WAV,
+    NUM_WAVES
 };
 
 extern const int debug_titlescreen;

@@ -435,7 +435,7 @@ static int FF_init(void)
     shift_pressed = 0;
     shoot_pressed = 0;
     button_pressed = 0;
-    SDL_quit_received = 0; 
+    SDL_quit_received = 0;
     score = 0;
     wave = 0;
     escape_received = 0;

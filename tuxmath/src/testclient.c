@@ -6,11 +6,11 @@
 
 NOTE: This file was initially based on example code from The Game
 Programming Wiki (http://gpwiki.org), in a tutorial covered by the
-GNU Free Documentation License 1.2. No invariant sections were 
+GNU Free Documentation License 1.2. No invariant sections were
 indicated, and no separate license for the example code was listed.
 The author was also not listed. AFAICT,this scenario allows incorporation
 of derivative works into a GPLv3+ project like TuxMath.  FWIW, virtually
-none of the tutorial code is still present here - David Bruce 
+none of the tutorial code is still present here - David Bruce
 
 Copyright 2009, 2010, 2011.
 Authors: Akash Gangil, David Bruce
@@ -33,8 +33,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #ifdef HAVE_LIBSDL_NET
 
 #include "globals.h"
@@ -49,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 
 //#include "SDL_net.h"
 
@@ -109,8 +107,7 @@ int main(int argc, char **argv)
         }
 
         fprintf(stderr, "connected\n");
-    } 
-
+    }
 
     else  // More than one server - will have to get player selection:
     {
@@ -154,10 +151,9 @@ int main(int argc, char **argv)
 
     fprintf(stderr, "Welcome to the Tux Math Test Client!\n");
     fprintf(stderr, "Type:\n"
-            "'game' to start math game;\n"
-            "'exit' to end client leaving server running;\n"
-            "'quit' to end both client and server\n>\n"); 
-
+                    "'game' to start math game;\n"
+                    "'exit' to end client leaving server running;\n"
+                    "'quit' to end both client and server\n>\n");
 
     /* Set stdin to be non-blocking: */
     fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
@@ -165,14 +161,14 @@ int main(int argc, char **argv)
 
     quit = 0;
     while(!quit)
-    { 
+    {
         // See if we have any messages from server:
         game_check_msgs();
 
-        //Get user input from command line and send it to server: 
+        //Get user input from command line and send it to server:
         /*now display the options*/
         if(read_stdin_nonblock(buffer, NET_BUF_LEN))
-        { 
+        {
             //Figure out if we are trying to quit:
             if( (strncmp(buffer, "exit", 4) == 0)
                     ||(strncmp(buffer, "quit", 4) == 0))
@@ -186,9 +182,9 @@ int main(int argc, char **argv)
                 playgame();
                 fprintf(stderr, "Math game finished.\n\n");
                 fprintf(stderr, "Type:\n"
-                        "'game' to start math game;\n"
-                        "'exit' to end client leaving server running;\n"
-                        "'quit' to end both client and server\n>\n"); 
+                                "'game' to start math game;\n"
+                                "'exit' to end client leaving server running;\n"
+                                "'quit' to end both client and server\n>\n");
             }
             else
             {
@@ -245,15 +241,19 @@ int game_check_msgs(void)
         {
             if(!add_quest_recvd(buf))
                 fprintf(stderr, "ADD_QUESTION received but could not add question\n");
-            else  
+            else
+            {
                 print_current_quests();
+            }
         }
         else if(strncmp(buf, "REMOVE_QUESTION", strlen("REMOVE_QUESTION")) == 0)
         {
             if(!remove_quest_recvd(buf)) //remove the question with id in buf
                 fprintf(stderr, "REMOVE_QUESTION received but could not remove question\n");
-            else 
+            else
+            {
                 print_current_quests();
+            }
         }
         else if(strncmp(buf, "SEND_MESSAGE", strlen("SEND_MESSAGE")) == 0)
         {
@@ -270,9 +270,9 @@ int game_check_msgs(void)
         }
         else if(strncmp(buf, "MISSION_ACCOMPLISHED", strlen("MISSION_ACCOMPLISHED")) == 0)
         {
-            game_status = GAME_OVER_WON; 
+            game_status = GAME_OVER_WON;
         }
-        else 
+        else
         {
             fprintf(stderr, "game_check_msgs() - unrecognized message: %s\n", buf);
         }
@@ -337,7 +337,7 @@ int player_msg_recvd(char* buf)
         return 0;
     p = strchr(buf, '\t');
     if(p)
-    { 
+    {
         p++;
         fprintf(stderr, "%s\n", p);
         return 1;
@@ -354,9 +354,9 @@ int total_quests_recvd(char* buf)
         return 0;
     p = strchr(buf, '\t');
     if(p)
-    { 
+    {
         p++;
-        remaining_quests = atoi(p); 
+        remaining_quests = atoi(p);
         return 1;
     }
     else
@@ -379,7 +379,7 @@ int playgame(void)
     fprintf(stderr, "Waiting for other players to be ready...\n\n");
 
     //Tell server we're ready to start:
-    LAN_StartGame(); 
+    LAN_StartGame();
     game_status = GAME_IN_PROGRESS;
 
     /* Start out with our "comets" empty: */
@@ -423,20 +423,21 @@ int playgame(void)
                 ans = atoi(buf);
                 fc = check_answer(ans);
                 if((fc != NULL))
-                {  
+                {
                     fprintf(stderr, "%s is correct!\nAwait next question...\n>\n", buf);
                     //Tell server we answered it right:
                     //NOTE the '-1' means we aren't tracking times for testclient
                     LAN_AnsweredCorrectly(fc->question_id, -1);
-                    erase_flashcard(fc);  
+                    erase_flashcard(fc);
                     print_current_quests();
                 }
                 else  //we got input, but not the correct answer:
                 {
                     int i = rand()%QUEST_QUEUE_SIZE;
-                    fprintf(stderr, "Sorry, %s is incorrect. Try again!\n", buf); 
+                    fprintf(stderr, "Sorry, %s is incorrect. Try again!\n",
+                            buf);
                     // Can't tell which question was the 'wrong' one, so we
-                    // a non-empty one at random.  Note that this is just for 
+                    // a non-empty one at random.  Note that this is just for
                     // purposes of testing LAN_NotAnsweredCorrectly()
                     while(-1 == comets[i].question_id)
                         i = rand()%QUEST_QUEUE_SIZE;
@@ -444,10 +445,10 @@ int playgame(void)
                     print_current_quests();
                 }
             }  //input wasn't any of our keywords
-        } // Input was received 
+        } // Input was received
 
         Throttle(10, &timer);  //so don't eat all CPU
-    } //End of game loop 
+    } //End of game loop
 
     switch(game_status)
     {
@@ -498,7 +499,7 @@ void print_current_quests(void)
     int i;
     fprintf(stderr, "\n------------  Current Questions:  -----------\n");
     for(i = 0; i < QUEST_QUEUE_SIZE; i ++)
-    { 
+    {
         if(comets[i].question_id != -1)
             fprintf(stderr, "Comet %d - question %d:\t%s\n", i, comets[i].question_id, comets[i].formula_string);
         else

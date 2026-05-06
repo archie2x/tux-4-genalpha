@@ -100,20 +100,16 @@ int             stop_lan_host(void);
 
 /* convenience wrapper for T4K_RunMenu */
 int run_menu(MenuType which, bool return_choice)
-{    
+{
     DEBUGCODE(debug_setup)
-    {   
+    {
         fprintf(stderr, "From run_menu():\n");
         print_locale_info(stderr);
     }
 
-    return T4K_RunMenu(
-            which,
-            return_choice,
-            &DrawTitleScreen, 
-            &HandleTitleScreenEvents, 
-            &HandleTitleScreenAnimations, 
-            &handle_activity);
+    return T4K_RunMenu(which, return_choice, &DrawTitleScreen,
+                       &HandleTitleScreenEvents, &HandleTitleScreenAnimations,
+                       &handle_activity);
 }
 
 /*
@@ -447,7 +443,8 @@ int run_lan_host(void)
     /* For now, only allow one server instance: */
     if(OurServerRunning())
     {
-        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("The server is already running")); 
+        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                        _("The server is already running"));
         return 0;
     }
 
@@ -458,7 +455,9 @@ int run_lan_host(void)
 
     if(!PortAvailable(DEFAULT_PORT))
     {
-        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("The port is in use by another program on this computer, most likely another Tux Math server")); 
+        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                        _("The port is in use by another program on this "
+                          "computer, most likely another Tux Math server"));
         return 0;
     }
 
@@ -492,7 +491,7 @@ int run_lan_host(void)
             /* Now read the selected file and play the "mission": */
             if (read_named_config_file(lan_game_settings, lesson_list_filenames[chosen_lesson]))
                 break;
-            else    
+            else
             {  // Something went wrong - could not read lesson config file:
                 fprintf(stderr, "\nCould not find file: %s\n", lesson_list_filenames[chosen_lesson]);
                 chosen_lesson = -1;
@@ -526,7 +525,8 @@ int run_lan_host(void)
 
     /* No SDL_net, so show explanatory message: */
 #else
-    ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,_("\nSorry, this version built without network support.")); 
+    ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                    _("\nSorry, this version built without network support."));
     printf( _("Sorry, this version built without network support.\n"));
 #endif
     return 0;
@@ -538,7 +538,7 @@ int stop_lan_host(void)
     if(!OurServerRunning())
     {
         ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("The server is not running."));
-        return 0; 
+        return 0;
     }
 
     if(SrvrGameInProgress())
@@ -555,7 +555,7 @@ int stop_lan_host(void)
 
 int run_lan_join(void)
 {
-    DEBUGMSG(debug_menu|debug_lan, "Enter run_lan_join()\n"); 
+    DEBUGMSG(debug_menu | debug_lan, "Enter run_lan_join()\n");
 
 #ifdef HAVE_LIBSDL_NET
     int pregame_status;
@@ -572,44 +572,46 @@ int run_lan_join(void)
     /* Connected to server but not yet in game */
     pregame_status = Pregame();
     switch(pregame_status)
-    {     
-        case PREGAME_OVER_START_GAME:
-            playsound(SND_TOCK);
-            T4K_AudioMusicUnload();
-            Opts_SetLanMode(1);  // Tells game() we are playing over network
-            comets_game(lan_game_settings);
-            Opts_SetLanMode(0);  // Go back to local play
-            if (Opts_GetGlobalOpt(MENU_MUSIC))
-                T4K_AudioMusicLoad( "tuxi.ogg", -1 );
-            break;
+    {
+    case PREGAME_OVER_START_GAME:
+        playsound(SND_TOCK);
+        T4K_AudioMusicUnload();
+        Opts_SetLanMode(1); // Tells game() we are playing over network
+        comets_game(lan_game_settings);
+        Opts_SetLanMode(0); // Go back to local play
+        if (Opts_GetGlobalOpt(MENU_MUSIC))
+            T4K_AudioMusicLoad("tuxi.ogg", -1);
+        break;
 
-        case PREGAME_GAME_IN_PROGRESS:
-            playsound(SND_TOCK);
-            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("Sorry, game already in progress"));
-            LAN_Cleanup();
-            break;
+    case PREGAME_GAME_IN_PROGRESS:
+        playsound(SND_TOCK);
+        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                        _("Sorry, game already in progress"));
+        LAN_Cleanup();
+        break;
 
-        case PREGAME_OVER_LAN_DISCONNECT: 
-            playsound(SND_TOCK);
-            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("Connection with server was lost"));
-            LAN_Cleanup();
-            break;
+    case PREGAME_OVER_LAN_DISCONNECT:
+        playsound(SND_TOCK);
+        ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                        _("Connection with server was lost"));
+        LAN_Cleanup();
+        break;
 
-        case PREGAME_OVER_ESCAPE: 
-            LAN_Cleanup();
-            return 0;
+    case PREGAME_OVER_ESCAPE:
+        LAN_Cleanup();
+        return 0;
 
-        default:
-            { /* do nothing */ }
-
-    }  
+    default:
+    { /* do nothing */
+    }
+    }
 #else
     ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("Sorry, this version built without network support"));
     DEBUGMSG(debug_menu|debug_lan,  _("Sorry, this version built without network support.\n"));
     return 0;
 #endif
 
-    DEBUGMSG(debug_menu|debug_lan, "Leaving run_lan_join()\n"); 
+    DEBUGMSG(debug_menu | debug_lan, "Leaving run_lan_join()\n");
     return 1;
 }
 

@@ -1,7 +1,7 @@
 /*
    server.h:
 
-   Headers related to the tuxmathserver program (or thread) for the 
+   Headers related to the tuxmathserver program (or thread) for the
    multiplayer LAN version of tuxmath
 
    Copyright 2009, 2010, 2011.
@@ -27,11 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
 #ifndef TM_SERVER_H
-#define TM_SERVER_H 
+#define TM_SERVER_H
 
 #include "config.h"
 

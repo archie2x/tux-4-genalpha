@@ -53,7 +53,7 @@ int ConnectToServer(void)
 
     int finished = 0;
     Uint32 timer = 0;
-    int servers_found = 0;  
+    int    servers_found = 0;
 
     DEBUGMSG(debug_lan, "\n Enter ConnectToServer()\n");
 
@@ -133,7 +133,7 @@ int ConnectToServer(void)
 
             snprintf(buf, 256, _("TuxMath detected %d running servers.\nClick to continue..."), servers_found);
 
-            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,buf); 
+            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, buf);
             servernames = malloc(servers_found * sizeof(char*));
 
             for(i = 0; i < servers_found; i++)
@@ -157,8 +157,7 @@ int ConnectToServer(void)
             break;
         }
 
-
-        while (SDL_PollEvent(&event)) 
+        while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
@@ -202,7 +201,8 @@ int ConnectToServer(void)
         if(!LAN_SetName(player_name)) //tell server nickname
         {
             ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("Connection with server lost"));
-            T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,_("Connection with server lost"));   
+            T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                        _("Connection with server lost"));
             return 0;
         }
     }
@@ -241,7 +241,7 @@ int Pregame(void)
 
     //set up locations:
     ready_rect.x = screen->w * 0.45;            ready_rect.y = screen->h * 0.15;
-    ready_rect.w = ready_rect.h = screen->w * 0.1;  
+    ready_rect.w = ready_rect.h = screen->w * 0.1;
     //set up surfaces for remaining buttons:
     play_surf = T4K_LoadImageOfBoundingBox("status/player_play.svg", IMG_ALPHA,ready_rect.w, ready_rect.h);
     pause_surf = T4K_LoadImageOfBoundingBox("status/player_pause.svg", IMG_ALPHA, ready_rect.w, ready_rect.h);
@@ -252,8 +252,6 @@ int Pregame(void)
     notready_subtitle = T4K_BlackOutline(_("Click \"Play\" when ready"), DEFAULT_MENU_FONT_SIZE, &white);
     T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s. %s. Press space to announce updated table",_("Waiting for other players"), \
     _("Waiting until you are ready"),_("Click \"Play\" when ready"));
-
-    
 
     //Make sure we have needed surfaces:
     if(!stop_button || !play_surf || !pause_surf || !ready_title

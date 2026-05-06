@@ -1,11 +1,11 @@
 /*
    loaders.c:
-   
+
    Functions to load multimedia for Tux Typing.
 
    Copyright 2000, 2003, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -51,7 +49,10 @@ int CheckFile(const char* file)
     return -1;
   }
 
-  DEBUGCODE {fprintf(stderr, "CheckFile() - checking: %s\n", file);} 
+  DEBUGCODE
+  {
+      fprintf(stderr, "CheckFile() - checking: %s\n", file);
+  }
 
   dp = opendir(file);
   if (dp)
@@ -113,8 +114,7 @@ void LoadLang(void)
   snprintf(buf, 30, "%s", settings.theme_locale_name);
   buf[5] = '\0';  //en_US" rather than "en_US.utf8"
   DEBUGCODE { fprintf(stderr, "buf is: %s\n", buf); }
-  
-    
+
   /* Loading braille Map */
   if (settings.braille)
   {
@@ -125,8 +125,8 @@ void LoadLang(void)
 	  else{
 		  sprintf(file_name,"%s.txt",settings.theme_name);
 	  }
-	  
-	  //If map not found then disable braille mode
+
+      //If map not found then disable braille mode
 	  if (braille_language_loader(file_name) == 0){
 		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND
 				,gettext("Braille mode is not available for this language. Braille disabled!"));
@@ -135,17 +135,17 @@ void LoadLang(void)
 	  }
   }
 
-  /* Setting TTS language 
+  /* Setting TTS language
    * with code such as ml for malayalam*/
-   sprintf(tts_language,"%.*s",2,buf);
-   if (!T4K_Tts_set_voice(tts_language))
-   {
-	 T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,
-		gettext("Tts is not available for this language. Tts disabled!"));
-     settings.tts = 0;
-     text_to_speech_status = 0;
-   }
-  
+  sprintf(tts_language, "%.*s", 2, buf);
+  if (!T4K_Tts_set_voice(tts_language))
+  {
+      T4K_Tts_say(
+          DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+          gettext("Tts is not available for this language. Tts disabled!"));
+      settings.tts          = 0;
+      text_to_speech_status = 0;
+  }
 
   if (my_setenv("LANG", buf) == -1)
   {
@@ -335,10 +335,14 @@ SDL_Surface* LoadImage(const char* datafile, int mode)
   /* Couldn't load image - action depends on whether image is essential: */
   if (!tmp_pic)
   {
-    { 
-      DEBUGCODE { fprintf(stderr, "Warning - could not load graphics file %s\n", datafile);}
-      return NULL;
-    }
+      {
+          DEBUGCODE
+          {
+              fprintf(stderr, "Warning - could not load graphics file %s\n",
+                      datafile);
+          }
+          return NULL;
+      }
   }
 
 
@@ -383,18 +387,16 @@ SDL_Surface* LoadImage(const char* datafile, int mode)
   return (final_pic);
 }
 
-
-
 /**********************
-LoadBothBkgds() : loads two scaled images: one for the user's native 
-resolution and one for 640x480 fullscreen. 
+LoadBothBkgds() : loads two scaled images: one for the user's native
+resolution and one for 640x480 fullscreen.
 Returns: the number of images that were scaled
 **********************/
 int LoadBothBkgds(const char* datafile)
 {
   int ret = 0;
   SDL_Surface* orig = NULL;
-  
+
   //Avoid memory leak in case something else already loaded:
   FreeBothBkgds();
 
@@ -404,8 +406,8 @@ int LoadBothBkgds(const char* datafile)
 
   DEBUGCODE
   {
-     printf("Scaling %dx%d to: %dx%d, %dx%d\n", 
-           orig->w, orig->h, RES_X, RES_Y, fs_res_x, fs_res_y);
+      printf("Scaling %dx%d to: %dx%d, %dx%d\n", orig->w, orig->h, RES_X, RES_Y,
+             fs_res_x, fs_res_y);
   }
 
   if (orig->w == RES_X && orig->h == RES_Y)
@@ -417,7 +419,7 @@ int LoadBothBkgds(const char* datafile)
     win_bkgd = zoom(orig, RES_X, RES_Y);
     ++ret;
   }
-  
+
   if (orig->w == fs_res_x && orig->h == fs_res_y)
   {
     fullscr_bkgd = orig;
@@ -427,7 +429,7 @@ int LoadBothBkgds(const char* datafile)
     fullscr_bkgd = zoom(orig, fs_res_x, fs_res_y);
     ++ret;
   }
-  
+
   if (ret == 2) //orig won't be used at all
       SDL_DestroySurface(orig);
 
@@ -509,7 +511,7 @@ void FreeSprite(sprite* gfx )
 
   if (!gfx)
     return;
- 
+
   for (x = 0; x < gfx->num_frames; x++)
   {
     if (gfx->frame[x])

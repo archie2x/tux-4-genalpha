@@ -81,14 +81,10 @@ int             handle_activity(int act, int param);
 
 /* convenience wrapper for T4K_RunMenu */
 int run_menu(MenuType which, bool return_choice)
-{    
-    return T4K_RunMenu(
-            which,
-            return_choice,
-            &DrawTitleScreen, 
-            &HandleTitleScreenEvents, 
-            &HandleTitleScreenAnimations, 
-            &handle_activity); 
+{
+    return T4K_RunMenu(which, return_choice, &DrawTitleScreen,
+                       &HandleTitleScreenEvents, &HandleTitleScreenAnimations,
+                       &handle_activity);
 }
 
 /*
@@ -160,7 +156,7 @@ int handle_activity(int act, int param)
 
         case RUN_PHRASE_TYPING:
             DEBUGMSG(debug_menu, "activity: RUN_PHRASE_TYPING\n");
-			Phrases(NULL); 
+            Phrases(NULL);
             break;
 
         case RUN_SET_LANGUAGE:
@@ -309,7 +305,7 @@ static int chooseWordlist(void)
   /* FIXME looks like a place for scandir() - or our own w32_scandir() */
   /* FIXME we also have this block of code repeated three times - DSB  */
   /* create a list of all the .txt files */
-  wordsDir = opendir( wordPath );	
+  wordsDir = opendir(wordPath);
   do
   {
     wordsFile = readdir(wordsDir);
@@ -344,12 +340,10 @@ static int chooseWordlist(void)
 
     fclose(tempFile);
   } while (1); /* Loop continues until break occurs */
-  closedir(wordsDir);	
+  closedir(wordsDir);
 
-  
-  
   /* Adding global custom wordlists ------------------------------------ */
- 
+
   sprintf(wordPath,"%s/words", settings.var_data_path);
   if (!CheckFile(wordPath))
   {
@@ -364,7 +358,7 @@ static int chooseWordlist(void)
 
     /* FIXME looks like a place for scandir() - or our own w32_scandir() */
     /* create a list of all the .txt files */
-    wordsDir = opendir( wordPath );	
+    wordsDir = opendir(wordPath);
     do
     {
       wordsFile = readdir(wordsDir);
@@ -401,7 +395,7 @@ static int chooseWordlist(void)
     } while (1); /* Loop continues until break occurs */
     closedir(wordsDir);
   }
-  
+
   /* Now add any lists in the user's personal settings path: ------------ */
 
   sprintf(wordPath,"%s/words", settings.user_settings_path);
@@ -418,7 +412,7 @@ static int chooseWordlist(void)
 
     /* FIXME looks like a place for scandir() - or our own w32_scandir() */
     /* create a list of all the .txt files */
-    wordsDir = opendir( wordPath );	
+    wordsDir = opendir(wordPath);
     do
     {
       wordsFile = readdir(wordsDir);
@@ -458,7 +452,6 @@ static int chooseWordlist(void)
 
   //DEBUGMSG { fprintf(stderr, "Found %d .txt file(s) in words dir\n", lists); }
 
-  
   /* Done scanning for word lists, now display them for user selection: */
 
   /* Render SDL_Surfaces for list entries: */
@@ -476,7 +469,7 @@ static int chooseWordlist(void)
   if (!current_bkg() || !left || !right)
   {
     fprintf(stderr, "chooseWordList(): needed image not available\n");
-  
+
     for (i = 0; i < lists; i++)
     {
         SDL_DestroySurface(titles[i]);
@@ -507,9 +500,9 @@ static int chooseWordlist(void)
   titleRects[0].w = titleRects[0].h = titleRects[0].x = 0;
 
   for (i = 1; i < 8; i++)
-  { 
-    titleRects[i].y = titleRects[i - 1].y + 50;
-    titleRects[i].w = titleRects[i].h = titleRects[i].x = 0;
+  {
+      titleRects[i].y = titleRects[i - 1].y + 50;
+      titleRects[i].w = titleRects[i].h = titleRects[i].x = 0;
   }
 
   /* Main event loop for this screen: */
@@ -557,7 +550,7 @@ static int chooseWordlist(void)
             {
               loc = loc - (loc % 8) + i;
               ClearWordList(); /* clear old selection */
-              GenerateWordList(wordlistFile[loc]); 
+              GenerateWordList(wordlistFile[loc]);
               stop = 1;
               break;
             }
@@ -575,7 +568,7 @@ static int chooseWordlist(void)
           if (event.key.key == SDLK_RETURN)
           {
             ClearWordList(); /* clear old selection */
-            GenerateWordList(wordlistFile[loc]); 
+            GenerateWordList(wordlistFile[loc]);
             stop = 1;
             break;
           }
@@ -624,10 +617,10 @@ static int chooseWordlist(void)
         {
 			/* Draw selected text in yellow:  */
           SDL_BlitSurface(select[loc], NULL, screen, &titleRects[i%8]);
-          
+
           /* --- Announce the selected word list */
           T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",wordlistName[loc]);
-        }  
+        }
         else
         {
 			/* Draw unselected text in white: */
@@ -649,7 +642,7 @@ static int chooseWordlist(void)
     old_loc = loc;
   }
 
-  /* --- clear graphics before leaving function --- */ 
+  /* --- clear graphics before leaving function --- */
   for (i = 0; i < lists; i++)
   {
       SDL_DestroySurface(titles[i]);

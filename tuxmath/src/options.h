@@ -33,7 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.h"  /* needed for PATH_MAX definition */
 
-enum {
+enum
+{
     PER_USER_CONFIG,
     USE_SOUND,
     MENU_SOUND,
@@ -43,7 +44,7 @@ enum {
     USE_IGLOOS,
     USE_TTS,
     NUM_GLOBAL_OPTS
-};                                 
+};
 
 extern const char* const OPTION_TEXT[];
 extern const int OPTION_DEFAULTS[];

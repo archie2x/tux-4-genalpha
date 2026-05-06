@@ -527,7 +527,7 @@ int MC_AnsweredCorrectly(MC_MathGame* game, int id, float t)
     DEBUGMSG(debug_mathcards, "\nQuestion id was: %d\n", id);
 
     //First take the question out of the active_quests list
-    quest = game->active_quests;  
+    quest = game->active_quests;
     // Loop until quest is NULL or we find card with same id:
     while(quest && (id != quest->card.question_id))
         quest = quest->next;
@@ -548,9 +548,8 @@ int MC_AnsweredCorrectly(MC_MathGame* game, int id, float t)
         printf("Player recieves %d points\n", points);
     }
 
-
-    //We found a matching question, now we take it out of the 
-    //"active_quests" list and either put it back into the 
+    //We found a matching question, now we take it out of the
+    //"active_quests" list and either put it back into the
     //main question list in a random location, or delete it:
     game->active_quests = remove_node(game->active_quests, quest);
     game->questions_pending--;  //the length of the 'active_quests' list
@@ -583,7 +582,7 @@ int MC_AnsweredCorrectly(MC_MathGame* game, int id, float t)
         printf("\nLeaving MC_AnsweredCorrectly()\n");
     }
 
-    /* Record the time it took to answer: */ 
+    /* Record the time it took to answer: */
     MC_AddTimeToList(game, t);
 
     return points;
@@ -613,7 +612,7 @@ int MC_NotAnsweredCorrectly(MC_MathGame* game, int id)
     DEBUGMSG(debug_mathcards, "\nQuestion id was: %d\n", id);
 
     //First take the question out of the active_quests list
-    quest = game->active_quests;  
+    quest = game->active_quests;
     // Loop until quest is NULL or we find card with same id:
     while(quest && (id != quest->card.question_id))
         quest = quest->next;
@@ -996,28 +995,27 @@ int MC_MakeFlashcard(char* buf, MC_FlashCard* fc)
     while(buf[i]!='\n' && i < NET_BUF_LEN)
     {
         if(buf[i]=='\t')
-            tab++; 
+            tab++;
         i++;
         if(tab == 5)
             break;
     }
 
-    while((buf[i] != '\n') 
-            && (s < MC_FORMULA_LEN - 1)) //Must leave room for terminating null
+    while ((buf[i] != '\n') &&
+           (s < MC_FORMULA_LEN - 1)) //Must leave room for terminating null
     {
         formula[s] = buf[i] ;
         i++;
         s++;
     }
     formula[s]='\0';
-    strcpy(fc->formula_string, formula); 
+    strcpy(fc->formula_string, formula);
 
     DEBUGMSG(debug_lan, "In Make_Flashcard, new card is:\n");
-    DEBUGCODE(debug_lan) print_card(*fc); 
+    DEBUGCODE(debug_lan) print_card(*fc);
 
     return 1;
-} 
-
+}
 
 /* Report the median time per question */
 float MC_MedianTimePerQuestion(MC_MathGame* game)
@@ -1092,17 +1090,14 @@ void clear_negatives(MC_MathGame* game)
 //     fprintf(stderr, "\nIn copy_node(): invalid 'copy' pointer arg.\n");
 //     return 0;
 //   }
-// 
+//
 //   copy_card(&(original->card), &(copy->card) );
-// 
+//
 //   copy->next = original->next;
 //   copy->previous = original->previous;
 //   copy->randomizer = original->randomizer;
 //   return 1;
 // }
-
-
-
 
 /* this puts the node into the list AFTER the node pointed to by current */
 /* and returns a pointer to the top of the modified list  */
@@ -1260,14 +1255,9 @@ void print_counters(MC_MathGame *game)
     printf("\nlist_length(active_quests) = \t%d", list_length(game->active_quests));
 }
 
-
-
-
-
-
-// 
+//
 // /* FIXME take care of strings */
-// 
+//
 // MC_FlashCard create_card_from_node(MC_MathQuestion* node)
 // {
 //   MC_FlashCard fc;
@@ -1277,8 +1267,6 @@ void print_counters(MC_MathGame *game)
 //   copy_card(&(node->card), &fc);
 //   return fc;
 // }
-
-
 
 /* a "copy constructor", so to speak */
 /* FIXME perhaps should return newly allocated list if more than one node DSB */
@@ -1457,14 +1445,14 @@ int already_in_list(MC_MathQuestion* list, MC_MathQuestion* ptr)
 //     i = MC_GLOBAL_MAX;
 //   else if (i < -MC_GLOBAL_MAX)
 //     i = -MC_GLOBAL_MAX;
-// 
+//
 //   if (i < 0
 //    && math_opts
 //    && !math_opts->iopts[ALLOW_NEGATIVES])
 //   {
 //     i = 0;
 //   }
-// 
+//
 //   return i;
 // }
 
@@ -1610,7 +1598,7 @@ MC_FlashCard generate_random_flashcard(MC_MathGame* game)
    */
 
 /* FIXME we should consider rewriting this - it currently generates some
-   questions with indeterminate answers (e.g. ? * 0 = 0) that seem to be 
+   questions with indeterminate answers (e.g. ? * 0 = 0) that seem to be
    impossible to prevent using the current scheme with recursive string
    operations.
    */
@@ -1675,8 +1663,12 @@ MC_FlashCard generate_random_ooo_card_of_length(MC_MathGame* game, int length, i
 
         else do
         {
-            r1 = rand() % (game->math_opts->iopts[MAX_AUGEND+4*op] - game->math_opts->iopts[MIN_AUGEND+4*op] + 1) + game->math_opts->iopts[MIN_AUGEND+4*op];    
-            r2 = rand() % (game->math_opts->iopts[MAX_ADDEND+4*op] - game->math_opts->iopts[MIN_ADDEND+4*op] + 1) + game->math_opts->iopts[MIN_ADDEND+4*op]; 
+            r1 = rand() % (game->math_opts->iopts[MAX_AUGEND + 4 * op] -
+                           game->math_opts->iopts[MIN_AUGEND + 4 * op] + 1) +
+                 game->math_opts->iopts[MIN_AUGEND + 4 * op];
+            r2 = rand() % (game->math_opts->iopts[MAX_ADDEND + 4 * op] -
+                           game->math_opts->iopts[MIN_ADDEND + 4 * op] + 1) +
+                 game->math_opts->iopts[MIN_ADDEND + 4 * op];
 
             if (op == MC_OPER_ADD)
                 ans = r1 + r2;
@@ -1684,7 +1676,7 @@ MC_FlashCard generate_random_ooo_card_of_length(MC_MathGame* game, int length, i
                 ans = r1 - r2;
             if (op == MC_OPER_MULT)
                 ans = r1 * r2;
-            if (op == MC_OPER_DIV)  
+            if (op == MC_OPER_DIV)
             {
                 if (r2 == 0)
                     r2 = 1;
@@ -1782,12 +1774,12 @@ MC_FlashCard generate_random_ooo_card_of_length(MC_MathGame* game, int length, i
         DEBUGMSG(debug_mathcards, "Reformatting...\n");
         do {
             format = rand() % MC_NUM_FORMATS;
-        } while (!MC_GetOpt(game, FORMAT_ANSWER_LAST + format) && 
-                !MC_GetOpt(game, FORMAT_ADD_ANSWER_LAST + op * 3 + format) );
+        } while (!MC_GetOpt(game, FORMAT_ANSWER_LAST + format) &&
+                 !MC_GetOpt(game, FORMAT_ADD_ANSWER_LAST + op * 3 + format));
 
         strncat(ret.formula_string, " = ?", MC_FORMULA_LEN - strlen(ret.formula_string) );
         DEBUGMSG(debug_mathcards, "Formula_string: %s\n", ret.formula_string);
-        reformat_arithmetic(&ret, format );     
+        reformat_arithmetic(&ret, format);
     }
     ret.question_id = id;
 
@@ -1907,7 +1899,7 @@ MC_MathQuestion* generate_list(MC_MathGame* game)
     /* time until we have enough                              */
     /* NOTE generate_random_flashcard() has some bugs, so only */
     /* use this method if we need multiple operand questions   */
-    else 
+    else
     {
         DEBUGMSG(debug_mathcards, "In generate_list() - COMPREHENSIVE method NOT requested\n");
 
@@ -2074,7 +2066,7 @@ void MC_SetOpt(MC_MathGame* game, unsigned int index, int val)
             }
 
             /* Operand values - make sure they are in displayable range */
-            /* i.e. -999 to 999                                         */ 
+            /* i.e. -999 to 999                                         */
         case MAX_ANSWER:
         case MIN_AUGEND:
         case MAX_AUGEND:
@@ -2199,14 +2191,14 @@ int find_divisor(MC_MathGame* game, int a)
                     if (div * smallprimes[i] <= MC_GetOpt(game, MAX_DIVISOR) ) //if we can,
                         div *= smallprimes[i]; //update our real divisor
     //keep going if the divisor is too small
-    while (div < MC_GetOpt(game, MIN_DIVISOR) && --realisticpasses); 
+    while (div < MC_GetOpt(game, MIN_DIVISOR) && --realisticpasses);
 
     return div;
 }
 
 
 //Computes (approximately) the number of questions that will be returned
-//by add_all_valid() as specified by the current options. This does not 
+//by add_all_valid() as specified by the current options. This does not
 //take into account screening out of invalid questions, such
 //as divide-by-zero and questions like "0 x ? = 0".
 static int calc_num_valid_questions(MC_MathGame* game)
@@ -2510,16 +2502,16 @@ MC_MathQuestion* add_all_valid(MC_MathGame* game,
 
                 snprintf(tnode->card.formula_string, MC_FORMULA_LEN, "%d ? %d", i,j);
                 snprintf(tnode->card.answer_string, MC_ANSWER_LEN,
-                        i < j ? "<" : 
-                        i > j ? ">" : 
-                        "=");
+                         i < j   ? "<"
+                         : i > j ? ">"
+                                 : "=");
                 tnode->card.difficulty = 1;
                 list = insert_node(list, *end_of_list, tnode);
                 *end_of_list = tnode;
             }
         }
     }
-    DEBUGMSG(debug_mathcards, "Exiting add_all_valid()\n");  
+    DEBUGMSG(debug_mathcards, "Exiting add_all_valid()\n");
     DEBUGMSG(debug_mathcards, "List now has %d questions\n\n", list_length(list));
 
     return list;

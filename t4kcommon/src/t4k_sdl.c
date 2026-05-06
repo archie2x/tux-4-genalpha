@@ -265,9 +265,8 @@ SDL_Surface* T4K_GetScreen()
     return t4k_backing;
 }
 
-
 /*
- * T4K_GetResolutions() takes int pointer args for the windowed and 
+ * T4K_GetResolutions() takes int pointer args for the windowed and
  * fullscreen resolutions and fills them in with the current values.
  * Returns 1 if successful, 0 otherwise.
  */
@@ -277,8 +276,8 @@ int T4K_GetResolutions(int* win_x, int* win_y, int* full_x, int* full_y)
     if(!win_x || !win_y || !full_x || !full_y)
     {
 	fprintf(stderr, "T4K_GetResolutions() - invalid pointer arg");
-	return 0;  
-    }	  
+    return 0;
+    }
 
     *win_x = win_res_x;
     *win_y = win_res_y;

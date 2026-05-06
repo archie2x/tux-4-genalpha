@@ -2,10 +2,10 @@
    scripting.h:
 
    Headers for XML-based scripting code.
-   
+
    Copyright 2003, 2004, 2007, 2008, 2009, 2010.
    Authors: Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -25,8 +25,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "globals.h"
 #include "funcs.h"
 
@@ -45,8 +43,8 @@ struct item {
         int  goal;		// goal for practice session
 	int  x,y;		// for absolute positioning
         SDL_Color *color;       // holds text color
-        
-        struct item *next; // the linked list part ... 
+
+        struct item* next; // the linked list part ...
 };
 
 typedef struct item itemType;
@@ -58,7 +56,7 @@ struct page {
     char *title;		// title of the page
     SDL_Color *bgcolor;		// background color
     SDL_Color *fgcolor;		// default text color
-    
+
     struct page *next;         // the linked list part ...
     struct page *prev;         // the doubly-linked list part ...
 };
@@ -71,7 +69,7 @@ struct script {
     SDL_Color *bgcolor;         // default background color for all pages
     SDL_Color *fgcolor;         // default foreground color for all text
     char *background;		// default background image for all pages
-}; 
+};
 
 typedef struct script scriptType;
 

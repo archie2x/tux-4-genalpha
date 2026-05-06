@@ -3,10 +3,10 @@
 
    "Comet Zap" typing game, adapted from "Tux, of Math
    Command"  (http://tux4kids.alioth.debian.org)
-   
+
    Copyright 2000, 2003, 2008, 2010.
    Authors: Bill Kendrick, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -25,8 +25,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -158,14 +156,13 @@ int PlayLaserGame(int diff_level)
 
 	laser.alive = 0;
 
-  
-	/* Reset remaining stuff: */
- 
-	laser_reset_level(diff_level);
-  
-	/* --- MAIN GAME LOOP!!! --- */
-  
-	frame = 0;
+    /* Reset remaining stuff: */
+
+    laser_reset_level(diff_level);
+
+    /* --- MAIN GAME LOOP!!! --- */
+
+    frame = 0;
     paused           = 0;
     tux_img          = IMG_TUX_RELAX1;
     tux_anim = -1;
@@ -194,8 +191,8 @@ int PlayLaserGame(int diff_level)
 		tux_pressing = 0;
 
 		/* Handle any incoming events: */
-     
-		while (SDL_PollEvent(&event) > 0) {
+
+        while (SDL_PollEvent(&event) > 0) {
 
             if (event.type == SDL_EVENT_QUIT)
             {
@@ -223,12 +220,12 @@ int PlayLaserGame(int diff_level)
 				/* Score */
 				if(key == SDLK_F1)
 					tts_announcer_switch = 2;
-				
-				/* iglu alive */
+
+                /* iglu alive */
 				if(key == SDLK_F2)
 					tts_announcer_switch = 3;
-				
-				/* Wave number */
+
+                /* Wave number */
 				if(key == SDLK_F3)
 					tts_announcer_switch = 4;
 
@@ -297,12 +294,12 @@ int PlayLaserGame(int diff_level)
 									   ans[ans_num++] = braille_key_value_map[i].value_middle[0];
 								    else
 									   ans[ans_num++] = braille_key_value_map[i].value_end[0];
-							   }			   
-						   }
-					   }	   
-				   }
-				   
-				   braille_iter = 0;
+                               }
+                           }
+                       }
+                   }
+
+                   braille_iter = 0;
 				   pressed_letters[braille_iter] = L'\0';
                 }
             }
@@ -313,66 +310,61 @@ int PlayLaserGame(int diff_level)
 		for (;ans_num>0;ans_num--) {
 
 			/*  Pick the lowest shootable comet which has the right answer: */
-	
-			lowest_y = 0;
+
+            lowest_y = 0;
 			lowest = -1;
-			
-			/* Only Shoot the lowest letter if tts is enabled. */
+
+            /* Only Shoot the lowest letter if tts is enabled. */
 			if (settings.tts || settings.braille)
 			{
 				for (i = 0; i < MAX_COMETS; i++)
-					if (comets[i].alive
-					&& comets[i].shootable 
-					&& comets[i].expl == 0
-					&& comets[i].y > lowest_y)
-					{
+                    if (comets[i].alive && comets[i].shootable &&
+                        comets[i].expl == 0 && comets[i].y > lowest_y)
+                    {
 						lowest = i;
 						lowest_y = comets[i].y;
 					}
-			
-					//Only Shoot the lowest letter.	
-					if (comets[lowest].ch != ans[ans_num -1 ])
-						lowest = -1;
+
+                //Only Shoot the lowest letter.
+                if (comets[lowest].ch != ans[ans_num - 1])
+                    lowest = -1;
 			}
 			else
 			{
 				for (i = 0; i < MAX_COMETS; i++)
-					if (comets[i].alive
-					&& comets[i].shootable 
-					&& comets[i].expl == 0
-					&& comets[i].ch == ans[ans_num -1 ] 
-					&& comets[i].y > lowest_y)
-					{
+                    if (comets[i].alive && comets[i].shootable &&
+                        comets[i].expl == 0 &&
+                        comets[i].ch == ans[ans_num - 1] &&
+                        comets[i].y > lowest_y)
+                    {
 						lowest = i;
 						lowest_y = comets[i].y;
-					}	
-			}
-			
-			
-			/* Set the Braille letter position 
+                    }
+            }
+
+            /* Set the Braille letter position
 			* For some specific language's which have same braille code for
-			* alphabets and signs at begining, middle and end position. */			
-			if (lowest == -1)
+			* alphabets and signs at begining, middle and end position. */
+            if (lowest == -1)
 				braille_letter_pos = 0;
 			else
 			{
 				if (comets[lowest].pos == wcslen(comets[lowest].word)-2)
 					braille_letter_pos = 2; //Next is end letter
 				else if (comets[lowest].pos == wcslen(comets[lowest].word)-1)
-					braille_letter_pos = 0; //Word finished 
-				else
+                    braille_letter_pos = 0; //Word finished
+                else
 					braille_letter_pos = 1; //Next letter is at middle
-					
-				fprintf(stderr,"%S",comets[lowest].word);
+
+                fprintf(stderr,"%S",comets[lowest].word);
 			}
-				
-	
-			/* If there was an comet with this answer, destroy it! */
+
+            /* If there was an comet with this answer, destroy it! */
 			if (lowest != -1) {
 
 				/* Destroy comet: */
-		  
-				comets[lowest].expl = COMET_EXPL_START;
+
+                comets[lowest].expl = COMET_EXPL_START;
 				/* Make next letter in word shootable: */
 				comets[lowest].shootable = 0;
                                 if (comets[lowest].next)
@@ -385,30 +377,30 @@ int PlayLaserGame(int diff_level)
 				if (abs(comets[lowest].x - screen->w/2) < 10) {
 					laser.x1 = screen->w / 2;
 					laser.y1 = screen->h;
-	    
-					laser.x2 = laser.x1;
+
+                    laser.x2 = laser.x1;
 					laser.y2 = comets[lowest].y;
 				} else {
 					laser.x1 = screen->w / 2;
 					laser.y1 = screen->h;
-	    
-					laser.x2 = comets[lowest].x;
+
+                    laser.x2 = comets[lowest].x;
 					laser.y2 = comets[lowest].y;
 				}
-	    
-				PlaySound(sounds[SND_LASER]);
-	    
-				/* 50% of the time.. */
-	    
-				if (0 == (rand() % 2))  {
 
-					/* ... pick an animation to play: */ 
-					if (0 == (rand() % 2))
+                PlaySound(sounds[SND_LASER]);
+
+                /* 50% of the time.. */
+
+                if (0 == (rand() % 2))  {
+
+                    /* ... pick an animation to play: */
+                    if (0 == (rand() % 2))
 						tux_anim = IMG_TUX_YES1;
 					else
 						tux_anim = IMG_TUX_YAY1;
-	        
-					tux_anim_frame = ANIM_FRAME_START;
+
+                    tux_anim_frame = ANIM_FRAME_START;
 				}
 
 				/* Increment score: */
@@ -418,10 +410,10 @@ int PlayLaserGame(int diff_level)
 			} else {
 
 				/* Didn't hit anything! */
-	    
-				PlaySound(sounds[SND_BUZZ]);
-	    
-				if (0 == (rand() % 2))
+
+                PlaySound(sounds[SND_BUZZ]);
+
+                if (0 == (rand() % 2))
 					tux_img = IMG_TUX_DRAT;
 				else
 					tux_img = IMG_TUX_YIPE;
@@ -430,36 +422,33 @@ int PlayLaserGame(int diff_level)
 			}
 		}
 
-      
-		/* Handle start-wait countdown: */
-      
-		if (level_start_wait > 0) {
+        /* Handle start-wait countdown: */
+
+        if (level_start_wait > 0) {
 
 			level_start_wait--;
-	  
-			if (level_start_wait > LEVEL_START_WAIT_START / 4)
+
+            if (level_start_wait > LEVEL_START_WAIT_START / 4)
 				tux_img = IMG_TUX_RELAX1;
 			else if (level_start_wait > 0)
 				tux_img = IMG_TUX_RELAX2;
 			else
 				tux_img = IMG_TUX_SIT;
-	  
-			if (level_start_wait == LEVEL_START_WAIT_START / 4)
+
+            if (level_start_wait == LEVEL_START_WAIT_START / 4)
 				PlaySound(sounds[SND_ALARM]);
 		}
 
-      
-		/* If Tux pressed a button, pick a new (different!) stance: */
-	  
-		if (tux_pressing) {
+        /* If Tux pressed a button, pick a new (different!) stance: */
+
+        if (tux_pressing) {
 			while (tux_img == old_tux_img)
 				tux_img = IMG_TUX_CONSOLE1 + (rand() % 3);
 
 			PlaySound(sounds[SND_TOCK]);
 		}
-      
-      
-		/* If Tux is being animated, show the animation: */
+
+        /* If Tux is being animated, show the animation: */
 
 		if (tux_anim != -1) {
 			tux_anim_frame--;
@@ -485,24 +474,24 @@ int PlayLaserGame(int diff_level)
 
 
 		/* Handle comets: */
-     
-		num_comets_alive = 0;
+
+        num_comets_alive = 0;
 
 		distanceMoved += speed;
-      
-		for (i = 0; i < MAX_COMETS; i++) {
+
+        for (i = 0; i < MAX_COMETS; i++) {
 			if (comets[i].alive) {
 
 				num_comets_alive++;
 
 				comets[i].x = comets[i].x + 0;
 				comets[i].y = comets[i].y + speed;
-	      
-				if (comets[i].y >= (screen->h - images[IMG_CITY_BLUE]->h) && comets[i].expl == 0) {
+
+                if (comets[i].y >= (screen->h - images[IMG_CITY_BLUE]->h) && comets[i].expl == 0) {
 
 					/* Disable shields or destroy city: */
-		      
-					if (cities[comets[i].city].shields) {
+
+                    if (cities[comets[i].city].shields) {
 						cities[comets[i].city].shields = 0;
 						PlaySound(sounds[SND_SHIELDSDOWN]);
 						laser_add_score(-50 * (diff_level+1));
@@ -536,15 +525,15 @@ int PlayLaserGame(int diff_level)
 
 		if (laser.alive > 0)
 			laser.alive--;
-     
-		/* Comet time! */
+
+        /* Comet time! */
 
 		if (level_start_wait == 0 && (frame % 5) == 0 && gameover == 0) {
 			if (num_attackers > 0) {
 
 				/* More comets to add during this wave! */
-		
-				if ((num_comets_alive < 2 || ((rand() % 4) == 0)) && distanceMoved > 40) {
+
+                if ((num_comets_alive < 2 || ((rand() % 4) == 0)) && distanceMoved > 40) {
 					distanceMoved = 0;
 					laser_add_comet(diff_level);
 					num_attackers--;
@@ -573,11 +562,12 @@ int PlayLaserGame(int diff_level)
 
 
 		/* Handle cities: */
-     
-		num_cities_alive = 0;
 
-		for (i = 0; i < NUM_CITIES; i++) 
-			if (cities[i].alive) {
+        num_cities_alive = 0;
+
+        for (i = 0; i < NUM_CITIES; i++)
+        {
+            if (cities[i].alive) {
 
 				num_cities_alive++;
 
@@ -585,14 +575,14 @@ int PlayLaserGame(int diff_level)
 
 				if (cities[i].expl) {
 					cities[i].expl--;
-		  
-					if (cities[i].expl == 0)
-						cities[i].alive = 0;
-				}
-			}
-                        
 
-		/* Handle game-over: */
+                    if (cities[i].expl == 0)
+                        cities[i].alive = 0;
+                }
+                }
+        }
+
+        /* Handle game-over: */
 
 		if (gameover > 0) {
 			gameover--;
@@ -600,19 +590,18 @@ int PlayLaserGame(int diff_level)
 			if (gameover == 0)
 				done = 1;
 		}
-                
+
                 if ((num_cities_alive==0) && (gameover == 0))
                 {
                     gameover = GAMEOVER_COUNTER_START;
                     if(settings.tts)
 						stop_tts_announcer();
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("yep you miss it. hahh hahh haa. game over! you scored %d goodbye!"),score);
-					
-				}
-      
-		/* Draw background: */
-     
-		SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
+                }
+
+        /* Draw background: */
+
+        SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
 		/* Draw wave: */
 
@@ -635,69 +624,69 @@ int PlayLaserGame(int diff_level)
 		dest.h = images[IMG_SCORE]->h;
 
 		SDL_BlitSurface(images[IMG_SCORE], NULL, screen, &dest);
-      
-		sprintf(str, "%.6d", score);
+
+        sprintf(str, "%.6d", score);
 		laser_draw_numbers(str, screen->w - ((images[IMG_NUMBERS]->w / 10) * 6));
-      
-      
-		/* Draw comets: */
-      
-		for (i = 0; i < MAX_COMETS; i++) 
-			if (comets[i].alive) {
+
+        /* Draw comets: */
+
+        for (i = 0; i < MAX_COMETS; i++)
+        {
+            if (comets[i].alive) {
 
 				/* Decide which image to display: */
 				if (comets[i].expl == 0)
-					img = IMG_COMET1 + ((frame + i) % 3);
-				else
+                    img = IMG_COMET1 + ((frame + i) % 3);
+            }
+                else
 					img = (IMG_COMETEX2 - (comets[i].expl / (COMET_EXPL_START / 2)));
-	      
 
-				/* Draw it! */
+                /* Draw it! */
 
 				dest.x = comets[i].x - (images[img]->w / 2);
 				dest.y = comets[i].y - images[img]->h;
 				dest.w = images[img]->w;
 				dest.h = images[img]->h;
-	      
-				SDL_BlitSurface(images[img], NULL, screen, &dest);
-			}
 
+                SDL_BlitSurface(images[img], NULL, screen, &dest);
+        }
 
-		/* Draw letters: */
+        /* Draw letters: */
 
 		for (i = 0; i < MAX_COMETS; i++)
 			if (comets[i].alive && comets[i].expl == 0)
 				laser_draw_let(comets[i].ch, comets[i].x, comets[i].y);
-      
-		/* Draw cities: */
-      
-		if (frame%2 == 0) NEXT_FRAME(shield);
+
+        /* Draw cities: */
+
+        if (frame%2 == 0) NEXT_FRAME(shield);
 		for (i = 0; i < NUM_CITIES; i++) {
 
 			/* Decide which image to display: */
-	 
-			if (cities[i].alive) {
+
+            if (cities[i].alive) {
 				if (cities[i].expl == 0)
 					img = IMG_CITY_BLUE;
 				else
 					img = (IMG_CITY_BLUE_EXPL5 - (cities[i].expl / (CITY_EXPL_START / 5)));
-			} else 
-				img = IMG_CITY_BLUE_DEAD;
-	  
-	  
-			/* Change image to appropriate color: */
-	  
-			img += ((wave % MAX_CITY_COLORS) * (IMG_CITY_GREEN - IMG_CITY_BLUE));
-	  
-	  
-			/* Draw it! */
-	  
-			dest.x = cities[i].x - (images[img]->w / 2);
+            }
+            else
+            {
+                img = IMG_CITY_BLUE_DEAD;
+            }
+
+            /* Change image to appropriate color: */
+
+            img += ((wave % MAX_CITY_COLORS) * (IMG_CITY_GREEN - IMG_CITY_BLUE));
+
+            /* Draw it! */
+
+            dest.x = cities[i].x - (images[img]->w / 2);
 			dest.y = (screen->h) - (images[img]->h);
 			dest.w = (images[img]->w);
 			dest.h = (images[img]->h);
-	  
-			SDL_BlitSurface(images[img], NULL, screen, &dest);
+
+            SDL_BlitSurface(images[img], NULL, screen, &dest);
 
 			/* Draw sheilds: */
 
@@ -735,8 +724,8 @@ int PlayLaserGame(int diff_level)
 			dest.y = (screen->h - images[IMG_GAMEOVER]->h) / 2;
 			dest.w = images[IMG_GAMEOVER]->w;
 			dest.h = images[IMG_GAMEOVER]->h;
-	
-			SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest);
+
+            SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest);
 		}
 
         /* Swap buffers: */
@@ -786,7 +775,6 @@ int PlayLaserGame(int diff_level)
 	}
 	while (!done && !quit);
 
-  
   /* Free backgrounds: */
   FreeBothBkgds();
 
@@ -891,12 +879,12 @@ static void laser_reset_level(int diff_level)
   char fname[1024];
   static int last_bkgd = -1;
   int i;
-  
+
   /* Clear all comets: */
-  
+
   for (i = 0; i < MAX_COMETS; i++)
     comets[i].alive = 0;
-  
+
   /* Load diffrent random background image: */
   LOG("Loading background in laser_reset_level()\n");
 
@@ -966,22 +954,22 @@ static void laser_add_comet(int diff_level)
             /* Look for a free comet slot: */
             while ((comets[location].alive == 1) && (location < MAX_COMETS))
             {
-              location++; 
+                location++;
             }
             if (location < MAX_COMETS)
             {
               comets[location].alive = 1;
               /* Pick a city to attack: */
               do
-              { 
-                target = (rand() % NUM_CITIES);
+              {
+                  target = (rand() % NUM_CITIES);
               } while (target == last || targeted[target] == 1);
 
               last = target;
               targeted[target] = 1;
 
               /* Set comet to target that city: */
-              comets[location].city = target; 
+              comets[location].city = target;
 
               /* Start at the top, above the city in question: */
               comets[location].x = cities[target].x;
@@ -995,10 +983,15 @@ static void laser_add_comet(int diff_level)
 
               add--;
             }
-            DEBUGCODE {if (location == MAX_COMETS) 
-			printf("Location == MAX_COMETS, we have max on screen\n");}
-	  } 
-	}
+            DEBUGCODE
+            {
+                if (location == MAX_COMETS)
+                {
+                    printf("Location == MAX_COMETS, we have max on screen\n");
+                }
+            }
+      }
+    }
 	else /* Odd number of cities (is this a hack that means we are using words?) */
         {
           LOG("NUM_CITIES is odd\n");
@@ -1011,22 +1004,22 @@ static void laser_add_comet(int diff_level)
              || (wcslen(word) > NUM_CITIES - 1))
           {
             fprintf(stderr, "Error - GetWord() returned NULL, zero-length, or too-long word\n");
-            return; 
+            return;
           }
 
           DEBUGCODE {fprintf(stderr, "word is: %S\tlength is: %d\n", word, (int)wcslen(word));}
           do
-          { 
-  	    target = rand() % (NUM_CITIES - wcslen(word) + 1);
+          {
+              target = rand() % (NUM_CITIES - wcslen(word) + 1);
           } while (target == last);
           last = target;
 
 		for (i = 0; i < wcslen(word); i++)
 		{
  			while ((comets[location].alive == 1) && (location < MAX_COMETS))
-				location++; 
+                location++;
 
-  			if (location < MAX_COMETS)
+            if (location < MAX_COMETS)
 			{
 				/* First comet in word is shootable: */
 				if (0 == i)
@@ -1035,8 +1028,8 @@ static void laser_add_comet(int diff_level)
 				  comets[location].shootable = 0;
 
 				comets[location].alive = 1;
-				comets[location].city = target + i; 
-				comets[location].x = cities[target + i].x;
+                comets[location].city  = target + i;
+                comets[location].x = cities[target + i].x;
 				comets[location].y = 0;
 				comets[location].ch = word[i];
 				comets[location].word = word;
@@ -1071,7 +1064,7 @@ static void laser_draw_let(wchar_t c, int x, int y)
   dst.y = y + offset_y;
   s = GetWhiteGlyph(c);
   if (s)
-    SDL_BlitSurface(s, NULL, screen, &dst); 
+      SDL_BlitSurface(s, NULL, screen, &dst);
 }
 
 
@@ -1086,32 +1079,31 @@ static void laser_draw_numbers(const char* str, int x)
 
 
   /* Draw each character: */
-  
+
   for (i = 0; i < strlen(str); i++)
     {
       c = -1;
 
       /* Determine which character to display: */
-      
+
       if (str[i] >= '0' && str[i] <= '9')
 	c = str[i] - '0';
-      
 
       /* Display this character! */
-      
+
       if (c != -1)
 	{
 	  src.x = c * (images[IMG_NUMBERS]->w / 10);
 	  src.y = 0;
 	  src.w = (images[IMG_NUMBERS]->w / 10);
 	  src.h = images[IMG_NUMBERS]->h;
-	  
-	  dest.x = cur_x;
+
+      dest.x = cur_x;
 	  dest.y = 0;
 	  dest.w = src.w;
 	  dest.h = src.h;
-	  
-	  SDL_BlitSurface(images[IMG_NUMBERS], &src,
+
+      SDL_BlitSurface(images[IMG_NUMBERS], &src,
 			  screen, &dest);
 
 
@@ -1138,7 +1130,7 @@ static void laser_draw_line(int x1, int y1, int x2, int y2, int red, int grn, in
   dy = y2 - y1;
 
   laser_putpixel(screen, x1, y1, pixel);
-  
+
   if (dx != 0)
   {
     m = ((float) dy) / ((float) dx);
@@ -1153,7 +1145,7 @@ static void laser_draw_line(int x1, int y1, int x2, int y2, int red, int grn, in
     {
       x1 = x1 + dx;
       y1 = m * x1 + b;
-      
+
       laser_putpixel(screen, x1, y1, pixel);
     }
   }
@@ -1165,7 +1157,7 @@ static void laser_draw_line(int x1, int y1, int x2, int y2, int red, int grn, in
       y1 = y2;
       y2 = tmp;
     }
-    
+
     dest.x = x1;
     dest.y = y1;
     dest.w = 3;
@@ -1183,26 +1175,25 @@ static void laser_putpixel(SDL_Surface * surface, int x, int y, Uint32 pixel)
 #ifdef PUTPIXEL_RAW
   int bpp;
   Uint8 * p;
-  
+
   /* Determine bytes-per-pixel for the surface in question: */
 
   bpp = SDL_BYTESPERPIXEL(surface->format);
 
   /* Set a pointer to the exact location in memory of the pixel
      in question: */
-  
+
   p = (Uint8 *) (surface->pixels +       /* Start at beginning of RAM */
                  (y * surface->pitch) +  /* Go down Y lines */
                  (x * bpp));             /* Go in X pixels */
-  
-  
+
   /* Assuming the X/Y values are within the bounds of this surface... */
-  
+
   if (x >= 0 && y >= 0 && x < surface -> w && y < surface -> h)
     {
       /* Set the (correctly-sized) piece of data in the surface's RAM
          to the pixel value sent in: */
-      
+
       if (bpp == 1)
         *p = pixel;
       else if (bpp == 2)
@@ -1270,8 +1261,7 @@ static void stop_tts_announcer()
 	tts_announcer_switch = 0;
 }
 
-
-/* This function will announce the bottum most word and 
+/* This function will announce the bottum most word and
  * it's remaining letters */
 static int tts_announcer(void *unused)
 {
@@ -1296,8 +1286,8 @@ static int tts_announcer(void *unused)
 			SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
-		}		
-		else if(tts_announcer_switch == 4)
+        }
+        else if(tts_announcer_switch == 4)
 		{
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"on wave %d!",wave);
 			SDL_Delay(20);
@@ -1305,12 +1295,10 @@ static int tts_announcer(void *unused)
 			tts_announcer_switch = 1;
 		}
 
-			
-		
-		//Detecting the lowest letter and word on screen		
-		lowest_y = 0;
-		lowest = -1;	
-		for (i = 0; i < MAX_COMETS; i++)
+        //Detecting the lowest letter and word on screen
+        lowest_y = 0;
+        lowest   = -1;
+        for (i = 0; i < MAX_COMETS; i++)
 		{
 			if (comets[i].alive  &&
 			 comets[i].shootable  &&
@@ -1324,39 +1312,40 @@ static int tts_announcer(void *unused)
 		//Skipping if no letter found in screen
 		if (lowest == -1)
 			continue;
-		
-		buffer[0] = L'\0';
+
+        buffer[0] = L'\0';
 		//Adding the word to buffer
 		wcscpy(buffer,comets[lowest].word);
 		iter = wcslen(comets[lowest].word);
-		
-		//Appending each letters from correct_position if word is not alphabet
+
+        //Appending each letters from correct_position if word is not alphabet
 		if (1<wcslen(comets[lowest].word))
 		{
 			for(i=comets[lowest].pos;i<wcslen(comets[lowest].word);i++)
 			{
 				buffer[iter]=L'.';iter++;
-				buffer[iter]=L' ';iter++;				
-				buffer[iter]=comets[lowest].word[i];iter++;
+                buffer[iter] = L' ';
+                iter++;
+                buffer[iter]=comets[lowest].word[i];iter++;
 			}
 		}
 		buffer[iter]=L'.';iter++;
-		buffer[iter]=L' ';iter++;		
-		buffer[iter] = L'\0';
+        buffer[iter] = L' ';
+        iter++;
+        buffer[iter] = L'\0';
 
 		pitch_and_rate = ((lowest_y*100)/(screen->h - images[IMG_CITY_BLUE]->h));
 		if (pitch_and_rate < 30)
 			pitch_and_rate = 30;
 		if (pitch_and_rate > 60)
-			pitch_and_rate = 60;	
-		T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
-		
-		//Wait to finish saying the previus word
+            pitch_and_rate = 60;
+        T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
+
+        //Wait to finish saying the previus word
 		SDL_WaitThread(tts_thread,NULL);
 		SDL_Delay(100);
 		fprintf(stderr,"\nPos = %d",braille_letter_pos);
-			
-	}
+    }
 	end:
 	return 1;
 }

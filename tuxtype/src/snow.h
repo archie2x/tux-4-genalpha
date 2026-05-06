@@ -5,7 +5,7 @@
 
    Copyright 2003, 2004, 2010.
    Authors: Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 extern int SNOW_on;
 extern SDL_Rect SNOW_rects[2000];

@@ -7,14 +7,14 @@
    bill@newbreedsoftware.com
    http://www.newbreedsoftware.com/tuxpaint/
 
-   Brought to tuxmath/tuxtype, slight modified, and license updated to 
+   Brought to tuxmath/tuxtype, slight modified, and license updated to
    "GPL3 or later" as detailed below.
-   
+
    Copyright 2007, 2008, 2009, 2010.
    Copyright 2002-2006, 2007, 2008, 2009, 2010.
    Authors: Bill Kendrick and others from Tux Paint,
             David Bruce, Brendan Luchen.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -33,9 +33,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 
 #ifndef PIXELS_H
 #define PIXELS_H

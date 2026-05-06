@@ -2,7 +2,7 @@
    setup.c:
 
    Initialization of SDL and other libraries.
-   
+
    Copyright 2000, 2003, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
@@ -23,8 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -222,9 +220,8 @@ void LibInit(Uint32 lib_flags)
   LOG( "LibInit():END\n" );
 }
 
-
 /* Load the settings from a file... make sure to update SaveSettings if you change
- *  what can be saved/loaded 
+ *  what can be saved/loaded
  */
 void LoadSettings(void)
 {
@@ -232,7 +229,7 @@ void LoadSettings(void)
 // 	char setting[FNLEN];
 // 	char value[FNLEN];
 //	FILE *settingsFile;
-	
+
   /* set the settings directory/file */
 
 #ifdef WIN32
@@ -272,7 +269,7 @@ static int load_settings_filename(const char* fn)
     fprintf(stderr, "load_settings_filename(): no theme-specific settings found: %s\n",fn);
     return -1;
   }
-	
+
   if (!load_settings_fp(fp))
   {
     fprintf(stderr, "No settings in settings file.\n");
@@ -308,14 +305,14 @@ static int load_settings_fp(FILE* fp)
       break;
 
     DEBUGCODE {fprintf(stderr, "%s = %s", setting, value );}
-      //For now we are not reading or saving the language selection: 
-      //MDTTEMP: uncommented the following 8 lines and joined the else to the if on line 259
+    //For now we are not reading or saving the language selection:
+    //MDTTEMP: uncommented the following 8 lines and joined the else to the if on line 259
     if (strncmp( setting, "lang", FNLEN ) == 0 )
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting language to %s\n", value);}
       strncpy(settings.lang, value, FNLEN - 1);
       setting_found = 1;
-      SetupPaths(value); /* Does this really belong here? */ 
+      SetupPaths(value); /* Does this really belong here? */
     }
     else if (strncmp( setting, "o_lives", FNLEN ) == 0 )
     {
@@ -377,17 +374,15 @@ static int load_settings_fp(FILE* fp)
   }
 }
 
-
-
 /* Save the settings from a file... make sure to update LoadSettings if you change
- *  what can be saved/loaded 
+ *  what can be saved/loaded
  */
 void SaveSettings(void)
 {
 	char fn[FNLEN];
 	FILE* settingsFile;
-	
-	/* set the settings directory/file */
+
+    /* set the settings directory/file */
 
 	//#ifdef WIN32
     //    //MDTTEMP: Commented out the next line and added the next 2 lines after
@@ -402,23 +397,23 @@ void SaveSettings(void)
 	//	mkdir( fn, 0755 ); // just in case try to create save location
 	//	snprintf( fn, FNLEN-1, (const char*)"%s/.tuxtype/settings.txt", getenv("HOME") );
 	//#endif
-	
-	// Use the settings.user_settings_path member
+
+    // Use the settings.user_settings_path member
 	snprintf( fn, FNLEN-1, (const char*)"%s/settings.txt", settings.user_settings_path );
 
 
 	DEBUGCODE { printf("SaveSettings: settings file is '%s'\n", fn ); }
-	
-	LOG("SaveSettings: trying to open settings file\n");
-	
-	settingsFile = fopen( fn, "w" );
+
+    LOG("SaveSettings: trying to open settings file\n");
+
+    settingsFile = fopen( fn, "w" );
 
 	if (settingsFile == NULL) {
 		printf("SaveSettings: Settings file cannot be created!\n");
 		return;
 	}
-	
-	/* Save all the settings here! */
+
+    /* Save all the settings here! */
 //NOTE for now, don't save theme because things get screwed up if the language
 // doesn't match the LANG environmental variable - DSB
 // MDTTEMP: uncommented the following 2 lines
@@ -497,13 +492,13 @@ int SetupPaths(const char* theme_dir)
       {
         fprintf(stderr, "settings.theme_data_path is: %s\n", settings.theme_data_path);
       }
- 
+
       strncpy(settings.theme_name, theme_dir, FNLEN - 1);
       /* (Need to do this in case we are changing from a theme with */
       /* a special font to a theme that uses the default, but lacks */
       /* an explicit statement to use the default(                  */
       strncpy(settings.theme_font_name, DEFAULT_FONT_NAME, FNLEN);
-      
+
       /* Load fontname or any other theme-specific settings: */
       sprintf(theme_settings_path, "%s/settings.txt", full_theme_path);
 
@@ -531,9 +526,7 @@ int SetupPaths(const char* theme_dir)
     strncpy(settings.theme_locale_name, DEFAULT_LOCALE, FNLEN);
   }
 
-
-
-  /* Now check for VAR_PREFIX (for modifiable data shared by all users, */ 
+  /* Now check for VAR_PREFIX (for modifiable data shared by all users, */
   /* such as custom word lists, high scores, etc:                       */
   /* This will generally be /var/lib/tuxtype (distro-provided pkg)      */
   /* or /usr/local/etc/tuxtype (locally-built and installed pkg)        */
@@ -553,7 +546,7 @@ int SetupPaths(const char* theme_dir)
       return 0;
   }
 
-  /* Now check for CONF_PREFIX (for program wide settings that apply to all users). */ 
+  /* Now check for CONF_PREFIX (for program wide settings that apply to all users). */
   /* This would typically be /etc/tuxtype if tuxtype is installed by a distro pkg,  */
   /* or /usr/local/etc/tuxtype if the package is built locally                      */
   const char* conf_prefix = tt_conf_prefix();
@@ -634,7 +627,7 @@ DEBUGCODE
     fprintf(stderr, "global_settings_path: '%s'\n\n", settings.global_settings_path);
   }
 
-  return 1;	
+  return 1;
 }
 
 

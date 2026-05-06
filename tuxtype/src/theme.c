@@ -2,7 +2,7 @@
    theme.c:
 
    Theme- (mainly language-) related code.
-   
+
    Copyright 2003, 2007, 2008, 2009, 2010.
    Authors: Jesse Andrews, David Bruce, Mobin Mohan.
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
@@ -23,8 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -84,8 +82,10 @@ void ChooseTheme(void)
       break;
 
     /* we ignore any hidden file and CVS */
-    if (themesFile->d_name[0] == '.') 
-      continue;
+    if (themesFile->d_name[0] == '.')
+    {
+        continue;
+    }
     if (strcmp("CVS", themesFile->d_name)==0)
       continue;
 
@@ -139,7 +139,7 @@ void ChooseTheme(void)
 
   rightRect.w = right->w;
   rightRect.h = right->h;
-  rightRect.x = 160 + 80 - (rightRect.w/2); 
+  rightRect.x = 160 + 80 - (rightRect.w / 2);
   rightRect.y = 430;
 
   /* set initial rect sizes */
@@ -155,56 +155,64 @@ void ChooseTheme(void)
 
   while (!stop)
   {
-    while (SDL_PollEvent(&event)) 
-      switch (event.type)
+      while (SDL_PollEvent(&event))
       {
-      case SDL_EVENT_QUIT:
-          exit(0);
-          break;
-
-      case SDL_EVENT_MOUSE_MOTION:
-          for (i = 0; (i < 8) && (loc - (loc%8) + i < themes); i++)
-            if (inRect( titleRects[i], event.motion.x, event.motion.y ))
-            {
-              loc = loc-(loc%8)+i;
+          switch (event.type)
+          {
+          case SDL_EVENT_QUIT:
+              exit(0);
               break;
-            }
+
+          case SDL_EVENT_MOUSE_MOTION:
+              for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
+                  if (inRect(titleRects[i], event.motion.x, event.motion.y))
+                  {
+                      loc = loc - (loc % 8) + i;
+                      break;
+                  }
+          }
 
           break;
 
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
-          if (inRect( leftRect, event.button.x, event.button.y )) 
-            if (loc-(loc%8)-8 >= 0)
-            {
-              loc=loc-(loc%8)-8;
-              break;
-            }
-
-          if (inRect( rightRect, event.button.x, event.button.y )) 
-            if (loc-(loc%8)+8 < themes)
-            {
-              loc=loc-(loc%8)+8;
-              break;
-            }
-
-          for (i=0; (i<8) && (loc-(loc%8)+i<themes); i++) 
-            if (inRect(titleRects[i], event.button.x, event.button.y))
-            {
-              loc = loc-(loc%8)+i;
-              if (loc)
+          if (inRect(leftRect, event.button.x, event.button.y))
+          {
+              if (loc - (loc % 8) - 8 >= 0)
               {
-                /* --- set theme --- */
-                SetupPaths(themePaths[loc]);
+                  loc = loc - (loc % 8) - 8;
+                  break;
               }
-              else
-              {
-                /* --- english --- */
-                SetupPaths(NULL);
-              }
+          }
 
-              stop = 1;
-              break;
-            }
+          if (inRect(rightRect, event.button.x, event.button.y))
+          {
+              if (loc - (loc % 8) + 8 < themes)
+              {
+                  loc = loc - (loc % 8) + 8;
+                  break;
+              }
+          }
+
+          for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
+          {
+              if (inRect(titleRects[i], event.button.x, event.button.y))
+              {
+                  loc = loc - (loc % 8) + i;
+                  if (loc)
+                  {
+                      /* --- set theme --- */
+                      SetupPaths(themePaths[loc]);
+                  }
+                  else
+                  {
+                      /* --- english --- */
+                      SetupPaths(NULL);
+                  }
+
+                  stop = 1;
+                  break;
+              }
+          }
           break;
 
       case SDL_EVENT_KEY_DOWN:
@@ -212,31 +220,33 @@ void ChooseTheme(void)
           {
             settings.use_english = old_use_english;
             strncpy(settings.theme_data_path, old_theme_path, FNLEN - 1);
-            stop = 1; 
-            break; 
-          }
-
-          if (event.key.key == SDLK_RETURN)
-          { 
-            if (loc)
-            {
-              /* --- set theme --- */
-              SetupPaths(themePaths[loc]);
-            }
-            else
-            {
-              /* --- English --- */
-              SetupPaths(NULL);
-            }
-
             stop = 1;
             break;
           }
 
+          if (event.key.key == SDLK_RETURN)
+          {
+              if (loc)
+              {
+                  /* --- set theme --- */
+                  SetupPaths(themePaths[loc]);
+              }
+              else
+              {
+                  /* --- English --- */
+                  SetupPaths(NULL);
+              }
+
+              stop = 1;
+              break;
+          }
+
           if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
-            if (loc-(loc%8)-8 >= 0) 
-              loc=loc-(loc%8)-8;
+              if (loc - (loc % 8) - 8 >= 0)
+              {
+                  loc = loc - (loc % 8) - 8;
+              }
           }
 
           if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
@@ -256,7 +266,7 @@ void ChooseTheme(void)
             if (loc+1<themes)
               loc++;
           }
-        }
+      }
 
     if (old_loc != loc)
     {
@@ -308,11 +318,15 @@ void ChooseTheme(void)
       }
 
       /* --- draw buttons --- */
-      if (start>0) 
-        SDL_BlitSurface( left, NULL, screen, &leftRect );
+      if (start > 0)
+      {
+          SDL_BlitSurface(left, NULL, screen, &leftRect);
+      }
 
-      if (start+8<themes) 
-        SDL_BlitSurface( right, NULL, screen, &rightRect );
+      if (start + 8 < themes)
+      {
+          SDL_BlitSurface(right, NULL, screen, &rightRect);
+      }
 
       T4K_UpdateRect(screen, NULL);
     }
@@ -320,7 +334,7 @@ void ChooseTheme(void)
     old_loc = loc;
   }
 
-  /* --- clear graphics before quitting --- */ 
+  /* --- clear graphics before quitting --- */
 
   for (i = 0; i<themes; i++)
   {

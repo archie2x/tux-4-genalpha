@@ -1,4 +1,4 @@
-/* 
+/*
    options.c
 
    The options screen loop.
@@ -22,9 +22,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-
-
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,7 +105,7 @@ static int int_to_bool(int i);
 /********************************************************************/
 
 int Opts_Initialize(void)
-{   
+{
     int i;
     /* Only allocate game_options if not already done: */
     if(!game_options)
@@ -179,12 +176,9 @@ int Opts_Initialize(void)
 
     DEBUGCODE(debug_options)
         print_game_options(stdout, 0);
-        
-
 
     return 1;
 }
-
 
 void Opts_Cleanup(void)
 {
@@ -247,7 +241,7 @@ void Opts_SetGlobalOpt(unsigned int index, int val)
         }
         if (index == USE_TTS)
 			text_to_speech_status = val;
-        
+
         global_options->iopts[index] = val;
     }
     else
@@ -1128,14 +1122,14 @@ int int_to_bool(int i)
 //static int find_and_set_option(const char* name, int val)
 //{
 //  int index = -1;
-//  
+//
 //  if ((index = MC_MapTextToIndex(name)) != -1) //is it a math opt?
 //    MC_SetOpt(index, val);
 //  else if ((index = Opts_MapTextToIndex(name)) != -1) //is it a global opt?
 //    Opts_SetGlobalOpt(index, val);
 //  else //no? oh well.
 //    return 0;
-//    
+//
 //  return 1;
 //}
 
@@ -1151,30 +1145,34 @@ void print_game_options(FILE* fp, int verbose)
 
     if(verbose)
     {
-        fprintf (fp, "\n############################################################\n" 
-                "#                                                          #\n"
-                "#                 General Game Options                     #\n"
-                "#                                                          #\n"
-                "# The following options are boolean (true/false) variables #\n"
-                "# that control various aspects of Tuxmath's behavior.      #\n"
-                "# The program writes the values to the file as either '0'  #\n"
-                "# or '1'. However, the program accepts 'n', 'no', 'f', and #\n"
-                "# 'false' as synonyms for '0', and similarly accepts 'y',  #\n"
-                "# 'yes', 't', and 'true' as synonyms for '1' (all case-    #\n"
-                "# insensitive).                                            #\n"
-                "############################################################\n\n");
+        fprintf(
+            fp,
+            "\n############################################################\n"
+            "#                                                          #\n"
+            "#                 General Game Options                     #\n"
+            "#                                                          #\n"
+            "# The following options are boolean (true/false) variables #\n"
+            "# that control various aspects of Tuxmath's behavior.      #\n"
+            "# The program writes the values to the file as either '0'  #\n"
+            "# or '1'. However, the program accepts 'n', 'no', 'f', and #\n"
+            "# 'false' as synonyms for '0', and similarly accepts 'y',  #\n"
+            "# 'yes', 't', and 'true' as synonyms for '1' (all case-    #\n"
+            "# insensitive).                                            #\n"
+            "############################################################\n\n");
     }
 
     if(verbose)
     {
-        fprintf (fp, "############################################################\n" 
-                "# 'PER_USER_CONFIG' determines whether Tuxmath will look   #\n"
-                "# in the user's home directory for settings. Default is 1  #\n"
-                "# (yes). If deselected, the program will ignore the user's #\n"
-                "# .tuxmath file and use the the global settings in the     #\n"
-                "# installation-wide config file.                           #\n"
-                "# This setting cannot be changed by an ordinary user.      #\n"
-                "############################################################\n");
+        fprintf(
+            fp,
+            "############################################################\n"
+            "# 'PER_USER_CONFIG' determines whether Tuxmath will look   #\n"
+            "# in the user's home directory for settings. Default is 1  #\n"
+            "# (yes). If deselected, the program will ignore the user's #\n"
+            "# .tuxmath file and use the the global settings in the     #\n"
+            "# installation-wide config file.                           #\n"
+            "# This setting cannot be changed by an ordinary user.      #\n"
+            "############################################################\n");
     }
     fprintf(fp, "PER_USER_CONFIG = %d\n", global_options->iopts[PER_USER_CONFIG]);
 
@@ -1189,7 +1187,7 @@ void print_game_options(FILE* fp, int verbose)
         fprintf (fp, "\n# Use FULLSCREEN at 640x480 resolution instead of\n"
                 "640x480 window. Default is 1 (FULLSCREEN). Change to 0\n"
                 "if SDL has trouble with FULLSCREEN on your system.\n");
-    } 
+    }
     fprintf(fp, "FULLSCREEN = %d\n", global_options->iopts[FULLSCREEN]);
 
     if(verbose)
@@ -1218,30 +1216,32 @@ void print_game_options(FILE* fp, int verbose)
 
     if(verbose)
     {
-        fprintf (fp, "\n############################################################\n" 
-                "# The next settings determine the speed and number         #\n"
-                "# of comets.  The speed settings are float numbers (mean-  #\n"
-                "# ing decimals allowed). The comet settings are integers.  #\n"
-                "#                                                          #\n"
-                "# Starting comet speed and max comet speed are generally   #\n"
-                "# applicable. The main choice is whether you want to use   #\n"
-                "# feedback, i.e., to adjust the speed automatically based  #\n"
-                "# on the player's performance.                             #\n"
-                "#                                                          #\n"
-                "# Without feedback, the speed increases by a user-         #\n"
-                "# settable factor ('speedup_factor'), with an option       #\n"
-                "# ('slow_after_wrong') to go back to the starting speed    #\n"
-                "# when a city gets hit.                                    #\n"
-                "#                                                          #\n"
-                "# With feedback, you set a desired 'danger level,' which   #\n"
-                "# determines how close the comets should typically         #\n"
-                "# approach the cities before the player succeeds in        #\n"
-                "# destroying them.  The game will adjust its speed         #\n"
-                "# accordingly, getting faster when the player is easily    #\n"
-                "# stopping the comets, and slowing down when there are     #\n"
-                "# too many close calls or hits. You can also have the      #\n"
-                "# danger level increase with each wave.                    #\n"
-                "############################################################\n");
+        fprintf(
+            fp,
+            "\n############################################################\n"
+            "# The next settings determine the speed and number         #\n"
+            "# of comets.  The speed settings are float numbers (mean-  #\n"
+            "# ing decimals allowed). The comet settings are integers.  #\n"
+            "#                                                          #\n"
+            "# Starting comet speed and max comet speed are generally   #\n"
+            "# applicable. The main choice is whether you want to use   #\n"
+            "# feedback, i.e., to adjust the speed automatically based  #\n"
+            "# on the player's performance.                             #\n"
+            "#                                                          #\n"
+            "# Without feedback, the speed increases by a user-         #\n"
+            "# settable factor ('speedup_factor'), with an option       #\n"
+            "# ('slow_after_wrong') to go back to the starting speed    #\n"
+            "# when a city gets hit.                                    #\n"
+            "#                                                          #\n"
+            "# With feedback, you set a desired 'danger level,' which   #\n"
+            "# determines how close the comets should typically         #\n"
+            "# approach the cities before the player succeeds in        #\n"
+            "# destroying them.  The game will adjust its speed         #\n"
+            "# accordingly, getting faster when the player is easily    #\n"
+            "# stopping the comets, and slowing down when there are     #\n"
+            "# too many close calls or hits. You can also have the      #\n"
+            "# danger level increase with each wave.                    #\n"
+            "############################################################\n");
     }
 
     if(verbose)
@@ -1328,7 +1328,7 @@ void print_game_options(FILE* fp, int verbose)
     fprintf(fp, "danger_level_max = %f\n", game_options->danger_level_max);
 
     if (verbose)
-    { 
+    {
         fprintf (fp, "\n# (Feedback) Set the handicap for hitting cities.\n"
                 "# When bigger than 0, this causes the game to slow down\n"
                 "# by an extra amount after a wave in which one or more\n"

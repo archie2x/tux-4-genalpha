@@ -110,7 +110,7 @@ char *T4K_RemoveSlash(char *path)
 {
     if (!path)
     return NULL;
-    
+
     int len = strlen(path);
 
     if (!len)
@@ -141,7 +141,7 @@ int T4K_CheckFile(const char* file)
 	fclose(fp);
 	return 1;
     }
-    
+
     DEBUGMSG(debug_loaders, "fopen(): %s\n", strerror(errno));
     DEBUGMSG(debug_loaders, "T4K_CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
     return 0;
@@ -885,7 +885,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 sprite* T4K_FlipSprite(sprite* in, int X, int Y)
 {
     sprite *out;
-    
+
     if (in == NULL)
         return NULL;
 

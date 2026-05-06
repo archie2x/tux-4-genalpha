@@ -1,10 +1,10 @@
 /*
    funcs.h:
 
-   Single function header for (almost) all source files.   
+   Single function header for (almost) all source files.
    Copyright 2000, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -23,8 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 /* NOTE - there is no reason to declare functions using "extern", as all */
 /* non-local functions are visible throughout the program.               */

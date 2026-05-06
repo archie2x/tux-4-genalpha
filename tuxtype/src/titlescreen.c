@@ -297,9 +297,8 @@ void TitleScreen(void)
     }
 
     DEBUGMSG(debug_titlescreen, "TitleScreen(): Tux and Title are in place now\n");
-    // Start playing menu music if desired: 
-    
-    
+    // Start playing menu music if desired:
+
     if (settings.menu_music)
     {
         T4K_AudioMusicLoad("tuxi.ogg", -1);
@@ -561,10 +560,10 @@ void ShowMessageWrap( int font_size, const char* str )
     char strings[MAX_LINES][MAX_LINEWIDTH];
 
     int i;
-    int nline; 
+    int    nline;
     int finished = 0;
     int inprogress = 1;
-    int page = 0; 
+    int    page       = 0;
     int maxline;
     Uint32 timer = 0;
 
@@ -578,7 +577,7 @@ void ShowMessageWrap( int font_size, const char* str )
 
 	/* Announcing the message */
 	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",str);
-	
+
     while(inprogress)
     {
         loc.x = screen->w * 0.25;
@@ -604,11 +603,11 @@ void ShowMessageWrap( int font_size, const char* str )
         {
             arrow = images[IMG_ARROWS];
 
-            rleft.x = loc.x + (loc.w/2-50); 
+            rleft.x = loc.x + (loc.w / 2 - 50);
             rleft.y = loc.y + loc.h;
 
             rright.x = rleft.x + 50;
-            rright.y = rleft.y; 
+            rright.y = rleft.y;
 
             /* init rect for left button */
             srcleft.y = 0;
@@ -646,7 +645,7 @@ void ShowMessageWrap( int font_size, const char* str )
         }
 
         //rtext.x = loc.x + 10;
-        rtext.y = loc.y;    
+        rtext.y = loc.y;
         for(i = page * maxline; i < nline && i - page * maxline < maxline; i++)
         {
             s1 = T4K_BlackOutline(strings[i], font_size, &white);
@@ -655,7 +654,7 @@ void ShowMessageWrap( int font_size, const char* str )
             {
                 /* Center text horizontally: */
                 rtext.x = loc.x + loc.w/2 - s1->w/2;
-                rtext.y += (s1->h+15);  
+                rtext.y += (s1->h + 15);
                 SDL_BlitSurface( s1, NULL, screen, &rtext );
 
                 SDL_DestroySurface(s1);
@@ -792,7 +791,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     if (stop_button)
         SDL_BlitSurface(stop_button, NULL, screen, &stop_rect);
 
-    /* Draw shaded background for better legibility: */ 
+    /* Draw shaded background for better legibility: */
     loc.x = screen->w * 0.25;
     loc.y = screen->h * 0.1;
     loc.w = screen->w * 0.5;
@@ -1206,65 +1205,63 @@ int load_image_data()
 {
     int i;
 
-    static char* image_filenames[NUM_IMAGES] = {
-  "status/tux_helmet1.png",
-  "status/tux_helmet2.png",
-  "status/tux_helmet3.png", 
-  "cities/city-blue.png",
-  "cities/csplode-blue-1.png",
-  "cities/csplode-blue-2.png",
-  "cities/csplode-blue-3.png",
-  "cities/csplode-blue-4.png",
-  "cities/csplode-blue-5.png",
-  "cities/cdead-blue.png",
-  "cities/city-green.png",
-  "cities/csplode-green-1.png",
-  "cities/csplode-green-2.png",
-  "cities/csplode-green-3.png",
-  "cities/csplode-green-4.png",
-  "cities/csplode-green-5.png",
-  "cities/cdead-green.png",
-  "cities/city-orange.png",
-  "cities/csplode-orange-1.png",
-  "cities/csplode-orange-2.png",
-  "cities/csplode-orange-3.png",
-  "cities/csplode-orange-4.png",
-  "cities/csplode-orange-5.png",
-  "cities/cdead-orange.png",
-  "cities/city-red.png",
-  "cities/csplode-red-1.png",
-  "cities/csplode-red-2.png",
-  "cities/csplode-red-3.png",
-  "cities/csplode-red-4.png",
-  "cities/csplode-red-5.png",
-  "cities/cdead-red.png",
-  "comets/comet1.png",
-  "comets/comet2.png",
-  "comets/comet3.png",
-  "comets/cometex1.png",
-  "comets/cometex2.png",
-  "tux/console.png",
-  "tux/tux-console1.png",
-  "tux/tux-console2.png",
-  "tux/tux-console3.png",
-  "tux/tux-console4.png",
-  "tux/tux-relax1.png",
-  "tux/tux-relax2.png",
-  "tux/tux-drat.png",
-  "tux/tux-yipe.png",
-  "tux/tux-yay1.png",
-  "tux/tux-yay2.png",
-  "tux/tux-yes1.png",
-  "tux/tux-yes2.png",
-  "tux/tux-sit.png",
-  "tux/tux-fist0.png",
-  "tux/tux-fist1.png",
-  "status/wave.png",
-  "status/score.png",
-  "status/numbers.png",
-  "status/gameover.png",
-  "arrows.png"
-};
+    static char* image_filenames[NUM_IMAGES] = {"status/tux_helmet1.png",
+                                                "status/tux_helmet2.png",
+                                                "status/tux_helmet3.png",
+                                                "cities/city-blue.png",
+                                                "cities/csplode-blue-1.png",
+                                                "cities/csplode-blue-2.png",
+                                                "cities/csplode-blue-3.png",
+                                                "cities/csplode-blue-4.png",
+                                                "cities/csplode-blue-5.png",
+                                                "cities/cdead-blue.png",
+                                                "cities/city-green.png",
+                                                "cities/csplode-green-1.png",
+                                                "cities/csplode-green-2.png",
+                                                "cities/csplode-green-3.png",
+                                                "cities/csplode-green-4.png",
+                                                "cities/csplode-green-5.png",
+                                                "cities/cdead-green.png",
+                                                "cities/city-orange.png",
+                                                "cities/csplode-orange-1.png",
+                                                "cities/csplode-orange-2.png",
+                                                "cities/csplode-orange-3.png",
+                                                "cities/csplode-orange-4.png",
+                                                "cities/csplode-orange-5.png",
+                                                "cities/cdead-orange.png",
+                                                "cities/city-red.png",
+                                                "cities/csplode-red-1.png",
+                                                "cities/csplode-red-2.png",
+                                                "cities/csplode-red-3.png",
+                                                "cities/csplode-red-4.png",
+                                                "cities/csplode-red-5.png",
+                                                "cities/cdead-red.png",
+                                                "comets/comet1.png",
+                                                "comets/comet2.png",
+                                                "comets/comet3.png",
+                                                "comets/cometex1.png",
+                                                "comets/cometex2.png",
+                                                "tux/console.png",
+                                                "tux/tux-console1.png",
+                                                "tux/tux-console2.png",
+                                                "tux/tux-console3.png",
+                                                "tux/tux-console4.png",
+                                                "tux/tux-relax1.png",
+                                                "tux/tux-relax2.png",
+                                                "tux/tux-drat.png",
+                                                "tux/tux-yipe.png",
+                                                "tux/tux-yay1.png",
+                                                "tux/tux-yay2.png",
+                                                "tux/tux-yes1.png",
+                                                "tux/tux-yes2.png",
+                                                "tux/tux-sit.png",
+                                                "tux/tux-fist0.png",
+                                                "tux/tux-fist1.png",
+                                                "status/wave.png",
+                                                "status/score.png",
+                                                "status/numbers.png",
+                                                "status/gameover.png",
+                                                "arrows.png"};
 
     /* Load static images: */
     for (i = 0; i < NUM_IMAGES; i++)

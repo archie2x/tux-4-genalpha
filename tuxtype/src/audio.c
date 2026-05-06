@@ -5,7 +5,7 @@
 
    Copyright 2000, 2003, 2010.
    Authors: Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,9 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 
 #include "globals.h"
 #include "funcs.h"

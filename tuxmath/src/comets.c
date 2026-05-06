@@ -79,10 +79,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define POWERUP_Y_POS 100
 #define MS_POWERUP_SPEED 250
 
-#define SMARTBOMB_ICON_W 40 
-#define SMARTBOMB_ICON_H 47 
-#define SMARTBOMB_ICON_X screen->w - SMARTBOMB_ICON_W 
-#define SMARTBOMB_ICON_Y screen->h - SMARTBOMB_ICON_H 
+#define SMARTBOMB_ICON_W 40
+#define SMARTBOMB_ICON_H 47
+#define SMARTBOMB_ICON_X screen->w - SMARTBOMB_ICON_W
+#define SMARTBOMB_ICON_Y screen->h - SMARTBOMB_ICON_H
 
 #define BASE_COMET_FONTSIZE 24
 
@@ -300,7 +300,7 @@ int comets_game(MC_MathGame* mgame)
         comets_cleanup();
         return GAME_OVER_OTHER;
     }
-    
+
     //Calling tts_announcer
     start_tts_announcer_thread();
 
@@ -314,7 +314,7 @@ int comets_game(MC_MathGame* mgame)
         /* reset or increment various things with each loop: */
         old_tux_img = tux_img;
         tux_pressing = 0;
-        int i;    
+        int i;
         for(i=0;i<MAX_LASER;i++)
         {
             if (laser[i].alive > 0)
@@ -323,7 +323,7 @@ int comets_game(MC_MathGame* mgame)
 #ifdef HAVE_LIBSDL_NET
         /* Check for server messages if we are playing a LAN game: */
         if(Opts_LanMode())
-        {    
+        {
             comets_handle_net_messages();
             /* Ask server to send our index if somehow we don't yet have it: */
             if(LAN_MyIndex() < 0)
@@ -455,10 +455,10 @@ int comets_initialize(void)
         {
             fprintf(stderr, "\nMC_StartGame() failed!");
             return 0;
-        } 
+        }
         DEBUGMSG(debug_mathcards | debug_game,"MC_StartGame() finished.\n")
     }
-    else  
+    else
     {
         /* Reset question queue and player name/score lists: */
         //int i;
@@ -603,7 +603,7 @@ int comets_initialize(void)
 
     /* (Clear laser) */
     for(i= 0; i < MAX_LASER; i++)
-        laser[i].alive = 0; 
+        laser[i].alive = 0;
 
     /* Assign all comet surfs to NULL initially: */
     for (i = 0; i < MAX_MAX_COMETS; i++)
@@ -668,8 +668,7 @@ void comets_cleanup(void)
     }
 #endif
 
-
-#ifdef HAVE_LIBSDL_NET  
+#ifdef HAVE_LIBSDL_NET
     if (Opts_LanMode() )
         LAN_Cleanup();
 #endif
@@ -684,8 +683,7 @@ void comets_cleanup(void)
     DEBUGMSG(debug_game, "Leaving comets_cleanup():\n");
 }
 
-
-/* 
+/*
    Set one to four lines of text to display at the game's start. Eventually
    this should stylishly fade out over the first few moments of the game.
    */
@@ -739,8 +737,8 @@ void comets_handle_help(void)
     game_set_message(&s2,_("Your mission is to save your"), left_edge, 100);
     game_set_message(&s3,_("penguins' igloos from the"), left_edge, 135);
     game_set_message(&s4,_("falling comets."), left_edge, 170);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s",
 		_("Your mission is to save your"),
 		_("penguins' igloos from the"),
 		_("falling comets."));
@@ -753,9 +751,9 @@ void comets_handle_help(void)
     // Bring in a comet
     speed = 30;
     help_add_comet("2 + 1 = ?", "3");
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 1 = ?");
-    
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 1 = ?");
+
     help_controls.laser_enabled = 1;
     level_start_wait = 0;
 
@@ -774,23 +772,20 @@ void comets_handle_help(void)
         game_set_message(&s2,_("the answer to the math problem"),left_edge,135);
         game_set_message(&s3,_("and hitting 'space' or 'enter'."),left_edge,170);
         game_set_message(&s4,_("Try it now!"),left_edge,225);
-        
-		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s 2 + 1 = ",
+
+        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s 2 + 1 = ",
 			_("Stop a comet by typing"),_("the answer to the math problem"),
 			_("and hitting 'space' or 'enter'."),_("Try it now!"));
-			
-			
 
         speed = 0;
         while (comets[0].alive && !(quit_help = help_renderframe_exit()));
         if (quit_help)
 		    return;
-		
     }
 
-    game_set_message(&s1,_("Good shot!"),left_edge,100);    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Good shot!"));
-    
+    game_set_message(&s1, _("Good shot!"), left_edge, 100);
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Good shot!"));
+
     comets_clear_message(&s2);
     comets_clear_message(&s3);
     comets_clear_message(&s4);
@@ -805,8 +800,8 @@ void comets_handle_help(void)
     game_set_message(&s3,_("penguin is OK!"),left_edge,170);
     game_set_message(&s4,_("Just watch what happens:"),left_edge,225);
     game_set_message(&s5,_("(Press a key to start)"),left_edge,260);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s %s",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s %s",
 		_("If an igloo gets hit by a comet,"),_("it melts. But don't worry: the"),
 		_("penguin is OK!"),_("Just watch what happens:"),_("(Press a key to start)"));
 
@@ -817,16 +812,16 @@ void comets_handle_help(void)
     comets_clear_message(&s5);
 
     help_add_comet("3 x 3 = ?", "9");
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"3 x 3 = ?");
-    
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"3 x 3 = ?");
+
     comets[0].y = 2*(screen->h)/3;   // start it low down
     while ((comets[0].expl == -1) && !(quit_help = help_renderframe_exit()));  // wait 3 secs
     if (quit_help)
         return;
-    game_set_message(&s4,_("Notice the answer"),left_edge,comets[0].y-100);    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s 9",_("Notice the answer"));
-    
+    game_set_message(&s4, _("Notice the answer"), left_edge, comets[0].y - 100);
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s 9",_("Notice the answer"));
+
     help_renderframe_exit();
     SDL_Delay(4000);
     comets_clear_message(&s4);
@@ -839,8 +834,8 @@ void comets_handle_help(void)
     game_set_message(&s1,_("If it gets hit again, the"),left_edge,100);
     game_set_message(&s2,_("penguin leaves."),left_edge,135);
     game_set_message(&s3,_("(Press a key when ready)"),left_edge,200);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s",
 		_("If it gets hit again, the"),_("penguin leaves."),_("(Press a key when ready)"));
 
     key_pressed = 0;
@@ -850,9 +845,9 @@ void comets_handle_help(void)
     comets_clear_message(&s3);
 
     help_add_comet("56 ÷ 8 = ?", "7");
-	
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"56 ÷ 8 = ?");
-    
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"56 ÷ 8 = ?");
+
     comets[0].y = 2*(screen->h)/3;   // start it low down
 
     while (comets[0].alive && !(quit_help = help_renderframe_exit()));
@@ -870,11 +865,10 @@ void comets_handle_help(void)
     game_set_message(&s1,_("You can fix the igloos"), left_edge,100);
     game_set_message(&s2,_("by stopping bonus comets."), left_edge,135);
     help_add_comet("2 + 2 = ?", "4");
-	
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s 2 + 2 = ?",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s 2 + 2 = ?",
 		_("You can fix the igloos"),_("by stopping bonus comets."));
-		
-		
+
     comets[0].bonus = 1;
     timer = 0;
 
@@ -885,17 +879,17 @@ void comets_handle_help(void)
     if (comets[0].alive)
         speed = 0;
     game_set_message(&s3,_("Zap it now!"),left_edge,225);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 2 = %s",_("Zap it now!"));
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 2 = %s",_("Zap it now!"));
 
     while (comets[0].alive && !(quit_help = help_renderframe_exit()));
 
     if (quit_help)
         return;
     game_set_message(&s1,_("Great job!"),left_edge,100);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Great job!"));
-    
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Great job!"));
+
     comets_clear_message(&s2);
     comets_clear_message(&s3);
     timer = 0;
@@ -916,10 +910,10 @@ void comets_handle_help(void)
     help_controls.laser_enabled = 1;
     game_set_message(&s1,_("Fast-moving powerup comets"), left_edge,100);
     game_set_message(&s2,_("earn you a secret weapon:"), left_edge,135);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s",
 		_("Fast-moving powerup comets"),_("earn you a secret weapon:"));
-		
+
     powerup_add_comet();
     timer = 0;
 
@@ -929,15 +923,14 @@ void comets_handle_help(void)
     {
 		if (quit_help)
 			return;
-		
-		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",powerup_comet->comet.flashcard.formula_string);
+
+        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",powerup_comet->comet.flashcard.formula_string);
 	}
-        
-        
+
     if (powerup_comet->comet.alive)
         powerup_comet->inc_speed = 0;
-    game_set_message(&s3,_("Zap it now!"),left_edge,225);    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Zap it now!"));
+    game_set_message(&s3, _("Zap it now!"), left_edge, 225);
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_("Zap it now!"));
 
     while (powerup_comet->comet.alive && !(quit_help = help_renderframe_exit()));
 
@@ -948,13 +941,10 @@ void comets_handle_help(void)
     game_set_message(&s2,_("'Esc' or clicking the 'X'"),left_edge,135);
     game_set_message(&s3,_("in the upper right corner."),left_edge,170);
     game_set_message(&s4,_("Do it now, and then play!"),left_edge,225);
-    
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s",
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s %s %s",
 		_("Quit at any time by pressing"),_("'Esc' or clicking the 'X'"),
 		_("in the upper right corner."),_("Do it now, and then play!"));
-		
-		
-    
 
     help_controls.x_is_blinking = 1;
 
@@ -986,7 +976,7 @@ int help_renderframe_exit(void)
     comets_handle_extra_life();
     comets_draw();
     comets_status = check_exit_conditions();
-    
+
     if (comets_status != GAME_IN_PROGRESS)
 		stop_tts_announcer_thread();
 
@@ -1205,7 +1195,7 @@ void comets_handle_demo(void)
 void comets_handle_answer(void)
 {
     int i, j, num_zapped;
-    int comets_answer[MAX_MAX_COMETS] = {-1}; 
+    int    comets_answer[MAX_MAX_COMETS] = {-1};
     char ans[MC_MAX_DIGITS + 2]; //extra space for negative, and for final '\0'
     Uint32 ctime;
     int powerup_ans = 0;
@@ -1232,9 +1222,9 @@ void comets_handle_answer(void)
      */
     for (i = 0; i < MAX_MAX_COMETS; i++)
     {
-        if (comets[i].alive &&
-                comets[i].expl == -1 &&
-                (smartbomb_firing || 0 == strncmp(comets[i].flashcard.answer_string, ans, MC_MAX_DIGITS + 1))) 
+        if (comets[i].alive && comets[i].expl == -1 &&
+            (smartbomb_firing || 0 == strncmp(comets[i].flashcard.answer_string,
+                                              ans, MC_MAX_DIGITS + 1)))
         {
             comets_answer[num_zapped] = i;
             num_zapped++;
@@ -1244,14 +1234,15 @@ void comets_handle_answer(void)
     smartbomb_firing = 0;
 
     /* powerup comet */
-    if( powerup_comet->comet.alive && 
-            strncmp(powerup_comet->comet.flashcard.answer_string, ans, MC_MAX_DIGITS + 1) == 0)
+    if (powerup_comet->comet.alive &&
+        strncmp(powerup_comet->comet.flashcard.answer_string, ans,
+                MC_MAX_DIGITS + 1) == 0)
     {
         powerup_ans = 1;
     }
 
     /* If there was a comet with this answer, destroy it! */
-    if (num_zapped != 0 || powerup_ans) 
+    if (num_zapped != 0 || powerup_ans)
     {
         float t;
         ctime = SDL_GetTicks();
@@ -1270,13 +1261,12 @@ void comets_handle_answer(void)
                 LAN_AnsweredCorrectly(comets[index_comets].flashcard.question_id, t);
 #else
             {}  // Needed for compiler, even though this path can't occur
-#endif      
+#endif
             else
             {
                 MC_AnsweredCorrectly(curr_game, comets[index_comets].flashcard.question_id, t);
             }
-            
-            
+
             /* Destroy comet: */
             comets[index_comets].expl = 0;
             comets[index_comets].zapped = 1;
@@ -1298,7 +1288,7 @@ void comets_handle_answer(void)
                 playsound(SND_EXTRA_LIFE);
 
                 tux_anim = IMG_TUX_YES1;
-                tux_anim_frame = ANIM_FRAME_START; 
+                tux_anim_frame = ANIM_FRAME_START;
             }
 
             /* Record data for feedback */
@@ -1325,7 +1315,7 @@ void comets_handle_answer(void)
                         tux_anim = IMG_TUX_YAY1;
                     tux_anim_frame = ANIM_FRAME_START;
                 }
-            }  
+            }
 
             /* Increment score: */
 
@@ -1335,7 +1325,7 @@ void comets_handle_answer(void)
             add_score(25 * comets[index_comets].flashcard.difficulty *
                     (screen->h - comets[index_comets].y + 1) /
                     screen->h);
-        } 
+        }
 
         if(powerup_ans)
         {
@@ -1362,7 +1352,7 @@ void comets_handle_answer(void)
                 LAN_AnsweredCorrectly(powerup_comet->comet.flashcard.question_id, t);
 #else
             {}  // Needed for compiler, even though this path can't occur
-#endif      
+#endif
             else
                 MC_AnsweredCorrectly(curr_game, powerup_comet->comet.flashcard.question_id, t);
         }
@@ -1498,7 +1488,7 @@ void comets_handle_comets(void)
             /* Did it hit a city? */
             if (comets[i].y >= city_expl_height &&
                     comets[i].expl == -1)
-                /* Oh no - an igloo or city has been hit!        */     
+            /* Oh no - an igloo or city has been hit!        */
             {
                 /* Tell MathCards about it - question not answered correctly: */
                 if(Opts_LanMode())
@@ -1884,7 +1874,7 @@ int check_extra_life(void)
         }
         if (fewest_hits_left == 2)
             return 0;   /* Don't need an extra life, there's no damage */
-        
+
         /* Begin the extra life sequence */
         T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,_("fixing ingloo damage! ...."));
         extra_life_earned = 0;
@@ -2058,7 +2048,7 @@ int check_exit_conditions(void)
             fprintf(stderr, "Unexpected value %d for user_quit_received\n", user_quit_received);
             return GAME_OVER_OTHER;
         }
-        return user_quit_received;    
+        return user_quit_received;
     }
 
     /* determine if game lost (i.e. all igloos melted): */
@@ -2107,8 +2097,7 @@ int check_exit_conditions(void)
             return GAME_OVER_OTHER;
     }
 
-
-    //NOTE can't use this check in LAN mode because we don't know if the server has 
+    //NOTE can't use this check in LAN mode because we don't know if the server has
     //questions left
 
     /* Need to get out if no comets alive and MathCards has no questions left in list, */
@@ -2123,7 +2112,7 @@ int check_exit_conditions(void)
             DEBUGMSG(debug_game, "num_comets_alive() = %d", num_comets_alive());
             return GAME_OVER_ERROR;
         }
-    } 
+    }
 
     /* If using demo mode, see if counter has run out: */
     if (Opts_DemoMode())
@@ -2205,7 +2194,7 @@ void print_exit_conditions(void)
 void comets_handle_game_over(int game_status)
 {
     DEBUGCODE(debug_game)
-    {    
+    {
         fprintf(stderr, "Entering comets_handle_comets_over() - game status = %d\n", game_status);
         print_exit_conditions();
     }
@@ -2236,11 +2225,10 @@ void comets_handle_game_over(int game_status)
             dest_message.y = (screen->h - images[IMG_GAMEOVER_WON]->h) / 2;
             dest_message.w = images[IMG_GAMEOVER_WON]->w;
             dest_message.h = images[IMG_GAMEOVER_WON]->h;
-            
+
             //stop_tts_announcer_thread();
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,_("Mission Accomplished! You won!"));
-            
-            
+
             do
             {
                 FC_frame_begin();
@@ -2321,7 +2309,7 @@ void comets_handle_game_over(int game_status)
                 sorted_scores[i].mine = LAN_PlayerMine(i);
                 sorted_scores[i].score = LAN_PlayerScore(i);
                 sorted_scores[i].connected = LAN_PlayerConnected(i);
-            }         
+            }
             qsort((void*)sorted_scores, MAX_CLIENTS, sizeof(lan_player_type), compare_scores);
 
 
@@ -2333,8 +2321,7 @@ void comets_handle_game_over(int game_status)
                 {
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%d.\t%s: %d", rank, sorted_scores[i].name, sorted_scores[i].score);
 				}
-			}            
-
+            }
 
             /* Begin display loop: */
             do
@@ -2446,18 +2433,21 @@ void comets_handle_game_over(int game_status)
 
         case GAME_OVER_LAN_HALTED:
         {
-            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, 
-                    _("Network game terminated by server.\n The server is still running.")); 
+            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                            _("Network game terminated by server.\n The server "
+                              "is still running."));
             break;
-        }        
+        }
         case GAME_OVER_LAN_DISCONNECT:
         {
-            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, 
-                    _("Network game terminated.\n Connection with server was lost."));
-            
-			//stop_tts_announcer_thread();
-			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,
-					_("Network game terminated.\n Connection with server was lost.")); 
+            ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                            _("Network game terminated.\n Connection with "
+                              "server was lost."));
+
+            //stop_tts_announcer_thread();
+            T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                        _("Network game terminated.\n Connection with server "
+                          "was lost."));
             break;
         }
 
@@ -2468,7 +2458,7 @@ void comets_handle_game_over(int game_status)
         {
 			//stop_tts_announcer_thread();
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,_("Game Over!"));
-			
+
             int looping = 1;
 
             /* set up GAMEOVER message: */
@@ -2581,7 +2571,7 @@ void reset_level(void)
     pre_wave_score = score;
 
     /* Set speed and number of comets for this wave.
-     * Note that in LAN mode, the number of comets is handled by the 
+     * Note that in LAN mode, the number of comets is handled by the
      * server, and feedback/slowdown are disallowed, so we just set
      * the speed and get out.
      *  */
@@ -2717,7 +2707,7 @@ int add_comet(void)
                         " far enough down: %f\n", i, comets[i].y);
                 return 0;
             }
-    }  
+    }
 
     /* Now look for a free comet slot: */
     for (i = 0; i < MAX_MAX_COMETS; i++)
@@ -2810,15 +2800,15 @@ int add_comet(void)
 
     /* If enabled, add powerup comet occasionally:
     */
-    if(Opts_UsePowerupComets()
-            && !mp_get_parameter(PLAYERS)  // no powerups in mp game, for now 
-            && !powerup_comet_running)
+    if (Opts_UsePowerupComets() &&
+        !mp_get_parameter(PLAYERS) // no powerups in mp game, for now
+        && !powerup_comet_running)
     {
         int t = rand()%Opts_PowerupFreq();
         if( t < 1 )
         {
             powerup_add_comet();
-        } 
+        }
     }
     /* comet slot found and question found so return successfully: */
     return 1;
@@ -3136,24 +3126,24 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
             smartbomb_alive = 0;
         }
     }
-    
+
     /* Score */
     else if(key == SDLK_F1)
-    {	
-		tts_announcer_switch = 2;
-	}
+    {
+        tts_announcer_switch = 2;
+    }
 
-	/* iglu alive */
+    /* iglu alive */
     else if(key == SDLK_F2)
     {
 		tts_announcer_switch = 3;
-	}	
+    }
 
-	/* Wave number */
+    /* Wave number */
     else if(key == SDLK_F3)
     {
 		tts_announcer_switch = 4;
-	}	
+    }
 
     else if(key == SDLK_PAGEUP)
     {
@@ -3183,7 +3173,7 @@ void add_score(int inc)
     score += inc;
     DEBUGMSG(debug_game,"Score is now: %d\n", score);
     /* For turn-based multiplayer game, update score in mp info: */
-    if (mp_get_parameter(PLAYERS)) 
+    if (mp_get_parameter(PLAYERS))
     {
         int new_score = mp_get_player_score(mp_get_currentplayer()) + inc;
         mp_set_player_score(mp_get_currentplayer(), new_score);
@@ -3307,7 +3297,7 @@ void free_on_exit(void)
         scaled_bkgd = NULL;
     }
 
-#ifdef HAVE_LIBSDL_NET  
+#ifdef HAVE_LIBSDL_NET
     if(player_left_surf)
     {
         SDL_DestroySurface(player_left_surf);
@@ -3462,8 +3452,8 @@ int powerup_add_comet(void)
         return 0;
 
     /* Make sure question is "sane" before we add it: */
-    if((powerup_comet->comet.flashcard.answer > 999) || 
-            (powerup_comet->comet.flashcard.answer < -999))
+    if ((powerup_comet->comet.flashcard.answer > 999) ||
+        (powerup_comet->comet.flashcard.answer < -999))
     {
         fprintf(stderr, "Warning, card with invalid answer encountered: %d\n",
                 powerup_comet->comet.flashcard.answer);
@@ -3489,12 +3479,12 @@ int powerup_add_comet(void)
     powerup_comet->comet.y = POWERUP_Y_POS;
     if(powerup_comet->direction == POWERUP_DIR_LEFT)
     {
-        powerup_comet->comet.x = screen->w; 
+        powerup_comet->comet.x   = screen->w;
         powerup_comet->inc_speed = -MS_POWERUP_SPEED;
     }
     else
     {
-        powerup_comet->comet.x = 0; 
+        powerup_comet->comet.x   = 0;
         powerup_comet->inc_speed = MS_POWERUP_SPEED;
     }
 
@@ -3545,7 +3535,7 @@ void comets_handle_powerup(void)
                         {}
                 }
             }
-        } 
+        }
     }
     else
     {
@@ -3562,7 +3552,7 @@ void comets_handle_powerup(void)
             case POWERUP_DIR_RIGHT:
                 if(powerup_comet->comet.x >= screen->w)
                 {
-                    powerup_comet->comet.alive = 0; 
+                    powerup_comet->comet.alive = 0;
                     powerup_comet_running = 0;
                 }
                 break;
@@ -3572,7 +3562,7 @@ void comets_handle_powerup(void)
         }
         //Tell MathCards user missed it:
         if(powerup_comet_running == 0)
-        {           
+        {
             if(Opts_LanMode())
 #ifdef HAVE_LIBSDL_NET
                 LAN_NotAnsweredCorrectly(powerup_comet->comet.flashcard.question_id);
@@ -3624,15 +3614,17 @@ void comets_handle_net_msg(char* buf)
 
     if(strncmp(buf, "PLAYER_MSG", strlen("PLAYER_MSG")) == 0)
     {
-        DEBUGMSG(debug_game|debug_lan, "buf is %s\n", buf);                                                  
+        DEBUGMSG(debug_game | debug_lan, "buf is %s\n", buf);
     }
 
     else if(strncmp(buf, "ADD_QUESTION", strlen("ADD_QUESTION")) == 0)
     {
         if(!add_quest_recvd(buf))
             fprintf(stderr, "ADD_QUESTION received but could not add question\n");
-        else  
-            DEBUGCODE(debug_game|debug_lan) print_current_quests();
+        else
+        {
+            DEBUGCODE(debug_game | debug_lan) print_current_quests();
+        }
     }
 
     else if(strncmp(buf, "REMOVE_QUESTION", strlen("REMOVE_QUESTION")) == 0)
@@ -3642,8 +3634,10 @@ void comets_handle_net_msg(char* buf)
             DEBUGMSG(debug_game|debug_lan, "REMOVE_QUESTION received but could not remove question\n");
             DEBUGMSG(debug_game|debug_lan, "(this is OK if it was answered by this player, as it was removed already)\n");
         }
-        else 
-            DEBUGCODE(debug_game|debug_lan) print_current_quests();
+        else
+        {
+            DEBUGCODE(debug_game | debug_lan) print_current_quests();
+        }
     }
 
     else if(strncmp(buf, "TOTAL_QUESTIONS", strlen("TOTAL_QUESTIONS")) == 0)
@@ -3681,7 +3675,7 @@ void comets_handle_net_msg(char* buf)
     else
     {
         DEBUGMSG(debug_game|debug_lan, "Unrecognized message from server: %s\n", buf);
-    }  
+    }
 }
 
 
@@ -3723,8 +3717,8 @@ int add_quest_recvd(char* buf)
  * immediately when a new question comes in.  It is up to the server to time
  * them appropriately - DSB.  */
 int lan_add_comet(MC_FlashCard* fc)
-{ 
-    static int prev_city = -1; 
+{
+    static int prev_city = -1;
     int i;
     int com_found = -1;
 
@@ -3822,14 +3816,14 @@ int lan_add_comet(MC_FlashCard* fc)
 
 
     /* No powerup comets in lan game for now: */
-    //int t=-1;   
+    //int t=-1;
     //if(!powerup_comet_running)
     //{
     //  t = rand()%10;
     //  if( t < 1 )
     //  {
     //    powerup_add_comet();
-    //  } 
+    //  }
     //}
 
     DEBUGCODE(debug_game|debug_lan)
@@ -3841,7 +3835,6 @@ int lan_add_comet(MC_FlashCard* fc)
     /* comet slot found and question found so return successfully: */
     return 1;
 }
-
 
 int remove_quest_recvd(char* buf)
 {
@@ -3996,7 +3989,7 @@ int compare_scores(const void* p1, const void* p2)
     lan_player_type* lan1 = (lan_player_type*)p1;
     lan_player_type* lan2 = (lan_player_type*)p2;
     return (lan2->score - lan1->score);
-}       
+}
 
 #endif  //HAVE_LIBSDL_NET
 
@@ -4007,10 +4000,9 @@ void print_current_quests(void)
     int i;
     fprintf(stderr, "\n------------  Current Questions:  -----------\n");
     for(i = 0; i < MAX_MAX_COMETS; i++)
-    { 
+    {
         if(comets[i].alive == 1)
             fprintf(stderr, "Comet %d - question %d:\t%s\n", i, comets[i].flashcard.question_id, comets[i].flashcard.formula_string);
-
     }
     //fprintf(stderr, "--------------Question Queue-----------------\n");
     //for(i = 0; i < QUEST_QUEUE_SIZE; i++)
@@ -4068,16 +4060,16 @@ wchar_t* convert_formula_to_sentence(char *formula_string)
 int tts_announcer(void *unused)
 {
 	int i,j;
-	
-	int order[15],iter;
+
+    int order[15],iter;
     float y_axis;
     int   rate;
     tts_announcer_switch = 1;
-	
-	SDL_Delay(20);
-	T4K_Tts_wait();	
-	
-	while(1)
+
+    SDL_Delay(20);
+    T4K_Tts_wait();
+
+    while(1)
 	{
 		if (tts_announcer_switch == 0)
 		{
@@ -4085,8 +4077,8 @@ int tts_announcer(void *unused)
 		}
 		else if(tts_announcer_switch == 2)
 		{
-			
-			if (Opts_LanMode())
+
+            if (Opts_LanMode())
 			{
 				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Score Board. ");
 				for (i = 0; i < MAX_CLIENTS; i++)
@@ -4099,10 +4091,10 @@ int tts_announcer(void *unused)
 				}
 			}
 			else
-			{	
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Score %d!",score);
-			}
-			SDL_Delay(20);
+            {
+                T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Score %d!",score);
+            }
+            SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
 		}
@@ -4112,32 +4104,31 @@ int tts_announcer(void *unused)
 			SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
-		}		
-		else if(tts_announcer_switch == 4)
+        }
+        else if(tts_announcer_switch == 4)
 		{
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"on wave %d!",wave);
 			SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
-		}	
-		else if(tts_announcer_switch == 5)
+        }
+        else if(tts_announcer_switch == 5)
 		{
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Press 'x' key to use smart bomb!");
 			SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
-		}			
-		
-		
-		/* Continue the process of announcing formula */
+        }
+
+        /* Continue the process of announcing formula */
 		if(powerup_comet->comet.alive){
 			T4K_Tts_say(DEFAULT_VALUE,70,INTERRUPT,"%S",convert_formula_to_sentence(powerup_comet->comet.flashcard.formula_string));
 			SDL_Delay(20);
-			T4K_Tts_wait();					
-		}
+            T4K_Tts_wait();
+        }
 		else{
-			iter = 0;				
-			//Getting all alive comets to
+            iter = 0;
+            //Getting all alive comets to
 			for (i = 0; i < MAX_MAX_COMETS; i++){
 				if (comets[i].alive){
 					order[iter] = i;
@@ -4181,16 +4172,16 @@ int tts_announcer(void *unused)
 							rate = 30;
 						else if (rate > 70)
 							rate = 70;
-				
-						T4K_Tts_say(rate,rate,INTERRUPT,"%S",
+
+                        T4K_Tts_say(rate,rate,INTERRUPT,"%S",
 							convert_formula_to_sentence(comets[order[i]].flashcard.formula_string));
 						SDL_Delay(20);
 						T4K_Tts_wait();
 					}
                 }
             }
-        }	
-	}
+        }
+    }
 	end:
 	return 0;
 }

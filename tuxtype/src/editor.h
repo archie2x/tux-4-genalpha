@@ -3,9 +3,9 @@
 
    Description: Header for word- and phrase list-editing functionality for
    Tux Typing.
-   
+
    Copyright 2009, 2010.
-   Authors: Sarah Frisk <ssfrisk@gmail.com> and 
+   Authors: Sarah Frisk <ssfrisk@gmail.com> and
             David Bruce <davidstuartbruce@gmail.com>.
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
@@ -25,8 +25,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #ifndef EDITOR_H
 #define EDITOR_H

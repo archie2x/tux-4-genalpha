@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 
 #include "mathcards.h"
 #include "transtruct.h"
@@ -68,7 +68,7 @@ int lan_player_left_recvd(char* buf);
 
 int LAN_DetectServers(void)
 {
-    UDPsocket udpsock = NULL;  
+    UDPsocket  udpsock = NULL;
     UDPpacket* out;
     UDPpacket* out_local;
     UDPpacket* in;
@@ -176,10 +176,10 @@ int LAN_DetectServers(void)
 
     DEBUGMSG(debug_lan, "done\n\n");
 
-    SDLNet_FreePacket(out); 
-    SDLNet_FreePacket(out_local); 
-    SDLNet_FreePacket(in); 
-    SDLNet_UDP_Close(udpsock); 
+    SDLNet_FreePacket(out);
+    SDLNet_FreePacket(out_local);
+    SDLNet_FreePacket(in);
+    SDLNet_UDP_Close(udpsock);
     return num_servers;
 }
 
@@ -191,7 +191,7 @@ char* LAN_ServerName(int i)
     if(servers[i].ip.host != 0)
         return servers[i].name;
     else
-        return NULL; 
+        return NULL;
 }
 
 char* LAN_ConnectedServerName(void)
@@ -205,10 +205,9 @@ char* LAN_ConnectedServerLesson(void)
     return servers[connected_server].lesson;
 }
 
-
-//For the simple case where a single server is found, i is 
+//For the simple case where a single server is found, i is
 //always 0. Otherwise the player has to review the choices
-//via LAN_ServerName(i) to get the index 
+//via LAN_ServerName(i) to get the index
 int LAN_AutoSetup(int i)
 {
     if(i < 0 || i > MAX_SERVERS)
@@ -288,7 +287,7 @@ int LAN_SetName(char* name)
 /* the network.c system instead of being passed to the rest of the   */
 /* program.                                                          */
 int LAN_NextMsg(char* buf)
-{ 
+{
     int numready = 0;
 
     DEBUGMSG(debug_lan, "Enter LAN_NextMsg():\n");
@@ -358,7 +357,6 @@ int LAN_NextMsg(char* buf)
     return 0;
 }
 
-
 int LAN_SetReady(bool ready)
 {
     char buffer[NET_BUF_LEN];
@@ -422,7 +420,7 @@ char* LAN_PlayerName(int i)
     {
         fprintf(stderr, "Warning - invalid index %d passed to LAN_PlayerName()\n", i);
         return NULL;
-    }  
+    }
 
     return lan_player_info[i].name;
 }
@@ -433,7 +431,7 @@ bool LAN_PlayerMine(int i)
     {
         fprintf(stderr, "Warning - invalid index %d passed to LAN_PlayerMine()\n", i);
         return false;
-    }  
+    }
     return lan_player_info[i].mine;
 }
 
@@ -443,7 +441,7 @@ bool LAN_PlayerReady(int i)
     {
         fprintf(stderr, "Warning - invalid index %d passed to LAN_PlayerReady()\n", i);
         return false;
-    }  
+    }
     return lan_player_info[i].ready;
 }
 
@@ -453,7 +451,7 @@ bool LAN_PlayerConnected(int i)
     {
         fprintf(stderr, "Warning - invalid index %d passed to LAN_PlayerConnected()\n", i);
         return false;
-    }  
+    }
     return lan_player_info[i].connected;
 }
 
@@ -463,7 +461,7 @@ int LAN_PlayerScore(int i)
     {
         fprintf(stderr, "Warning - invalid index %d passed to LAN_PlayerScore()\n", i);
         return -1;
-    }  
+    }
     return lan_player_info[i].score;
 }
 
@@ -616,8 +614,8 @@ int socket_index_recvd(char* buf)
             lan_player_info[i].mine = 1;
         else
             lan_player_info[i].mine = 0;
-    }     
-    return index; 
+    }
+    return index;
 }
 
 
@@ -664,8 +662,8 @@ int parse_player_info_msg(char* buf)
         lan_player_info[i].score = atoi(p);
 
     DEBUGMSG(debug_lan, "update_score_recvd() - buf is: %s\n", buf);
-    DEBUGMSG(debug_lan, "i is: %d\tname is: %s\tscore is: %d\n", 
-            i, lan_player_info[i].name, lan_player_info[i].score);
+    DEBUGMSG(debug_lan, "i is: %d\tname is: %s\tscore is: %d\n", i,
+             lan_player_info[i].name, lan_player_info[i].score);
 
     return 1;
 }

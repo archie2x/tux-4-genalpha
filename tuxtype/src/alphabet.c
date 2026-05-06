@@ -5,7 +5,7 @@
 
    Copyright 2003, 2008, 2009, 2010.
    Authors: Jesse Andrews, Sreyas Kurumanghat, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -121,7 +121,7 @@ int LoadKeyboard(void)
     fprintf(stderr, "LoadKeyboard(): Error finding file for keyboard setup!\n");
     return 0;
   }
-  
+
   /* fn should now contain valid path to keyboard.lst: */
   DEBUGCODE{fprintf(stderr, "fn = %s\n", fn);}
 
@@ -143,7 +143,7 @@ int LoadKeyboard(void)
     do
     {
       int fscanf_result = fscanf( f, "%[^\n]\n", str);
-      
+
       if (fscanf_result == EOF)
         break;
       /* Convert to wcs from UTF-8, if needed; */
@@ -167,8 +167,10 @@ int LoadKeyboard(void)
       {
         DEBUGCODE
         {
-          fprintf(stderr, "Adding key: Unicode char = '%C'\tUnicode value = %d\tfinger = %ld\n",
-                  wide_str[2], wide_str[2], wcstol(&wide_str[0], NULL, 0)); 
+            fprintf(stderr,
+                    "Adding key: Unicode char = '%C'\tUnicode value = "
+                    "%d\tfinger = %ld\n",
+                    wide_str[2], wide_str[2], wcstol(&wide_str[0], NULL, 0));
         }
 
         /* Just plug values into array: */
@@ -236,7 +238,7 @@ int GetFinger(int i)
     fprintf(stderr, "GetFinger() - requested index i = %d outside of array\n", i);
     return -3;
   }
-  
+
   if (i == -1)
   {
     fprintf(stderr, "GetFinger() - Unicode char '%C' not found in list.\n", i);
@@ -248,7 +250,7 @@ int GetFinger(int i)
   {
     fprintf(stderr, "GetFinger() - Unicode char '%C' has no valid finger.\n", i);
     return -1;
-  }  
+  }
 
   return (int)keyboard_list[i].finger; /* Keep compiler from complaining */
 }
@@ -286,11 +288,11 @@ void GetKeyPos(int index, char* buf)
 {
   if (index < 0 || index > MAX_UNICODES)
   {
-    fprintf(stderr, "GetKeyPos() - invalid argument 'index' = %d\n", index); 
-    buf = "";
-    return;
+      fprintf(stderr, "GetKeyPos() - invalid argument 'index' = %d\n", index);
+      buf = "";
+      return;
   }
-  sprintf(buf,"keyboard/keyboard_%s.png", keyboard_list[index].keyname);	
+  sprintf(buf, "keyboard/keyboard_%s.png", keyboard_list[index].keyname);
 }
 
 
@@ -298,9 +300,10 @@ void GetWrongKeyPos(int index, char *buf)
 {
   if (index < 0 || index > MAX_UNICODES)
   {
-    fprintf(stderr, "GetWrongKeyPos() - invalid argument 'index' = %d\n", index); 
-    buf = "";
-    return;
+      fprintf(stderr, "GetWrongKeyPos() - invalid argument 'index' = %d\n",
+              index);
+      buf = "";
+      return;
   }
   sprintf(buf,"keyboard/keyboardN_%s.png", keyboard_list[index].keyname);
 }
@@ -310,9 +313,9 @@ void GetKeyShift(int index, char* buf)
 {
    if (index < 0 || index > MAX_UNICODES)
   {
-    fprintf(stderr, "GetKeyShift() - invalid argument 'index' = %d\n", index); 
-    buf = "";
-    return;
+      fprintf(stderr, "GetKeyShift() - invalid argument 'index' = %d\n", index);
+      buf = "";
+      return;
   }
 
   if(keyboard_list[index].shift == 0)
@@ -333,8 +336,7 @@ wchar_t GetLastKey()
     return -1;
   else
     return keyboard_list[num_chars_used - 1].unicode_value;
-} 
-
+}
 
 int unicode_in_key_list(wchar_t uni_char)
 {
@@ -361,20 +363,20 @@ int unicode_in_key_list(wchar_t uni_char)
 // 	SDL_Rect dst;
 // 	int stop = 0;
 // 	unsigned char t[255];
-// 
+//
 // 	for (i=0; i<256; i++)
 // 		if (ALPHABET[i])
 // 			t[l++]=i;
-// 
+//
 // 	t[l] = 0;
-// 
+//
 // 	abit = BlackOutline(t, font, &white);
-// 
+//
 // 	dst.x = 320 - (abit->w / 2);
 // 	dst.y = 275;
 // 	dst.w = abit->w;
 // 	dst.h = abit->h;
-// 
+//
 // 	SDL_BlitSurface(abit, NULL, screen, &dst);
 //
 // 	SDL_DestroySurface(abit);
@@ -598,7 +600,7 @@ int GenerateWordList(const char* wordFn)
     wcsncpy(word_list[num_words], temp_wide_word, strlen(temp_word) + 1);
     num_words++;
   }
-        
+
   /* Make sure list is terminated with null character */
   word_list[num_words][0] = '\0';
 
@@ -674,7 +676,7 @@ void FreeLetters(void)
     char_glyphs[i].unicode_value = 0;
     char_glyphs[i].white_glyph = NULL;
     char_glyphs[i].red_glyph = NULL;
-  } 
+  }
   /* List now empty: */
   num_chars_used = 0;
 }
@@ -696,7 +698,7 @@ SDL_Surface* GetWhiteGlyph(wchar_t t)
     fprintf(stderr, "Could not find glyph for Unicode char '%C', value = %d\n", t, t);
     return NULL;
   }
-  
+
   /* Return corresponding surface for blitting: */
   return char_glyphs[i].white_glyph;
 }
@@ -719,7 +721,7 @@ SDL_Surface* GetRedGlyph(wchar_t t)
     fprintf(stderr, "Could not find glyph for unicode character %lc\n", t);
     return NULL;
   }
-  
+
   /* Return corresponding surface for blitting: */
   return char_glyphs[i].red_glyph;
 }
@@ -1076,8 +1078,8 @@ int map_keys(wchar_t wide_char, kbd_char* keyboard_entry)
 	case ':':strcpy(keyboard_entry->keyname,"C10");
 		keyboard_entry->shift=1;
 		keyboard_entry->finger=9;
-		break;			
-	case '\'':strcpy(keyboard_entry->keyname,"C11");
+        break;
+    case '\'':strcpy(keyboard_entry->keyname,"C11");
 		keyboard_entry->shift=0;
 		keyboard_entry->finger=9;
 		break;
@@ -1174,7 +1176,7 @@ int map_keys(wchar_t wide_char, kbd_char* keyboard_entry)
 		keyboard_entry->shift = 0;
 		keyboard_entry->finger = -1;
 		break;
-  }	
+    }
   return 0;
 }
 
@@ -1338,7 +1340,7 @@ static void gen_char_list(void)
   i = j = 0;
   char_list[0] = '\0';
 
-  while (word_list[i][0] != '\0' && i < MAX_NUM_WORDS) 
+  while (word_list[i][0] != '\0' && i < MAX_NUM_WORDS)
   {
     j = 0;
 
@@ -1382,7 +1384,7 @@ void GenCharListFromString(const char* UTF8_str)
   T4K_ConvertFromUTF8(wchar_buf, UTF8_str, MAX_UNICODES);
 
   /* FNLEN is max length of phrase (I think) */
-  while (wchar_buf[i] != '\0' && i < FNLEN) 
+  while (wchar_buf[i] != '\0' && i < FNLEN)
   {
     add_char(wchar_buf[i]);
     i++;

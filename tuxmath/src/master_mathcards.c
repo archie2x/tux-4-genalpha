@@ -111,8 +111,6 @@ const char* const MC_OPTION_TEXT[NOPTS+1] = {
     "END_OF_OPTS"
 };
 
-
-
 const int MC_DEFAULTS[] = {
     1,    //PLAY_THROUGH_LIST
     1,    //QUESTION_COPIES
@@ -124,71 +122,69 @@ const int MC_DEFAULTS[] = {
     2,    //MAX_FORMULA_NUMS
     2,    //MIN_FORMULA_NUMS
     //
-    1,    //FORMAT_ANSWER_LAST
-    0,    //FORMAT_ANSWER_FIRST
-    0,    //FORMAT_ANSWER_MIDDLE
-    1,    //FORMAT_ADD_ANSWER_LAST
-    0,    //FORMAT_ADD_ANSWER_FIRST
-    0,    //FORMAT_ADD_ANSWER_MIDDLE
-    1,    //FORMAT_SUB_ANSWER_LAST
-    0,    //FORMAT_SUB_ANSWER_FIRST
-    0,    //FORMAT_SUB_ANSWER_MIDDLE
-    1,    //FORMAT_MULT_ANSWER_LAST
-    0,    //FORMAT_MULT_ANSWER_FIRST
-    0,    //FORMAT_MULT_ANSWER_MIDDLE
-    1,    //FORMAT_DIV_ANSWER_LAST
-    0,    //FORMAT_DIV_ANSWER_FIRST
-    0,    //FORMAT_DIV_ANSWER_MIDDLE
+    1, //FORMAT_ANSWER_LAST
+    0, //FORMAT_ANSWER_FIRST
+    0, //FORMAT_ANSWER_MIDDLE
+    1, //FORMAT_ADD_ANSWER_LAST
+    0, //FORMAT_ADD_ANSWER_FIRST
+    0, //FORMAT_ADD_ANSWER_MIDDLE
+    1, //FORMAT_SUB_ANSWER_LAST
+    0, //FORMAT_SUB_ANSWER_FIRST
+    0, //FORMAT_SUB_ANSWER_MIDDLE
+    1, //FORMAT_MULT_ANSWER_LAST
+    0, //FORMAT_MULT_ANSWER_FIRST
+    0, //FORMAT_MULT_ANSWER_MIDDLE
+    1, //FORMAT_DIV_ANSWER_LAST
+    0, //FORMAT_DIV_ANSWER_FIRST
+    0, //FORMAT_DIV_ANSWER_MIDDLE
     //
-    1,    //ADDITION_ALLOWED
-    1,    //SUBTRACTION_ALLOWED
-    1,    //MULTIPLICATION_ALLOWED
-    1,    //DIVISION_ALLOWED
+    1, //ADDITION_ALLOWED
+    1, //SUBTRACTION_ALLOWED
+    1, //MULTIPLICATION_ALLOWED
+    1, //DIVISION_ALLOWED
 
-    0,    //TYPING_PRACTICE_ALLOWED
-    1,    //ARITHMETIC_ALLOWED
-    0,    //COMPARISON_ALLOWED
+    0, //TYPING_PRACTICE_ALLOWED
+    1, //ARITHMETIC_ALLOWED
+    0, //COMPARISON_ALLOWED
     //
-    0,    //MIN_AUGEND
-    12,   //MAX_AUGEND
-    0,    //MIN_ADDEND
-    12,   //MAX_ADDEND
+    0,  //MIN_AUGEND
+    12, //MAX_AUGEND
+    0,  //MIN_ADDEND
+    12, //MAX_ADDEND
     //
-    0,    //MIN_MINUEND
-    12,   //MAX_MINUEND
-    0,    //MIN_SUBTRAHEND
-    12,   //MAX_SUBTRAHEND
+    0,  //MIN_MINUEND
+    12, //MAX_MINUEND
+    0,  //MIN_SUBTRAHEND
+    12, //MAX_SUBTRAHEND
     //
-    0,    //MIN_MULTIPLIER
-    12,   //MAX_MULTIPLIER
-    0,    //MIN_MULTIPLICAND
-    12,   //MAX_MULTIPLICAND
+    0,  //MIN_MULTIPLIER
+    12, //MAX_MULTIPLIER
+    0,  //MIN_MULTIPLICAND
+    12, //MAX_MULTIPLICAND
     //
-    0,    //MIN_DIVISOR
-    12,   //MAX_DIVISOR
-    0,    //MIN_QUOTIENT
-    12,   //MAX_QUOTIENT
+    0,  //MIN_DIVISOR
+    12, //MAX_DIVISOR
+    0,  //MIN_QUOTIENT
+    12, //MAX_QUOTIENT
     //
-    0,    //MIN_TYPING_NUM
-    12,   //MAX_TYPING_NUM
+    0,  //MIN_TYPING_NUM
+    12, //MAX_TYPING_NUM
     //
-    0,    //MIN_COMPARATOR
-    12,   //MAX_COMPARATOR
-    0,    //MIN_COMPARISAND
-    12,   //MAX_COMPARISAND
+    0,  //MIN_COMPARATOR
+    12, //MAX_COMPARATOR
+    0,  //MIN_COMPARISAND
+    12, //MAX_COMPARISAND
 
-    1,    //RANDOMIZE
+    1, //RANDOMIZE
 
-    0,    //COMPREHENSIVE
+    0, //COMPREHENSIVE
 
-    //NOTE if "comprehensive" is off, we randomly generate a set of 
-    //"avg list length" questions one by one. If "vary list length" 
+    //NOTE if "comprehensive" is off, we randomly generate a set of
+    //"avg list length" questions one by one. If "vary list length"
     //is on, that length is also randomized somewhat
-    100,  //AVG_LIST_LENGTH
-    0     //VARY_LIST_LENGTH  
+    100, //AVG_LIST_LENGTH
+    0    //VARY_LIST_LENGTH
 };
-
-
 
 /* "Globals" for mathcards.c: */
 #define PI_VAL 3.1415927
@@ -556,7 +552,7 @@ int MC_AnsweredCorrectly(int id, float t)
     DEBUGMSG(debug_mathcards, "\nQuestion id was: %d\n", id);
 
     //First take the question out of the active_quests list
-    quest = active_quests;  
+    quest = active_quests;
     // Loop until quest is NULL or we find card with same id:
     while(quest && (id != quest->card.question_id))
         quest = quest->next;
@@ -577,9 +573,8 @@ int MC_AnsweredCorrectly(int id, float t)
         fprintf(stderr, "Player receives %d points\n", points);
     }
 
-
-    //We found a matching question, now we take it out of the 
-    //"active_quests" list and either put it back into the 
+    //We found a matching question, now we take it out of the
+    //"active_quests" list and either put it back into the
     //main question list in a random location, or delete it:
     active_quests = remove_node(active_quests, quest);
     questions_pending--;  //the length of the 'active_quests' list
@@ -612,7 +607,7 @@ int MC_AnsweredCorrectly(int id, float t)
         fprintf(stderr, "\nLeaving MC_AnsweredCorrectly()\n");
     }
 
-    /* Record the time it took to answer: */ 
+    /* Record the time it took to answer: */
     MC_AddTimeToList(t);
 
     return points;
@@ -642,7 +637,7 @@ int MC_NotAnsweredCorrectly(int id)
     DEBUGMSG(debug_mathcards, "\nQuestion id was: %d\n", id);
 
     //First take the question out of the active_quests list
-    quest = active_quests;  
+    quest = active_quests;
     // Loop until quest is NULL or we find card with same id:
     while(quest && (id != quest->card.question_id))
         quest = quest->next;
@@ -1043,27 +1038,27 @@ int MC_MakeFlashcard(char* buf, MC_FlashCard* fc)
     while(buf[i]!='\n' && i < NET_BUF_LEN)
     {
         if(buf[i]=='\t')
-            tab++; 
+            tab++;
         i++;
         if(tab == 5)
             break;
     }
 
-    while((buf[i] != '\n') 
-            && (s < MC_FORMULA_LEN - 1)) //Must leave room for terminating null
+    while ((buf[i] != '\n') &&
+           (s < MC_FORMULA_LEN - 1)) //Must leave room for terminating null
     {
         formula[s] = buf[i] ;
         i++;
         s++;
     }
     formula[s]='\0';
-    strcpy(fc->formula_string, formula); 
+    strcpy(fc->formula_string, formula);
 
     DEBUGMSG(debug_lan, "In Make_Flashcard, new card is:\n");
-    DEBUGCODE(debug_lan) print_card(*fc); 
+    DEBUGCODE(debug_lan) print_card(*fc);
 
     return 1;
-} 
+}
 
 /* Implementation of "private methods" - (cannot be called from outside
    of this file) */
@@ -1125,17 +1120,14 @@ void clear_negatives(void)
 //     fprintf(stderr, "\nIn copy_node(): invalid 'copy' pointer arg.\n");
 //     return 0;
 //   }
-// 
+//
 //   copy_card(&(original->card), &(copy->card) );
-// 
+//
 //   copy->next = original->next;
 //   copy->previous = original->previous;
 //   copy->randomizer = original->randomizer;
 //   return 1;
 // }
-
-
-
 
 /* this puts the node into the list AFTER the node pointed to by current */
 /* and returns a pointer to the top of the modified list  */
@@ -1293,14 +1285,9 @@ void print_counters(void)
     fprintf(stderr, "list_length(active_quests) = \t%d\n", list_length(active_quests));
 }
 
-
-
-
-
-
-// 
+//
 // /* FIXME take care of strings */
-// 
+//
 // MC_FlashCard create_card_from_node(MC_MathQuestion* node)
 // {
 //   MC_FlashCard fc;
@@ -1310,8 +1297,6 @@ void print_counters(void)
 //   copy_card(&(node->card), &fc);
 //   return fc;
 // }
-
-
 
 /* a "copy constructor", so to speak */
 /* FIXME perhaps should return newly allocated list if more than one node DSB */
@@ -1490,14 +1475,14 @@ int already_in_list(MC_MathQuestion* list, MC_MathQuestion* ptr)
 //     i = MC_GLOBAL_MAX;
 //   else if (i < -MC_GLOBAL_MAX)
 //     i = -MC_GLOBAL_MAX;
-// 
+//
 //   if (i < 0
 //    && math_opts
 //    && !math_opts->iopts[ALLOW_NEGATIVES])
 //   {
 //     i = 0;
 //   }
-// 
+//
 //   return i;
 // }
 
@@ -1643,7 +1628,7 @@ MC_FlashCard generate_random_flashcard(void)
    */
 
 /* FIXME we should consider rewriting this - it currently generates some
-   questions with indeterminate answers (e.g. ? * 0 = 0) that seem to be 
+   questions with indeterminate answers (e.g. ? * 0 = 0) that seem to be
    impossible to prevent using the current scheme with recursive string
    operations.
    */
@@ -1708,8 +1693,12 @@ MC_FlashCard generate_random_ooo_card_of_length(int length, int reformat)
 
         else do
         {
-            r1 = rand() % (math_opts->iopts[MAX_AUGEND+4*op] - math_opts->iopts[MIN_AUGEND+4*op] + 1) + math_opts->iopts[MIN_AUGEND+4*op];    
-            r2 = rand() % (math_opts->iopts[MAX_ADDEND+4*op] - math_opts->iopts[MIN_ADDEND+4*op] + 1) + math_opts->iopts[MIN_ADDEND+4*op]; 
+            r1 = rand() % (math_opts->iopts[MAX_AUGEND + 4 * op] -
+                           math_opts->iopts[MIN_AUGEND + 4 * op] + 1) +
+                 math_opts->iopts[MIN_AUGEND + 4 * op];
+            r2 = rand() % (math_opts->iopts[MAX_ADDEND + 4 * op] -
+                           math_opts->iopts[MIN_ADDEND + 4 * op] + 1) +
+                 math_opts->iopts[MIN_ADDEND + 4 * op];
 
             if (op == MC_OPER_ADD)
                 ans = r1 + r2;
@@ -1724,7 +1713,7 @@ MC_FlashCard generate_random_ooo_card_of_length(int length, int reformat)
 
                 ans = r1 * r2;
             }
-            if (op == MC_OPER_DIV)  
+            if (op == MC_OPER_DIV)
             {
                 if (r2 == 0)
                     r2 = 1;
@@ -1822,12 +1811,12 @@ MC_FlashCard generate_random_ooo_card_of_length(int length, int reformat)
         DEBUGMSG(debug_mathcards, "Reformatting...\n");
         do {
             format = rand() % MC_NUM_FORMATS;
-        } while (!MC_GetOpt(FORMAT_ANSWER_LAST + format) && 
-                !MC_GetOpt(FORMAT_ADD_ANSWER_LAST + op * 3 + format) );
+        } while (!MC_GetOpt(FORMAT_ANSWER_LAST + format) &&
+                 !MC_GetOpt(FORMAT_ADD_ANSWER_LAST + op * 3 + format));
 
         strncat(ret.formula_string, " = ?", MC_FORMULA_LEN - strlen(ret.formula_string) );
         DEBUGMSG(debug_mathcards, "Formula_string: %s\n", ret.formula_string);
-        reformat_arithmetic(&ret, format );     
+        reformat_arithmetic(&ret, format);
     }
     ret.question_id = id;
 
@@ -1949,7 +1938,7 @@ MC_MathQuestion* generate_list(void)
     /* time until we have enough                              */
     /* NOTE generate_random_flashcard() has some bugs, so only */
     /* use this method if we need multiple operand questions   */
-    else 
+    else
     {
         DEBUGMSG(debug_mathcards, "In generate_list() - COMPREHENSIVE method NOT requested\n");
 
@@ -2002,8 +1991,8 @@ static int compare_card(const MC_FlashCard* a, const MC_FlashCard* b)
     return 1;
     if (a->difficulty != b->difficulty);
     return 1;
-    //No differences detected - the cards are identical 
-    return 0; 
+    //No differences detected - the cards are identical
+    return 0;
 }
 
 /* Public functions */
@@ -2131,7 +2120,7 @@ void MC_SetOpt(unsigned int index, int val)
             }
 
             /* Operand values - make sure they are in displayable range */
-            /* i.e. -999 to 999                                         */ 
+            /* i.e. -999 to 999                                         */
         case MAX_ANSWER:
         case MIN_AUGEND:
         case MAX_AUGEND:
@@ -2241,14 +2230,14 @@ int find_divisor(int a)
                     if (div * smallprimes[i] <= MC_GetOpt(MAX_DIVISOR) ) //if we can,
                         div *= smallprimes[i]; //update our real divisor
     //keep going if the divisor is too small
-    while (div < MC_GetOpt(MIN_DIVISOR) && --realisticpasses); 
+    while (div < MC_GetOpt(MIN_DIVISOR) && --realisticpasses);
 
     return div;
 }
 
 
 //Computes (approximately) the number of questions that will be returned
-//by add_all_valid() as specified by the current options. This does not 
+//by add_all_valid() as specified by the current options. This does not
 //take into account screening out of invalid questions, such
 //as divide-by-zero and questions like "0 x ? = 0".
 static int calc_num_valid_questions(void)
@@ -2551,16 +2540,16 @@ MC_MathQuestion* add_all_valid(MC_ProblemType pt,
 
                 snprintf(tnode->card.formula_string, MC_FORMULA_LEN, "%d ? %d", i,j);
                 snprintf(tnode->card.answer_string, MC_ANSWER_LEN,
-                        i < j ? "<" : 
-                        i > j ? ">" : 
-                        "=");
+                         i < j   ? "<"
+                         : i > j ? ">"
+                                 : "=");
                 tnode->card.difficulty = 1;
                 list = insert_node(list, *end_of_list, tnode);
                 *end_of_list = tnode;
             }
         }
     }
-    DEBUGMSG(debug_mathcards, "Exiting add_all_valid()\n");  
+    DEBUGMSG(debug_mathcards, "Exiting add_all_valid()\n");
     DEBUGMSG(debug_mathcards, "List now has %d questions\n\n", list_length(list));
 
     return list;

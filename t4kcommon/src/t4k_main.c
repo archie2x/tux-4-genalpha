@@ -33,7 +33,7 @@ int debug_status;
 
 /* set global variables */
 /* TODO look into support for locale switching at runtime
- ** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115 
+ ** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115
  */
 int InitT4KCommon(int debug_flags)
 {

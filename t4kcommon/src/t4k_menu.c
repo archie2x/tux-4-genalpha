@@ -248,7 +248,7 @@ MenuNode* create_empty_node()
 MenuNode *menu_TranslateNode(xmlNode *node) {
     MenuNode *tnode = NULL;
     int i;
-    
+
     if (node == NULL)
     {
         DEBUGMSG(debug_menu, "menu_TranslateNode(): NULL pointer, exiting !\n");
@@ -343,7 +343,7 @@ MenuNode *menu_LoadFile(char *file) {
         menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER);
     else
         menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
-    
+
     if(menu == NULL) {
 	DEBUGMSG(debug_menu_parser, "menu_LoadFile: Failed to parse and load file. (`%s`)\n", file);
 	return NULL;
@@ -892,9 +892,12 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                     }
                     if (loc > 0)
 						loc--;
-					    else if (menu->submenu_size <= menu->entries_per_screen) 
-						loc = menu->submenu_size - 1;  // wrap around if only 1 T4K_GetScreen()
-					    else if (menu->first_entry > 0)
+                    else if (menu->submenu_size <= menu->entries_per_screen)
+                    {
+                        loc = menu->submenu_size -
+                              1; // wrap around if only 1 T4K_GetScreen()
+                    }
+                        else if (menu->first_entry > 0)
 					    {
 						loc = menu->entries_per_screen - 1;
 						action = PAGEUP;
@@ -907,9 +910,11 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 						T4K_PlaySound(snd_hover);
 					    if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
 						loc++;
-					    else if (menu->submenu_size <= menu->entries_per_screen) 
-						loc = 0;  // wrap around if only 1 T4K_GetScreen()
-					    else if (menu->first_entry + menu->entries_per_screen < menu->submenu_size)
+                        else if (menu->submenu_size <= menu->entries_per_screen)
+                        {
+                            loc = 0; // wrap around if only 1 T4K_GetScreen()
+                        }
+                        else if (menu->first_entry + menu->entries_per_screen < menu->submenu_size)
 					    {
 						loc = 0;
 						action = PAGEDOWN;
@@ -1435,7 +1440,7 @@ void T4K_PrerenderMenu(int index)
 }
 
 /* recursively search for longest menu caption in currently
-   used menus and in current language 
+   used menus and in current language
    Note the dual return values--if a string longer than length
    is found, length will be set to that value and the return value
    will be the string found. O/W, length is untouched and the
@@ -1446,13 +1451,13 @@ char* find_longest_text(MenuNode* menu, int* length)
     char *ret = NULL, *temp = NULL;
     int i;
     int w = 0;
-    
+
     if (menu == NULL)
     {
         DEBUGMSG(debug_menu, "find_longest_text(): NULL pointer, exiting !\n");
         return NULL;
     }
-    
+
     DEBUGMSG(debug_menu, "Entering find_longest_text()\n");
     if(menu->submenu_size == 0) //"leaf" menu
     {
@@ -1489,7 +1494,7 @@ char* find_longest_text(MenuNode* menu, int* length)
 int find_longest_menu_page(MenuNode* menu)
 {
     int longest = 0, i;
-    
+
     if (menu == NULL)
     {
         DEBUGMSG(debug_menu, "find_longest_menu_page(): NULL pointer, exiting !\n");
@@ -1536,7 +1541,7 @@ void set_font_size(bool uniform)
 	for (i = 0; i < N_OF_MENUS; ++i)
 	    if (menus[i])
 		set_menu_font_size(menus[i]);
-	return;   
+    return;
     }
 
     for (j = 0; j < N_OF_MENUS; ++j)
@@ -1574,13 +1579,13 @@ void set_menu_font_size(MenuNode* menu)
     int length = 0, i, min_f, max_f;
     int w = 0, h = 0;
     char* longest=NULL;
-    
+
     if (menu == NULL)
     {
         DEBUGMSG(debug_menu, "set_menu_font_size(): NULL pointer, exiting !\n");
         return;
     }
-    
+
     for(i = 0; i < menu->submenu_size; i++)
     {
 	size_text(_(menu->submenu[i]->title), 8, &w, &h);
@@ -1633,8 +1638,9 @@ void T4K_SetMenuFontSize(MFStrategy strategy, int size)
     font_strategy = strategy;
 
     if (strategy != MF_EXACTLY && strategy != MF_UNIFORM && strategy != MF_BESTFIT)
-	DEBUGMSG(debug_menu, "Invalid font strategy: %d; using default font size %d\n", 
-		strategy, (size = default_font_size));
+        DEBUGMSG(debug_menu,
+                 "Invalid font strategy: %d; using default font size %d\n",
+                 strategy, (size = default_font_size));
 
     if (strategy == MF_EXACTLY)
 	for (i = 0; i < N_OF_MENUS; ++i)

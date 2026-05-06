@@ -33,7 +33,7 @@
 //!     Tux4Kids_common
 //!
 //! \section intro_sec Description
-//!     
+//!
 //!     Test program for t4k_common library.
 //!
 //!     Part of "Tux4Kids" Project
@@ -43,7 +43,7 @@
 //!     Please look through t4k_common.h for detailed documentation.
 //!
 //! \section copyright_sec Copyright
-//! 
+//!
 //!     See COPYING file that comes with this distribution.
 //!
 
@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
         {
             /* Display help message: */
 
-            fprintf(stderr, "\nt4k_test, a test program for the t4k_common library.\n"); 
+            fprintf(stderr,
+                    "\nt4k_test, a test program for the t4k_common library.\n");
             fprintf(stderr, "Run program with:\n"
           	  "--version, -v          - Display version number.\n"
           	  "--copyright, -c        - Display copyright and license information.\n"
@@ -93,7 +94,7 @@ int main(int argc, char* argv[])
         fprintf(stderr, "t4k_test exiting with errors.\n");
     else
         fprintf(stderr, "t4k_test exiting normally.\n");
-    
+
     return 0;
 }
 

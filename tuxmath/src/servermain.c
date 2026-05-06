@@ -1,7 +1,7 @@
 /*
    servermain.c
 
-   main() function to allow standalone use of server program for 
+   main() function to allow standalone use of server program for
    LAN-based play in Tux,of Math Command.
 
    Copyright 2009, 2010, 2011.
@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "server.h"
 #include "mathcards.h"

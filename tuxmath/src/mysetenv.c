@@ -1,4 +1,4 @@
-/* This file was taken from example code in GNU Gettext FAQ 
+/* This file was taken from example code in GNU Gettext FAQ
 
    http://www.gnu.org/software/gettext/FAQ.html
 
@@ -21,7 +21,7 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
- 
+
 int my_setenv (const char * name, const char * value)
 {
 #ifdef WIN32
@@ -35,9 +35,9 @@ int my_setenv (const char * name, const char * value)
       <http://www.cygwin.com/ml/cygwin/1999-04/msg00478.html> */
 
    if (!SetEnvironmentVariableA(name,value))
-   {   
-     fprintf(stderr, "Warning - SetEnvironmentVariableA(%s, %s) failed.\n",
-             name, value);
+   {
+       fprintf(stderr, "Warning - SetEnvironmentVariableA(%s, %s) failed.\n",
+               name, value);
    }
 #endif
 

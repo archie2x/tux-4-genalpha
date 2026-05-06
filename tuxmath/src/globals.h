@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
  * if not supplied by platform:
  */
 /* Somehow, configure defines HAVE_ALPHASORT and
- * HAVE_SCANDIR for mingw32 even though they are 
+ * HAVE_SCANDIR for mingw32 even though they are
  * not available for that build, so use our own:
  */
 #if !defined HAVE_ALPHASORT || defined BUILD_MINGW32
@@ -123,7 +123,7 @@ extern const int debug_multiplayer;
 #define DEFAULT_MAX_COMETS 10
 #define DEFAULT_USE_POWERUP_COMETS 1
 #define DEFAULT_POWERUP_FREQ 10
-#define DEFAULT_SAVE_SUMMARY 1        
+#define DEFAULT_SAVE_SUMMARY 1
 #define DEFAULT_SOUND_HW_AVAILABLE 1
 #define DEFAULT_USE_IGLOOS 1
 #define DEFAULT_USE_FEEDBACK 0
@@ -138,7 +138,7 @@ extern const int debug_multiplayer;
 #define DEFAULT_CUSTOM_RES 0
 
 /* These values are hard-coded and used 'as is' by the program */
-/* (i.e. these behaviors require recompilation to change)   */ 
+/* (i.e. these behaviors require recompilation to change)   */
 #define DEFAULT_NUM_CITIES 4   /* MUST BE AN EVEN NUMBER! */
 #define DEFAULT_MAX_CITY_COLORS 4
 

@@ -32,7 +32,7 @@
 //!     Tux4Kids_common
 //!
 //! \section intro_sec Description
-//!     
+//!
 //!     Conditionally included header for replacement alphasort function
 //!     To use, program should check whether platform provides this
 //!     function using e.g. autoconf:
@@ -47,7 +47,7 @@
 //!
 //!
 //! \section copyright_sec Copyright
-//! 
+//!
 //!     See COPYING file that comes with this distribution.
 //!
 #ifndef T4K_ALPHASORT_H
@@ -57,16 +57,16 @@
 //
 //  alphasort
 //
-//! \brief 
+//! \brief
 //!     Replacement alphasort program for platforms lacking this function
-//! 
+//!
 //! \param
 //!     const struct dirent** d1 - first arg to be compared
 //!
 //! \param
 //!     const struct dirent** d2 - second arg to be compared
 //!
-//! \return 
+//! \return
 //!     From man alphasort: "alphasort() and versionsort() functions return an
 //!     integer less than, equal to, or greater than zero if the first argument
 //!     is considered to be  respectively  less than, equal to, or greater than

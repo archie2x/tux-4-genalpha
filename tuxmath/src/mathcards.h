@@ -134,7 +134,7 @@ extern const int MC_DEFAULTS[];
 extern const char operchars[MC_NUM_OPERS];
 
 /* default values for math_options */
-#define MC_MAX_DIGITS 3 
+#define MC_MAX_DIGITS 3
 #define MC_GLOBAL_MAX 999          /* This is the largest absolute value that */
 /* can be entered for math question values.*/
 #define MC_MATH_OPTS_INVALID -9999 /* Return value for accessor functions     */

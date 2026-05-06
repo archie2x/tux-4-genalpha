@@ -5,7 +5,7 @@
 
    Copyright 2003, 2004, 2010.
    Authors: Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include <stdlib.h>
 #include <SDL3/SDL.h>
@@ -66,14 +64,14 @@ void add_wind( int dir ) {
 	/* don't let the wind blow too hard */
 	if ( wind * dir > 16 )
 		return;
-	
-	if (dir > 0)
+
+    if (dir > 0)
 		wind++;
 	else
 		wind--;
 }
 
-/* ### INTERNAL FUNCTION ### 
+/* ### INTERNAL FUNCTION ###
  * move_snow: updates the location of the flakes
  * based upon the wind and different "planes"
  * of the flakes
@@ -105,9 +103,9 @@ void move_snow(void) {
 	for (i = PER_PLANE<<1; i<NUM_FLAKES; i++) {
 		flake[i].x += ws;
 		flake[i].y += 2;
-	} 
+    }
 
-	for (i = 0; i<NUM_FLAKES; i++) {
+    for (i = 0; i<NUM_FLAKES; i++) {
 		/* if a flake hits the bottom, move to top randomly */
 		if (flake[i].y >= 478) {
 			flake[i].y = 0;
@@ -216,7 +214,7 @@ void SNOW_setBkg( SDL_Surface *img ) {
 	bkg = img;
 }
 
-/* SNOW_add: this adds the other rectangles that we need 
+/* SNOW_add: this adds the other rectangles that we need
  * to update on the screen to the list and returns
  * the total number of items on the complete list
  * (flakes & regular stuff)
@@ -280,7 +278,7 @@ void SNOW_update( void ) {
 		add_wind(-1);
 	else if (rand_tmp == 1)
 		add_wind(+1);
-	
-	move_snow();
+
+    move_snow();
 }
 

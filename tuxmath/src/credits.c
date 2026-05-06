@@ -389,8 +389,8 @@ int credits(void)
 {
     int      i, quit;
     SDL_Rect subscreen, dest;
-	
-	char credit_tts_text[MAX_LINES*MAX_LINEWIDTH]; 
+
+    char credit_tts_text[MAX_LINES * MAX_LINEWIDTH];
     credit_tts_text[0] = '\0';
 	for (i = 0; i< MAX_LINES;i++)
 	{
@@ -398,9 +398,8 @@ int credits(void)
 	}
 	strcat(credit_tts_text,"Thaks for reading \0");
 	//fprintf(stderr,"OUTPUT = %s \n LEN = %d",credit_tts_text,MAX_LINES*MAX_LINEWIDTH);
-	
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",credit_tts_text);
-	
+
+    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",credit_tts_text);
 
     /* Clear window: */
 
@@ -451,7 +450,7 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
     {
         SDL_Surface* s = T4K_SimpleText("A", DEFAULT_MENU_FONT_SIZE, &white);
         if(s)
-        {           
+        {
             line_height = s->h;
             SDL_DestroySurface(s);
         }
@@ -519,10 +518,10 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
                 scroll = 0;
                 line++;
 
-                if (text[line][0] == '\0') //end of text 
+                if (text[line][0] == '\0') //end of text
                 {
-                    clearing = 1; //scroll to blank            
-                }            
+                    clearing = 1; //scroll to blank
+                }
                 else
                     DEBUGMSG(debug_titlescreen, "text[line]: %s\n", text[line]);
             }
@@ -543,7 +542,7 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
 
     return quit;
 }
-#if 0 //really cool effect, but not translatable. I'll leave it in in case we 
+#if 0 //really cool effect, but not translatable. I'll leave it in in case we
 //decide to use it e.g. only for English
 void draw_text(char * str, int offset)
 {
@@ -567,7 +566,7 @@ void draw_text(char * str, int offset)
     cur_x = (screen->w - ((strlen(str) - start) * 18)) / 2;
 
     for (i = start; i < strlen(str); i++)
-    { 
+    {
         c = -1;
 
         if (str[i] >= '0' && str[i] <= '9')
@@ -625,8 +624,8 @@ void draw_text(char * str, int offset)
 
 #else
 
-//FIXME it's possible that generating the surface every frame taxes 
-//slower machines. If so consider returning the surface to be used 
+//FIXME it's possible that generating the surface every frame taxes
+//slower machines. If so consider returning the surface to be used
 //as long as it's needed.
 void draw_text(char* str, SDL_Rect dest)
 {
@@ -648,7 +647,7 @@ void draw_text(char* str, SDL_Rect dest)
     {
         col.r = 255 - (line % 256);
         col.g = 255 / 2;
-        col.b = (line * line * 2) % 256;  
+        col.b = (line * line * 2) % 256;
     }
 
     /* This func from SDL_extras draws with SDL_Pango if avail, */

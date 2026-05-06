@@ -39,7 +39,7 @@ int main()
     for (i = 0; i < 100; i++)
     {
 
-        fprintf(stderr, "\n\nGame: i = %d\n", i); 
+        fprintf(stderr, "\n\nGame: i = %d\n", i);
         op = rand() % 2;
         MC_SetAddAllowed(op);
         op = rand() % 2;

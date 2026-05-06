@@ -7,8 +7,8 @@
    Brought to tuxmath by David Bruce from the GPLv2 (or later) Hatari project:
    http://hatari.berlios.de/
 
-   Modified slightly and relicensed under GPLv3 or later.   
-   
+   Modified slightly and relicensed under GPLv3 or later.
+
    Copyright 2007, 2008, 2009, 2010.
    Authors: Hatari Project.
    Project email: <tuxmath-devel@lists.sourceforge.net>
@@ -30,8 +30,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #ifndef HATARI_SCANDIR_H
 #define HATARI_SCANDIR_H

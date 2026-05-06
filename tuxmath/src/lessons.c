@@ -74,14 +74,14 @@ int read_goldstars_fp(FILE* fp)
 
     /* read in a line at a time: */
     while (fgets (buf, PATH_MAX, fp))
-    { 
+    {
         /* Ignore comment lines: */
         if ((buf[0] == ';') || (buf[0] == '#'))
         {
             continue;
         }
 
-        /* Split up line with strtok()to get needed values -    */ 
+        /* Split up line with strtok()to get needed values -    */
         /* for now, each line just contains a lesson file name, */
         /* but eventually there may be more fields (e.g date, % correct) */
         token = strtok(buf, delimiters);

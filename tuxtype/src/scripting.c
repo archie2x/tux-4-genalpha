@@ -4,7 +4,7 @@
    XML-based scripting for lessons and practice.
    Copyright 2003, 2004, 2007, 2008, 2009, 2010, 2017
    Authors: Jesse Andrews, David Bruce, Matthew Trey, Nalin Sathyan.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,9 +24,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-
 #include "scripting.h"
 #define MAX_LESSONS 100
 #include "SDL_extras.h"
@@ -44,25 +41,24 @@ static int load_script(const char* fn);
 static void run_script(void);
 static int is_xml_file(const struct dirent* xml_dirent);
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*         "Public" functions (callable throughout program)             */
 /*                                                                      */
 /************************************************************************/
 
-
 void InstructCascade(void)
 {
-  char fn[FNLEN]; 
+    char fn[FNLEN];
 
-  /* Try theme script first: */
-  if (!settings.use_english)
-    sprintf( fn, "%s/scripts/cascade.xml", settings.theme_data_path);
+    /* Try theme script first: */
+    if (!settings.use_english)
+        sprintf(fn, "%s/scripts/cascade.xml", settings.theme_data_path);
 
-  if (load_script( fn ) == 0) /* meaning successful load */
-  {
-    run_script();
-    return;
-  }
+    if (load_script(fn) == 0) /* meaning successful load */
+    {
+        run_script();
+        return;
+    }
 
   /* If unsuccessful, fall back to default (English) script: */
   sprintf( fn, "%s/scripts/cascade.xml", settings.default_data_path);
@@ -75,17 +71,17 @@ void InstructCascade(void)
 
 void InstructLaser(void)
 {
-  char fn[FNLEN]; 
+    char fn[FNLEN];
 
-  /* Try theme script first: */
-  if (!settings.use_english)
-    sprintf( fn, "%s/scripts/laser.xml", settings.theme_data_path);
+    /* Try theme script first: */
+    if (!settings.use_english)
+        sprintf(fn, "%s/scripts/laser.xml", settings.theme_data_path);
 
-  if (load_script( fn ) == 0) /* meaning successful load */
-  {
-    run_script();
-    return;
-  }
+    if (load_script(fn) == 0) /* meaning successful load */
+    {
+        run_script();
+        return;
+    }
 
 
   /* If unsuccessful, fall back to default (English) script: */
@@ -98,17 +94,17 @@ void InstructLaser(void)
 
 void ProjectInfo(void)
 {
-  char fn[FNLEN]; 
+    char fn[FNLEN];
 
-  /* Try theme script first: */
-  if (!settings.use_english)
-    sprintf( fn, "%s/scripts/projectInfo.xml", settings.theme_data_path);
+    /* Try theme script first: */
+    if (!settings.use_english)
+        sprintf(fn, "%s/scripts/projectInfo.xml", settings.theme_data_path);
 
-  if (load_script( fn ) == 0) /* meaning successful load */
-  {
-    run_script();
-    return;
-  }
+    if (load_script(fn) == 0) /* meaning successful load */
+    {
+        run_script();
+        return;
+    }
 
   /* If unsuccessful, fall back to default (English) script: */
   sprintf( fn, "%s/scripts/projectInfo.xml", settings.default_data_path);
@@ -139,7 +135,7 @@ int XMLLesson(void)
   int num_scripts = 0;
   char script_path[FNLEN];
   char script_filenames[MAX_LESSONS][FNLEN];
-  char fn[FNLEN]; 
+  char            fn[FNLEN];
 
   int stop = 0;
   int loc = 0;
@@ -223,7 +219,7 @@ int XMLLesson(void)
     scripts++;
   }
 
-//  DEBUGCODE  
+  //  DEBUGCODE
   {
     fprintf(stderr, "Before undesired files screened out:\n");
     for(i = 0; i < num_scripts; i++)
@@ -247,37 +243,37 @@ int XMLLesson(void)
 
 //START OF OLD IMPLEMENTATION
 //   num_scripts = 0;
-//   script_dir = opendir(script_path);	
-//   do
-//   {
-//     script_file = readdir(script_dir);
-//     if (!script_file)
-//       break;
-// 
-//     /* must have at least '.xml' at the end */
-//     if (strlen(script_file->d_name) < 5)
-//       continue;
-// 
-//     /* Don't show project info file or instructions files */
-//     if (strcmp(script_file->d_name, "projectInfo.xml") == 0 ||
-//         strcmp(script_file->d_name, "laser.xml") == 0 ||
-//         strcmp(script_file->d_name, "cascade.xml") == 0)
-//       continue;
-// 
-// 
-//     if (strcmp(&script_file->d_name[strlen(script_file->d_name) - 4],".xml"))
-//       continue;
-// 
-//     sprintf(script_filenames[num_scripts], "%s", script_file->d_name);
-//     num_scripts++;
-//     DEBUGCODE { fprintf(stderr, "Adding XML file no. %d: %s\n",
-//                 num_scripts, script_filenames[num_scripts]); }
-// 
-//   } while (1); /* Leave loop when readdir() returns NULL */
-// 
-//   closedir(script_dir);	
+  //   script_dir = opendir(script_path);
+  //   do
+  //   {
+  //     script_file = readdir(script_dir);
+  //     if (!script_file)
+  //       break;
+  //
+  //     /* must have at least '.xml' at the end */
+  //     if (strlen(script_file->d_name) < 5)
+  //       continue;
+  //
+  //     /* Don't show project info file or instructions files */
+  //     if (strcmp(script_file->d_name, "projectInfo.xml") == 0 ||
+  //         strcmp(script_file->d_name, "laser.xml") == 0 ||
+  //         strcmp(script_file->d_name, "cascade.xml") == 0)
+  //       continue;
+  //
+  //
+  //     if (strcmp(&script_file->d_name[strlen(script_file->d_name) - 4],".xml"))
+  //       continue;
+  //
+  //     sprintf(script_filenames[num_scripts], "%s", script_file->d_name);
+  //     num_scripts++;
+  //     DEBUGCODE { fprintf(stderr, "Adding XML file no. %d: %s\n",
+  //                 num_scripts, script_filenames[num_scripts]); }
+  //
+  //   } while (1); /* Leave loop when readdir() returns NULL */
+  //
+  //   closedir(script_dir);
 
-// END OF OLD IMPLEMENTATION
+  // END OF OLD IMPLEMENTATION
 
 
 
@@ -299,7 +295,7 @@ int XMLLesson(void)
   if (!CurrentBkgd() || !left || !right)
   {
     fprintf(stderr, "XMLLesson(): needed image not available\n");
-  
+
     for (i = 0; i < num_scripts; i++)
     {
         SDL_DestroySurface(titles[i]);
@@ -320,7 +316,7 @@ int XMLLesson(void)
   leftRect.x = screen->w/2 - 80 - (leftRect.w/2);
   leftRect.y = screen->h - 50;
 
-  rightRect.w = right->w; 
+  rightRect.w = right->w;
   rightRect.h = right->h;
   rightRect.x = screen->w/2 + 80 - (rightRect.w/2);
   rightRect.y = screen->h - 50;
@@ -330,9 +326,9 @@ int XMLLesson(void)
   titleRects[0].w = titleRects[0].h = titleRects[0].x = 0;
 
   for (i = 1; i < 8; i++)
-  { 
-    titleRects[i].y = titleRects[i - 1].y + 50;
-    titleRects[i].w = titleRects[i].h = titleRects[i].x = 0;
+  {
+      titleRects[i].y = titleRects[i - 1].y + 50;
+      titleRects[i].w = titleRects[i].h = titleRects[i].x = 0;
   }
 
   /* Main event loop for this screen: */
@@ -396,7 +392,7 @@ int XMLLesson(void)
 					sprintf(fn, "%s/scripts/%s", settings.theme_data_path, script_filenames[loc]);
 			  }
               stop = 1;
-              break; 
+              break;
             }
           }
 
@@ -451,7 +447,7 @@ int XMLLesson(void)
           if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
           {
             if (loc + 1 < num_scripts)
-              loc++;           
+                loc++;
           }
       }
     }
@@ -495,7 +491,7 @@ int XMLLesson(void)
     old_loc = loc;
   }
 
-  /* --- clear graphics before leaving function --- */ 
+  /* --- clear graphics before leaving function --- */
   for (i = 0; i < num_scripts; i++)
   {
     if (titles[i])
@@ -539,11 +535,10 @@ int XMLLesson(void)
 
 
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*         "Private" functions (local to scripting.c)                   */
 /*                                                                      */
 /************************************************************************/
-
 
 static char* get_quote(const char* in)
 {
@@ -555,16 +550,16 @@ static char* get_quote(const char* in)
     if (start >= strlen(in)) return 0; // return null string if no " found
 
     start++; // move past the "
-    
+
     for (finish=start; finish<strlen(in) && in[finish] != '"'; finish++); // find the next "
 
     if (finish >= strlen(in)) return 0; // return null string if no " found
-    
+
     out = malloc(finish - start + 2);
-    
+
     snprintf(out, finish - start + 1, "%s", &in[start]);
     out[finish-start] = 0;
-    
+
     return out;
 }
 
@@ -584,11 +579,11 @@ static int get_int(const char* in)
 static char hex2int(char b, char s)
 {
     char ans=0;
-        
+
     if      ((b>='0') && (b<='9'))       ans=16*(b-'0');
     else if ((b>='A') && (b<='F'))       ans=16*(b-'A'+10);
     else if ((b>='a') && (b<='f'))       ans=16*(b-'a'+10);
-    
+
     if      ((s>='0') && (s<='9'))       ans+=(s-'0');
     else if ((s>='A') && (s<='F'))       ans+=(s-'A'+10);
     else if ((s>='a') && (s<='f'))       ans+=(s-'a'+10);
@@ -602,15 +597,15 @@ static SDL_Color* get_color(const char* in)
     char* col;
     SDL_Color* out=malloc(sizeof(SDL_Color));
     col = get_quote(in);
-    
+
     if ((strlen(col)==7) && (col[0] == '#')) {
         out->r = hex2int( col[1], col[2] );
         out->g = hex2int( col[3], col[4] );
         out->b = hex2int( col[5], col[6] );
     }
-    
+
     free(col);
-    
+
     return out;
 }
 
@@ -623,7 +618,7 @@ static int load_script(const char* fn)
   int i;
   char str[FNLEN];
   FILE* f = NULL;
-    
+
   DEBUGCODE
   {
     fprintf(stderr, "\nEnter load_script() - attempt to load '%s'\n", fn);
@@ -634,7 +629,6 @@ static int load_script(const char* fn)
     LOG( "previous script in memory, removing now!\n");
     close_script();
   }
-    
 
   f = fopen(fn, "r");
 
@@ -661,13 +655,13 @@ static int load_script(const char* fn)
         {
             // search the current line for comment end
             for ( tmpStr = str; strlen(tmpStr) >= 3 && !found; tmpStr++ )
-            {    
-                 if (strncmp("-->",tmpStr, 3) == 0)
-                 {
-                     // move past the comment end tag
-                     tmpStr += 2;
-                     found = 1;
-                 }
+            {
+                if (strncmp("-->", tmpStr, 3) == 0)
+                {
+                    // move past the comment end tag
+                    tmpStr += 2;
+                    found = 1;
+                }
             }
 
             // if the comment end was not found get another line
@@ -680,7 +674,7 @@ static int load_script(const char* fn)
             // we did find the end of the comment
             else
             {
- 
+
                 if (strlen(tmpStr) > 0)
                 {
                     // copy the rest of the line into str for processing
@@ -693,7 +687,7 @@ static int load_script(const char* fn)
                     fscanf_result = fscanf(f, "%[^\n]\n", str);
                     tmpStr = str;
                 }
-                
+
                 // if the next line is a comment, start all over again
                 if (fscanf_result != EOF && strncmp("<!--", str, 4) == 0)
                 {
@@ -702,7 +696,7 @@ static int load_script(const char* fn)
             }
 
         } while ( fscanf_result != EOF && !found );
-        
+
         /* -- if we reached the end of the file and saw no close to the comment, generate a warning -- */
         if ( !found && fscanf_result == EOF )
         {
@@ -721,7 +715,7 @@ static int load_script(const char* fn)
     {
       /* -- allocate space for the lesson info -- */
       curScript = (scriptType*)calloc(1, sizeof(scriptType));
-      for (i = 7; i < strlen(str) && str[i] != '>'; i++) 
+      for (i = 7; i < strlen(str) && str[i] != '>'; i++)
       {
         if ((str[i] == 't') && strncmp("title", &str[i], 5) == 0)
           curScript->title = get_quote(&str[i + 5]);
@@ -732,8 +726,10 @@ static int load_script(const char* fn)
         if ((str[i]=='b') && strncmp("background", &str[i], 10) == 0)
           curScript->background = get_quote(&str[i + 10]);
 
-        if ((str[i]=='f') && strncmp("fgcolor", &str[i], 7) == 0) 
-          curScript->fgcolor = get_color(&str[i + 7]); 
+        if ((str[i] == 'f') && strncmp("fgcolor", &str[i], 7) == 0)
+        {
+            curScript->fgcolor = get_color(&str[i + 7]);
+        }
       }
     }
     else if (strncmp("<page", str,  5)==0)
@@ -749,7 +745,7 @@ static int load_script(const char* fn)
       {
         curPage = (pageType *)calloc(1,sizeof(pageType));
         curPage->prev = curPage;
-        curScript->pages = curPage; 
+        curScript->pages = curPage;
       }
       else
       {
@@ -760,17 +756,25 @@ static int load_script(const char* fn)
 
       for (i = 5; i < strlen(str) && str[i]!='>'; i++)
       {
-        if ((str[i] == 'b') && strncmp("background", &str[i], 10) == 0) 
-          curPage->background = get_quote(&str[i + 10]);
+          if ((str[i] == 'b') && strncmp("background", &str[i], 10) == 0)
+          {
+              curPage->background = get_quote(&str[i + 10]);
+          }
 
-        if ((str[i]== 't') && strncmp("title", &str[i], 5) == 0) 
-          curPage->title = get_quote(&str[i + 5]);
+          if ((str[i] == 't') && strncmp("title", &str[i], 5) == 0)
+          {
+              curPage->title = get_quote(&str[i + 5]);
+          }
 
-        if ((str[i] == 'b') && strncmp("bgcolor", &str[i], 7) == 0) 
-          curPage->bgcolor = get_color(&str[i + 7]);
+          if ((str[i] == 'b') && strncmp("bgcolor", &str[i], 7) == 0)
+          {
+              curPage->bgcolor = get_color(&str[i + 7]);
+          }
 
-        if ((str[i] == 'f') && strncmp("fgcolor", &str[i], 7) == 0) 
-          curPage->fgcolor = get_color(&str[i + 7]);
+          if ((str[i] == 'f') && strncmp("fgcolor", &str[i], 7) == 0)
+          {
+              curPage->fgcolor = get_color(&str[i + 7]);
+          }
       }
     }
     else if (strncmp("<text", str,  5) == 0)
@@ -782,7 +786,7 @@ static int load_script(const char* fn)
         return 0;
       }
 
-      if (curPage->items == NULL) 
+      if (curPage->items == NULL)
       {
         curItem = (itemType*)calloc(1, sizeof(itemType));
         curPage->items = curItem;
@@ -857,8 +861,7 @@ static int load_script(const char* fn)
           }
         }
       }
-
-    } 
+    }
     else if (strncmp("<img", str, 4) == 0)
     {
       if (curPage == NULL)
@@ -875,7 +878,7 @@ static int load_script(const char* fn)
         curItem = (itemType*)calloc(1, sizeof(itemType));
         curPage->items = curItem;
       }
-      else 
+      else
       {
         curItem->next = (itemType*)calloc(1, sizeof(itemType));
         curItem = curItem->next;
@@ -884,7 +887,7 @@ static int load_script(const char* fn)
       curItem->type = itemIMG;
       curItem->x = curItem->y = -1;
 
-      for (i = 5; i < strlen(str); i++) 
+      for (i = 5; i < strlen(str); i++)
       {
         if ((str[i] == 'o') && strncmp("onclickplay", &str[i], 11) == 0)
           curItem->onclick = get_quote(&str[i + 3]);
@@ -936,7 +939,7 @@ static int load_script(const char* fn)
         curItem = (itemType*)calloc(1, sizeof(itemType));
         curPage->items = curItem;
       }
-      else 
+      else
       {
         curItem->next = (itemType*)calloc(1, sizeof(itemType));
         curItem = curItem->next;
@@ -945,8 +948,7 @@ static int load_script(const char* fn)
       curItem->type = itemBKGD;
       curItem->x = curItem->y = -1;
 
-
-      for (i = 6; i < strlen(str); i++) 
+      for (i = 6; i < strlen(str); i++)
       {
         if ((str[i] == 's') && strncmp("src", &str[i], 3) == 0)
           curItem->data = get_quote(&str[i + 3]);
@@ -956,20 +958,21 @@ static int load_script(const char* fn)
     else if (strncmp("<wav", str, 4) == 0)
     {
       if (curPage == NULL)
-      { 
-        fprintf(stderr,
-                "CRITICAL XML ERROR: <wav> should be in a <page> in file %s line (todo)",
-                fn);
-        close_script();
-        return 0;  /* Return control to main program for a clean exit */
+      {
+          fprintf(stderr,
+                  "CRITICAL XML ERROR: <wav> should be in a <page> in file %s "
+                  "line (todo)",
+                  fn);
+          close_script();
+          return 0; /* Return control to main program for a clean exit */
       }
 
       if (curPage->items == NULL)
       {
         curItem = (itemType*)calloc(1, sizeof(itemType));
         curPage->items = curItem;
-      } 
-      else 
+      }
+      else
       {
         curItem->next = (itemType*)calloc(1, sizeof(itemType));
         curItem = curItem->next;
@@ -991,7 +994,7 @@ static int load_script(const char* fn)
           {
             if ((t[0] == 't') || (t[0]=='T'))
               curItem->loop = 1;
-          } 
+          }
           free(t);
         }
       }
@@ -1023,11 +1026,15 @@ static int load_script(const char* fn)
 
       for (i = 5; i < strlen(str) && str[i] != '>'; i++)
       {
-        if ((str[i] == 's') && strncmp("size", &str[i], 4) == 0) 
-          curItem->size = (char)get_int( &str[i + 4]);
+          if ((str[i] == 's') && strncmp("size", &str[i], 4) == 0)
+          {
+              curItem->size = (char)get_int(&str[i + 4]);
+          }
 
-        if ((str[i] == 'g') && strncmp("goal", &str[i], 4) == 0) 
-          curItem->goal = (char)get_int(&str[i + 4]);
+          if ((str[i] == 'g') && strncmp("goal", &str[i], 4) == 0)
+          {
+              curItem->goal = (char)get_int(&str[i + 4]);
+          }
 
         if ((str[i] == 'a') && strncmp("align", &str[i], 5) == 0)
         {
@@ -1080,60 +1087,61 @@ static int load_script(const char* fn)
       }
     }
     else if (strncmp("<waitforinput", str, 13) == 0)
-    { 
-      if (curPage == NULL)
-      {
-        fprintf(stderr,
-               "CRITICAL XML ERROR: <waitforinput> should be in a <page> in file %s line (todo)",
-                fn);
-        close_script();
-        return 0;
-      }
+    {
+        if (curPage == NULL)
+        {
+            fprintf(stderr,
+                    "CRITICAL XML ERROR: <waitforinput> should be in a <page> "
+                    "in file %s line (todo)",
+                    fn);
+            close_script();
+            return 0;
+        }
 
-      if (curPage->items == NULL)
-      {
-        curItem = (itemType*)calloc(1, sizeof(itemType));
-        curPage->items = curItem;
-      } 
-      else
-      {
-        curItem->next = (itemType*)calloc(1, sizeof(itemType));
-        curItem = curItem->next;
-      }
+        if (curPage->items == NULL)
+        {
+            curItem        = (itemType*)calloc(1, sizeof(itemType));
+            curPage->items = curItem;
+        }
+        else
+        {
+            curItem->next = (itemType*)calloc(1, sizeof(itemType));
+            curItem       = curItem->next;
+        }
 
-      curItem->type = itemWFIN;
-
+        curItem->type = itemWFIN;
     }
     else if (strncmp("<waitforchar",  str, 12) == 0)
-    { 
-      if (curPage == NULL)
-      {
-        fprintf(stderr,
-               "CRITICAL XML ERROR: <waitforchar> should be in a <page> in file %s line (todo)",
-               fn);
-        close_script();
-        return 0;
-      }
+    {
+        if (curPage == NULL)
+        {
+            fprintf(stderr,
+                    "CRITICAL XML ERROR: <waitforchar> should be in a <page> "
+                    "in file %s line (todo)",
+                    fn);
+            close_script();
+            return 0;
+        }
 
-      if (curPage->items == NULL)
-      {
-        curItem = (itemType*)calloc(1, sizeof(itemType));
-        curPage->items = curItem;
-      }
-      else
-      {
-        curItem->next = (itemType*)calloc(1, sizeof(itemType));
-        curItem = curItem->next;
-      }
+        if (curPage->items == NULL)
+        {
+            curItem        = (itemType*)calloc(1, sizeof(itemType));
+            curPage->items = curItem;
+        }
+        else
+        {
+            curItem->next = (itemType*)calloc(1, sizeof(itemType));
+            curItem       = curItem->next;
+        }
 
-      curItem->type = itemWFCH;
+        curItem->type = itemWFCH;
     }
     else if (strncmp("</",str, 2) == 0)
     {
       /* do nothing */
     }
     else
-      fprintf(stderr, "not recognized: %s\n", str); 
+        fprintf(stderr, "not recognized: %s\n", str);
 
   } while(!feof(f));
 
@@ -1149,12 +1157,12 @@ static int load_script(const char* fn)
 
 static void run_script(void)
 {
-	
+
   /* Used to announce the Lesson instruction */
   char *tts_buffer;
   tts_buffer = malloc(sizeof(char)*1000000);
   tts_buffer[0] = '\0';
-	
+
   /* FIXME FNLEN doesn't make sense for size of these arrays */
   Mix_Chunk* sounds[FNLEN] = {NULL};
 
@@ -1178,7 +1186,7 @@ static void run_script(void)
     int skip = 0;
     int numWavs = 0;
     int numClicks = 0;
-    
+
     curItem = curPage->items;
 
     /* --- setup background color --- */
@@ -1201,8 +1209,8 @@ static void run_script(void)
         SDL_DestroySurface(fsimg);
       }
       else
-      { 
-        SDL_BlitSurface(img, NULL, screen, NULL);
+      {
+          SDL_BlitSurface(img, NULL, screen, NULL);
       }
 
       SDL_DestroySurface(img);
@@ -1213,14 +1221,14 @@ static void run_script(void)
 
       /* hack: since this is the background it needs to scale when in fullscreen -MDT */
       if (settings.fullscreen)
-      { 
-        SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
-        SDL_BlitSurface(fsimg, NULL, screen, NULL);
-        SDL_DestroySurface(fsimg);
+      {
+          SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
+          SDL_BlitSurface(fsimg, NULL, screen, NULL);
+          SDL_DestroySurface(fsimg);
       }
       else
-      { 
-        SDL_BlitSurface(img, NULL, screen, NULL);
+      {
+          SDL_BlitSurface(img, NULL, screen, NULL);
       }
 
       SDL_DestroySurface(img);
@@ -1318,7 +1326,7 @@ static void run_script(void)
         {
 		  /* Append each text line's to the lesson instruction */
           strcat(tts_buffer,curItem->data);
-	
+
           SDL_Surface* img;
           SDL_Color* col;
 
@@ -1335,13 +1343,14 @@ static void run_script(void)
             col = curPage->fgcolor;
           else if (curScript->fgcolor)
             col = curScript->fgcolor;
-          else 
-            col = (SDL_Color*)&white;
+          else
+          {
+              col = (SDL_Color*)&white;
+          }
 
           shown = 0;
 
-
-          do 
+          do
           {
             int ok = 0;
 
@@ -1357,15 +1366,15 @@ static void run_script(void)
                 continue;
 
               tmp[toshow] = 0;
- 
+
               img = SimpleText(tmp, (int)curItem->size, col);
 
               if (img)
-              { 
-                if (img->w + 20 < screen->w)
-                  ok = 1;
-                SDL_DestroySurface(img);
-                img = NULL;
+              {
+                  if (img->w + 20 < screen->w)
+                      ok = 1;
+                  SDL_DestroySurface(img);
+                  img = NULL;
               }
             }
 
@@ -1383,13 +1392,16 @@ static void run_script(void)
               /* --- if user specifies y location, use it --- */
               if (curItem->y >= 0)
                 loc.y = curItem->y;
-              else 
-                loc.y=y; y+=loc.h;
+              else
+              {
+                  loc.y = y;
+              }
+              y += loc.h;
 
               /* --- if user specifies x location, use it --- */
               if (curItem->x >= 0)
                 loc.x = curItem->x;
-              else 
+              else
               {
                 switch (curItem->align)
                 {
@@ -1409,16 +1421,11 @@ static void run_script(void)
               SDL_BlitSurface(img, NULL, screen, &loc);
               SDL_DestroySurface(img);
             }
-                    
+
           } while (shown + 1 < strlen(curItem->data));
-          
 
           break;
-
-          
         }
-        
-
 
         case itemWAV:
         {
@@ -1444,7 +1451,7 @@ static void run_script(void)
 
           /* Announce the lesson instruction */
 		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_buffer);
-		  tts_buffer[0] = '\0'; 
+          tts_buffer[0] = '\0';
 
           while (!done)
           {
@@ -1458,7 +1465,7 @@ static void run_script(void)
               {
                   int j;
 
-                  for (j=0; j<numClicks; j++) 
+                  for (j = 0; j < numClicks; j++)
                   {
                     if (inRect(clickRects[j], event.button.x, event.button.y))
                      PlaySound( clickWavs[j] );
@@ -1479,14 +1486,14 @@ static void run_script(void)
                 {
                     switch (event.key.key)
                     {
-                    case SDLK_ESCAPE: 
-                      curPage = NULL;
-                      done = 1;
-                      break;  // quit
-                    case SDLK_LEFT: 
-                      curPage = curPage->prev;
-                      done = 1;
-                      break;
+                    case SDLK_ESCAPE:
+                        curPage = NULL;
+                        done    = 1;
+                        break; // quit
+                    case SDLK_LEFT:
+                        curPage = curPage->prev;
+                        done    = 1;
+                        break;
                     case SDLK_RIGHT:
                     case SDLK_SPACE:
                     case SDLK_RETURN:
@@ -1509,9 +1516,9 @@ static void run_script(void)
 
         case itemWFCH:
         {
-			
+
           int done = 0;
-          
+
           /* Announce the lesson instruction */
 		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_buffer);
           tts_buffer[0] = '\0';
@@ -1599,33 +1606,32 @@ static void run_script(void)
 
     T4K_UpdateRect(screen, NULL);
     SDL_Delay(30);
-        
-        
+
     /* --- cleanup memory --- changing pages --- */
-    { 
-      int i;
+    {
+        int i;
 
-      if (settings.sys_sound)
-      {
-        // halt all the channels before we try to free the sounds
-        audioHaltChannel(-1);
-
-        for (i=0; i<numWavs; i++)
+        if (settings.sys_sound)
         {
-          // let audio.c handle calls to SDL_mixer
-          //((void)0);
+            // halt all the channels before we try to free the sounds
+            audioHaltChannel(-1);
 
-          ((void)0);
+            for (i = 0; i < numWavs; i++)
+            {
+                // let audio.c handle calls to SDL_mixer
+                //((void)0);
+
+                ((void)0);
+            }
+
+            for (i = 0; i < numClicks; i++)
+            {
+                // let audio.c handle calls to SDL_mixer
+                //((void)0);
+
+                ((void)0);
+            }
         }
-
-        for (i = 0; i < numClicks; i++)
-        {
-          // let audio.c handle calls to SDL_mixer
-          //((void)0);
-
-          ((void)0);
-        }
-      }
     }
 
   } /* --- End of "while (curPage)" loop ----*/
@@ -1695,7 +1701,7 @@ static void close_script(void)
     free(curScript->background);
 
     /* -- free yourself -- */
-    free(curScript); 
+    free(curScript);
 
     /* -- and remember you did -- */
     curScript = NULL;
@@ -1707,6 +1713,6 @@ static void close_script(void)
 /* verify that it really contains XML.                                */
 static int is_xml_file(const struct dirent* xml_dirent)
 {
-  const char* ending = &xml_dirent->d_name[strlen(xml_dirent->d_name) - 4]; 
-  return (0 == strncasecmp(ending, ".xml", 4));
+    const char* ending = &xml_dirent->d_name[strlen(xml_dirent->d_name) - 4];
+    return (0 == strncasecmp(ending, ".xml", 4));
 }

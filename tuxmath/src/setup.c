@@ -131,7 +131,7 @@ void setup(int argc, char * argv[])
     /* Read debugging args from command line */
     handle_debug_args(argc, argv);
     /* initialize locale from system settings: */
-    initialize_locale("");      
+    initialize_locale("");
     /* initialize settings and read in config files: */
     /* Note this now only does the global settings   */
     initialize_options();
@@ -148,7 +148,7 @@ void setup(int argc, char * argv[])
     /* Generate blended images (e.g., igloos) */
     generate_blended_images();
     /* Note that the per-user options will be set after the call to
-       titlescreen, to allow for user-login to occur. 
+       titlescreen, to allow for user-login to occur.
 
        FIXME this means that command-line args will be overridden!
        Is this desirable? */
@@ -161,9 +161,9 @@ void initialize_locale(const char* desired_loc)
     const char *s1, *s2, *s3, *s4;
     if(!desired_loc)
     {
-        fprintf(stderr, "initialize_locale() - null desired_loc arg. \n");  
+        fprintf(stderr, "initialize_locale() - null desired_loc arg. \n");
         return;
-    }  
+    }
 
     s1 = setlocale(LC_ALL, desired_loc);
     s2 = bindtextdomain(PACKAGE, TUXLOCALE);
@@ -183,9 +183,9 @@ void print_locale_info(FILE* fp)
 {
     if(!fp)
     {
-        fprintf(stderr, "print_locale_info() - null FILE* arg. \n");  
+        fprintf(stderr, "print_locale_info() - null FILE* arg. \n");
         return;
-    }  
+    }
 
     fprintf(fp, "PACKAGE = %s\n", PACKAGE);
     fprintf(fp, "TUXLOCALE = %s\n", TUXLOCALE);
@@ -409,57 +409,86 @@ void handle_command_args(int argc, char* argv[])
                     "command line. The config file contains extensive comments detailing how\n"
                     "to configure the behavior of Tuxmath.\n\n");
 
-            fprintf(stderr, "Run the game with:\n"
-                    "--homedir dirname      - seek for user home director(ies) in the specified\n"
-                    "                         location, rather than the user's actual home\n"
-                    "                         directory.  You can set up a user directory tree in\n"
-                    "                         this location (see README).  This option is\n"
-                    "                         especially useful for schools where all students log\n"
-                    "                         in with a single user name.\n"
-                    "--optionfile filename  - read config settings from named file. The locations\n"
-                    "                         searched for a file with a matching name are the\n"
-                    "                         current working directory, the absolute path of the\n"
-                    "                         filename, tuxmath's missions directory, the user's\n"
-                    "                         tuxmath directory, and the user's home.\n"
-                    "--playthroughlist      - to ask each question only once, allowing player to\n"
-                    "                         win game if all questions successfully answered\n"
-                    "--language {language}  - set the language named {language}, if it exists\n"
-                    
-                    "--answersfirst   - to ask questions in format: ? + num2 = num3\n"
-                    "                   instead of default format: num1 + num2 = ?\n"
-                    "--answersmiddle  - to ask questions in format: num1 + ? = num3\n"
-                    "                   instead of default format: num1 + num2 = ?\n"
-                    "--nosound        - to disable sound/music\n"
-                    "--nobackground   - to disable background photos (for slower systems)\n"
-                    "--fullscreen     - to run in fullscreen, if possible (vs. windowed)\n"
-                    "--windowed       - to run in a window rather than fullscreen\n"
-                    "--resolution WxH - window resolution (windowed mode only)\n"
-                    "--keypad         - to enable the on-sceen numeric keypad\n"
-                    "--demo           - to run the program as a cycling demonstration\n"
-                    "--tts 			  - Enable in game accessibility\n"
-                    "--notts 		  - Disable in game accessibility\n"
-                    "--speed S        - set initial speed of the game\n"
-                    "                   (S may be fractional, default is 1.0)\n"
-                    "--allownegatives - to allow answers to be less than zero\n"
-                    "--debug-X        - prints debug information on command line\n"
-                    "                   X may be one of the following:\n"
-                    "                     setup: debug messages only during initialization \n"
-                    "                     fileops: file operations (loading and saving data)\n"
-                    "                     loaders: loading of mulitmedia (images and sounds)\n"
-                    "                     titlescreen\n"
-                    "                     menu: most operations dealing with menus\n"
-                    "                     menu-parser: subset of operations dealing with menus\n"
-                    "                     game: the comets game\n"
-                    "                     factoroids: the factoroids game\n"
-                    "                     lan: anything dealing with networking\n"
-                    "                     mathcards: generation of math problems\n"
-                    "                     sdl: the general graphical system\n"
-                    "                     lessons: parsing pre-prepared lessons\n"
-                    "                     highscore: loading and saving high scores\n"
-                    "                     options: loading and saving options files\n"
-                    "                     text-and-intl: text and internationalization\n"
-                    "                     all: everything!\n"
-                    );
+            fprintf(
+                stderr,
+                "Run the game with:\n"
+                "--homedir dirname      - seek for user home director(ies) in "
+                "the specified\n"
+                "                         location, rather than the user's "
+                "actual home\n"
+                "                         directory.  You can set up a user "
+                "directory tree in\n"
+                "                         this location (see README).  This "
+                "option is\n"
+                "                         especially useful for schools where "
+                "all students log\n"
+                "                         in with a single user name.\n"
+                "--optionfile filename  - read config settings from named "
+                "file. The locations\n"
+                "                         searched for a file with a matching "
+                "name are the\n"
+                "                         current working directory, the "
+                "absolute path of the\n"
+                "                         filename, tuxmath's missions "
+                "directory, the user's\n"
+                "                         tuxmath directory, and the user's "
+                "home.\n"
+                "--playthroughlist      - to ask each question only once, "
+                "allowing player to\n"
+                "                         win game if all questions "
+                "successfully answered\n"
+                "--language {language}  - set the language named {language}, "
+                "if it exists\n"
+
+                "--answersfirst   - to ask questions in format: ? + num2 = "
+                "num3\n"
+                "                   instead of default format: num1 + num2 = "
+                "?\n"
+                "--answersmiddle  - to ask questions in format: num1 + ? = "
+                "num3\n"
+                "                   instead of default format: num1 + num2 = "
+                "?\n"
+                "--nosound        - to disable sound/music\n"
+                "--nobackground   - to disable background photos (for slower "
+                "systems)\n"
+                "--fullscreen     - to run in fullscreen, if possible (vs. "
+                "windowed)\n"
+                "--windowed       - to run in a window rather than fullscreen\n"
+                "--resolution WxH - window resolution (windowed mode only)\n"
+                "--keypad         - to enable the on-sceen numeric keypad\n"
+                "--demo           - to run the program as a cycling "
+                "demonstration\n"
+                "--tts 			  - Enable in game accessibility\n"
+                "--notts 		  - Disable in game accessibility\n"
+                "--speed S        - set initial speed of the game\n"
+                "                   (S may be fractional, default is 1.0)\n"
+                "--allownegatives - to allow answers to be less than zero\n"
+                "--debug-X        - prints debug information on command line\n"
+                "                   X may be one of the following:\n"
+                "                     setup: debug messages only during "
+                "initialization \n"
+                "                     fileops: file operations (loading and "
+                "saving data)\n"
+                "                     loaders: loading of mulitmedia (images "
+                "and sounds)\n"
+                "                     titlescreen\n"
+                "                     menu: most operations dealing with "
+                "menus\n"
+                "                     menu-parser: subset of operations "
+                "dealing with menus\n"
+                "                     game: the comets game\n"
+                "                     factoroids: the factoroids game\n"
+                "                     lan: anything dealing with networking\n"
+                "                     mathcards: generation of math problems\n"
+                "                     sdl: the general graphical system\n"
+                "                     lessons: parsing pre-prepared lessons\n"
+                "                     highscore: loading and saving high "
+                "scores\n"
+                "                     options: loading and saving options "
+                "files\n"
+                "                     text-and-intl: text and "
+                "internationalization\n"
+                "                     all: everything!\n");
 
             fprintf(stderr, "\n");
 
@@ -569,7 +598,6 @@ void handle_command_args(int argc, char* argv[])
         {
             Opts_SetGlobalOpt(USE_TTS, 0);
         }
-        
 
         else if (strcmp(argv[i], "--nosound") == 0 ||
                 strcmp(argv[i], "-s") == 0 ||
@@ -649,8 +677,10 @@ void handle_command_args(int argc, char* argv[])
         else /* Warn for unknown option, except debug flags */
             /* that we deal with separately:               */
         {
-            if(strncmp(argv[i], "--debug", strlen("--debug")) != 0)         
+            if (strncmp(argv[i], "--debug", strlen("--debug")) != 0)
+            {
                 fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            }
         }
     }/* end of command-line args */
 
@@ -918,13 +948,13 @@ void cleanup_memory(void)
 
     /* frees any heap used by MathCards: */
     if(local_game)
-    {       
+    {
         MC_EndGame(local_game);
         free(local_game);
         local_game = NULL;
     }
     if(lan_game_settings)
-    {       
+    {
         MC_EndGame(lan_game_settings);
         free(lan_game_settings);
         lan_game_settings = NULL;

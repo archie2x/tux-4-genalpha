@@ -1,7 +1,7 @@
 /*
    setup.h:
 
-   Contains functions to initialize the settings structs, 
+   Contains functions to initialize the settings structs,
    read in command-line arguments, and to clean up on exit.
    All code involving file I/O has been moved to fileops.h/fileops.c
    and is called from the main setup function.
@@ -31,7 +31,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
 
 #ifndef SETUP_H
 #define SETUP_H

@@ -1,12 +1,12 @@
 /*
    pause.c:
-   
+
 
    Supplies pause screen feature.
-   
+
    Copyright 2003, 2010.
    Authors: Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -25,8 +25,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -104,8 +102,9 @@ int        Pause(int in_game)
     {
         old_sfx_volume = sfx_volume;
 		old_mus_volume = mus_volume;
-		while (SDL_PollEvent(&event)) 
-			switch (event.type) {
+        while (SDL_PollEvent(&event))
+        {
+            switch (event.type) {
             case SDL_EVENT_QUIT:
                 exit(0);
                 break;
@@ -161,6 +160,7 @@ int        Pause(int in_game)
 
                 break;
             }
+        }
         if (settings.sys_sound && mousePressed) {
             float fx, fy;
             SDL_GetMouseState(&fx, &fy);
@@ -265,10 +265,12 @@ int        Pause(int in_game)
 
 
 static void pause_load_media(void) {
-	if (settings.sys_sound) 
-		pause_sfx = LoadSound( "tock.wav" );
+    if (settings.sys_sound)
+    {
+        pause_sfx = LoadSound("tock.wav");
+    }
 
-	up = LoadImage("up.png", IMG_ALPHA);
+    up = LoadImage("up.png", IMG_ALPHA);
 	rectUp.w = up->w; rectUp.h = up->h;
 
 	down = LoadImage("down.png", IMG_ALPHA);
@@ -334,11 +336,11 @@ static void pause_draw(void)
   {
     t = BlackOutline(_("Sound Effects Volume"), pause_font_size1, &white);
     if (t)
-    {	
-      s.y = screen->h/2 - 80;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
+    {
+        s.y = screen->h / 2 - 80;
+        s.x = screen->w / 2 - t->w / 2;
+        SDL_BlitSurface(t, NULL, screen, &s);
+        SDL_DestroySurface(t);
     }
 
     t = BlackOutline(gettext("Music Volume"), pause_font_size1, &white);
@@ -406,7 +408,7 @@ static void draw_vols(int sfx, int mus)
   SDL_Rect s,m;
   int i;
 
-  s.y = rectLeft.y; 
+  s.y = rectLeft.y;
   m.y = rectDown.y;
   m.w = s.w = 5;
   s.x = rectLeft.x + rectLeft.w + 5;

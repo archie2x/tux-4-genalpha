@@ -1,4 +1,4 @@
-/* 
+/*
    campaign.c - handle TuxMath's 'Mission mode'
 
    Copyright (C) 2008, 2009, 2010, 2011.
@@ -59,8 +59,8 @@ int start_campaign()
         {
             fprintf(stderr, "Round %d\n", j);
 
-            //read in settings 
-            read_named_config_file(local_game, "campaign/campaign");    
+            //read in settings
+            read_named_config_file(local_game, "campaign/campaign");
             readStageSettings(i);
             readRoundSettings(i, j);
             Opts_SetKeepScore(0);
@@ -96,7 +96,7 @@ int start_campaign()
                 DEBUGMSG(debug_game, "hit escape\n");
                 endcampaign = 1;
             }
-#endif      
+#endif
             else
             {
                 fprintf(stderr, "gameresult = %d\n", gameresult);
@@ -136,63 +136,69 @@ void briefPlayer(int stage)
        string. This is a consequence of the linewrapping code.  TEH Feb
        2009. */
 
-    const char briefings[NUM_STAGES][MAX_LINES][MAX_LINEWIDTH] = 
-    {
+    const char briefings[NUM_STAGES][MAX_LINES][MAX_LINEWIDTH] = {
         //cadet
-        {
-            {N_("-[Esc] to skip")},
-            {N_("Mission One: Careful Cadet")},
-            {"--------------------------"},
-            {N_("I'm so glad you've come!")},
-            {" "},
-            {N_("The penguins need your help! Comets are falling from the sky, and are melting the penguins' igloos. To save their homes, we need you to find the secret code that will zap each comet.")},
-            {" "},
-            {N_("Do your best!")},
-            {""}
-        },
+        {{N_("-[Esc] to skip")},
+         {N_("Mission One: Careful Cadet")},
+         {"--------------------------"},
+         {N_("I'm so glad you've come!")},
+         {" "},
+         {N_("The penguins need your help! Comets are falling from the sky, "
+             "and are melting the penguins' igloos. To save their homes, we "
+             "need you to find the secret code that will zap each comet.")},
+         {" "},
+         {N_("Do your best!")},
+         {""}},
         //scout
-        {
-            {N_("-[Esc] to skip")},
-            {N_("Mission Two: Smart Scout")},
-            {"------------------------"},
-            {N_("Great job! Since you saved the penguins' homes, we are promoting you to Scout. Scouts are good for keeping an eye out for trouble...")},
-            {" "},
-            {N_("...like what's happening right now! The TakeAways have come, and they're sending new, trickier comets against the penguins!")},
-            {N_("But you can save them!")},
-            {""}
-        },
+        {{N_("-[Esc] to skip")},
+         {N_("Mission Two: Smart Scout")},
+         {"------------------------"},
+         {N_("Great job! Since you saved the penguins' homes, we are promoting "
+             "you to Scout. Scouts are good for keeping an eye out for "
+             "trouble...")},
+         {" "},
+         {N_("...like what's happening right now! The TakeAways have come, and "
+             "they're sending new, trickier comets against the penguins!")},
+         {N_("But you can save them!")},
+         {""}},
         //ranger
-        {
-            {"-[Esc] to skip"},
-            {N_("Mission Three: Royal Ranger")},
-            {"---------------------------"},
-            {N_("You've done it again! The Penguin Emperor has chosen you to join his team of Rangers that help protect the city.  We're sending you there now...")},
-            {" "},
-            {N_("...oh no! Now the Emperor himself is under attack, from new types of comets: these problems are multiplying! To fight these, you need great skill. We think you can do it. Join the Rangers and help save the city!")},
-            {""}
-        },
+        {{"-[Esc] to skip"},
+         {N_("Mission Three: Royal Ranger")},
+         {"---------------------------"},
+         {N_("You've done it again! The Penguin Emperor has chosen you to join "
+             "his team of Rangers that help protect the city.  We're sending "
+             "you there now...")},
+         {" "},
+         {N_("...oh no! Now the Emperor himself is under attack, from new "
+             "types of comets: these problems are multiplying! To fight these, "
+             "you need great skill. We think you can do it. Join the Rangers "
+             "and help save the city!")},
+         {""}},
         //ace
-        {
-            {N_("-[Esc] to skip")},
-            {N_("Mission Four: Imperial Ace")},
-            {"--------------------------"},
-            {N_("You did it! The Emperor wants to thank you in person. We are taking you to his ice palace for a great honor: you will become the Imperial Ace!")},
-            {" "},
-            {N_("But right in the middle of the ceremony, a new attack from the land of Division starts!")},
-            {N_("Now is no time for resting; the city needs your help!")},
-            {""}
-        },
+        {{N_("-[Esc] to skip")},
+         {N_("Mission Four: Imperial Ace")},
+         {"--------------------------"},
+         {N_("You did it! The Emperor wants to thank you in person. We are "
+             "taking you to his ice palace for a great honor: you will become "
+             "the Imperial Ace!")},
+         {" "},
+         {N_("But right in the middle of the ceremony, a new attack from the "
+             "land of Division starts!")},
+         {N_("Now is no time for resting; the city needs your help!")},
+         {""}},
         //commando
-        {
-            {N_("-[Esc] to skip")},
-            {N_("Final Mission: Computing Commando")},
-            {"---------------------------------"},
-            {N_("Penguin scientists have learned that all these attacks are coming from a secret base, and they need you to go fight the final battle. They also give you this clue: first do multiplication and division, and then do addition and subtraction.")},
-            {N_("I hope that hint helps!")},
-            {" "},
-            {N_("This is it! You can stop these attacks forever, Commando!")},
-            {""}
-        },
+        {{N_("-[Esc] to skip")},
+         {N_("Final Mission: Computing Commando")},
+         {"---------------------------------"},
+         {N_("Penguin scientists have learned that all these attacks are "
+             "coming from a secret base, and they need you to go fight the "
+             "final battle. They also give you this clue: first do "
+             "multiplication and division, and then do addition and "
+             "subtraction.")},
+         {N_("I hope that hint helps!")},
+         {" "},
+         {N_("This is it! You can stop these attacks forever, Commando!")},
+         {""}},
     };
     char* sprites[] = {
         "sprites/tux_helmet_yellow.svg",
@@ -206,12 +212,9 @@ void briefPlayer(int stage)
     SDL_Rect     textarea = (SDL_Rect){
         0, 0, (screen)->w,
         (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */;
-    SDL_Surface* loadedsprite = T4K_LoadScaledImage(
-            sprites[stage], IMG_REGULAR|IMG_NOT_REQUIRED, 
-            screen->h / 4, screen->h / 4
-            );
-
-
+    SDL_Surface* loadedsprite =
+        T4K_LoadScaledImage(sprites[stage], IMG_REGULAR | IMG_NOT_REQUIRED,
+                            screen->h / 4, screen->h / 4);
 
     if (loadedsprite) //if using an image, make sure the text doesn't hit it
     {
@@ -221,7 +224,7 @@ void briefPlayer(int stage)
         textarea.w = screen->w - icon->w;
         textarea.h = screen->h - icon->h;
     }
-    
+
     char tts_text[1000];int i;
     tts_text[0] = '\0';
     for(i = 0;i < MAX_LINES;i++)

@@ -33,7 +33,7 @@
 //!     Tux4Kids_common
 //!
 //! \section intro_sec Description
-//!     
+//!
 //!     A library of common functions used in these Tux4Kids games
 //!     - Tux, of Math Command
 //!     - Tux Typing
@@ -45,7 +45,7 @@
 //!     Please look through t4k_common.h for detailed documentation.
 //!
 //! \section copyright_sec Copyright
-//! 
+//!
 //!     See COPYING file that comes with this distribution.
 //!
 
@@ -137,10 +137,9 @@ typedef MIX_Audio Mix_Music;
 #if __STDC_VERSION__ <= 201710L
 typedef enum
 {
-    false, 
+    false,
     true
-}
-bool;
+} bool;
 #endif
 #endif
 
@@ -148,7 +147,7 @@ bool;
 static const int debug_loaders       = 1 << 0; //!< Debug image loading code
 static const int debug_menu          = 1 << 1; //!< Debug menu code
 static const int debug_menu_parser   = 1 << 2; //!< Debug XML parsing for menus
-static const int debug_sdl           = 1 << 3; //!< Debug image txf and other support code 
+static const int debug_sdl = 1 << 3; //!< Debug image txf and other support code
 static const int debug_linewrap      = 1 << 4; //!< Debug for linewrap functions
 static const int debug_i18n          = 1 << 5; //!< Debug for gettext and UTF conversions
 static const int debug_all           = ~0;     //!< Enable all debugging output (messy!)
@@ -264,7 +263,7 @@ extern char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrap
 
 
 //==============================================================================
-// Structure used to pass arguments for T4K_Tts_say() 
+// Structure used to pass arguments for T4K_Tts_say()
 typedef struct
 {
 	int mode;
@@ -286,20 +285,20 @@ void T4K_Tts_cancel(void);
 void T4K_Tts_stop(void);
 
 //==============================================================================
-//                     Public Definitions in t4k_main.c                       
+//                     Public Definitions in t4k_main.c
 //==============================================================================
 
 //==============================================================================
 //
 //  InitT4KCommon
 //
-//! \brief 
+//! \brief
 //!     Initialize Tux4Kids-Common
-//! 
+//!
 //! \param
 //!     debug_flags     - The flags used for debugging output.
-//!     
-//!     Games may define their own debug flags, but several are available 
+//!
+//!     Games may define their own debug flags, but several are available
 //!     by default:
 //!     - debug_loaders
 //!     - debug_menu
@@ -316,9 +315,9 @@ int InitT4KCommon( int debug_flags );
 //
 //  CleanupT4KCommon
 //
-//! \brief 
+//! \brief
 //!     Cleanup Tux4Kids-Common
-//! 
+//!
 //! \param
 //!     None
 //!
@@ -328,25 +327,24 @@ int InitT4KCommon( int debug_flags );
 void CleanupT4KCommon( void );
 
 //==============================================================================
-//  
+//
 //  T4K_HandleStdEvents
 //
 //! \brief
-//!     Handle events that should have consistent effects everywhere 
+//!     Handle events that should have consistent effects everywhere
 //!     in the program.
-//! 
-//! \param 
+//!
+//! \param
 //!     event      - the event to check
-//! 
+//!
 //! \return
-//!     0          - if no action is necessary 
+//!     0          - if no action is necessary
 //! \return
 //!     1          - if the screen should be redrawn
 //!
 int T4K_HandleStdEvents( const SDL_Event* event );
 
-
-//============================================================================== 
+//==============================================================================
 //                     Public Definitions in t4k_menu.c
 //==============================================================================
 
@@ -356,29 +354,27 @@ int T4K_HandleStdEvents( const SDL_Event* event );
 //
 //! \brief
 //!     Specify the set of activities the menu system should handle.
-//! 
-//! \param 
+//!
+//! \param
 //!     num       - The number of activities. acts should have num elements.
-//! \param 
+//! \param
 //!     acts      - An array of strings, each an activity provided by the game.
 //!
 //! \return
 //!     None
 //!
-void T4K_SetActivitiesList( int    num, 
-                            char** acts 
-                          );
+void T4K_SetActivitiesList(int num, char** acts);
 
 //==============================================================================
-// 
+//
 //  T4K_SetMenuSounds
 //
-//! \brief 
+//! \brief
 //!    Set optional sound effects and music for menus.
-//! 
-//! \param 
+//!
+//! \param
 //!     mus_path      - The path to background music. *NOT* used!
-//! \param 
+//! \param
 //!     click         - The sound effect to play when an item is clicked
 //! \param
 //!     hover         - The sound effect to play when an item is highlighted
@@ -386,10 +382,7 @@ void T4K_SetActivitiesList( int    num,
 //! \return
 //!     None
 //!
-void T4K_SetMenuSounds( char*      mus_path, 
-                        Mix_Chunk* click, 
-                        Mix_Chunk* hover 
-                      );
+void T4K_SetMenuSounds(char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
 
 //==============================================================================
 //
@@ -397,7 +390,7 @@ void T4K_SetMenuSounds( char*      mus_path,
 //
 //! \brief
 //!     Set the prefix that is used whe loading menu sprites.
-//! 
+//!
 //! \param
 //!     pref    - The prefix that is used whe loading menu sprites.
 //!
@@ -407,16 +400,16 @@ void T4K_SetMenuSounds( char*      mus_path,
 void T4K_SetMenuSpritePrefix( char* pref );
 
 //==============================================================================
-// 
+//
 //  T4K_SetMenuFontSize
-//  
+//
 //! \brief
 //!     Set the font size for managed menus.
-//! 
-//! \param 
+//!
+//! \param
 //!     strategy     - How to determine menus' font size
-//! \param 
-//!     size         - A literal size to use. This will be ignored unless 
+//! \param
+//!     size         - A literal size to use. This will be ignored unless
 //!                    strategy is MF_EXACTLY.
 //!
 //! \return
@@ -432,18 +425,18 @@ void T4K_SetMenuFontSize( MFStrategy strategy,
 //
 //! \brief
 //!     Dynamically create a simple menu. All given strings are copied.
-//! 
-//! \param 
+//!
+//! \param
 //!     index        - The unique index of the menu.
-//! \param 
+//! \param
 //!     items        - The number of items in the menu.
-//! \param 
+//! \param
 //!     item_names   - The name of the items
-//! \param 
+//! \param
 //!     sprite_names - The name of sprite or icon.
-//! \param 
+//! \param
 //!     title        - The title of the menu.
-//! \param 
+//! \param
 //!     trailer      - An optional item appended to the end of item_names.
 //!
 //! \return
@@ -453,48 +446,44 @@ void T4K_CreateOneLevelMenu(int index, int items, char** item_names,
                             char** sprite_names, const char* title,
                             const char* trailer);
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_RunMenu
 //
 //! \brief
 //!     RunMenu - main function to display the menu and run the event loop
 //!     this function is a modified copy of choose_menu_item()
-//! 
-//! \param 
+//!
+//! \param
 //!     index             -  The unique index of the menu.
-//! \param 
-//!    return_choice      -  If true, then return chosen value instead of 
+//! \param
+//!    return_choice      -  If true, then return chosen value instead of
 //!                          running handle_activity().
-//! \param 
-//!     draw_background   -  A function that draws game-specific items, 
+//! \param
+//!     draw_background   -  A function that draws game-specific items,
 //!                          called once per frame.
 //! \param
 //!     handle_event      -  A function to process game-specific events.
 //! \param
 //!     handle_animations -  A function to animate game-specific items.
-//! \param 
-//!     handle_activity   -  A function to start an activity when the user 
+//! \param
+//!     handle_activity   -  A function to start an activity when the user
 //!                          selects it.
-//! 
+//!
 //! \return
 //!     Returns a value operation of the user in the menu.
 //!
-int T4K_RunMenu( int    index,
-                 bool   return_choice,
-                 void   (*draw_background)(),
-                 int    (*handle_event)(SDL_Event*), 
-                 void   (*handle_animations)(),
-                 int    (*handle_activity)(int, int)
-               );
+int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(),
+                int (*handle_event)(SDL_Event*), void (*handle_animations)(),
+                int (*handle_activity)(int, int));
 
 //==============================================================================
-// 
+//
 //  T4K_PrerenderMenu
 //
 //! \brief
 //!     Prerender a single menu based on the screen resolution.
-//! 
+//!
 //! \param
 //!    index    - The unique index of the menu.
 //!
@@ -503,11 +492,11 @@ int T4K_RunMenu( int    index,
 //!
 void T4K_PrerenderMenu( int index );
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_PrerenderAll
-// 
-//! \brief 
+//
+//! \brief
 //!     Prerender all menus, arrows and stop button.
 //!     This function should be invoked after every resolution change.
 //!
@@ -519,17 +508,17 @@ void T4K_PrerenderMenu( int index );
 //!
 void T4K_PrerenderAll( void );
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_LoadMenu
 //
 //! \brief
-//!     Load menu from given XML file and store its tree under given 
+//!     Load menu from given XML file and store its tree under given
 //!     index in "menus" array.
-//! 
+//!
 //! \param
 //!     index       - The unique index of the menu.
-//! \param 
+//! \param
 //!     file_name   - The file name of the xml menu file.
 //!
 //! \return
@@ -539,8 +528,8 @@ void T4K_LoadMenu( int         index,
                    const char* file_name
                  );
 
-//============================================================================== 
-//  
+//==============================================================================
+//
 //  T4K_UnloadMenus
 //
 //! \brief
@@ -548,7 +537,7 @@ void T4K_LoadMenu( int         index,
 //!
 //! \param
 //!     None
-//! 
+//!
 //! \return
 //!     None
 //!
@@ -559,31 +548,30 @@ void T4K_UnloadMenus( void );
 //                     Public Definitions in tk4_sdl.c
 //==============================================================================
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_GetScreen
 //
 //! \brief
-//!     Return a pointer to the screen we're using, as an alternative 
+//!     Return a pointer to the screen we're using, as an alternative
 //!     to making screen a global variable.
 //!
 //! \param
 //!     None
-//! 
+//!
 //! \return
 //!     The surface of the screen.
 //!
 SDL_Surface* T4K_GetScreen( void );
 
-
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_GetResolutions
 //
 //! \brief
-//!     Provide current values of x and y resolutions for windowed and 
+//!     Provide current values of x and y resolutions for windowed and
 //!     fullscreen modes.
-//! 
+//!
 //! \param
 //!     win_x        - Will hold the width of windowed resolution.
 //! \param
@@ -596,7 +584,7 @@ SDL_Surface* T4K_GetScreen( void );
 //! \return
 //!     1            - Successfull call of the function.
 //! \return
-//!     0            - Failed operation. 
+//!     0            - Failed operation.
 //!
 int T4K_GetResolutions( int* win_x,
                         int* win_y,
@@ -605,24 +593,24 @@ int T4K_GetResolutions( int* win_x,
                       );
 
 //==============================================================================
-// 
+//
 //  T4K_DrawButton
 //
 //! \brief
-//!     Creates a translucent button with rounded ends and draws it on the 
-//!     screen. All colors and alpha values are supported. This is 
+//!     Creates a translucent button with rounded ends and draws it on the
+//!     screen. All colors and alpha values are supported. This is
 //!     equivalent to <code>T4K_DrawButtonOn(T4K_GetScreen());</code>
-//! 
+//!
 //! \param
 //!     target_rect      - The bounding rectangle for the button.
-//! \param 
+//! \param
 //!     radius           - The radius of the arcs on each corner.
 //!                        A smaller radius results in sharper edges.
 //! \param
 //!     r                - R component of the button's color.
-//! \param 
+//! \param
 //!     g                - G component of the button's color.
-//! \param 
+//! \param
 //!     b                - B component of the button's color.
 //! \param
 //!     a                - The opacity of the button.
@@ -638,17 +626,17 @@ void T4K_DrawButton( SDL_Rect* target_rect,
                      Uint8     a
                    );
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_DrawButtonOn
-// 
+//
 //! \brief
-//!     Creates a translucent button with rounded ends and draws it on 
+//!     Creates a translucent button with rounded ends and draws it on
 //!     the given surface.
 //!     All colors and alpha values are supported.
 //!
 //!     This function creates a temporary surface to blit onto target.
-//!     If performance is an issue, consider using T4K_CreateButton 
+//!     If performance is an issue, consider using T4K_CreateButton
 //!     to save the surface.
 //!
 //! \param
@@ -656,7 +644,7 @@ void T4K_DrawButton( SDL_Rect* target_rect,
 //! \param
 //!     target_rect   - the bounding rectangle for the button
 //! \param
-//!     radius        - The radius of the arcs on each corner. 
+//!     radius        - The radius of the arcs on each corner.
 //!                     A smaller radius results in sharper edges.
 //! \param
 //!     r             - R component of the button's color
@@ -664,29 +652,23 @@ void T4K_DrawButton( SDL_Rect* target_rect,
 //!     g             - G component of the button's color
 //! \param
 //!     b             - B component of the button's color
-//! \param 
+//! \param
 //!     a             - The opacity of the button
 //!
 //! \return
 //!     None
 //!
-void T4K_DrawButtonOn( SDL_Surface* target,
-                       SDL_Rect*    target_rect,
-                       int          radius,
-                       Uint8        r,
-                       Uint8        g,
-                       Uint8        b,
-                       Uint8        a 
-                      );
+void T4K_DrawButtonOn(SDL_Surface* target, SDL_Rect* target_rect, int radius,
+                      Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-//============================================================================== 
+//==============================================================================
 //
 //  T4K_CreateButton
 //
 //! \brief
 //!     Creates a translucent button with rounded ends
 //!     All colors and alpha values are supported.
-//! 
+//!
 //! \param
 //!     w        - The width of the button
 //! \param
@@ -702,18 +684,12 @@ void T4K_DrawButtonOn( SDL_Surface* target,
 //!     b        - B component of the button's color
 //! \param
 //!     a        - The opacity of the button
-//! 
+//!
 //! \return
 //!     Surface of the translucent button with no text
 //!
-SDL_Surface* T4K_CreateButton( int    w,
-                               int    h,
-                               int    radius,
-                               Uint8  r,
-                               Uint8  g,
-                               Uint8  b,
-                               Uint8  a 
-                              );
+SDL_Surface* T4K_CreateButton(int w, int h, int radius, Uint8 r, Uint8 g,
+                              Uint8 b, Uint8 a);
 
 //==============================================================================
 //
@@ -721,11 +697,11 @@ SDL_Surface* T4K_CreateButton( int    w,
 //
 //! \brief
 //!     Round the corners of a surface by erasing edge pixels.
-//! 
+//!
 //! \param
 //!    s        - The surface to process.
 //! \param
-//!    radius   - The radius of the arcs on each corner. 
+//!    radius   - The radius of the arcs on each corner.
 //!               A smaller radius results in sharper edges.
 //!
 //! \return
@@ -741,14 +717,14 @@ void T4K_RoundCorners( SDL_Surface* s,
 //
 //! \brief
 //!     Flip a surface vertically or horizontally.
-//! 
+//!
 //! \param
 //!     in        - The source surface
 //! \param
 //!     x         - if nonzero, the image will be flipped horizontally
 //! \param
 //!     y         - if nonzero, the image will be flipped vertically
-//! 
+//!
 //! \return
 //!     Returns flipped surface.
 //!
@@ -769,18 +745,18 @@ SDL_Surface* T4K_Flip( SDL_Surface* in,
 //!     Currently this works only with RGBA images, but this is largely to
 //!     make the (fast) pointer arithmetic work out; it could be easily
 //!     generalized to other image types.
-//! 
+//!
 //! \param
 //!     S1       - The first surface
 //! \param
 //!     S2       - The second surface
-//! \param 
-//!    gamma    - A value between 0.0 and 1.0, representing the weight 
+//! \param
+//!    gamma    - A value between 0.0 and 1.0, representing the weight
 //!                assigned to the first surface.
-//! 
+//!
 //! \return
-//!    If successfull, it will returns the new blended surface 
-//!    otherwise it will return a NULL value. 
+//!    If successfull, it will returns the new blended surface
+//!    otherwise it will return a NULL value.
 //!
 SDL_Surface* T4K_Blend( SDL_Surface* S1,
                         SDL_Surface* S2,
@@ -793,34 +769,32 @@ SDL_Surface* T4K_Blend( SDL_Surface* S1,
 //
 //! \brief
 //!     Free every surface in the array together with the array itself.
-//! 
+//!
 //! \param
 //!     surfs        - An array of SDL_Surface pointers to free.
-//! \param 
+//! \param
 //!     length       - The size of the array.
 //!
 //! \return
 //!     None
 //!
-void T4K_FreeSurfaceArray( SDL_Surface** surfs, 
-                           int           length
-                         );
+void T4K_FreeSurfaceArray(SDL_Surface** surfs, int length);
 
 //==============================================================================
-// 
+//
 //  T4K_inRect
 //
 //! \brief
 //!     Tells whether the point (x, y) is inside the SDL_Rect r.
-//! 
+//!
 //! \param
 //!     r        - The bounding rect.
-//! \param 
+//! \param
 //!     x        - The x coordinate to test.
-//! \param 
+//! \param
 //!     y        - The y coordinate to test.
-//! 
-//! \return 
+//!
+//! \return
 //!     1        - The x and y are inside of the SDL_Rect r.
 //! \return
 //!     0        - The x and y are outside of the SDL_Rect r.
@@ -831,18 +805,18 @@ int T4K_inRect( SDL_Rect r,
               );
 
 //==============================================================================
-// 
+//
 //  T4K_SetRect
 //
 //! \brief
-//!     This function will write an SDL_Rect with dimensions based 
+//!     This function will write an SDL_Rect with dimensions based
 //!     on screen dimensions.
-//! 
+//!
 //! \param
 //!     rect        - A pointer to the rect to fill.
 //! \param
-//!     pos         - Four floats between 0.0 and 1.0 which specify 
-//!                   the desired x, y, w and h as a percentage of 
+//!     pos         - Four floats between 0.0 and 1.0 which specify
+//!                   the desired x, y, w and h as a percentage of
 //!                   screen dimensions.
 //!
 //! \return
@@ -853,15 +827,15 @@ void T4K_SetRect( SDL_Rect*    rect,
                 );
 
 //==============================================================================
-// 
+//
 //  T4K_UpdateRect
 //
 //! \brief
 //!     Wrap a call to SDL_UpdateRect.
-//! 
-//! \param 
+//!
+//! \param
 //!     surf        - The surface to update.
-//! \param 
+//! \param
 //!     rect        - The dimension of the surface to update.
 //!
 //! \return
@@ -877,9 +851,9 @@ void T4K_UpdateRect( SDL_Surface* surf,
 //
 //! \brief
 //!     Darkens the screen by a factor of 2^bits.
-//! 
+//!
 //! \param
-//!     bits       - An exponent between 1 and 8. Realistically, 
+//!     bits       - An exponent between 1 and 8. Realistically,
 //!                 1 and 2 are the only useful values.
 //!
 //! \return
@@ -892,14 +866,14 @@ void T4K_DarkenScreen( Uint8 bits );
 //  T4K_ChangeWindowSize
 //
 //! \brief
-//!     This function will change window size (unstable, works only 
+//!     This function will change window size (unstable, works only
 //!     in windowed mode).
-//! 
+//!
 //! \param
 //!     new_res_x        - The new width of the window.
 //! \param
 //!     new_res_y        - The new height of the window.
-//! 
+//!
 //! \return
 //!     None
 //!
@@ -908,7 +882,7 @@ void T4K_ChangeWindowSize( int new_res_x,
                          );
 
 //==============================================================================
-// 
+//
 //  T4K_SwitchScreenMode
 //
 //! \brief
@@ -918,27 +892,27 @@ void T4K_ChangeWindowSize( int new_res_x,
 //! \param
 //!     None
 //!
-//! \return 
+//! \return
 //!     None
 //!
 void T4K_SwitchScreenMode( void );
 
 //==============================================================================
 //
-//! A function to handle a resolution switch, which should take 
+//! A function to handle a resolution switch, which should take
 //! parameters for the new horizontal and vertical screen dimensions.
 //!
 typedef void (*ResSwitchCallback)(int resx, int resy);
 
 //==============================================================================
-// 
+//
 //  T4K_OnResolutionSwitch
 //
-//! \brief 
+//! \brief
 //!     Register a callback to reposition and redraw screen elements when
 //!     the resolution is changed.
 //!
-//! \param 
+//! \param
 //!     callback         - A function to be called when resolution changes.
 //!
 //! \return
@@ -975,17 +949,17 @@ SDL_Window* T4K_GetWindow(void);
 //
 //  T4K_zoom
 //
-//! \brief 
+//! \brief
 //!     This function will scale an existing surface.
-//! 
+//!
 //! \param
 //!     src         - The original surface, which is left unscathed.
-//! \param 
+//! \param
 //!     new_w       - The width of the new surface.
-//! \param 
+//! \param
 //!     new_h       - The height of the new surface.
 //!
-//! \return 
+//! \return
 //!     Will return a newly allocated SDL_Surface.
 //!
 SDL_Surface* T4K_zoom( SDL_Surface* src,
@@ -994,21 +968,21 @@ SDL_Surface* T4K_zoom( SDL_Surface* src,
                      );
 
 //==============================================================================
-// 
+//
 //  T4K_TransWipe
 //
-//! \brief 
+//! \brief
 //!     Perform a wipe from the current screen image to a new one.
-//! 
-//! \param 
+//!
+//! \param
 //!     newbkg       - The new image to wipe.
-//! \param 
+//! \param
 //!     type         - The WipeStyle to use.
-//! \param 
+//! \param
 //!     segments     - The number of division of the screen.
-//! \param 
+//! \param
 //!     duration     - The length of the animation in milliseconds.
-//! 
+//!
 //! \return
 //!     Return 0 if newbkg is NULL and new background surface width and height
 //!     is not equal to screen width and height otherwise returns 1.
@@ -1020,7 +994,7 @@ int T4K_TransWipe( const SDL_Surface* newbkg,
                  );
 
 //==============================================================================
-// 
+//
 //  T4K_InitBlitQueue
 //
 //! \brief
@@ -1032,7 +1006,7 @@ int T4K_TransWipe( const SDL_Surface* newbkg,
 //!     T4K_EraseObject,
 //!     T4K_EraseSprite or
 //!     T4K_UpdateScreen
-//! 
+//!
 //! \param
 //!     None
 //!
@@ -1044,11 +1018,11 @@ void T4K_InitBlitQueue( void );
 //==============================================================================
 //
 //  T4K_ResetBlitQueue
-// 
-//! \brief 
+//
+//! \brief
 //!     Just set the number of pending updates to zero.
 //!
-//! \param 
+//! \param
 //!     None
 //!
 //! \return
@@ -1057,22 +1031,22 @@ void T4K_InitBlitQueue( void );
 void T4K_ResetBlitQueue( void );
 
 //==============================================================================
-// 
+//
 //  T4K_AddRect
 //
 //! \brief
-//!     Don't actually blit a surface, but add a rect to be updated 
+//!     Don't actually blit a surface, but add a rect to be updated
 //!     next update.
 //!
 //! \param
-//!    src        - The source dimension of the screen.  
-//! \param 
+//!    src        - The source dimension of the screen.
+//! \param
 //!    dst        - The destination dimension of the screen.
 //!
 //! \return
 //!    1          - Add SDL_Rect successful.
 //! \return
-//!    0          - If invalid parameter and add SDL_Rect failed. 
+//!    0          - If invalid parameter and add SDL_Rect failed.
 //!
 int T4K_AddRect( SDL_Rect* src,
                  SDL_Rect* dst
@@ -1084,13 +1058,13 @@ int T4K_AddRect( SDL_Rect* src,
 //
 //! \brief
 //!     This function will draw the sprite in the screen.
-//! \param 
+//! \param
 //!     gfx        - Holds the sprite object.
-//! \param 
-//!     x          - The x position to draw the sprite. 
-//! \param 
-//!     y          - The y position to draw the sprite. 
-//! 
+//! \param
+//!     x          - The x position to draw the sprite.
+//! \param
+//!     y          - The y position to draw the sprite.
+//!
 //! \return
 //!     1          - Successful draw of the sprite.
 //! \return
@@ -1111,10 +1085,10 @@ int T4K_DrawSprite( sprite* gfx,
 //! \param
 //!     surf        - Holds the surface to draw.
 //! \param
-//!     x           - The x position to draw the object. 
+//!     x           - The x position to draw the object.
 //! \param
-//!     y           - The y position to draw the object. 
-//! 
+//!     y           - The y position to draw the object.
+//!
 //! \return
 //!     1           - Successful draw of the object.
 //! \return
@@ -1131,7 +1105,7 @@ int T4K_DrawObject( SDL_Surface* surf,
 //
 //! \brief
 //!     Update the screen and increment the frame counter.
-//! 
+//!
 //! \param
 //!     frame        - Increments every update of the screen.
 //!
@@ -1145,9 +1119,9 @@ void T4K_UpdateScreen( int* frame );
 //  T4K_EraseSprite
 //
 //! \brief
-//!     Basically puts in an order to overdraw sprite 
+//!     Basically puts in an order to overdraw sprite
 //!     with corresponding rect of bkgd img.
-//! 
+//!
 //! \param
 //!     img        - Sprite to delete.
 //! \param
@@ -1156,7 +1130,7 @@ void T4K_UpdateScreen( int* frame );
 //!     x          - x coordinate
 //! \param
 //!     y          - y coordinate
-//! 
+//!
 //! \return
 //!     1          - Successful erase of the spriate.
 //! \return
@@ -1174,7 +1148,7 @@ int T4K_EraseSprite( sprite*      img,
 //
 //! \brief
 //!     Erase an object from the screen.
-//! 
+//!
 //! \param
 //!     surf        - Surface to delete
 //! \param
@@ -1183,11 +1157,11 @@ int T4K_EraseSprite( sprite*      img,
 //!     x           - x coordinate
 //! \param
 //!     y           - y coordinate
-//! 
+//!
 //! \return
 //!     1           - Successful operation
 //! \return
-//!     0           - Failed operation 
+//!     0           - Failed operation
 //!
 int T4K_EraseObject( SDL_Surface* surf,
                      SDL_Surface* curr_bkgd,
@@ -1196,31 +1170,31 @@ int T4K_EraseObject( SDL_Surface* surf,
                    );
 
 //==============================================================================
-// 
+//
 //  T4K_SetFontName
 //
 //! \brief
 //!     Set the "global" font name.
-//! 
+//!
 //! \param
 //!     name        - Name of the font to set.
-//! 
+//!
 //! \return
 //!     None
 //!
 void T4K_SetFontName( const char* name );
 
 //==============================================================================
-// 
+//
 //  T4K_AskFontName
-// 
+//
 //! \brief
 //!     Get the "global" font name.
-//! 
+//!
 //! \param
 //!     None
-//! 
-//! \return 
+//!
+//! \return
 //!     Returns the "global" font name.
 //!
 const char* T4K_AskFontName( void );
@@ -1231,7 +1205,7 @@ const char* T4K_AskFontName( void );
 //
 //! \brief
 //!     Initialize the backend (Pango or TTF) used for text-drawing functions.
-//! 
+//!
 //! \param
 //!     None
 //!
@@ -1243,12 +1217,12 @@ const char* T4K_AskFontName( void );
 int T4K_Setup_SDL_Text( void );
 
 //==============================================================================
-// 
+//
 //  T4K_Cleanup_SDL_Text
-// 
+//
 //! \brief
 //!     Shut down the backend used for text-drawing functions.
-//! 
+//!
 //! \param
 //!     None
 //!
@@ -1258,23 +1232,23 @@ int T4K_Setup_SDL_Text( void );
 void T4K_Cleanup_SDL_Text( void );
 
 //==============================================================================
-// 
+//
 //  T4K_BlackOutline
-// 
+//
 //! \brief
 //!     T4K_BlackOutline() creates a surface containing text of the designated
 //!     foreground color, surrounded by a black shadow, on a transparent
 //!     background.  The appearance can be tuned by adjusting the number of
 //!     background copies and the offset where the foreground text is
 //!     finally written (see below).
-//! 
-//! \param 
+//!
+//! \param
 //!     t       - The text to draw
-//! \param 
+//! \param
 //!     size    - the font size to use
 //! \param
 //!     c       - the fill color to use
-//! 
+//!
 //! \return
 //!     Returns newly created surface.
 //!
@@ -1284,20 +1258,20 @@ SDL_Surface* T4K_BlackOutline( const char* t,
                              );
 
 //==============================================================================
-// 
+//
 //  T4K_SimpleText
 //
 //! \brief
 //!     Returns a non-outlined surface using either SDL_Pango or SDL_ttf.
-//! 
-//! \param 
+//!
+//! \param
 //!     t        - String to draw.
 //! \param
 //!     size     - Font size
 //! \param
 //!     col      - Color
-//! 
-//! \return 
+//!
+//! \return
 //!     A non-outlined surface using either SDL_Pango or SDL_ttf.
 //!
 SDL_Surface* T4K_SimpleText( const char*      t,
@@ -1311,18 +1285,18 @@ SDL_Surface* T4K_SimpleText( const char*      t,
 //
 //! \brief
 //!     Same as T4K_SimpleText, but the text offset is also stored.
-//! 
+//!
 //! \param
 //!     t             - String to draw.
-//! \param 
+//! \param
 //!     size          - Font size
-//! \param 
+//! \param
 //!     col           - Color
 //! \param
 //!     glyph_off     - Set the var in which to store the offset.
-//! 
+//!
 //! \return
-//!     A non-outlined surface using either SDL_Pango or SDL_ttf. 
+//!     A non-outlined surface using either SDL_Pango or SDL_ttf.
 //!
 SDL_Surface* T4K_SimpleTextWithOffset( const char*       t,
                                        int               size,
@@ -1336,13 +1310,13 @@ SDL_Surface* T4K_SimpleTextWithOffset( const char*       t,
 //! \brief
 //!     Calculate how long a string for a given fontsize will fit within a
 //!     given pixel width.  The estimate is based on strings of 'x'.
-//! 
+//!
 //! \param
 //!     fontsize      - Font size
-//! \param 
+//! \param
 //!     pixel_width   - Width in pixels of the desired text box
 //! \return
-//!     strlen() of the longest string of 'x' that fits 
+//!     strlen() of the longest string of 'x' that fits
 //!
 int T4K_CharsForWidth( int fontsize,
                        int pixel_width
@@ -1353,15 +1327,15 @@ int T4K_CharsForWidth( int fontsize,
 //==============================================================================
 
 //==============================================================================
-// 
+//
 //  T4K_AddDataPrefix
-// 
+//
 //! \brief
 //!     Add a directory that should be searched when loading assets.
-//! 
-//! \param 
+//!
+//! \param
 //!     path        - Directory path to set as prefix of the data.
-//! 
+//!
 //! \return
 //!     None
 //!
@@ -1406,34 +1380,34 @@ void T4K_SetSfxVolume(int volume);
 //
 //! \brief
 //!     Check whether a file exists.
-//! 
+//!
 //! \param
 //!    file        - File to check.
-//! 
-//! \return 
-//!    1           - The file is valid. 
+//!
+//! \return
+//!    1           - The file is valid.
 //! \return
 //!    0           - The file is not valid.
 //!
 int T4K_CheckFile( const char* file );
 
 //==============================================================================
-// 
+//
 //  T4K_RemoveSlash
 //
 //! \brief
 //!     Remove a trailing slash from a file path.
-//! 
+//!
 //! \param
 //!     path       - A path that may or may not end in a slash.
-//! 
-//! \return        
+//!
+//! \return
 //!     A path that does not end in a slash.
 //!
 char* T4K_RemoveSlash( char *path );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadImage
 //
 //! \brief
@@ -1441,9 +1415,9 @@ char* T4K_RemoveSlash( char *path );
 //!
 //! \param
 //!     file_name       - File name of the image.
-//! \param 
+//! \param
 //!     mode            - Image mode.
-//! 
+//!
 //! \return
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
@@ -1453,10 +1427,10 @@ SDL_Surface* T4K_LoadImage( const char* file_name,
                           );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadScaledImage
 //
-//! \brief 
+//! \brief
 //!     Load an image and resize it to given dimensions.
 //!     If width or height is negative no resizing is applied.
 //!
@@ -1464,7 +1438,7 @@ SDL_Surface* T4K_LoadImage( const char* file_name,
 //!     If an SVG file is not found, try to load its PNG equivalent
 //!     (unless IMG_NO_PNG_FALLBACK is set in mode)
 //!
-//! \param 
+//! \param
 //!     file_name        - File name of the image.
 //! \param
 //!     mode             - Image Mode
@@ -1472,7 +1446,7 @@ SDL_Surface* T4K_LoadImage( const char* file_name,
 //!     width            - Width size of the image.
 //! \param
 //!     height           - Height size of the image.
-//! 
+//!
 //! \return
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
@@ -1484,7 +1458,7 @@ SDL_Surface* T4K_LoadScaledImage( const char* file_name,
                                 );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadImageOfBoundingBox
 //
 //! \brief
@@ -1492,7 +1466,7 @@ SDL_Surface* T4K_LoadScaledImage( const char* file_name,
 //!     and fit it into max_width x max_height rectangle.
 //!
 //!     NOTE: Returned surface is not necessarily max_width x max_height!
-//! 
+//!
 //! \param
 //!     file_name        - File name of the image.
 //! \param
@@ -1501,7 +1475,7 @@ SDL_Surface* T4K_LoadScaledImage( const char* file_name,
 //!     max_width        - Max size of width of image.
 //! \param
 //!     max_height       - Max size of height of image.
-//! 
+//!
 //! \return
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
@@ -1513,20 +1487,20 @@ SDL_Surface* T4K_LoadImageOfBoundingBox( const char* file_name,
                                        );
 
 //=============================================================================
-// 
+//
 //  T4K_LoadBkgd
 //
 //! \brief
 //!     A wrapper for LoadImage() that optimizes
 //!     the format of background image.
-//! 
+//!
 //! \param
 //!     file_name        - File name of background image.
 //! \param
 //!     width            - Width of the image.
 //! \param
 //!     height           - Height of the image.
-//! 
+//!
 //! \return
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
@@ -1542,14 +1516,14 @@ SDL_Surface* T4K_LoadBkgd( const char* file_name,
 //
 //! \brief
 //!     Load backgrounds for both fullscreen and windowed resolution.
-//! 
+//!
 //! \param
 //!     file_name        - File name of background image.
 //! \param
 //!     fs_bkgd          - Fullscreen surface.
 //! \param
 //!     win_bkgd         - Windowed surface
-//! 
+//!
 //! \return
 //!     1                - Successful loading of background.
 //! \return
@@ -1565,15 +1539,15 @@ int T4K_LoadBothBkgds( const char*   file_name,
 //  T4K_LoadSprite
 //
 //! \brief
-//!     Load a multiple-frame sprite from disk. 
+//!     Load a multiple-frame sprite from disk.
 //!     This function loads an SVG sprite or multiple PNGs as needed.
-//! 
+//!
 //! \param
-//!     name        - The filename of the sprite to load, 
+//!     name        - The filename of the sprite to load,
 //!                   <em>without</em> an extension.
 //! \param
 //!     mode        - Loader flags to use, semantics the same as LoadImage.
-//! 
+//!
 //! \return
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
@@ -1584,23 +1558,23 @@ sprite* T4K_LoadSprite( const char* name,
 
 //==============================================================================
 //
-//  T4K_LoadScaledSprite 
-// 
+//  T4K_LoadScaledSprite
+//
 //! \brief
-//!     Load a multiple-frame sprite from disk and scale it to the 
-//!     given dimensions. This function loads an SVG sprite or 
+//!     Load a multiple-frame sprite from disk and scale it to the
+//!     given dimensions. This function loads an SVG sprite or
 //!     multiple PNGs as needed.
-//! 
+//!
 //! \param
 //!     name        - The filename of the sprite to load,
 //!                   <em>without</em> an extension.
 //! \param
 //!     mode        - Loader flags to use, semantics the same as LoadImage.
-//! \param 
+//! \param
 //!     width       - Width of sprite.
-//! \param 
+//! \param
 //!     height      - Height of sprite.
-//! 
+//!
 //! \return
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
@@ -1612,7 +1586,7 @@ sprite* T4K_LoadScaledSprite( const char* name,
                             );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadSpriteOfBoundingBox
 //
 //! \brief
@@ -1621,15 +1595,15 @@ sprite* T4K_LoadScaledSprite( const char* name,
 //!     NOTE: Returned surface is not necessarily max_width x max_height !
 //!
 //! \param
-//!     name        - The filename of the sprite to load, 
+//!     name        - The filename of the sprite to load,
 //!                   <em>without</em> an extension.
 //! \param
 //!     mode        - Loader flags to use, semantics the same as LoadImage.
 //! \param
 //!     max_width   - Max width of sprite.
-//! \param 
+//! \param
 //!     max_height  - Max height of sprite.
-//! 
+//!
 //! \return
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
@@ -1641,29 +1615,26 @@ sprite* T4K_LoadSpriteOfBoundingBox( const char* name,
                                    );
 
 //==============================================================================
-// 
+//
 //  T4K_FlipSprite
-// 
+//
 //! \brief
 //!     Flip (reflect) a sprite over one or both axes.
-//! 
+//!
 //! \param
 //!     in        - The original image
-//! \param 
+//! \param
 //!     X         - If nonzero, the image is flipped horizontally.
 //! \param
 //!     Y         - If nonzero, the image is flipped vertically.
-//! 
+//!
 //! \return
 //!     A newly allocated transformed sprite.
-//! 
-//! \see 
+//!
+//! \see
 //!     T4K_Flip
 //!
-sprite* T4K_FlipSprite( sprite* in,
-                        int     X,
-                        int     Y 
-                      );
+sprite* T4K_FlipSprite(sprite* in, int X, int Y);
 
 //==============================================================================
 //
@@ -1681,12 +1652,12 @@ sprite* T4K_FlipSprite( sprite* in,
 void T4K_FreeSprite( sprite* gfx );
 
 //==============================================================================
-// 
+//
 //  T4K_NextFrame
 //
 //! \brief
 //!     Advance a sprite's frame.
-//! 
+//!
 //! \param
 //!     s        - The sprite to advance.
 //!
@@ -1696,30 +1667,30 @@ void T4K_FreeSprite( sprite* gfx );
 void T4K_NextFrame( sprite* s );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadSound
 //
 //! \brief
 //!     Load a sound/music patch from a file.
-//! 
+//!
 //! \param
 //!     datafile        - File name of the sound data.
-//! 
+//!
 //! \return
-//!     Returns new created sound effect. 
+//!     Returns new created sound effect.
 //!
 Mix_Chunk* T4K_LoadSound( char* datafile );
 
 //==============================================================================
-// 
+//
 //  T4K_LoadMusic
 //
 //! \brief
 //!     Load music from a datafile
-//! 
+//!
 //! \param
 //!     datafile     - File name of the music date.
-//! 
+//!
 //! \return
 //!     Returns new created music.
 //!
@@ -1734,12 +1705,12 @@ const static int T4K_AUDIO_PLAY_ONCE    =  0;
 const static int T4K_AUDIO_LOOP_FOREVER = -1;
 
 //==============================================================================
-// 
+//
 //  T4K_PlaySound
 //
 //! \brief
 //!     Play sound once and then exit.
-//! 
+//!
 //! \param
 //!     sound        - Sound effect to play.
 //!
@@ -1749,15 +1720,15 @@ const static int T4K_AUDIO_LOOP_FOREVER = -1;
 void T4K_PlaySound( Mix_Chunk* sound );
 
 //==============================================================================
-// 
+//
 //  T4K_PlaySoundLoop
 //
 //! \brief
 //!     Play sound "loops" times, -1 for infinite.
-//! 
-//! \param 
+//!
+//! \param
 //!     sound        - Sound effect to play.
-//! \param 
+//! \param
 //!     loops        - Number of repeats to play the sound.
 //!
 //! \return
@@ -1774,11 +1745,11 @@ bool T4K_IsPlayingSound(Mix_Chunk* sound);
 void T4K_StopSound(Mix_Chunk* sound);
 
 //==============================================================================
-// 
+//
 //  T4K_AudioHaltChannel
 //
 //! \brief
-//!     Will stop the channel specified in channel. If -1 is passed as 
+//!     Will stop the channel specified in channel. If -1 is passed as
 //!     the parameter to channel, all channels will be stopped.
 //!
 //! \param
@@ -1798,9 +1769,9 @@ void T4K_AudioHaltChannel( int channel );
 //!
 //! \param
 //!     music_path        - Path of the music file.
-//! \param 
+//! \param
 //!     loops             - Number of loops.
-//! 
+//!
 //! \return
 //!     None
 //!
@@ -1809,7 +1780,7 @@ void T4K_AudioMusicLoad( char* music_path,
                        );
 
 //==============================================================================
-// 
+//
 //  T4K_AudioMusicUnload
 //
 //! \brief
@@ -1818,19 +1789,19 @@ void T4K_AudioMusicLoad( char* music_path,
 //!
 //! \param
 //!     None
-//! 
+//!
 //! \return
 //!     None
-//! 
+//!
 void T4K_AudioMusicUnload( void );
 
 //==============================================================================
-// 
+//
 //  T4K_IsPlayingMusic
 //
 //! \brief
 //!     This function will check if a music is currently playing.
-//! 
+//!
 //! \param
 //!     None
 //!
@@ -1842,16 +1813,16 @@ void T4K_AudioMusicUnload( void );
 bool T4K_IsPlayingMusic( void );
 
 //==============================================================================
-// 
+//
 //  T4K_AudioMusicPlay
 //
 //! \brief
 //!     Attempts to play the passed music data, stopping current music if
 //!     necessary.
-//! 
+//!
 //! \param
 //!     musicData       - Data of music.
-//! \param 
+//! \param
 //!     loops           - The number of times to loop, or -1 forever
 //!
 //! \return
@@ -1862,16 +1833,16 @@ void T4K_AudioMusicPlay( Mix_Music* musicData,
                        );
 
 //==============================================================================
-// 
+//
 //  T4K_AudioEnable
 //
 //! \brief
 //!     Enable/disable sound
-//! 
-//! \param 
-//!     enabled        - Set true if Audio is enabled or false to disable 
+//!
+//! \param
+//!     enabled        - Set true if Audio is enabled or false to disable
 //!                      the audition.
-//! 
+//!
 //! \return
 //!     None
 //!
@@ -1905,7 +1876,7 @@ void T4K_AudioToggle( void );
 //!     This function takes an input string (can be in essentially arbitrary
 //!     encoding) and loads it into an array of strings, each corresponding
 //!     to one line of output text.
-//!    
+//!
 //! \param
 //!     input         - A null-terminated input string.
 //! \param
@@ -1938,12 +1909,12 @@ int T4K_LineWrap( const char* input,
 //! \brief
 //!     This function takes an input string and inserts newline characters at
 //!     places determined by the linebreak library, returning a single string.
-//!    
+//!
 //! \param
 //!     input         - A null-terminated input string.
 //! \para
 //!     output        - Pre-allocated location to contain string with breaks
-//!                     inserted. 
+//!                     inserted.
 //! \param
 //!     width         - The desired number of characters per line. Note that
 //!                     words with more characters than "width" are not
@@ -2048,16 +2019,14 @@ void T4K_Throttle( int     loop_msec,
 //! /param
 //!     max_length    - generally the length of the output buffer to avoid
 //!                     overflow.  It also must be no greater than the buffer
-//!                     length used internally in this function (i.e. 
+//!                     length used internally in this function (i.e.
 //!                     UTF_BUF_LENGTH, currently 1024).
 //!
 //! /return
 //!     Returns the length of the wchar_t string generated, 0 on errors.
 //!
-int T4K_ConvertFromUTF8( wchar_t*    wide_word, 
-                         const char* UTF8_word, 
-                         int         max_length
-                       );
+int T4K_ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word,
+                        int max_length);
 
 //=============================================================================
 //
@@ -2065,7 +2034,7 @@ int T4K_ConvertFromUTF8( wchar_t*    wide_word,
 //
 //! /brief
 //!     A simple wrapper for using GNU iconv() to convert wchar_t
-//!     ("Unicode") text to UTF-8 text. 
+//!     ("Unicode") text to UTF-8 text.
 //!
 //! /param
 //!     wide_word     - ptr to wchar_t string to be converted.
@@ -2074,17 +2043,14 @@ int T4K_ConvertFromUTF8( wchar_t*    wide_word,
 //! /param
 //!     max_length    - generally the length of the output buffer to avoid
 //!                     overflow.  It also must be no greater than the buffer
-//!                     length used internally in this function (i.e. 
+//!                     length used internally in this function (i.e.
 //!                     UTF_BUF_LENGTH, currently 1024).
 //!
 //! /return
 //!     Returns the length of the UTF-8 string generated, 0 on errors.
 //!
-int T4K_ConvertToUTF8( const wchar_t* wide_word, 
-                       char*          UTF8_word, 
-                       int            max_length
-                     );
-
+int T4K_ConvertToUTF8(const wchar_t* wide_word, char* UTF8_word,
+                      int max_length);
 
 //=============================================================================
 //                      Public Definitions for t4k_replacements.c
@@ -2094,17 +2060,17 @@ int T4K_ConvertToUTF8( const wchar_t* wide_word,
 //
 //  T4K_alphasort
 //
-//! \brief 
+//! \brief
 //!     Wrapper for alphasort function, using either platform's alphasort or our
 //!     replacement in t4k_replacements if not provided by system.
-//! 
+//!
 //! \param
 //!     const struct dirent** d1 - first arg to be compared
 //!
 //! \param
 //!     const struct dirent** d2 - second arg to be compared
 //!
-//! \return 
+//! \return
 //!     From man alphasort: "alphasort() and versionsort() functions return an
 //!     integer less than, equal to, or greater than zero if the first argument
 //!     is considered to be  respectively  less than, equal to, or greater than
@@ -2118,12 +2084,12 @@ int T4K_alphasort( const struct dirent** d1,
 //
 //  T4K_scandir
 //
-//! \brief 
+//! \brief
 //!     Wrapper for scandir function, using either platform's scandir or our
 //!     replacement in t4k_replacements if not provided by system.
-//! 
+//!
 //!     From man scandir (arg names adapted):
-//!     The scandir() function scans the directory dirname, calling sdfilter() 
+//!     The scandir() function scans the directory dirname, calling sdfilter()
 //!     on each directory entry. Entries for which sdfilter() returns nonzero
 //!     are stored in strings allocated via malloc(3), sorted using qsort(3)
 //!     with the comparison function dcomp(), and collected in array namelist
@@ -2131,7 +2097,7 @@ int T4K_alphasort( const struct dirent** d1,
 //!     are selected.
 //!
 //!     The alphasort() and versionsort() functions can be used as the comparison
-//!     function compar(). The former sorts directory entries using strcoll(3), 
+//!     function compar(). The former sorts directory entries using strcoll(3),
 //!     the latter using strverscmp(3) on the strings (*a)->d_name and (*b)->d_name.
 //!
 //! \param
@@ -2146,7 +2112,7 @@ int T4K_alphasort( const struct dirent** d1,
 //! \param
 //!     int (*dcomp)(const void *, const void *)
 //!
-//! \return 
+//! \return
 //!     The scandir() function returns the number of directory entries selected
 //!     or -1 if an error occurs.
 //!

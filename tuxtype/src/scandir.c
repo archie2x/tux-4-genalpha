@@ -7,8 +7,8 @@
    Brought to tuxmath by David Bruce from the GPLv2 (or later) Hatari project:
    http://hatari.berlios.de/
 
-   Modified slightly and relicensed under GPLv3 or later.   
-   
+   Modified slightly and relicensed under GPLv3 or later.
+
    Copyright 2007, 2008, 2009, 2010.
    Authors: Hatari Project.
    Project email: <tuxmath-devel@lists.sourceforge.net>

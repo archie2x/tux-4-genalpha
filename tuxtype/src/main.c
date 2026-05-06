@@ -1,11 +1,11 @@
 /*
    main.c:
-   
+
    main() function for Tux Typing
 
    Copyright 2000, 2003, 2007, 2008, 2009, 2010.
    Authors: Sam Hart, Jesse Andrews, David Bruce.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -49,114 +47,115 @@ int main(int argc, char *argv[])
   srand(time(NULL));
 
   //FIXME we should inspect return values and bail if these functions fail:
-  Opts_Initialize(); // First, initialize settings with hard-coded defaults 
+  Opts_Initialize(); // First, initialize settings with hard-coded defaults
   // This sets settings.default_data_path to the default theme file path:
   if(!SetupPaths(NULL))
-  {  
-    fprintf(stderr, "Error - SetupPaths() failed, exiting program.\n");
-    return 0;
-  }  
+  {
+      fprintf(stderr, "Error - SetupPaths() failed, exiting program.\n");
+      return 0;
+  }
   LoadSettings();    // Second, read saved any saved settings
 
   // Third, check command line args as these should override saved settings
   if (argc > 1) /* FIXME this could go into something like HandleCommandArgs() */
-  { 
-    for (i = 1; i < argc; i++)
-    {
-      if (  (strcmp(argv[i], "-h") == 0)
-         || (strcmp(argv[i], "--help") == 0)
-         || (strcmp(argv[i], "-help") == 0))
+  {
+      for (i = 1; i < argc; i++)
       {
-        fprintf(stderr, "\nUsage:\n tuxtype [OPTION]...");
-        fprintf(stderr, "\n\nOptions:\n\n\t-h, --help, -help");
-        fprintf(stderr, "\n\t\tPrints this help message");
-        fprintf(stderr, "\n\n\t-f, --fullscreen");
-        fprintf(stderr, "\n\t\tSelects fullscreen display (default)");
-        fprintf(stderr, "\n\n\t-w, --window");
-        fprintf(stderr, "\n\t\tSelects windowed display (not fullscreen)");
-        fprintf(stderr, "\n\n\t-s, --sound");
-        fprintf(stderr, "\n\t\tAllow in-game sounds (default)");
-        fprintf(stderr, "\n\n\t-ns, --nosound");
-        fprintf(stderr, "\n\t\tDisables in-game sounds");
-        fprintf(stderr, "\n\n\t-a, --tts");
-        fprintf(stderr, "\n\t\tEnable in-game accessibility");
-        fprintf(stderr, "\n\n\t-na, --notts");
-        fprintf(stderr, "\n\t\tDisables in-game accessibility");
-        fprintf(stderr, "\n\n\t-b, --braille");
-        fprintf(stderr, "\n\t\tEnable Braille Mode");
-        fprintf(stderr, "\n\n\t-t {THEME}, --theme {THEME}");
-        fprintf(stderr, "\n\t\tUse theme named {THEME}, if it exists");
-        fprintf(stderr, "\n\n\t-sp, --speed");
-        fprintf(stderr, "\n\t\tSpeed up gameplay (for use on slower");
-        fprintf(stderr, "\n\t\tmachines)");
-        fprintf(stderr, "\n\n\t-d, --debug");
-        fprintf(stderr, "\n\t\tEnable debug mode (output)\n");
-        fprintf(stderr, "\n\n\t-v, --version");
-        fprintf(stderr, "\n\t\tDisplay version number and exit\n");
-        exit(0);
+          if ((strcmp(argv[i], "-h") == 0) ||
+              (strcmp(argv[i], "--help") == 0) ||
+              (strcmp(argv[i], "-help") == 0))
+          {
+              fprintf(stderr, "\nUsage:\n tuxtype [OPTION]...");
+              fprintf(stderr, "\n\nOptions:\n\n\t-h, --help, -help");
+              fprintf(stderr, "\n\t\tPrints this help message");
+              fprintf(stderr, "\n\n\t-f, --fullscreen");
+              fprintf(stderr, "\n\t\tSelects fullscreen display (default)");
+              fprintf(stderr, "\n\n\t-w, --window");
+              fprintf(stderr,
+                      "\n\t\tSelects windowed display (not fullscreen)");
+              fprintf(stderr, "\n\n\t-s, --sound");
+              fprintf(stderr, "\n\t\tAllow in-game sounds (default)");
+              fprintf(stderr, "\n\n\t-ns, --nosound");
+              fprintf(stderr, "\n\t\tDisables in-game sounds");
+              fprintf(stderr, "\n\n\t-a, --tts");
+              fprintf(stderr, "\n\t\tEnable in-game accessibility");
+              fprintf(stderr, "\n\n\t-na, --notts");
+              fprintf(stderr, "\n\t\tDisables in-game accessibility");
+              fprintf(stderr, "\n\n\t-b, --braille");
+              fprintf(stderr, "\n\t\tEnable Braille Mode");
+              fprintf(stderr, "\n\n\t-t {THEME}, --theme {THEME}");
+              fprintf(stderr, "\n\t\tUse theme named {THEME}, if it exists");
+              fprintf(stderr, "\n\n\t-sp, --speed");
+              fprintf(stderr, "\n\t\tSpeed up gameplay (for use on slower");
+              fprintf(stderr, "\n\t\tmachines)");
+              fprintf(stderr, "\n\n\t-d, --debug");
+              fprintf(stderr, "\n\t\tEnable debug mode (output)\n");
+              fprintf(stderr, "\n\n\t-v, --version");
+              fprintf(stderr, "\n\t\tDisplay version number and exit\n");
+              exit(0);
+          }
+
+          if ((strcmp(argv[i], "-v") == 0) ||
+              (strcmp(argv[i], "--version") == 0))
+          {
+              fprintf(stderr, "\n%s, Version %s\n", PACKAGE, VERSION);
+              fprintf(stderr, "Copyright 2000-2010 Sam Hart, Jesse Andrews, "
+                              "David Bruce, and the Tux4Kids team.\n");
+              fprintf(stderr,
+                      "Tux4Kids website: http://tux4kids.alioth.debian.org\n");
+              fprintf(stderr, "This software is licensed under the GNU General "
+                              "Public License, Version 3 or later, and "
+                              "compatible media licenses.\n");
+              fprintf(stderr, "See COPYING file for licensing details.\n\n");
+              exit(0);
+          }
+
+          if ((strcmp(argv[i], "-f") == 0) ||
+              (strcmp(argv[i], "--fullscreen") == 0))
+              settings.fullscreen = 1;
+
+          if ((strcmp(argv[i], "-w") == 0) ||
+              (strcmp(argv[i], "--window") == 0))
+              settings.fullscreen = 0;
+
+          if ((strcmp(argv[i], "-sp") == 0) ||
+              (strcmp(argv[i], "--speed") == 0))
+              settings.speed_up = 1;
+
+          if ((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--debug") == 0))
+              settings.debug_on = 1;
+
+          if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--sound") == 0))
+              settings.sys_sound = 1;
+
+          if ((strcmp(argv[i], "-ns") == 0) ||
+              (strcmp(argv[i], "--nosound") == 0))
+              settings.sys_sound = 0;
+
+          if ((strcmp(argv[i], "-a") == 0) || (strcmp(argv[i], "--tts") == 0))
+          {
+              settings.tts          = 1;
+              text_to_speech_status = 1;
+          }
+
+          if ((strcmp(argv[i], "-na") == 0) ||
+              (strcmp(argv[i], "--notts") == 0))
+          {
+              settings.tts          = 0;
+              text_to_speech_status = 0;
+          }
+
+          if ((strcmp(argv[i], "-b") == 0) ||
+              (strcmp(argv[i], "--braille") == 0))
+              settings.braille = 1;
+
+          if ((strcmp(argv[i], "--hidden") == 0) ||
+              (strcmp(argv[i], "-hidden") == 0))
+              settings.hidden = 1;
+
+          if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--theme") == 0))
+              SetupPaths(argv[++i]);
       }
-
-      if (  (strcmp(argv[i], "-v") == 0)
-         || (strcmp(argv[i], "--version") == 0))
-      {
-        fprintf(stderr, "\n%s, Version %s\n", PACKAGE, VERSION);
-        fprintf(stderr, "Copyright 2000-2010 Sam Hart, Jesse Andrews, David Bruce, and the Tux4Kids team.\n");
-        fprintf(stderr, "Tux4Kids website: http://tux4kids.alioth.debian.org\n");
-        fprintf(stderr, "This software is licensed under the GNU General Public License, Version 3 or later, and compatible media licenses.\n");
-        fprintf(stderr, "See COPYING file for licensing details.\n\n");
-        exit(0);
-      }
-
-      if (  (strcmp(argv[i], "-f") == 0)
-         || (strcmp(argv[i], "--fullscreen") == 0))
-        settings.fullscreen = 1;
-
-      if (  (strcmp(argv[i], "-w") == 0)
-         || (strcmp(argv[i], "--window") == 0))
-        settings.fullscreen = 0;
-
-      if (  (strcmp(argv[i], "-sp") == 0)
-         || (strcmp(argv[i], "--speed") == 0))
-        settings.speed_up = 1;
-
-      if (  (strcmp(argv[i], "-d") == 0)
-         || (strcmp(argv[i], "--debug") == 0))
-        settings.debug_on = 1;
-
-      if (  (strcmp(argv[i], "-s") == 0)
-         || (strcmp(argv[i], "--sound") == 0))
-        settings.sys_sound = 1;
-
-      if (  (strcmp(argv[i], "-ns") == 0)
-         || (strcmp(argv[i], "--nosound") == 0))
-        settings.sys_sound = 0;
-
-      if (  (strcmp(argv[i], "-a") == 0)
-         || (strcmp(argv[i], "--tts") == 0))
-         {
-			 settings.tts = 1;
-			 text_to_speech_status = 1;
-		 }
-
-      if (  (strcmp(argv[i], "-na") == 0)
-         || (strcmp(argv[i], "--notts") == 0))
-         {
-			 settings.tts = 0;
-			 text_to_speech_status = 0;
-		 }
-
-      if (  (strcmp(argv[i], "-b") == 0)
-         || (strcmp(argv[i], "--braille") == 0))
-        settings.braille = 1;
-
-      if (  (strcmp(argv[i], "--hidden") == 0)
-         || (strcmp(argv[i], "-hidden") == 0))
-        settings.hidden = 1;
-
-      if (  (strcmp(argv[i], "-t") == 0)
-         || (strcmp(argv[i], "--theme") == 0))
-        SetupPaths(argv[++i]);
-    }
   }
 
   DEBUGCODE
@@ -216,8 +215,7 @@ int main(int argc, char *argv[])
       /* Mix_VolumeMusic stubbed for SDL3 port */
       /* Mix_Volume stubbed for SDL3 port */
   }
-  
-  
+
   /* Initialising TTS */
    T4K_Tts_init();
    T4K_Tts_set_volume(settings.tts_volume);

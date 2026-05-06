@@ -70,9 +70,9 @@ void DisplayHighScores(int level)
 
     const int title_font_size = 32;
     const int player_font_size = 14;
-    
+
     char tts_temp[2000];
-    
+
     while (!finished)
     {
         /* Check for user events: */
@@ -176,7 +176,7 @@ void DisplayHighScores(int level)
                 srfc = T4K_BlackOutline(_("Hall Of Fame"), title_font_size, &yellow);
                 strcpy(tts_temp,_("Hall Of Fame"));
                 strcat(tts_temp,"  ");
-                
+
                 if (srfc)
                 {
                     button_rect.x = text_rect.x = (screen->w)/2 - (srfc->w)/2 + 50;
@@ -230,7 +230,7 @@ void DisplayHighScores(int level)
 
                 if (srfc)
                 {
-                    text_rect.x = (screen->w)/2 - (srfc->w)/2 + 50; 
+                    text_rect.x = (screen->w) / 2 - (srfc->w) / 2 + 50;
                     text_rect.y += text_rect.h; /* go to bottom of first line */
                     text_rect.w = srfc->w;
                     text_rect.h = srfc->h;
@@ -241,7 +241,7 @@ void DisplayHighScores(int level)
                     score_table_y = text_rect.y + text_rect.h;
                 }
             }
-            
+
             strcat(tts_temp,". Score sheet with place,score and name ");
             /* Generate and draw desired table: */
 
@@ -253,7 +253,7 @@ void DisplayHighScores(int level)
                         i + 1,                  /* Add one to get common-language place number */
                         HS_Score(diff_level, i),
                         HS_Name(diff_level, i));
-                
+
                 if (HS_Score(diff_level, i) != 0)
                 {
 					strcat(tts_temp,". On place ");
@@ -556,12 +556,12 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 
     SDL_StopTextInput(T4K_GetWindow());
 
-    /* Now copy name into location pointed to by arg: */ 
+    /* Now copy name into location pointed to by arg: */
     strncpy(pl_name, UTF8_buf, HIGH_SCORE_NAME_LENGTH * 3);
 
     DEBUGMSG(debug_highscore, "Leaving NameEntry(), final string is: %s\n",
             pl_name);
-    
+
     if (wcslen(wchar_buf) != 0)
        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%S.",wchar_buf);
 }
@@ -610,7 +610,7 @@ int check_score_place(int diff_level, int new_score)
 }
 
 /* Put a new high score entry into the table for the corresponding */
-/* difficulty level - returns 1 if successful.                     */ 
+/* difficulty level - returns 1 if successful.                     */
 int insert_score(char* playername, int diff_level, int new_score)
 {
     int i = 0;
@@ -651,12 +651,12 @@ void print_high_scores(FILE* fp)
     for (i = 0; i < NUM_HIGH_SCORE_LEVELS; i++)
     {
         switch(i)
-        {    
-            case CADET_HIGH_SCORE:
-                {
-                    fprintf(fp, "\nSpace Cadet:\n");
-                    break;
-                }
+        {
+        case CADET_HIGH_SCORE:
+        {
+            fprintf(fp, "\nSpace Cadet:\n");
+            break;
+        }
             case SCOUT_HIGH_SCORE:
                 {
                     fprintf(fp, "\nScout:\n");
@@ -687,7 +687,7 @@ void print_high_scores(FILE* fp)
                     fprintf(fp, "\nFractions:\n");
                     break;
                 }
-        }
+                }
 
         for (j = 0; j < HIGH_SCORES_SAVED; j++)
         {
@@ -724,13 +724,13 @@ int read_high_scores_fp(FILE* fp)
 
     /* read in a line at a time: */
     while (fgets (buf, PATH_MAX, fp))
-    { 
+    {
         /* Ignore comment lines: */
         if ((buf[0] == ';') || (buf[0] == '#'))
         {
             continue;
         }
-        /* Split up line with strtok()to get needed values,  */ 
+        /* Split up line with strtok()to get needed values,  */
         /* then call insert_score() for each line.           */
         token = strtok(buf, delimiters);
         if (!token)
@@ -741,7 +741,7 @@ int read_high_scores_fp(FILE* fp)
 
         token = strtok(NULL, delimiters);
         if (!token)
-            continue; 
+            continue;
         score_read = atoi(token);
         /* Note that name can contain spaces - \t is only delimiter: */
         name_read = strtok(NULL, delimiters);

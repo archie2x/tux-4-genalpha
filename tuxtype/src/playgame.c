@@ -5,7 +5,7 @@
 
    Copyright 2000, 2003, 2007, 2008, 2009, 2010, 2011.
    Authors: Sam Hart, Jesse Andrews, David Bruce, George Stephanos.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -24,9 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-
 
 #include "globals.h"
 #include "funcs.h"
@@ -96,7 +93,7 @@ int playing_level,fish_left,curlives;
 
 
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*         "Public" functions (callable throughout program)             */
 /*                                                                      */
 /************************************************************************/
@@ -205,7 +202,7 @@ int PlayCascade(int diflevel)
   while (still_playing)
   {
     /* FIXME split out as smaller function */
-    if (setup_new_level) 
+    if (setup_new_level)
     {
       switch (diflevel)
       {
@@ -250,8 +247,8 @@ int PlayCascade(int diflevel)
       if (diflevel == INF_PRACT)
         sprintf(filename, "pract.png");
       else
-      {	
-        sprintf(filename, "kcas%d.jpg", rand() % 12);
+      {
+          sprintf(filename, "kcas%d.jpg", rand() % 12);
       }
       /* ---  Special Hidden Code  --- */
 
@@ -272,8 +269,10 @@ int PlayCascade(int diflevel)
       if (settings.sys_sound)
       {
         //TODO make use of more music files
-        if(rand() % 2) 
-          sprintf(filename, "amidst_the_raindrops.ogg");
+        if (rand() % 2)
+        {
+            sprintf(filename, "amidst_the_raindrops.ogg");
+        }
         else
           sprintf(filename, "chiptune2.ogg");
         MusicLoad( filename, -1 );
@@ -286,16 +285,14 @@ int PlayCascade(int diflevel)
     }
 
     /*  --------- Begin main game loop (cycles once per frame): ------------- */
-	
-	
-	//Inetialising braille variables
+
+    //Inetialising braille variables
 	braille_iter = 0;
     pressed_letters[braille_iter] = L'\0';
-	
 
     while (playing_level)
     {
-		
+
       last_time = SDL_GetTicks();
 
       oldlives = curlives;
@@ -462,12 +459,14 @@ int PlayCascade(int diflevel)
 							   else if (braille_letter_pos == 1)
 									UpdateTux(toupper(braille_key_value_map[i].value_middle[0]), fishies, frame);
 							   else
-									UpdateTux(toupper(braille_key_value_map[i].value_end[0]), fishies, frame);																					   
-						   }
-					   }	   
-				   }
-				   /* --- Clearing the pressed_letters  ---- */	
-				   braille_iter = 0;
+                                   UpdateTux(toupper(braille_key_value_map[i]
+                                                         .value_end[0]),
+                                             fishies, frame);
+                           }
+                       }
+                   }
+                   /* --- Clearing the pressed_letters  ---- */
+                   braille_iter = 0;
 				   pressed_letters[braille_iter] = L'\0';
                 }
             }
@@ -477,9 +476,11 @@ int PlayCascade(int diflevel)
 
 
       /* --- fishy updates --- */
-      if ((frame% 3) == 0) 
-//      if ((frame % 10) == 0)
-        NEXT_FRAME(fish_sprite);
+      if ((frame % 3) == 0)
+      {
+          //      if ((frame % 10) == 0)
+          NEXT_FRAME(fish_sprite);
+      }
 
       if (fishies < local_max_fishies)
         SpawnFishies( diflevel, &fishies, &frame );
@@ -515,7 +516,7 @@ int PlayCascade(int diflevel)
         still_playing = 1;
       }
 
-      if (!quitting) 
+      if (!quitting)
       {
         /* This does all the blits that we have queued up this frame: */
         UpdateScreen(&frame);
@@ -556,10 +557,10 @@ int PlayCascade(int diflevel)
     if (quitting == 0)
     {
       /* Level completed successfully: */
-      if (won_level) 
+      if (won_level)
       {
-		 
-		if(settings.tts)
+
+        if(settings.tts)
 			stop_tts_announcer();
 
         if (settings.sys_sound)
@@ -575,7 +576,9 @@ int PlayCascade(int diflevel)
           xamp = 0;
           yamp = 0;
           won_level = 0;
-          T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Congratulation! Welcome to level %d!"),curlevel+1);		
+          T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                      gettext("Congratulation! Welcome to level %d!"),
+                      curlevel + 1);
         }
         else
         {
@@ -603,7 +606,7 @@ int PlayCascade(int diflevel)
         yamp = 0;
 
         if(settings.tts)
-			stop_tts_announcer();        
+            stop_tts_announcer();
 
         if (settings.sys_sound)
             PlaySound(sound[LOSE_WAV]);
@@ -667,7 +670,7 @@ int PlayCascade(int diflevel)
 
         if (!settings.speed_up)
           WaitFrame();
-          
+
       }  /* End of animation for end of game */
      if (still_playing)
      {
@@ -678,10 +681,8 @@ int PlayCascade(int diflevel)
      }
 
     }  /* End of post-level wrap-up  */
-  
-  }  /*   -------- End outer game loop -------------- */
-  
 
+  }  /*   -------- End outer game loop -------------- */
 
   //N.x.L
   fprintf(stderr,"Exiting game");
@@ -711,24 +712,26 @@ int PlayCascade(int diflevel)
 
 
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*         "Private" functions (local to playgame.c)                    */
 /*                                                                      */
 /************************************************************************/
 
-
-
 static int check_word( int f ) {
 	int i;
 
-	if (wcslen(fish_object[f].word) > tux_object.wordlen) 
-		return 0;
+    if (wcslen(fish_object[f].word) > tux_object.wordlen)
+    {
+        return 0;
+    }
 
-	for (i=0; i < wcslen(fish_object[f].word); i++) 
-		if (fish_object[f].word[i] != tux_object.word[tux_object.wordlen -  wcslen(fish_object[f].word) + i])
-			return 0;
+    for (i = 0; i < wcslen(fish_object[f].word); i++)
+    {
+        if (fish_object[f].word[i] != tux_object.word[tux_object.wordlen -  wcslen(fish_object[f].word) + i])
+            return 0;
+    }
 
-	return 1;
+    return 1;
 }
 
 
@@ -829,8 +832,8 @@ static void LoadOthers(void)
 	for (i = 0; i < OH_NO_FRAMES; i++) {
 		ohno[i] = BlackOutline(gettext("Oh No!"), LABEL_FONT_SIZE, &white);
 	}
-	
-	if (settings.sys_sound) {
+
+    if (settings.sys_sound) {
 		LOG( "=Loading Sound FX\n" );
 
 		sound[WIN_WAV] = LoadSound( "win.wav" );
@@ -842,8 +845,11 @@ static void LoadOthers(void)
 		sound[EXCUSEME_WAV] = LoadSound( "excuseme.wav" );
 
 		LOG( "=Done Loading Sound FX\n" );
-	} else 
-		LOG( "=NO SOUND FX LOADED (not selected)\n" );
+    }
+    else
+    {
+        LOG("=NO SOUND FX LOADED (not selected)\n");
+    }
 
 //	PauseLoadMedia();
 
@@ -1093,20 +1099,20 @@ static void DrawBackground(void)
   DrawObject(CurrentBkgd(), 0, 0);
 
 // //    struct blit *update;
-// 
-//     LOG("-DrawBackground(): Updating entire background\n");
-// 
-//     numupdates=0;  // drawing entire background writes over all other stuff, so don't draw them
-// 
-//     update = &blits[numupdates++];
-//     update->src = CurrentBkgd();
-// 
-//     update->srcrect->x = update->dstrect->x = 0;
-//     update->srcrect->y = update->dstrect->y = 0;
-//     update->srcrect->w = update->dstrect->w = update->src->w;
-//     update->srcrect->h = update->dstrect->h = update->src->h;
-// 
-//     update->type = 'D';
+  //
+  //     LOG("-DrawBackground(): Updating entire background\n");
+  //
+  //     numupdates=0;  // drawing entire background writes over all other stuff, so don't draw them
+  //
+  //     update = &blits[numupdates++];
+  //     update->src = CurrentBkgd();
+  //
+  //     update->srcrect->x = update->dstrect->x = 0;
+  //     update->srcrect->y = update->dstrect->y = 0;
+  //     update->srcrect->w = update->dstrect->w = update->src->w;
+  //     update->srcrect->h = update->dstrect->h = update->src->h;
+  //
+  //     update->type = 'D';
 }
 
 /****************************
@@ -1220,12 +1226,12 @@ static void SpawnFishies(int diflevel, int* fishies, int* frame)
   }
 
   /* Calculate the frame number at which the bottom of the fish will reach the top of Tux */
-  fish_object[*fishies].splat_time = *frame + 
-           (screen->h - fish_sprite->frame[0]->h - tux_object.spr[TUX_STANDING][0]->frame[0]->h)
-           /
-           (fish_object[*fishies].dy);
+  fish_object[*fishies].splat_time =
+      *frame + (screen->h - fish_sprite->frame[0]->h -
+                tux_object.spr[TUX_STANDING][0]->frame[0]->h) /
+                   (fish_object[*fishies].dy);
 
-  DEBUGCODE 
+  DEBUGCODE
   {
     /* NOTE need %S rather than %s because of wide characters */
     fprintf(stderr, "Spawn fishy with word '%S'\n", fish_object[*fishies].word);
@@ -1268,8 +1274,8 @@ static void CheckFishies(int* fishies, int* splats)
 			fish_object[forward] = fish_temp;
 		}
 	}
-	
-	/* same thing for splats */
+
+    /* same thing for splats */
 
 	forward = 0;
 	backward = MAX_FISHIES_HARD;
@@ -1389,7 +1395,6 @@ static void DrawFish(int which)
     fprintf(stderr, "DrawFish() - returning, needed pointer invalid\n");
     return;
   }
-	    
 
   LOG ("DrawFish() - drawing fishies:\n");
 
@@ -1416,8 +1421,10 @@ static void DrawFish(int which)
       int k;
       for (k = 0; k < tux_object.wordlen - j; k++)
       {
-        if (fish_object[which].word[k] != tux_object.word[j + k]) 
-          k = 100000;
+          if (fish_object[which].word[k] != tux_object.word[j + k])
+          {
+              k = 100000;
+          }
       }
 
       if (k < 100000)
@@ -1467,50 +1474,61 @@ static void MoveFishies(int *fishies, int *splats, int *lifes, int *frame)
 
   for (i = 0; i < *fishies; i++)
   {
-    if (fish_object[i].alive) 
-    {
-        /* Erase one extra slot past the word — Indic conjuncts (and some
+      if (fish_object[i].alive)
+      {
+          /* Erase one extra slot past the word — Indic conjuncts (and some
        * accented Latin) can render wider than fish_sprite.w, spilling
        * into the slot to the right; without this last-slot erase, the
        * trailing pixels of the last char leave a streak as the fish
        * moves down. */
-        for (j = 0; j <= fish_object[i].len; j++)
+          for (j = 0; j <= fish_object[i].len; j++)
+          {
+              EraseSprite(fish_sprite,
+                          fish_object[i].x + (fish_sprite->frame[0]->w * j),
+                          fish_object[i].y);
+          }
+
+          fish_object[i].y += fish_object[i].dy;
+
+          if (fish_object[i].y >=
+              (screen->h) - fish_sprite->frame[fish_sprite->cur]->h - 1)
+          {
+              AddSplat(splats, &fish_object[i], lifes, frame);
+          }
+    }
+  }
+
+    for (i = 0; i < *fishies; i++)
+        if (fish_object[i].alive && fish_object[i].can_eat)
         {
-            EraseSprite(fish_sprite,
-                        fish_object[i].x + (fish_sprite->frame[0]->w * j),
-                        fish_object[i].y);
+            DrawFish(i);
         }
 
-      fish_object[i].y += fish_object[i].dy;
-	
-      if (fish_object[i].y >= (screen->h) - fish_sprite->frame[fish_sprite->cur]->h - 1) 
-         AddSplat( splats, &fish_object[i], lifes, frame );
-    }
-  }	
+    for (i = 0; i < *fishies; i++)
+        if (fish_object[i].alive && !fish_object[i].can_eat)
+        {
+            DrawFish(i);
+        }
 
-	for (i = 0; i < *fishies; i++)
-		if (fish_object[i].alive && fish_object[i].can_eat) 
-			DrawFish( i );
-
-	for (i = 0; i < *fishies; i++)
-		if (fish_object[i].alive && !fish_object[i].can_eat) 
-			DrawFish( i );
-
-	for (i = 0; i < *splats; i++) 
-		if (splat_object[i].alive) {
+    for (i = 0; i < *splats; i++)
+    {
+        if (splat_object[i].alive) {
 			splat_object[i].alive--;
 			if (splat_object[i].alive>1)
-					DrawSprite( splat_sprite, splat_object[i].x, splat_object[i].y);
-				else 
-					EraseSprite( splat_sprite, splat_object[i].x, splat_object[i].y);
-		}
+                DrawSprite(splat_sprite, splat_object[i].x, splat_object[i].y);
+        }
+        else
+        {
+            EraseSprite(splat_sprite, splat_object[i].x, splat_object[i].y);
+        }
+    }
 
-	LOG("Leaving MoveFishies()\n\n");
+    LOG("Leaving MoveFishies()\n\n");
 }
 
 /* UpdateTux : anytime a key is pressed, we need check to
  * see if a fish can be eaten.  The fish that could hit
- * the bottom of the screen first should be choosen if 
+ * the bottom of the screen first should be choosen if
  * two fishies match what is typed
  */
 void UpdateTux(wchar_t letter_pressed, int fishies, int frame) {
@@ -1521,9 +1539,11 @@ void UpdateTux(wchar_t letter_pressed, int fishies, int frame) {
 	/* --- move our word array to make room if needed --- */
 
 	if (tux_object.wordlen == MAX_WORD_SIZE) {
-		for (i = 0; i < MAX_WORD_SIZE; i++) 
-			tux_object.word[i] = tux_object.word[i + 1];
-		tux_object.wordlen--;
+        for (i = 0; i < MAX_WORD_SIZE; i++)
+        {
+            tux_object.word[i] = tux_object.word[i + 1];
+        }
+        tux_object.wordlen--;
 	}
 
 	/* --- add letter pressed to word array --- */
@@ -1534,13 +1554,15 @@ void UpdateTux(wchar_t letter_pressed, int fishies, int frame) {
 
 	/* choose the word that matchs what has been typed  */
 	/* and will hit the ground first                    */
-	for (i = 0; i < fishies; i++) 
-		if ((fish_object[i].alive && !fish_object[i].can_eat) && check_word(i) && (time_it_splats > fish_object[i].splat_time || !time_it_splats)) {
+    for (i = 0; i < fishies; i++)
+    {
+        if ((fish_object[i].alive && !fish_object[i].can_eat) && check_word(i) && (time_it_splats > fish_object[i].splat_time || !time_it_splats)) {
 			time_it_splats = fish_object[i].splat_time;
 			which = i;
-		}
+        }
+    }
 
-	if (which!=-1) {
+    if (which!=-1) {
 		fish_object[which].can_eat = 1;
 		tux_object.wordlen = 0;
 		tux_object.word[0] = 0;
@@ -1572,10 +1594,15 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
 				fish_object[i].alive = 0;
 				fish_object[i].can_eat = 0;
 
-				for (j = 0; j < fish_object[i].len; j++) 
-					EraseSprite(fish_sprite, (fish_object[i].x + (j * fish_sprite->frame[0]->w)), fish_object[i].y);
+                for (j = 0; j < fish_object[i].len; j++)
+                {
+                    EraseSprite(
+                        fish_sprite,
+                        (fish_object[i].x + (j * fish_sprite->frame[0]->w)),
+                        fish_object[i].y);
+                }
 
-				*fish_left = *fish_left - 1;
+                *fish_left = *fish_left - 1;
 
 				tux_object.state = TUX_GULPING;
 				REWIND(tux_object.spr[TUX_GULPING][tux_object.facing]);
@@ -1615,15 +1642,17 @@ static void next_tux_frame(void)
   else
   {
     NEXT_FRAME(tux_object.spr[TUX_GULPING][tux_object.facing]);
-    if (tux_object.spr[TUX_GULPING][tux_object.facing]->cur==0) 
-      tux_object.state = TUX_STANDING;
+    if (tux_object.spr[TUX_GULPING][tux_object.facing]->cur == 0)
+    {
+        tux_object.state = TUX_STANDING;
+    }
   }
 }
 
 /***********************************
 MoveTux : Update Tux's location & then blit him!
 ************************************/
-static void MoveTux( int frame, int fishies ) 
+static void MoveTux(int frame, int fishies)
 {
 	int i;
 	int which=-1, time_to_splat=0;
@@ -1633,12 +1662,14 @@ static void MoveTux( int frame, int fishies )
 	EraseSprite( tux_object.spr[tux_object.state][tux_object.facing], tux_object.x, tux_object.y );
 
 	if (tux_object.state != TUX_GULPING) {
-		for (i=0; i<fishies; i++) 
-			if (fish_object[i].can_eat && (!time_to_splat || fish_object[i].splat_time < time_to_splat)) {
+        for (i = 0; i < fishies; i++)
+        {
+            if (fish_object[i].can_eat && (!time_to_splat || fish_object[i].splat_time < time_to_splat)) {
 				time_to_splat = fish_object[i].splat_time;
 				which = i;
-			}
-		if (which != -1) {
+            }
+        }
+        if (which != -1) {
 			int endx = int_restrict( 0, fish_object[which].x + (fish_object[which].w/2) - (tux_object.spr[TUX_GULPING][RIGHT]->frame[0]->w / 2), screen->w - tux_max_width - 1 );
 			if (endx != tux_object.endx) {
 				tux_object.endx = endx;
@@ -1691,8 +1722,8 @@ static void MoveTux( int frame, int fishies )
 	}
 
 	/* --- move tux (if moving) --- */
-	
-	tux_object.x = float_restrict(0, tux_object.x + (tux_object.facing==RIGHT ? 1.0 : -1.0)*tux_object.dx, (screen->w - tux_max_width));
+
+    tux_object.x = float_restrict(0, tux_object.x + (tux_object.facing==RIGHT ? 1.0 : -1.0)*tux_object.dx, (screen->w - tux_max_width));
 
 	/* if done with certain frames, then reset to standing */
 
@@ -1730,9 +1761,11 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives, int
   LOG("about to draw lives()\n");
 
   /* --- draw lives --- */
-  DrawObject(lives, 
-            (screen->w) - 
-            (1 + lives->w + fish->w + ((MAX_FISHIES_DIGITS + 1) * 2 * number_max_w) + GRAPHIC_SPACE), 1);
+  DrawObject(lives,
+             (screen->w) - (1 + lives->w + fish->w +
+                            ((MAX_FISHIES_DIGITS + 1) * 2 * number_max_w) +
+                            GRAPHIC_SPACE),
+             1);
 
   if (oldlives != curlives)
   {
@@ -1765,8 +1798,8 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives, int
 
 /**********************************************************************
  * This function will announce the bottum most word's in the screen
- * when one starts typing, the remaining letters will be announced 
- * till the word end's 
+ * when one starts typing, the remaining letters will be announced
+ * till the word end's
  * *******************************************************************/
 static int tts_announcer(void *struct_address)
 {
@@ -1779,15 +1812,15 @@ static int tts_announcer(void *struct_address)
 	int which,correct_position;
 	tts_announcer_switch = 1;
 	int max;
-	
-	while(1)
+
+    while(1)
 	{
-		//Converting and taking the value of fishies from void address structure 
-		fishies = *struct_with_data_address.address_of_fishies;
-		
-		if(tts_announcer_switch == 0)
-			goto end; 
-		else if(tts_announcer_switch == 2)
+        //Converting and taking the value of fishies from void address structure
+        fishies = *struct_with_data_address.address_of_fishies;
+
+        if(tts_announcer_switch == 0)
+            goto end;
+        else if(tts_announcer_switch == 2)
 		{
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"fish_left %d!",fish_left);
 			SDL_Delay(20);
@@ -1800,29 +1833,27 @@ static int tts_announcer(void *struct_address)
 			SDL_Delay(20);
 			T4K_Tts_wait();
 			tts_announcer_switch = 1;
-		}			
-		
-		
-		//Wait to finish saying the previus word	
-		T4K_Tts_wait();
-		
-		
-		//Checking the typed
+        }
+
+        //Wait to finish saying the previus word
+        T4K_Tts_wait();
+
+        //Checking the typed
 		if (tux_object.wordlen == 0)
-		{	
-			//Adding the iter of each fish wich are alive and not can_eat
+        {
+            //Adding the iter of each fish wich are alive and not can_eat
 			for(i=0,j=0;i<fishies;i++)
 			{
 				if (!fish_object[i].can_eat && fish_object[i].alive)
 				{
-					fish_object_positions[j]  = i; 
-					j++;
+                    fish_object_positions[j] = i;
+                    j++;
 				}
 			}
 			alive = j-1;
 
-			//Ordering the fish_object_positions with respect to splat time		
-			if (alive != 0)
+            //Ordering the fish_object_positions with respect to splat time
+            if (alive != 0)
 			{
 				for (i=alive;i>0;i--)
 				{
@@ -1838,9 +1869,9 @@ static int tts_announcer(void *struct_address)
 					}
 				}
 			}
-			
-			//We have to announce only last three otherwise it will make confusion.  
-			if (alive >= 3)
+
+            //We have to announce only last three otherwise it will make confusion.
+            if (alive >= 3)
 				max = 2;
 			else
 				max = alive;
@@ -1850,14 +1881,14 @@ static int tts_announcer(void *struct_address)
 			{
 				if(tts_announcer_switch == 0)
 					goto end;
-												
-				//Adding the word
+
+                //Adding the word
 				wcscpy(buffer,fish_object[fish_object_positions[i]].word);
 				iter = wcslen(fish_object[fish_object_positions[i]].word);
 				buffer[iter] = L'.';iter++;
 				buffer[iter] = L' ';iter++;
-				
-				//Appending letters if word is not alphabet
+
+                //Appending letters if word is not alphabet
 				if (1<wcslen(fish_object[fish_object_positions[i]].word))
 				{
 					for(j=0;j<wcslen(fish_object[fish_object_positions[i]].word);j++)
@@ -1868,24 +1899,24 @@ static int tts_announcer(void *struct_address)
 					}
 				}
 				//If not ended with '\0' it will say grabage values also
-				buffer[iter] = L'\0'; 
-				
-				//Setting the pitch and rate with respect to y axis
+                buffer[iter] = L'\0';
+
+                //Setting the pitch and rate with respect to y axis
 				pitch_and_rate = ((fish_object[fish_object_positions[i]].y*100)/(screen->h - fish_sprite->frame[0]->h));
-				
-				if (pitch_and_rate < 30)
+
+                if (pitch_and_rate < 30)
 					pitch_and_rate = 30;
-				
-				if (pitch_and_rate > 60)
+
+                if (pitch_and_rate > 60)
 					pitch_and_rate = 60;
-				
-				T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
+
+                T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);
 
 				SDL_WaitThread(tts_thread,NULL);
 				SDL_Delay(100);
-			}				
-		}
-		else
+            }
+        }
+        else
 		{
 			//Detecting the corrent typing fish
 			which = -1;
@@ -1896,8 +1927,8 @@ static int tts_announcer(void *struct_address)
 				{
 					j = wcsncmp(fish_object[i].word,tux_object.word,tux_object.wordlen);
 					if (j == 0)
-						which = i;		
-				}
+                        which = i;
+                }
 			}
 
 			if (which != -1)
@@ -1907,12 +1938,12 @@ static int tts_announcer(void *struct_address)
 				iter = wcslen(fish_object[which].word);
 				buffer[iter] = L'.';iter++;
 				buffer[iter] = L' ';iter++;
-			
-				//Adding the remaining letters to be announced.
-				//This is as per my PAPA's suggestion (sathyan)  
-				//Eg : "BLUE. B. L. U. E"
-			
-				//Detecting the correct_position
+
+                //Adding the remaining letters to be announced.
+                //This is as per my PAPA's suggestion (sathyan)
+                //Eg : "BLUE. B. L. U. E"
+
+                //Detecting the correct_position
 				correct_position = 0;
 				for(j=0;j<tux_object.wordlen;j++)
 				{
@@ -1926,8 +1957,7 @@ static int tts_announcer(void *struct_address)
 						tux_object.word[0] = L'\0';
 						break;
 					}
-				
-				}
+                }
 				//Appending each letters from correct_position if word is not alphabet
 				if (1<wcslen(fish_object[which].word))
 				{
@@ -1941,19 +1971,19 @@ static int tts_announcer(void *struct_address)
 				}
 				//If not ended with '\0' it will say grabage values also
 				buffer[iter] = L'\0';
-				
-				//Setting the pitch and rate with respect to y axis
+
+                //Setting the pitch and rate with respect to y axis
 				pitch_and_rate = ((fish_object[which].y*100)/(screen->h - fish_sprite->frame[0]->h));
-				
-				if (pitch_and_rate < 30)
+
+                if (pitch_and_rate < 30)
 					pitch_and_rate = 30;
-				
-				if (pitch_and_rate > 60)
+
+                if (pitch_and_rate > 60)
 					pitch_and_rate = 60;
-				 
-				
-				T4K_Tts_say(pitch_and_rate,pitch_and_rate,INTERRUPT,"%S",buffer);				
-				SDL_WaitThread(tts_thread,NULL);
+
+                T4K_Tts_say(pitch_and_rate, pitch_and_rate, INTERRUPT, "%S",
+                            buffer);
+                SDL_WaitThread(tts_thread,NULL);
 				SDL_Delay(100);
 				fprintf(stderr,"\nBraille_Letter_Pos = %d",braille_letter_pos);
 			}
@@ -1962,8 +1992,7 @@ static int tts_announcer(void *struct_address)
 				tux_object.wordlen = 0;
 				tux_object.word[0] = L'\0';
 			}
-		
-		}
+        }
 	}
 	end:
 	return 0;
@@ -1972,12 +2001,11 @@ static int tts_announcer(void *struct_address)
 /********** Stop annoncing thread safely *********/
 static void stop_tts_announcer()
 {
-	tts_announcer_switch = 0;	
+    tts_announcer_switch = 0;
 }
 
-
 /*****************************************************************
- * Set the Braille letter position 
+ * Set the Braille letter position
  * For some specific language's which have same braille code for
  * alphabets and signs at begining, middle and end position.
  ****************************************************************/
@@ -1999,8 +2027,8 @@ static void set_braille_letter_pos(int fishies)
 			if (!fish_object[i].can_eat && fish_object[i].alive)
 			{
 				if (0 == wcsncmp(fish_object[i].word,tux_object.word,tux_object.wordlen))
-					which = i;		
-			}
+                    which = i;
+            }
         }
         if (which != -1)
         {

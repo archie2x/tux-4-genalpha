@@ -33,8 +33,8 @@
 //!     NOTE: this is DEPRECATED and will be removed - tuxmath, tuxtype,
 //!     and other programs should use T4K_scandir() instead which is
 //!     designed to always be available, either as a wrapper for the
-//!     platform's scandir() or via our replacement. 
-//!     
+//!     platform's scandir() or via our replacement.
+//!
 //!
 //!     Part of "Tux4Kids" Project
 //!
@@ -42,7 +42,7 @@
 //!
 //!
 //! \section copyright_sec Copyright
-//! 
+//!
 //!     See COPYING file that comes with this distribution.
 //!
 #ifndef T4K_SCANDIR_H
@@ -52,11 +52,11 @@
 //!
 //!  scandir
 //!
-//! \brief 
+//! \brief
 //!     Replacement scandir program for platforms lacking this function
-//! 
+//!
 //!     From man scandir (arg names adapted):
-//!     The scandir() function scans the directory dirname, calling sdfilter() 
+//!     The scandir() function scans the directory dirname, calling sdfilter()
 //!     on each directory entry. Entries for which sdfilter() returns nonzero
 //!     are stored in strings allocated via malloc(3), sorted using qsort(3)
 //!     with the comparison function dcomp(), and collected in array namelist
@@ -64,7 +64,7 @@
 //!     are selected.
 //!
 //!     The  alphasort()  and versionsort() functions can be used as the comparison
-//!     function compar().  The former sorts directory entries using strcoll(3), 
+//!     function compar().  The former sorts directory entries using strcoll(3),
 //!     the latter using strverscmp(3) on the strings (*a)->d_name and (*b)->d_name.
 //!
 //! \param
@@ -79,7 +79,7 @@
 //! \param
 //!     int (*dcomp)(const void *, const void *)
 //!
-//! \return 
+//! \return
 //!     The scandir() function returns the number of directory entries selected
 //!     or -1 if an error occurs.
 

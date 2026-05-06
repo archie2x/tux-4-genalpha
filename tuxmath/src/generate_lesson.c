@@ -1,6 +1,6 @@
 /* generate_lesson.c
 
-   A simple standalone program to help test the creation of valid 
+   A simple standalone program to help test the creation of valid
    question lists by mathcards.
 
    Copyright 2008, 2009,2010, 2011.
@@ -23,8 +23,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
-
-
 
 #include <stdio.h>
 #include <string.h>
@@ -57,7 +55,7 @@ int read_high_scores_fp(FILE* fp)
 void initialize_scores(void)
 {
     /* This is a stub to let things compile */
-}  
+}
 
 int main(int argc,char *argv[])
 {

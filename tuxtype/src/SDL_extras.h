@@ -3,10 +3,10 @@
 
    Headers for wrapper and utility functions for use with the
    SDL libraries.
-   
+
    Copyright 2007, 2008, 2009, 2010.
    Authors: David Bruce, Tim Holy.
-   
+
    Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
    Project website: http://tux4kids.alioth.debian.org
 
@@ -25,8 +25,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
 
 #ifndef SDL_EXTRAS_H
 #define SDL_EXTRAS_H

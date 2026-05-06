@@ -1,5 +1,5 @@
 /**************************************************************************
-practice.c 
+practice.c
 -  description: practice module
 -------------------
 begin                : Friday Jan 25, 2003
@@ -121,14 +121,10 @@ wchar_t *get_next_word(int cur_phrase,int cursor);
 int braille_letter_pos;
 
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*         "Public" functions (callable throughout program)             */
 /*                                                                      */
 /************************************************************************/
-
-
-
-
 
 /*  --------  This is the main function for the 'Practice' activity. ------ */
 int Phrases(wchar_t* pphrase )
@@ -194,11 +190,10 @@ int Phrases(wchar_t* pphrase )
   else
   {
     num_phrases = load_phrases("phrases.txt");
-    
   }
   /* Set up positions for blitting: */
   recalc_positions();
-  
+
   start = tuxtime = SDL_GetTicks();
   /* Begin main event loop for "Practice" activity:  -------- */
   do
@@ -224,11 +219,11 @@ int Phrases(wchar_t* pphrase )
         prev_wrap = 0;
         correct_chars = 0;
         wrong_chars = 0;
-        		
-		  //Inetialising braille variables
+
+          //Inetialising braille variables
 		  braille_iter = 0;
-		  pressed_letters[braille_iter] = L'\0';			
-			
+          pressed_letters[braille_iter] = L'\0';
+
       /* No 'break;' so we drop through to do case 1 as well : */
 
       /* state == 1 means complete redraw needed                          */
@@ -252,7 +247,6 @@ int Phrases(wchar_t* pphrase )
         SDL_BlitSurface(errors_label_srfc, NULL, screen, &errors_label);
         SDL_BlitSurface(accuracy_label_srfc, NULL, screen, &accuracy_label);
 
-		
         /* Find wrapping point: */
         wrap_pt = find_next_wrap(&phrases[cur_phrase][prev_wrap],
                                   medfontsize, phrase_draw_width);
@@ -261,7 +255,7 @@ int Phrases(wchar_t* pphrase )
         DEBUGCODE
         {
           wchar_t buf[200];
-          wcsncpy(buf, &phrases[cur_phrase][prev_wrap], wrap_pt + 1); 
+          wcsncpy(buf, &phrases[cur_phrase][prev_wrap], wrap_pt + 1);
           buf[wrap_pt + 1]= '\0';
           fprintf(stderr, "wrap_pt = %d\t cursor = %d\t prev_wrap = %d\n",
                           wrap_pt, cursor, prev_wrap);
@@ -340,7 +334,7 @@ int Phrases(wchar_t* pphrase )
           SDL_DestroySurface(tmpsurf);
           tmpsurf = NULL;
         }
-        
+
         //Announce the word with re-draw
         if (pphrase == NULL){
 			//For phrase typing
@@ -354,16 +348,14 @@ int Phrases(wchar_t* pphrase )
 				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,
 				"%S %S",get_next_word(cur_phrase,cursor),
 				get_next_word_letters(cur_phrase,cursor,1));
-			}	 
-		}
+            }
+        }
 		else {
 			  //For Lesson's
-			  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%S",
-					get_next_word_letters(cur_phrase,cursor,1));	
-		}
-		
-			
-			
+              T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%S",
+                          get_next_word_letters(cur_phrase, cursor, 1));
+        }
+
       /* state == 2 means user has pressed key, either correct or incorrect */
       case 2:
         start = SDL_GetTicks();
@@ -379,11 +371,11 @@ int Phrases(wchar_t* pphrase )
 
       case 3: /* Wind up here the next time through the loop: */
               /* If no typing for 0.5 sec, display hint:      */
-        if (SDL_GetTicks() - start > 500) 
-        {
-			set_hand(cursor,cur_phrase);
-			state = 4;     
-        }
+              if (SDL_GetTicks() - start > 500)
+              {
+                  set_hand(cursor, cur_phrase);
+                  state = 4;
+              }
         break;
 
       case 4:
@@ -415,8 +407,7 @@ int Phrases(wchar_t* pphrase )
 
     /* This blits the next character onto the screen in a large font: */
     display_next_letter(phrases[cur_phrase], cursor);
-    
-	
+
     while  (SDL_PollEvent(&event))
     {
 
@@ -821,18 +812,18 @@ int Phrases(wchar_t* pphrase )
             /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
             if (settings.braille)
             {
-                /* ---- g will make next letter capital ----------*/ 
-				if (wcscmp(pressed_letters,L"g") == 0)
+                /* ---- g will make next letter capital ----------*/
+                if (wcscmp(pressed_letters,L"g") == 0)
 					braille_capital = 1;
-				
-				/* ---- ; will load punctuation list ----------*/ 
-				if (wcscmp(pressed_letters,L";") == 0)
+
+                /* ---- ; will load punctuation list ----------*/
+                if (wcscmp(pressed_letters,L";") == 0)
 				{
 					braille_language_loader("numerical.txt");
 					braille_numbers = 1;
 				}
-				
-				if (wcscmp(pressed_letters,L" ") != 0)
+
+                if (wcscmp(pressed_letters,L" ") != 0)
 				{
 					/* ------ Check pressed_letters which is not space --------*/
 					arrange_in_order(pressed_letters);
@@ -848,8 +839,8 @@ int Phrases(wchar_t* pphrase )
 									tmp = braille_key_value_map[i].value_middle[0];
 								else
 									tmp = braille_key_value_map[i].value_end[0];
-								
-								check_key = 1;
+
+                                check_key = 1;
 								if (braille_capital)
 									{
 										shift_pressed = 1;
@@ -866,23 +857,23 @@ int Phrases(wchar_t* pphrase )
 											sprintf(file_name,"%s.txt",settings.theme_name);
 											}
 										braille_language_loader(file_name);
-									}									
-							}
-						}	   
-					}
-					
-					/* --- Preventing the checking of Remaining KEYUP events --- */ 
-					else
+                                    }
+                            }
+                        }
+                    }
+
+                    /* --- Preventing the checking of Remaining KEYUP events --- */
+                    else
 					{
 						check_key = 0;
 					}
-					
-					/* --- Clearing the pressed_letters to prevent other events */								
-					braille_iter = 0;
+
+                    /* --- Clearing the pressed_letters to prevent other events */
+                    braille_iter = 0;
 					pressed_letters[braille_iter] = L'\0';
 				}
-				/* --------- Space is always space :) -----------------*/ 
-				else
+                /* --------- Space is always space :) -----------------*/
+                else
 				{
 					tmp = L' ';
 					check_key = 1;
@@ -1279,20 +1270,20 @@ int Phrases(wchar_t* pphrase )
                                          tolower(phrases[cur_phrase][cursor])))
                                 {
 									/* This is working with a six bit binary system */
-									
-									for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
+
+                                    for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
 									{
 										if (braille_key_value_map[i].key[j] == 'f')
 											tts_temp[len] = L'1';
 										if (braille_key_value_map[i].key[j] == 'd')
-											tts_temp[len] = L'2';						
-										if (braille_key_value_map[i].key[j] == 's')
+                                            tts_temp[len] = L'2';
+                                        if (braille_key_value_map[i].key[j] == 's')
 											tts_temp[len] = L'3';
 										if (braille_key_value_map[i].key[j] == 'j')
-											tts_temp[len] = L'4';																
-										if (braille_key_value_map[i].key[j] == 'k')
-											tts_temp[len] = L'5';					
-										if (braille_key_value_map[i].key[j] == 'l')
+                                            tts_temp[len] = L'4';
+                                        if (braille_key_value_map[i].key[j] == 'k')
+                                            tts_temp[len] = L'5';
+                                        if (braille_key_value_map[i].key[j] == 'l')
 											tts_temp[len] = L'6';
 										len++;
 										tts_temp[len] = L' ';
@@ -1303,8 +1294,7 @@ int Phrases(wchar_t* pphrase )
 									tts_temp[len] = L'\0';
 									T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Type %S with dot %S",get_next_word_letters(cur_phrase,cursor,0),tts_temp);
 									tts_temp[0] = L'\0';
-						
-								}
+                                }
                             }
                         }
                     }
@@ -1344,7 +1334,7 @@ int Phrases(wchar_t* pphrase )
 
 
 /************************************************************************/
-/*                                                                      */ 
+/*                                                                      */
 /*       "Private" functions (local to practice.c)                      */
 /*                                                                      */
 /************************************************************************/
@@ -1366,12 +1356,15 @@ static void calc_font_sizes(void)
 
 static int practice_load_media(void)
 {
-  int i;	
-  char fn[FNLEN];
-  int load_failed = 0;
-  int labels_ok = 0;
+    int  i;
+    char fn[FNLEN];
+    int  load_failed = 0;
+    int  labels_ok   = 0;
 
-  DEBUGCODE { printf("Entering practice_load_media\n"); }
+    DEBUGCODE
+    {
+        printf("Entering practice_load_media\n");
+    }
 
 
   /* load needed SDL_Surfaces: */
@@ -1487,7 +1480,8 @@ static void recalc_positions(void)
 
   DEBUGCODE
   {
-    fprintf(stderr, "Entering recalc_positions(), screen is %d x %d\n", screen->w, screen->h); 
+      fprintf(stderr, "Entering recalc_positions(), screen is %d x %d\n",
+              screen->w, screen->h);
   }
 
   if (!keyboard
@@ -1496,7 +1490,7 @@ static void recalc_positions(void)
     ||!hand[0])
   {
     fprintf(stderr, "recalc_positions() - needed ptr invalid - returning\n");
-  } 
+  }
 
   /* Screen is divided into three areas or 'panes' : */
   /*
@@ -1634,7 +1628,7 @@ static void practice_unload_media(void)
   int i;
 
   FreeBothBkgds();
-  FreeLetters(); 
+  FreeLetters();
 
   if (time_label_srfc)
       SDL_DestroySurface(time_label_srfc);
@@ -1675,7 +1669,7 @@ static void practice_unload_media(void)
       SDL_DestroySurface(keyboard);
   keyboard = NULL;
 
-  for (i = 0; i < 10; i++) 
+  for (i = 0; i < 10; i++)
   {
     if (hand[i])
         SDL_DestroySurface(hand[i]);
@@ -1709,18 +1703,17 @@ static void practice_unload_media(void)
 // {
 //   SDL_Rect dst;
 //   SDL_Surface* s = NULL;
-// 
+//
 //   s = GetWhiteGlyph((int)t);
 //   if (!s)
-//     return; 
-// 
+//     return;
+//
 //   dst.x = 320 - (s->w/2);
 //   dst.y = 100;
 //   dst.w = s->w;
 //   dst.h = s->h;
 //   SDL_BlitSurface(s, NULL, screen, &dst);
 // }
-
 
 /* Looks for phrases.txt in theme, then in default if not found, */
 /* loads it into phrases[][] array.  Returns number of phrases   */
@@ -1758,12 +1751,12 @@ static int load_phrases(const char* phrase_file)
 
   DEBUGCODE { printf("load_phrases(): phrases file is '%s'\n", fn ); }
 
-  /* We know it will open OK because we already ran CheckFile() on it */ 
+  /* We know it will open OK because we already ran CheckFile() on it */
   fp = fopen(fn, "r");
 
   /* So now copy each line into phrases array: */
   /* NOTE we need to convert to wchar_t so just fscanf won't work! */
-  while (!feof(fp) && num_phrases <= MAX_PHRASES) 
+  while (!feof(fp) && num_phrases <= MAX_PHRASES)
   {
     /* Similar check to above but compiler complains unless we */
     /* inspect return value of fscanf():                       */
@@ -1819,7 +1812,7 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
 
   DOUT(width);
   DEBUGCODE{ fprintf(stderr, "wstr = %S\n", wstr);}
-  
+
   phr_length = wcslen(wstr);
 
   DOUT(phr_length);
@@ -1836,9 +1829,8 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
   while(1)
   {
     /* Find next either next space or end of string to check width */
-    for( ; 
-        i < phr_length  &&  wstr[i] != ' ';
-        i++);
+    for (; i < phr_length && wstr[i] != ' '; i++)
+        ;
 
     DOUT(i);
 
@@ -1877,10 +1869,10 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
       DEBUGCODE
       {
         fprintf(stderr, "width exceeded, returning end of previous word as wrap point\n");
-        fprintf(stderr, "prev_word_end is %d\n", prev_word_end); 
+        fprintf(stderr, "prev_word_end is %d\n", prev_word_end);
         fprintf(stderr, "leaving find_next_wrap()\n");
       }
-      return prev_word_end; 
+      return prev_word_end;
     }
     else
     {
@@ -1889,10 +1881,10 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
         DEBUGCODE
         {
           fprintf(stderr, "width not exceeded, returning because end of string reached\n");
-          fprintf(stderr, "word_end is %d\n", word_end); 
+          fprintf(stderr, "word_end is %d\n", word_end);
         }
         /* We reached the end of the phrase without exceeding the width, */
-        /* so just return our current position: */ 
+        /* so just return our current position: */
         return word_end;
       }
       else
@@ -1949,8 +1941,8 @@ SDL_Surface* GetWrongKeypress(int index)
 
 SDL_Surface* GetKeypress2(int index)
 {
- 
-	char buf[50];
+
+    char buf[50];
 	GetKeyShift(index, buf);
 	return (LoadImage(buf, IMG_ALPHA));
 }
@@ -1992,30 +1984,31 @@ static int create_labels(void)
     return 0;
 }
 
-
 /*****************************************************************
- * Set the finger to the curresponding letter, if braille mode 
- * is enabled fingers will be shown  
+ * Set the finger to the curresponding letter, if braille mode
+ * is enabled fingers will be shown
  * **************************************************************/
 void set_hand(int cursor,int cur_phrase)
 {
-	int fing,j,i;	
-	if (!settings.braille)
+    int fing, j, i;
+    if (!settings.braille)
     {
-			
-			int key = GetIndex(phrases[cur_phrase][cursor]);
+
+            int key = GetIndex(phrases[cur_phrase][cursor]);
 			int fing = GetFinger(key);
 			int shift = GetShift(key);
 			keypress1 = GetKeypress1(key);
 			keypress2 = GetKeypress2(key);
- 
-			SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
+
+            SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
 			SDL_BlitSurface(hands, NULL, screen, &hand_loc);
 
-			if (fing >= 0) 
-				SDL_BlitSurface(hand[fing], NULL, screen, &hand_loc);
+            if (fing >= 0)
+            {
+                SDL_BlitSurface(hand[fing], NULL, screen, &hand_loc);
+            }
 
-			SDL_BlitSurface(hand_shift[shift], NULL, screen, &hand_loc);
+            SDL_BlitSurface(hand_shift[shift], NULL, screen, &hand_loc);
 
 			if (keypress1)
 			{
@@ -2033,9 +2026,9 @@ void set_hand(int cursor,int cur_phrase)
         }
 	    else
 		{
-			/* If the next letter to be typed is space then the 64th image 
+            /* If the next letter to be typed is space then the 64th image
 			 * which contains right thumb will be shown */
-			if (phrases[cur_phrase][cursor] == L' ')
+            if (phrases[cur_phrase][cursor] == L' ')
 			{
 				fing = 64;
 				SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
@@ -2049,12 +2042,16 @@ void set_hand(int cursor,int cur_phrase)
 				{
 					/* We have to check each case because braille combination is same for
 					 * begining,middle and end of the word in which letters are not same */
-					if (braille_key_value_map[i].value_begin[0] == phrases[cur_phrase][cursor] 
-					||  braille_key_value_map[i].value_middle[0] == phrases[cur_phrase][cursor]
-					||  braille_key_value_map[i].value_end[0] == phrases[cur_phrase][cursor] 
-					||  (settings.use_english == 1 && braille_key_value_map[i].value_begin[0] 
-													== tolower(phrases[cur_phrase][cursor])))
-					{
+                    if (braille_key_value_map[i].value_begin[0] ==
+                            phrases[cur_phrase][cursor] ||
+                        braille_key_value_map[i].value_middle[0] ==
+                            phrases[cur_phrase][cursor] ||
+                        braille_key_value_map[i].value_end[0] ==
+                            phrases[cur_phrase][cursor] ||
+                        (settings.use_english == 1 &&
+                         braille_key_value_map[i].value_begin[0] ==
+                             tolower(phrases[cur_phrase][cursor])))
+                    {
 						/* This is working with a six bit binary system */
 						fing = 0;
 						for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
@@ -2062,38 +2059,37 @@ void set_hand(int cursor,int cur_phrase)
 							if (braille_key_value_map[i].key[j] == 'f')
 								fing += 1;
 							if (braille_key_value_map[i].key[j] == 'd')
-								fing += 2;							
-							if (braille_key_value_map[i].key[j] == 's')
+                                fing += 2;
+                            if (braille_key_value_map[i].key[j] == 's')
 								fing += 4;
 							if (braille_key_value_map[i].key[j] == 'j')
-								fing += 8;																
-							if (braille_key_value_map[i].key[j] == 'k')
-								fing += 16;						
-							if (braille_key_value_map[i].key[j] == 'l')
+                                fing += 8;
+                            if (braille_key_value_map[i].key[j] == 'k')
+                                fing += 16;
+                            if (braille_key_value_map[i].key[j] == 'l')
 								fing += 32;
 						}
 						SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
 						SDL_BlitSurface(hands, NULL, screen, &hand_loc);
 						SDL_BlitSurface(braille_hand[fing], NULL, screen, &hand_loc);
-						
-						/* Setting the letter pos for braille acording to next letter to be typed 
+
+                        /* Setting the letter pos for braille acording to next letter to be typed
 						 * For some specific language's which have same braille code for
 						 * alphabets and signs at begining, middle and end position.*/
-						if (braille_key_value_map[i].value_end[0] == phrases[cur_phrase][cursor] )
+                        if (braille_key_value_map[i].value_end[0] == phrases[cur_phrase][cursor] )
 							braille_letter_pos = 2;
 						else if (braille_key_value_map[i].value_middle[0] == phrases[cur_phrase][cursor] )
 							braille_letter_pos = 1;
 						else
-							braille_letter_pos = 0;					
-					}
+                            braille_letter_pos = 0;
+                    }
 				}
 			}
-				
-		}
+        }
 }
 
 /****************************************************************************
- * get the remaining letter 
+ * get the remaining letter
  * if till_next_space  is 1 then get lettesrs till a space reached
  * otherwise return only next charecter
  * *************************************************************************/
@@ -2101,8 +2097,8 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 {
 	int iter,i,len;
 	wchar_t *temp;
-	
-	temp = (wchar_t *)malloc(1000);
+
+    temp = (wchar_t *)malloc(1000);
 	len = wcslen(phrases[cur_phrase]);
 	temp[0] = L'\0';
 	for(iter=0,i=cursor;i<=len;i++)
@@ -2110,8 +2106,8 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 		//Break if a space found
 		if(phrases[cur_phrase][i] == L' ')
 			break;
-		
-		if (phrases[cur_phrase][i] == L',')
+
+        if (phrases[cur_phrase][i] == L',')
 		{
             wcscat(temp, L"comma");
         }
@@ -2145,16 +2141,16 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 			temp[iter++] = L' ';
 			if(iswupper(phrases[cur_phrase][i]))
 			{
-				temp[iter] = L'\0';	
-				wcscat(temp,L"Capitol ");
+                temp[iter] = L'\0';
+                wcscat(temp,L"Capitol ");
 				iter+=8;
 			}
 			temp[iter++] = phrases[cur_phrase][i];
 			temp[iter++] = L' ';
-			temp[iter] = L'\0';	
-		}
-		
-		if (till_next_space == 0)
+            temp[iter]   = L'\0';
+        }
+
+        if (till_next_space == 0)
 			break;
 	}
 	//Add space if any
@@ -2162,30 +2158,29 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 	{
 			wcscat(temp,L" Space");
 	}
-	
-	return temp;				
 
+    return temp;
 }
 
 /*********************************************************
- * Get the next word 
+ * Get the next word
  ********************************************************/
 wchar_t *get_next_word(int cur_phrase,int cursor)
 {
 	int iter,i,len;
 	wchar_t *temp;
-	temp = (wchar_t *)malloc(1000); 
-	temp[0] = L'\0';
-	
-	len = wcslen(phrases[cur_phrase]);
+    temp    = (wchar_t*)malloc(1000);
+    temp[0] = L'\0';
+
+    len = wcslen(phrases[cur_phrase]);
 	for(iter=0,i=cursor;i<len;i++)
 	{
 		//Break if a space found
 		if(phrases[cur_phrase][i] == L' ')
 			break;
 		temp[iter] = phrases[cur_phrase][i];
-		iter++;								
-	}
+        iter++;
+    }
 	temp[iter] = L'\0';
 	return temp;
 }

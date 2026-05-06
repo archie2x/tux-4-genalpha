@@ -547,10 +547,10 @@ void ShowMessageWrap( int font_size, const char* str )
     char strings[MAX_LINES][MAX_LINEWIDTH];
 
     int i;
-    int nline; 
+    int    nline;
     int finished = 0;
     int inprogress = 1;
-    int page = 0; 
+    int    page       = 0;
     int maxline;
     Uint32 timer = 0;
 
@@ -563,7 +563,7 @@ void ShowMessageWrap( int font_size, const char* str )
 
 	/* Announcing the message */
 	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",str);
-	
+
     while(inprogress)
     {
         loc.x = screen->w * 0.25;
@@ -589,11 +589,11 @@ void ShowMessageWrap( int font_size, const char* str )
         {
             arrow = images[IMG_ARROWS];
 
-            rleft.x = loc.x + (loc.w/2-50); 
+            rleft.x = loc.x + (loc.w / 2 - 50);
             rleft.y = loc.y + loc.h;
 
             rright.x = rleft.x + 50;
-            rright.y = rleft.y; 
+            rright.y = rleft.y;
 
             /* init rect for left button */
             srcleft.y = 0;
@@ -631,7 +631,7 @@ void ShowMessageWrap( int font_size, const char* str )
         }
 
         //rtext.x = loc.x + 10;
-        rtext.y = loc.y;    
+        rtext.y = loc.y;
         for(i = page * maxline; i < nline && i - page * maxline < maxline; i++)
         {
             s1 = T4K_BlackOutline(strings[i], font_size, &white);
@@ -640,7 +640,7 @@ void ShowMessageWrap( int font_size, const char* str )
             {
                 /* Center text horizontally: */
                 rtext.x = loc.x + loc.w/2 - s1->w/2;
-                rtext.y += (s1->h+15);  
+                rtext.y += (s1->h + 15);
                 SDL_BlitSurface( s1, NULL, screen, &rtext );
 
                 SDL_DestroySurface(s1);
@@ -775,7 +775,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     if (stop_button)
         SDL_BlitSurface(stop_button, NULL, screen, &stop_rect);
 
-    /* Draw shaded background for better legibility: */ 
+    /* Draw shaded background for better legibility: */
     loc.x = screen->w * 0.25;
     loc.y = screen->h * 0.1;
     loc.w = screen->w * 0.5;

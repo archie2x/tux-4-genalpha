@@ -253,8 +253,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(cons
 #   endif // Platform selection.
 #endif //!HAVE_SCANDIR
 
-
-/* At this point, we should always have alphasort and scandir, whether 
+/* At this point, we should always have alphasort and scandir, whether
  * in platform or using our replacements above. Therefore, we can simply
  * define T4K_alphasort() and T4K_scandir() as wrappers:
  */
