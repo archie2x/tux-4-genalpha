@@ -64,7 +64,7 @@ static IM_DATA im_data;
 static void AddSplat(int* splats, struct fishypoo* f, int* curlives, int* frame);
 static void CheckCollision(int fishies, int* fish_left, int frame );
 static void CheckFishies(int* fishies, int* splats);
-static int check_word(int f);
+static int  check_word(int f);
 static void DrawBackground(void);
 static void draw_bar(int curlevel, int diflevel, int curlives,
                      int oldlives, int fish_left, int oldfish_left);
@@ -155,8 +155,10 @@ int PlayCascade(int diflevel)
 
     //Call announcer function in thread which annonces the word to type
     if (settings.tts)
+    {
         tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread",
                                                 &struct_with_data_address);
+    }
 
     DEBUGCODE
     {
@@ -176,7 +178,7 @@ int PlayCascade(int diflevel)
         SDL_StopTextInput(tt_window);
         return 0;
     }
-  
+
   LoadFishies();
   LoadOthers();
 
@@ -361,7 +363,9 @@ int PlayCascade(int diflevel)
 
                 case SDLK_ESCAPE:
                     if (settings.tts)
+                    {
                         stop_tts_announcer();
+                    }
                     T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
                                 gettext("Game Paused."));
 
@@ -379,9 +383,11 @@ int PlayCascade(int diflevel)
                                     gettext("Pause Released!"));
                         //Call announcer function in thread which annonces the word to type
                         if (settings.tts)
+                        {
                             tts_announcer_thread =
                                 SDL_CreateThread(tts_announcer, "tt_thread",
                                                  &struct_with_data_address);
+                        }
                         DrawBackground();
                     }
                     break;
@@ -424,10 +430,14 @@ int PlayCascade(int diflevel)
                 {
                     key_unicode = typed;
                     if (key_unicode >= 97 && key_unicode <= 122)
+                    {
                         key_unicode -= 32; //convert lowercase to uppercase
+                    }
                     if (key_unicode >= 224 && key_unicode <= 255)
+                    {
                         key_unicode -=
                             32; //same for non-US Western European chars
+                    }
                     if ((key_unicode >= 256) && (key_unicode <= 382))
                     {
                         key_unicode -= 1;
@@ -438,9 +448,9 @@ int PlayCascade(int diflevel)
             else if (event.type == SDL_EVENT_KEY_UP)
             {
                 /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-                if(settings.braille)
-				{
-					arrange_in_order(pressed_letters);
+                if (settings.braille)
+                {
+                    arrange_in_order(pressed_letters);
 				    if (wcscmp(pressed_letters,L"") != 0)
 				    {
 					   for(i=0;i<100;i++)
@@ -459,9 +469,8 @@ int PlayCascade(int diflevel)
 				   /* --- Clearing the pressed_letters  ---- */	
 				   braille_iter = 0;
 				   pressed_letters[braille_iter] = L'\0';
-			
-			  }
-			}
+                }
+            }
         }
       }   /* ------ End of 'while' loop for handling user input ------- */
 
@@ -599,8 +608,9 @@ int PlayCascade(int diflevel)
         if (settings.sys_sound)
             PlaySound(sound[LOSE_WAV]);
 
-        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("yep you miss it. hahh hahh haa. game over! goodbye!"));
-			
+        T4K_Tts_say(
+            DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+            gettext("yep you miss it. hahh hahh haa. game over! goodbye!"));
 
         for (i = 0; i < OH_NO_FRAMES; i++)
           temp_text[i] = ohno[i];
@@ -666,7 +676,7 @@ int PlayCascade(int diflevel)
             tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread",
                                                     &struct_with_data_address);
      }
-	
+
     }  /* End of post-level wrap-up  */
   
   }  /*   -------- End outer game loop -------------- */
@@ -879,27 +889,27 @@ LoadTuxAnims : Load the Tux graphics and animations
 *******************************/
 static int LoadTuxAnims(void)
 {
-  int i;
+    int i;
 
-  LOG("LoadTuxAnims(): Loading Tux Animations\n");
+    LOG("LoadTuxAnims(): Loading Tux Animations\n");
 
-  for (i = 0 ; i < TUX_NUM_STATES; i++)
-  {
-    tux_object.spr[i][RIGHT] = LoadSprite(tux_sprite_fns[i], IMG_ALPHA);
-    /* make sure image got loaded: */
-    if(tux_object.spr[i][RIGHT] == NULL)
+    for (i = 0; i < TUX_NUM_STATES; i++)
     {
-      fprintf(stderr, "Warning - image %d failed to load\n", i);
-      return 0;
+        tux_object.spr[i][RIGHT] = LoadSprite(tux_sprite_fns[i], IMG_ALPHA);
+        /* make sure image got loaded: */
+        if (tux_object.spr[i][RIGHT] == NULL)
+        {
+            fprintf(stderr, "Warning - image %d failed to load\n", i);
+            return 0;
+        }
+        tux_object.spr[i][LEFT] = FlipSprite(tux_object.spr[i][RIGHT], 1, 0);
     }
-    tux_object.spr[i][LEFT] = FlipSprite(tux_object.spr[i][RIGHT], 1, 0);
-  }
 
-  tux_max_width = tux_object.spr[TUX_STANDING][RIGHT]->frame[0]->w;
+    tux_max_width = tux_object.spr[TUX_STANDING][RIGHT]->frame[0]->w;
 
-  LOG("LoadTuxAnims(): END\n");
+    LOG("LoadTuxAnims(): END\n");
 
-  return 1;
+    return 1;
 }
 
 /******************************
@@ -1576,8 +1586,10 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
                 {
                     PlaySound(sound[BITE_WAV]);
                 }
-            } else if (tux_object.state == TUX_STANDING) {
-				LOG( "***EXCUSE ME!** - in CheckCollision()\n" );
+            }
+            else if (tux_object.state == TUX_STANDING)
+            {
+                LOG("***EXCUSE ME!** - in CheckCollision()\n");
 
                 /* Play "excuse me" once per fish — without the per-fish
 				 * latch, every frame Tux stays under the same fish would
@@ -1588,8 +1600,8 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
                     fish_object[i].excused = 1;
                 }
             }
-		}
-	}
+        }
+    }
   LOG("Leaving CheckCollision()\n");
 }
 
@@ -1637,38 +1649,45 @@ static void MoveTux( int frame, int fishies )
 					tux_object.facing = LEFT;
 
 				/* see how fast we need to go to get there... */
-				if (time_to_splat - frame > (fabs(tux_object.endx - tux_object.x) / WALKING_SPEED)) {
-					tux_object.dx = WALKING_SPEED;
-					tux_object.state = TUX_WALKING;
+                if (time_to_splat - frame >
+                    (fabs(tux_object.endx - tux_object.x) / WALKING_SPEED))
+                {
+                    tux_object.dx    = WALKING_SPEED;
+                    tux_object.state = TUX_WALKING;
 
                     if (settings.sys_sound &&
                         T4K_IsPlayingSound(sound[RUN_WAV]))
                     {
                         T4K_StopSound(sound[RUN_WAV]);
                     }
-                } else {
+                }
+                else
+                {
                     if (time_to_splat > frame)
                     {
-                        tux_object.dx =
-                            float_restrict(MIN_RUNNING_SPEED,
-                                           fabs(tux_object.endx - tux_object.x) /
-                                               (time_to_splat - frame),
-                                           MAX_RUNNING_SPEED);
+                        tux_object.dx = float_restrict(
+                            MIN_RUNNING_SPEED,
+                            fabs(tux_object.endx - tux_object.x) /
+                                (time_to_splat - frame),
+                            MAX_RUNNING_SPEED);
                     }
-                    else {
-						tux_object.dx = MAX_RUNNING_SPEED;
+                    else
+                    {
+                        tux_object.dx = MAX_RUNNING_SPEED;
                         if (settings.sys_sound &&
                             !T4K_IsPlayingSound(sound[RUN_WAV]))
                         {
                             if (fabs(tux_object.endx - tux_object.x) > 50)
+                            {
                                 PlaySound(sound[RUN_WAV]);
+                            }
                         }
                     }
 
-					tux_object.state = TUX_RUNNING;
-				}
-			}
-		}
+                    tux_object.state = TUX_RUNNING;
+                }
+            }
+        }
 	}
 
 	/* --- move tux (if moving) --- */
@@ -1743,8 +1762,6 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives, int
 
   LOG("Leaving draw_bar()\n");
 }
-
-
 
 /**********************************************************************
  * This function will announce the bottum most word's in the screen
@@ -1966,7 +1983,7 @@ static void stop_tts_announcer()
  ****************************************************************/
 static void set_braille_letter_pos(int fishies)
 {
-	int which,i;
+    int which, i;
 
     if (tux_object.wordlen == 0)
     {
@@ -1984,18 +2001,20 @@ static void set_braille_letter_pos(int fishies)
 				if (0 == wcsncmp(fish_object[i].word,tux_object.word,tux_object.wordlen))
 					which = i;		
 			}
-		}
-		if (which != -1){
-			//Braille letter Position should be 2 if next letter is end
-			if (tux_object.wordlen == fish_object[which].len-1)
+        }
+        if (which != -1)
+        {
+            //Braille letter Position should be 2 if next letter is end
+            if (tux_object.wordlen == fish_object[which].len-1)
 				braille_letter_pos = 2;
 			else
 				braille_letter_pos = 1;
-		}
-		else{
-			braille_letter_pos = 0;
-		}
-	}
+        }
+        else
+        {
+            braille_letter_pos = 0;
+        }
+    }
 }
 
 

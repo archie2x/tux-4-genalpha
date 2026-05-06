@@ -98,7 +98,6 @@ int ConnectToServer(void)
     /* Draw Tux (use "reset" flavor so Tux gets drawn immediately): */
     HandleTitleScreenAnimations_Reset(true);
     /* and update: */
-    
 
     while (!finished)
     {
@@ -184,7 +183,7 @@ int ConnectToServer(void)
         /* Draw Tux: */
         HandleTitleScreenAnimations();
         /* and update: */
-        
+
         /* Wait so we keep frame rate constant: */
         T4K_Throttle(20, &timer);
     }  // End of while (!finished) loop
@@ -304,8 +303,6 @@ int Pregame(void)
         //Draw status of other players:
         draw_player_table();
 
-        
-
         //Check SDL events:
         while (SDL_PollEvent(&event))
         {
@@ -366,13 +363,17 @@ int Pregame(void)
                         if (LAN_PlayerConnected(i))
                         {
                             if (LAN_PlayerReady(i))
+                            {
                                 T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
                                             APPEND, "%s %s", LAN_PlayerName(i),
                                             _("Ready"));
+                            }
                             else
+                            {
                                 T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
                                             APPEND, "%s %s", LAN_PlayerName(i),
                                             _("Not Ready"));
+                            }
                         }
                     }
                 }
@@ -387,8 +388,8 @@ int Pregame(void)
                 {
                     //Do nothing - event. add support for toggle fullscreen, etc.
                 }
-                } 
-                    }
+                }
+            }
             }
         }  // End while(SDL_PollEvent(&event))
 

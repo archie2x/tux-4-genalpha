@@ -102,7 +102,7 @@ SDL_Surface* current_bkg()
     {
         return fs_bkg;
     }
-    return win_bkg; 
+    return win_bkg;
 }
 
 /* FIXME this function assumes the background is properly scaled */
@@ -692,7 +692,9 @@ void ShowMessageWrap( int font_size, const char* str )
                         DEBUGMSG(debug_titlescreen,
                                  "You clicked the left arrow.\n");
                         if (page > 0)
+                        {
                             page--;
+                        }
                         finished = 1;
                     }
                     /* right arrow button pressed */
@@ -701,7 +703,9 @@ void ShowMessageWrap( int font_size, const char* str )
                         DEBUGMSG(debug_titlescreen,
                                  "You clicked the right arrow.\n");
                         if (page * maxline + maxline < nline)
+                        {
                             page++;
+                        }
                         finished = 1;
                     }
                     else
@@ -711,38 +715,42 @@ void ShowMessageWrap( int font_size, const char* str )
                         finished   = 1;
                         inprogress = 0;
                     }
-                        }
-                        case SDL_EVENT_KEY_DOWN:
+                }
+                case SDL_EVENT_KEY_DOWN:
+                {
+                    switch (event.key.key)
+                    {
+                    case SDLK_LEFT:
+                    {
+                        if (page > 0)
                         {
-                            switch (event.key.key)
-                            { 
-                                case SDLK_LEFT:
-                                    {
-                                        if(page>0)
-                                            page--;
-                                        finished = 1;
-                                        break;
-                                    }
-                                case SDLK_RIGHT:
-                                    {
-                                        if(page*maxline+maxline<nline)
-                                            page++; 
-                                        finished = 1;
-                                        break;
-                                    }
-                                    case SDLK_Q:
-                                    {
-                                        finished = 1;
-                                        inprogress = 0;
-                                    }
-                                default:
-                                    {
-                                        finished = 1;
-                                        inprogress = 0; 
-                                        playsound(SND_TOCK);
-                                    }
-                            }
-                        } 
+                            page--;
+                        }
+                        finished = 1;
+                        break;
+                    }
+                    case SDLK_RIGHT:
+                    {
+                        if (page * maxline + maxline < nline)
+                        {
+                            page++;
+                        }
+                        finished = 1;
+                        break;
+                    }
+                    case SDLK_Q:
+                    {
+                        finished   = 1;
+                        inprogress = 0;
+                    }
+                    default:
+                    {
+                        finished   = 1;
+                        inprogress = 0;
+                        playsound(SND_TOCK);
+                    }
+                    }
+                }
                 }
                 /* Don't eat all CPU: */
                 T4K_Throttle(20, &timer);
@@ -1261,10 +1269,9 @@ int load_image_data()
     /* Load static images: */
     for (i = 0; i < NUM_IMAGES; i++)
     {
-		//char fn[100];
-		//sprintf(fn,"images/%s",image_filenames[i]);
-		//fprintf(stderr,"\nCheck out : %s-%d",fn,T4K_CheckFile(fn));
-
+        //char fn[100];
+        //sprintf(fn,"images/%s",image_filenames[i]);
+        //fprintf(stderr,"\nCheck out : %s-%d",fn,T4K_CheckFile(fn));
 
         images[i] = T4K_LoadImage(image_filenames[i], IMG_ALPHA);
 

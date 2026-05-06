@@ -640,13 +640,13 @@ int RunLoginMenu(void)
     const char *trailer_back = "Back";
     int n_login_questions = 0;
     char **user_login_questions = NULL;
-    const char *title = NULL;
+    const char* title                = NULL;
     int n_users = 0;
     char **user_names = NULL;
     int chosen_login = -1;
     int level;
     int i;
-    const char *trailer = NULL;
+    const char* trailer = NULL;
     SDL_Keymod  mod;
 
     DEBUGMSG(debug_menu, "Entering RunLoginMenu()");

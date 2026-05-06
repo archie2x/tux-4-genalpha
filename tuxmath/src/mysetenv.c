@@ -43,18 +43,24 @@ int my_setenv (const char * name, const char * value)
 
 #ifdef HAVE_PUTENV
   {
-   size_t namelen = strlen(name);
-   size_t valuelen = (value==NULL ? 0 : strlen(value));
-   char* buffer = (char*)malloc(namelen+1+valuelen+1);
-   if (!buffer)
-     return -1; /* no need to set errno = ENOMEM */
-   memcpy(buffer,name,namelen);
-   if (value != NULL) {
-     buffer[namelen] = '=';
-     memcpy(buffer+namelen+1,value,valuelen);
-     buffer[namelen+1+valuelen] = 0;
-   } else
-     buffer[namelen] = 0;
+      size_t namelen  = strlen(name);
+      size_t valuelen = (value == NULL ? 0 : strlen(value));
+      char*  buffer   = (char*)malloc(namelen + 1 + valuelen + 1);
+      if (!buffer)
+      {
+          return -1; /* no need to set errno = ENOMEM */
+      }
+      memcpy(buffer, name, namelen);
+      if (value != NULL)
+      {
+          buffer[namelen] = '=';
+          memcpy(buffer + namelen + 1, value, valuelen);
+          buffer[namelen + 1 + valuelen] = 0;
+      }
+      else
+      {
+          buffer[namelen] = 0;
+      }
    return putenv(buffer);
   }
 

@@ -591,7 +591,7 @@ void EditWordList(char* words_file)
   static SDL_Rect wordlist_name_rect;
   SDL_Rect word_rects[8];
   int stop = 0;
-  int loc = 0;
+  int                 loc  = 0;
 
   FILE* fp = NULL;
 
@@ -724,10 +724,10 @@ void EditWordList(char* words_file)
       {
           exit(0);
           break;
-        }
+      }
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        { 
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      {
           if (inRect(leftRect, event.button.x, event.button.y)) 
             if (loc - (loc % 8) - 8 >= 0) 
             {
@@ -752,7 +752,7 @@ void EditWordList(char* words_file)
 
           }
           break;
-        }
+      }
 
         case SDL_EVENT_KEY_DOWN:
         {
@@ -760,15 +760,19 @@ void EditWordList(char* words_file)
 
           if (event.key.key == SDLK_BACKSPACE)
           {
-            len = T4K_ConvertFromUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE); 
-            if (len > 1 && number_of_words > 1)
-            {                               
-              // remove the last character from the string
-              temp[len - 1] = temp[len];
-              len = T4K_ConvertToUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE);
-              white_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &white );
-              yellow_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &yellow);  
-            }
+              len = T4K_ConvertFromUTF8(temp, words_in_list[loc + 1],
+                                        MAX_WORD_SIZE);
+              if (len > 1 && number_of_words > 1)
+              {
+                  // remove the last character from the string
+                  temp[len - 1] = temp[len];
+                  len = T4K_ConvertToUTF8(temp, words_in_list[loc + 1],
+                                          MAX_WORD_SIZE);
+                  white_words[loc] = BlackOutline(
+                      words_in_list[loc + 1], DEFAULT_MENU_FONT_SIZE, &white);
+                  yellow_words[loc] = BlackOutline(
+                      words_in_list[loc + 1], DEFAULT_MENU_FONT_SIZE, &yellow);
+              }
             else
             {
               // we have to remove the word from the list //
@@ -790,19 +794,25 @@ void EditWordList(char* words_file)
                 {
                   if(x < number_of_words-1)
                   {
-                    len = T4K_ConvertFromUTF8(temp, words_in_list[x+2], MAX_WORD_SIZE);
+                      len = T4K_ConvertFromUTF8(temp, words_in_list[x + 2],
+                                                MAX_WORD_SIZE);
 
-                    DEBUGCODE
-                    {
-                      fprintf(stderr, "X = %i\n", x);
-                      fprintf(stderr, "loc = %i\n", loc);
-                      fprintf(stderr, "word in list = %s\n", words_in_list[x+2]);
-                    }
+                      DEBUGCODE
+                      {
+                          fprintf(stderr, "X = %i\n", x);
+                          fprintf(stderr, "loc = %i\n", loc);
+                          fprintf(stderr, "word in list = %s\n",
+                                  words_in_list[x + 2]);
+                      }
 
-                    len = T4K_ConvertToUTF8(temp, words_in_list[x+1], MAX_WORD_SIZE);
+                      len = T4K_ConvertToUTF8(temp, words_in_list[x + 1],
+                                              MAX_WORD_SIZE);
 
-                    DEBUGCODE
-                    { fprintf(stderr, "word in list = %s\n", words_in_list[x+1]); }
+                      DEBUGCODE
+                      {
+                          fprintf(stderr, "word in list = %s\n",
+                                  words_in_list[x + 1]);
+                      }
 
                     white_words[x] = BlackOutline(words_in_list[x+1],
                                                   DEFAULT_MENU_FONT_SIZE, &white ); 
@@ -920,7 +930,8 @@ void EditWordList(char* words_file)
             }
             else
             {
-              len = T4K_ConvertFromUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
+                len = T4K_ConvertFromUTF8(temp, words_in_list[loc + 1],
+                                          MAX_WORD_SIZE);
             }
             if (len < MAX_WORD_SIZE - 1)
             {
@@ -972,7 +983,7 @@ void EditWordList(char* words_file)
 
         T4K_UpdateRect(screen, NULL);
       }
-      SDL_Delay(40);  // I assume throttling so we don't eat all CPU
+      SDL_Delay(40); // I assume throttling so we don't eat all CPU
     }  // End of 'while (SDL_PollEvent(&event))' loop
   }  // End of 'while(!stop)' loop
 
@@ -1167,20 +1178,20 @@ int CreateNewWordList(void)
             break;
           }
           break;
-        }
+      }
 
-        case SDL_EVENT_KEY_DOWN:
-        {
+      case SDL_EVENT_KEY_DOWN:
+      {
           i = 1; //A Key has been pressed
 
           switch (event.key.key)
           {
             case SDLK_BACKSPACE:
-              len = T4K_ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
-              if (len < 1)
-              {
-                LOG("There are no letters to delete\n");
-              }
+                len = T4K_ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
+                if (len < 1)
+                {
+                    LOG("There are no letters to delete\n");
+                }
               else
               {
                 temp[len - 1] = temp[len];
@@ -1236,7 +1247,7 @@ int CreateNewWordList(void)
             i = 0;
             break;
           } // end of if(i)
-        } //end of Case SDL_EVENT_KEY_DOWN
+      } //end of Case SDL_EVENT_KEY_DOWN
       }//end of 'switch (event.type)'
 
       /* FIXME apparently redrawing every frame, even if not needed: */

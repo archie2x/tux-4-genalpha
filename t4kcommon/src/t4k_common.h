@@ -448,14 +448,10 @@ void T4K_SetMenuFontSize( MFStrategy strategy,
 //!
 //! \return
 //!     None
-//! 
-void T4K_CreateOneLevelMenu( int            index,
-                             int            items,
-                             char**         item_names,
-                             char**         sprite_names,
-                             const char*    title,
-                             const char*    trailer
-                            );
+//!
+void T4K_CreateOneLevelMenu(int index, int items, char** item_names,
+                            char** sprite_names, const char* title,
+                            const char* trailer);
 
 //============================================================================== 
 //

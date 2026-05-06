@@ -343,7 +343,9 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
     if (!s)
 	return;
     if (!SDL_LockSurface(s))
-	return;
+    {
+        return;
+    }
 
     bytes_per_pix = SDL_BYTESPERPIXEL(s->format);
     if (bytes_per_pix != 4)
@@ -543,14 +545,15 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
             perror("This works only with RGBA images");
             return S1;
         }
-	// Check that both images have the same width dimension
-	if (S1->w != S2->w)
-	{
-	    fprintf(stderr, "S1->w %d, S2->w %d;  S1->h %d, S2->h %d\n",
-		    S1->w, S2->w, S1->h, S2->h);
-	    fprintf(stderr, "Both images must have the same width dimensions\n");
-	    return S1;
-	}
+        // Check that both images have the same width dimension
+        if (S1->w != S2->w)
+        {
+            fprintf(stderr, "S1->w %d, S2->w %d;  S1->h %d, S2->h %d\n", S1->w,
+                    S2->w, S1->h, S2->h);
+            fprintf(stderr,
+                    "Both images must have the same width dimensions\n");
+            return S1;
+        }
     }
 
     tmpS = SDL_ConvertSurface(S1, S1->format);
@@ -683,7 +686,7 @@ void T4K_DarkenScreen(Uint8 bits)
         *p = (((*p & rm) >> bits) & rm) | (((*p & gm) >> bits) & gm) |
              (((*p & bm) >> bits) & bm) | ((*p) & am);
         p++;
-	}
+    }
     }
 }
 
@@ -864,8 +867,8 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
                     &a4);
 
         /* Create the weighted averages: */
-	    n1 = (one_minus_x * r1 + fraction_x * r2);
-	    n2 = (one_minus_x * r3 + fraction_x * r4);
+        n1 = (one_minus_x * r1 + fraction_x * r2);
+        n2 = (one_minus_x * r3 + fraction_x * r4);
 	    r = (one_minus_y * n1 + fraction_y * n2);
 
 	    n1 = (one_minus_x * g1 + fraction_x * g2);
@@ -977,9 +980,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		    }
             t4k_present();
             SDL_Delay(10);
-		}
+        }
 
-		src.x = 0;
+        src.x = 0;
 		src.y = 0;
 		src.w = screen->w;
 		src.h = screen->h;
@@ -987,9 +990,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
         t4k_present();
 
         break;
-	    }
+        }
 
-	case WIPE_BLINDS_HORIZ:
+    case WIPE_BLINDS_HORIZ:
 	    {
 
 		step1 = screen->h / segments;
@@ -1017,9 +1020,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		    }
             t4k_present();
             SDL_Delay(10);
-		}
+        }
 
-		src.x = 0;
+        src.x = 0;
 		src.y = 0;
 		src.w = screen->w;
 		src.h = screen->h;
@@ -1027,9 +1030,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
         t4k_present();
 
         break;
-	    }
+        }
 
-	case WIPE_BLINDS_BOX:
+    case WIPE_BLINDS_BOX:
 	    {
 
 		step1 = screen->w/segments;
@@ -1070,9 +1073,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		    }
             t4k_present();
             SDL_Delay(10);
-		}
+        }
 
-		src.x = 0;
+        src.x = 0;
 		src.y = 0;
 		src.w = screen->w;
 		src.h = screen->h;
@@ -1080,8 +1083,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
         t4k_present();
 
         break;
-	    }
-	default:
+        }
+    default:
 	    break;
     }
     return 1;
@@ -1625,16 +1628,18 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* 
 	    return NULL;
     surf = TTF_RenderText_Blended(font, t, 0, *col);
     {
-	    int h;
-	    int hmax = 0;
+        int h;
+        int hmax = 0;
 	    int len = strlen(t);
 	    int i;
 	    for (i = 0; i < len; i++)
 	    {
             TTF_GetGlyphMetrics(font, t[i], NULL, NULL, NULL, &h, NULL);
             if (h > hmax)
+            {
                 hmax = h;
-	    }
+            }
+        }
         *glyph_offset = hmax - TTF_GetFontAscent(font);
     }
     }

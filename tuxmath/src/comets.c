@@ -760,7 +760,8 @@ void comets_handle_help(void)
     level_start_wait = 0;
 
     timer = 0;
-    while (comets[0].alive && (timer+=FC_time_elapsed) < 7 && !(quit_help = help_renderframe_exit()))
+    while (comets[0].alive && (timer += FC_time_elapsed) < 7 &&
+           !(quit_help = help_renderframe_exit()))
         ; // intentional empty body — advance comet via the conditions' side effects
     {
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 1 = ?");
@@ -922,7 +923,8 @@ void comets_handle_help(void)
     powerup_add_comet();
     timer = 0;
 
-    while (powerup_comet->comet.alive && ((timer+=FC_time_elapsed) < 1) && !(quit_help = help_renderframe_exit()))
+    while (powerup_comet->comet.alive && ((timer += FC_time_elapsed) < 1) &&
+           !(quit_help = help_renderframe_exit()))
         ; // intentional empty body
     {
 		if (quit_help)
@@ -2301,7 +2303,7 @@ void comets_handle_game_over(int game_status)
             int tux_offset = 0;
             int tux_step = -3;
             int i = 0;
-            int rank = 1;
+            int          rank       = 1;
             int first = 1;
             char str[64];
             SDL_Surface* surf = NULL;
@@ -4034,22 +4036,30 @@ wchar_t* convert_formula_to_sentence(char *formula_string)
 	sentence[0] = L'\0';
 	while(temp != NULL)
 	{
-		/* gettext _() takes narrow strings — plain wide literals here.
+        /* gettext _() takes narrow strings — plain wide literals here.
 		 * These are spoken by TTS, so localization can come later via
 		 * a wchar-aware wrapper if needed. */
-		if (wcscmp(temp,L"+") == 0)
-			wcscat(sentence, L"plus ");
-		else if (wcscmp(temp,L"-") == 0)
-			wcscat(sentence, L"minus ");
-		else if (wcscmp(temp,L"÷") == 0)
-			wcscat(sentence, L"divided by ");
-		else if (wcscmp(temp,L"x") == 0)
-			wcscat(sentence, L"Times ");
-		else
-			{
-				wcscat(sentence,temp);
-				wcscat(sentence,L" ");
-			}
+        if (wcscmp(temp, L"+") == 0)
+        {
+            wcscat(sentence, L"plus ");
+        }
+        else if (wcscmp(temp, L"-") == 0)
+        {
+            wcscat(sentence, L"minus ");
+        }
+        else if (wcscmp(temp, L"÷") == 0)
+        {
+            wcscat(sentence, L"divided by ");
+        }
+        else if (wcscmp(temp, L"x") == 0)
+        {
+            wcscat(sentence, L"Times ");
+        }
+        else
+        {
+            wcscat(sentence, temp);
+            wcscat(sentence, L" ");
+        }
 			temp = wcstok(NULL,L" ",&ptr);
 	}
 	return sentence;
@@ -4060,9 +4070,9 @@ int tts_announcer(void *unused)
 	int i,j;
 	
 	int order[15],iter;
-	float y_axis;
-	int rate;
-	tts_announcer_switch = 1;
+    float y_axis;
+    int   rate;
+    tts_announcer_switch = 1;
 	
 	SDL_Delay(20);
 	T4K_Tts_wait();	
@@ -4139,16 +4149,17 @@ int tts_announcer(void *unused)
 			 * three comets (closest to the cities). Bound the sort
 			 * by `iter` so we never read past the alive-count. */
             if (iter != 0)
-			{
+            {
                 for (i = 0; i < iter; i++)
                 {
                     for (j = 0; j + 1 < iter; j++)
                     {
-                        if (comets[order[j]].y < comets[order[j+1]].y){
-							y_axis = order[j+1];
-							order[j+1] = order[j];
+                        if (comets[order[j]].y < comets[order[j + 1]].y)
+                        {
+                            y_axis     = order[j + 1];
+                            order[j+1] = order[j];
 							order[j] = y_axis;
-						}
+                        }
                     }
                 }
 
@@ -4157,10 +4168,12 @@ int tts_announcer(void *unused)
                 int n_announce = (iter < 3) ? iter : 3;
                 for (i = 0; i < n_announce; i++)
                 {
-					if (tts_announcer_switch == 0)
-						goto end;
-				
-					//Announce if comet is alive
+                    if (tts_announcer_switch == 0)
+                    {
+                        goto end;
+                    }
+
+                    //Announce if comet is alive
 					if (comets[order[i]].alive)
 					{
 						rate = (int)(comets[order[i]].y*100)/(screen->h - igloo_vertical_offset - images[IMG_IGLOO_INTACT]->h);
@@ -4174,9 +4187,9 @@ int tts_announcer(void *unused)
 						SDL_Delay(20);
 						T4K_Tts_wait();
 					}
-				}		
-			}
-		}	
+                }
+            }
+        }	
 	}
 	end:
 	return 0;

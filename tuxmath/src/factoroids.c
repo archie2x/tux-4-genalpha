@@ -846,7 +846,6 @@ static int FF_over(int game_status)
 {
     SDL_Rect dest_message;
 
-
     /* TODO: need better "victory" screen with animation, special music, etc., */
     /* as well as options to review missed questions, play again using missed  */
     /* questions as question list, etc.                                        */
@@ -861,21 +860,22 @@ static int FF_over(int game_status)
     switch (game_status)
     {
         case FF_OVER_WON:
-            {
-                DEBUGMSG(debug_factoroids, "Loop exited with GAME_OVER_WON\n");
+        {
+            DEBUGMSG(debug_factoroids, "Loop exited with GAME_OVER_WON\n");
 
-                /* set up victory message: */
-                dest_message.x = (screen->w - images[IMG_GAMEOVER_WON]->w) / 2;
-                dest_message.y = (screen->h - images[IMG_GAMEOVER_WON]->h) / 2;
-                dest_message.w = images[IMG_GAMEOVER_WON]->w;
-                dest_message.h = images[IMG_GAMEOVER_WON]->h;
+            /* set up victory message: */
+            dest_message.x = (screen->w - images[IMG_GAMEOVER_WON]->w) / 2;
+            dest_message.y = (screen->h - images[IMG_GAMEOVER_WON]->h) / 2;
+            dest_message.w = images[IMG_GAMEOVER_WON]->w;
+            dest_message.h = images[IMG_GAMEOVER_WON]->h;
 
-                SDL_BlitSurface(images[IMG_GAMEOVER_WON], NULL, screen, &dest_message);
-                T4K_UpdateRect(screen, NULL);
+            SDL_BlitSurface(images[IMG_GAMEOVER_WON], NULL, screen,
+                            &dest_message);
+            T4K_UpdateRect(screen, NULL);
 
-                wait_for_input();
-                break;
-            }
+            wait_for_input();
+            break;
+        }
 
         case FF_OVER_ERROR:
             {

@@ -68,7 +68,6 @@ void            fit_in_rectangle(int* width, int* height, int max_width, int max
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
 
-
 #if HAVE_RSVG
 /* structures related to svg info caching */
 typedef struct
@@ -621,7 +620,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 	final_pic = T4K_zoom(loaded_pic, width, height);
     SDL_DestroySurface(loaded_pic);
     loaded_pic = final_pic;
-	final_pic = NULL;
+    final_pic  = NULL;
     }
 
     final_pic = set_format(loaded_pic, mode);
@@ -656,8 +655,8 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
         return SDL_DuplicateSurface(img);
         }
 
-	case IMG_ALPHA:
-	    {
+        case IMG_ALPHA:
+        {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
         /* SDL2 defaulted alpha-channel surfaces to BLENDMODE_BLEND;
 		 * SDL3 defaults to BLENDMODE_NONE, which makes soft edges
@@ -672,8 +671,8 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
         return dup;
         }
 
-	case IMG_COLORKEY:
-	    {
+        case IMG_COLORKEY:
+        {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
 		SDL_LockSurface(img);
         SDL_SetSurfaceColorKey(
@@ -683,8 +682,8 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
         return SDL_DuplicateSurface(img);
         }
 
-	default:
-	    {
+        default:
+        {
 		DEBUGMSG(debug_loaders, "set_format(): Image mode not recognized\n");
 	    }
     }
@@ -915,7 +914,7 @@ void T4K_FreeSprite(sprite* gfx)
 	{
         SDL_DestroySurface(gfx->frame[x]);
         gfx->frame[x] = NULL;
-	}
+    }
     }
 
     if (gfx->default_img)
@@ -1006,10 +1005,9 @@ SDL_Surface *IMG_Load_Cache(const char* fn)
     }
 }
 
-
 #if HAVE_LIBPNG && defined(HAVE_RSVG)
 //save a surface to file as a PNG.
-static void savePNG(SDL_Surface* surf,char* fn)
+static void savePNG(SDL_Surface* surf, char* fn)
 {
     FILE* fi;
     DIR* dir_ptr;
@@ -1178,8 +1176,8 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
                 png_rows[y][x * 4 + 1] = g;
                 png_rows[y][x * 4 + 2] = b;
                 png_rows[y][x * 4 + 3] = a;
-		    }
-		}
+            }
+        }
 
 		png_write_image(png_ptr, png_rows);
 

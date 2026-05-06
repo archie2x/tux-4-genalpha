@@ -178,7 +178,7 @@ void GraphicsInit(void)
                 screen ? screen->w : 0, screen ? screen->h : 0);
     }
 
-    LOG( "GraphicsInit():END\n" );
+    LOG("GraphicsInit():END\n");
 }
 
 /****************************
@@ -200,7 +200,7 @@ void LibInit(Uint32 lib_flags)
   /* Audio: SDL3_mixer init lazily on first use via t4k_common's T4K_PlaySound
    * etc. The settings.sys_sound flag remains as the per-user enable. */
 
-  // atexit(SDL_Quit); // fire and forget... 
+  // atexit(SDL_Quit); // fire and forget...
 
   LOG( "-SDL Library init'd successfully\n" );
 
@@ -640,8 +640,7 @@ DEBUGCODE
 
 /* Set the application's icon: */
 
-__attribute__((unused))
-static void seticon(void)
+__attribute__((unused)) static void seticon(void)
 {
   SDL_Surface* icon;
   int colorkey;

@@ -58,9 +58,9 @@ static int g_pause_in_game = 1;
 int        Pause(int in_game)
 {
     g_pause_in_game     = in_game;
-    int paused = 1;
-	int sfx_volume=0;
-	int old_sfx_volume;
+    int       paused     = 1;
+    int       sfx_volume = 0;
+    int old_sfx_volume;
 	int mus_volume=0;
 	int old_mus_volume;
 	int mousePressed = 0;
@@ -79,7 +79,7 @@ int        Pause(int in_game)
         mus_volume = settings.mus_volume;
     }
 
-	/* --- show the pause screen --- */
+    /* --- show the pause screen --- */
 
     SDL_ShowCursor();
 
@@ -89,9 +89,10 @@ int        Pause(int in_game)
 
     pause_draw();
 
-	if (settings.sys_sound) {
-		draw_vols(sfx_volume, mus_volume);
-	}
+    if (settings.sys_sound)
+    {
+        draw_vols(sfx_volume, mus_volume);
+    }
 
     T4K_UpdateRect(screen, NULL);
 
@@ -99,8 +100,9 @@ int        Pause(int in_game)
 
     /* --- wait for space, click, or exit --- */
 
-	while (paused) {
-		old_sfx_volume = sfx_volume;
+    while (paused)
+    {
+        old_sfx_volume = sfx_volume;
 		old_mus_volume = mus_volume;
 		while (SDL_PollEvent(&event)) 
 			switch (event.type) {
@@ -158,24 +160,33 @@ int        Pause(int in_game)
                 break;
 
                 break;
-			}
-		if (settings.sys_sound && mousePressed) {
+            }
+        if (settings.sys_sound && mousePressed) {
             float fx, fy;
             SDL_GetMouseState(&fx, &fy);
             int x = (int)fx, y = (int)fy;
             /* check to see if they clicked on a button */
 
-			if (inRect(rectUp, x, y)) {
-				mus_volume += 4;
-			} else if (inRect(rectDown, x, y)) {
-				mus_volume -= 4;
-			} else if (inRect(rectRight, x, y)) {
-				sfx_volume += 4;
-			} else if (inRect(rectLeft, x, y)) {
-				sfx_volume -= 4;
-			} else {
+            if (inRect(rectUp, x, y))
+            {
+                mus_volume += 4;
+            }
+            else if (inRect(rectDown, x, y))
+            {
+                mus_volume -= 4;
+            }
+            else if (inRect(rectRight, x, y))
+            {
+                sfx_volume += 4;
+            }
+            else if (inRect(rectLeft, x, y))
+            {
+                sfx_volume -= 4;
+            }
+            else
+            {
 
-				/* check to see if they clicked a bar */
+                /* check to see if they clicked a bar */
 
 				if ((x > rectLeft.x + rectLeft.w) && (x < rectRight.x)) {
 					if ((y >= rectLeft.y) && (y <= rectLeft.y + rectLeft.h)) {
@@ -186,8 +197,8 @@ int        Pause(int in_game)
 					}
 
 				}
-			}
-		}
+            }
+        }
 
 		if (settings.sys_sound) {
             const int MIX_MAX_VOLUME = 128;
@@ -214,8 +225,11 @@ int        Pause(int in_game)
                 /* Apply to the mixer immediately so the user hears the
 				 * change while dragging the slider. */
                 if (mus_volume != old_mus_volume)
+                {
                     T4K_SetMusicVolume(mus_volume);
-                if (sfx_volume != old_sfx_volume) {
+                }
+                if (sfx_volume != old_sfx_volume)
+                {
                     T4K_SetSfxVolume(sfx_volume);
                     /* Play a tick sound as feedback (capped to avoid spam). */
                     if (pause_sfx && tocks % 4 == 0)
@@ -231,10 +245,10 @@ int        Pause(int in_game)
             }
         }
 
-		SDL_Delay(33);
-	}
+        SDL_Delay(33);
+    }
 
-	/* --- Return to previous state --- */
+    /* --- Return to previous state --- */
 
     /* SDL_EnableKeyRepeat removed in SDL3 (no equivalent needed). */
 
@@ -244,9 +258,9 @@ int        Pause(int in_game)
 
     pause_unload_media();
 
-	LOG( "Leaving Pause()\n" );
+    LOG("Leaving Pause()\n");
 
-	return (quit);
+    return (quit);
 }
 
 

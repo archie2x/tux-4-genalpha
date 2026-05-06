@@ -160,9 +160,6 @@ void LoadLang(void)
   return;
 }
 
-
-
-
 #ifdef HAVE_RSVG
 /***********************
     SVG related functions

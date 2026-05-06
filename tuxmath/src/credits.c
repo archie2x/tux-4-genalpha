@@ -387,7 +387,7 @@ int line;
 
 int credits(void)
 {
-    int i, quit;
+    int      i, quit;
     SDL_Rect subscreen, dest;
 	
 	char credit_tts_text[MAX_LINES*MAX_LINEWIDTH]; 

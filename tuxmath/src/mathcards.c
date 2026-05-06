@@ -1953,7 +1953,9 @@ static int compare_card(const MC_FlashCard* a, const MC_FlashCard* b)
     if (strncmp(a->answer_string, b->answer_string, MC_ANSWER_LEN) )
         return 1;
     if (a->answer != b->answer)
+    {
         return 1;
+    }
     return 0;
 
     return 0; //the cards are identical
@@ -2170,7 +2172,9 @@ void MC_ResetFlashCard(MC_FlashCard* fc)
      * checking their address for NULL was a leftover from when they
      * were heap-allocated. */
     if (!fc)
+    {
         return;
+    }
     fc->formula_string[0] = '\0';
     fc->answer_string[0] = '\0';
     fc->answer = -9999;

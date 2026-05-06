@@ -154,7 +154,7 @@ int Phrases(wchar_t* pphrase )
   char wpm_str[20];
   char errors_str[20];
   char accuracy_str[20];
-  wchar_t tts_temp[1000];
+  wchar_t      tts_temp[1000];
   SDL_Surface* tmpsurf = NULL;
 
   //Braille Variables
@@ -466,149 +466,233 @@ int Phrases(wchar_t* pphrase )
 
             case SDLK_GRAVE:
                 if (shift_pressed)
+                {
                     tmp = '~';
+                }
                 else
+                {
                     tmp = '`';
+                }
                 break;
 
             case SDLK_COMMA:
                 if (shift_pressed)
+                {
                     tmp = '<';
+                }
                 else
+                {
                     tmp = ',';
+                }
                 break;
 
             case SDLK_MINUS:
                 if (shift_pressed)
+                {
                     tmp = '_';
+                }
                 else
+                {
                     tmp = '-';
+                }
                 break;
 
             case SDLK_PERIOD:
                 if (shift_pressed)
+                {
                     tmp = '>';
+                }
                 else
+                {
                     tmp = '.';
+                }
                 break;
 
             case SDLK_SLASH:
                 if (shift_pressed)
+                {
                     tmp = '?';
+                }
                 else
+                {
                     tmp = '/';
+                }
                 break;
 
             case SDLK_0:
                 if (shift_pressed)
+                {
                     tmp = ')';
+                }
                 else
+                {
                     tmp = '0';
+                }
                 break;
 
             case SDLK_1:
                 if (shift_pressed)
+                {
                     tmp = '!';
+                }
                 else
+                {
                     tmp = '1';
+                }
                 break;
 
             case SDLK_2:
                 if (shift_pressed)
+                {
                     tmp = '@';
+                }
                 else
+                {
                     tmp = '2';
+                }
                 break;
 
             case SDLK_3:
                 if (shift_pressed)
+                {
                     tmp = '#';
+                }
                 else
+                {
                     tmp = '3';
+                }
                 break;
 
             case SDLK_4:
                 if (shift_pressed)
+                {
                     tmp = '$';
+                }
                 else
+                {
                     tmp = '4';
+                }
                 break;
 
             case SDLK_5:
                 if (shift_pressed)
+                {
                     tmp = '%';
+                }
                 else
+                {
                     tmp = '5';
+                }
                 break;
 
             case SDLK_6:
                 if (shift_pressed)
+                {
                     tmp = '^';
+                }
                 else
+                {
                     tmp = '6';
+                }
                 break;
 
             case SDLK_7:
                 if (shift_pressed)
+                {
                     tmp = '&';
+                }
                 else
+                {
                     tmp = '7';
+                }
                 break;
 
             case SDLK_8:
                 if (shift_pressed)
+                {
                     tmp = '*';
+                }
                 else
+                {
                     tmp = '8';
+                }
                 break;
 
             case SDLK_9:
                 if (shift_pressed)
+                {
                     tmp = '(';
+                }
                 else
+                {
                     tmp = '9';
+                }
                 break;
 
             case SDLK_SEMICOLON:
                 if (shift_pressed)
+                {
                     tmp = ':';
+                }
                 else
+                {
                     tmp = ';';
+                }
                 break;
 
             case SDLK_EQUALS:
                 if (shift_pressed)
+                {
                     tmp = '+';
+                }
                 else
+                {
                     tmp = '=';
+                }
                 break;
 
             case SDLK_LEFTBRACKET:
                 if (shift_pressed)
+                {
                     tmp = '{';
+                }
                 else
+                {
                     tmp = '[';
+                }
                 break;
 
             case SDLK_BACKSLASH:
                 if (shift_pressed)
+                {
                     tmp = '|';
+                }
                 else
+                {
                     tmp = '\\';
+                }
                 break;
 
             case SDLK_RIGHTBRACKET:
                 if (shift_pressed)
+                {
                     tmp = '}';
+                }
                 else
+                {
                     tmp = ']';
+                }
                 break;
 
             case SDLK_APOSTROPHE:
                 if (shift_pressed)
+                {
                     tmp = '"';
+                }
                 else
+                {
                     tmp = '\'';
+                }
                 break;
 
             case SDLK_SPACE:
@@ -735,9 +819,9 @@ int Phrases(wchar_t* pphrase )
         else if (event.type == SDL_EVENT_KEY_UP)
         {
             /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-            if(settings.braille)
-			{
-				/* ---- g will make next letter capital ----------*/ 
+            if (settings.braille)
+            {
+                /* ---- g will make next letter capital ----------*/ 
 				if (wcscmp(pressed_letters,L"g") == 0)
 					braille_capital = 1;
 				
@@ -803,352 +887,397 @@ int Phrases(wchar_t* pphrase )
 					tmp = L' ';
 					check_key = 1;
 				}
-			}
-		}
+            }
+        }
         /* End of "if(event.type == SDL_EVENT_KEY_UP)" block  --*/
 
         if (check_key && (event.type == SDL_EVENT_KEY_DOWN ||
                           event.type == SDL_EVENT_TEXT_INPUT ||
                           (event.type == SDL_EVENT_KEY_UP && settings.braille)))
         {
-        /* If state has changed as direct result of keypress (e.g. F10), leave */
-        /* poll event loop so we don't treat it as a simple 'wrong' key: */
-        if (state == 0
-         || state == 1)
-          continue; 
+            /* If state has changed as direct result of keypress (e.g. F10), leave */
+            /* poll event loop so we don't treat it as a simple 'wrong' key: */
+            if (state == 0 || state == 1)
+            {
+                continue;
+            }
 
-        /* Change to uppercase if shift used */
-        if(shift_pressed)
-          tmp=toupper(tmp);
-          
+            /* Change to uppercase if shift used */
+            if (shift_pressed)
+            {
+                tmp = toupper(tmp);
+            }
 
-        if ( key != -1 ) 
-          updatekeylist(key,tmp);
+            if (key != -1)
+            {
+                updatekeylist(key, tmp);
+            }
 
-        /* Record elapsed time for this keypress and update running total: */
-        a = SDL_GetTicks();
-        keytimes[cursor] = a - start;
-        start = a;
+            /* Record elapsed time for this keypress and update running total: */
+            a                = SDL_GetTicks();
+            keytimes[cursor] = a - start;
+            start            = a;
 
-        total += keytimes[cursor];
-        sprintf(time_str, "%.2f %s", (float) total / 1000, N_("sec"));
-        sprintf(chars_typed_str, "%d", correct_chars);
-        sprintf(cpm_str, "%.1f", (float) correct_chars /((float)total/60000));
-        sprintf(wpm_str, "%.1f", (float) ((float) correct_chars/5) /((float) total/60000));
-        sprintf(errors_str, "%d", wrong_chars);
+            total += keytimes[cursor];
+            sprintf(time_str, "%.2f %s", (float)total / 1000, N_("sec"));
+            sprintf(chars_typed_str, "%d", correct_chars);
+            sprintf(cpm_str, "%.1f",
+                    (float)correct_chars / ((float)total / 60000));
+            sprintf(wpm_str, "%.1f",
+                    (float)((float)correct_chars / 5) / ((float)total / 60000));
+            sprintf(errors_str, "%d", wrong_chars);
 
-        /* Calculate accuracy, avoiding divide-by-zero error: */
-        if (correct_chars + wrong_chars == 0)
-          accuracy = 1;
-        else
-          accuracy = (float)correct_chars/((float) (correct_chars + wrong_chars));
-        sprintf(accuracy_str, "%.1f%%", accuracy * 100); 
+            /* Calculate accuracy, avoiding divide-by-zero error: */
+            if (correct_chars + wrong_chars == 0)
+            {
+                accuracy = 1;
+            }
+            else
+            {
+                accuracy = (float)correct_chars /
+                           ((float)(correct_chars + wrong_chars));
+            }
+            sprintf(accuracy_str, "%.1f%%", accuracy * 100);
 
-
-        /****************************************************/
-        /*  ---------- If user typed correct character, handle it: --------------- */
-        /* SDL3 dropped event.key.keysym.unicode (the typed glyph with Shift
+            /****************************************************/
+            /*  ---------- If user typed correct character, handle it: --------------- */
+            /* SDL3 dropped event.key.keysym.unicode (the typed glyph with Shift
          * applied). Use `tmp`, which the switch above + toupper-on-shift
          * already resolved to the actual character — works for upper/lower
          * case letters and shifted symbols. */
-        if (phrases[cur_phrase][cursor] == tmp)
-        {
-          cursor++;
-          correct_chars++;
-          
-          
-          /* --------- Announcing the next word to Type --------------------------*/
-          wchar_t next_word[1000];
-          next_word[0] = L'\0';
-          tts_temp[0] = L'\0';
-		  if (phrases[cur_phrase][cursor-1] == L' ')
-		  {
-			  if (pphrase == NULL){
-				//For phrase typing	  
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,
-					"%S %S",get_next_word(cur_phrase,cursor),
-					get_next_word_letters(cur_phrase,cursor,1));	 
-				}
-				else {
-				  //For Lesson's
-				  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%S",
-						get_next_word_letters(cur_phrase,cursor,1));	
-				}
-		   }
-		   else{
-			  //Next letter is not Space
-			  //T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%C",phrases[cur_phrase][cursor]);			  
-			   PlaySound(snd_ok);
-		   }
+            if (phrases[cur_phrase][cursor] == tmp)
+            {
+                cursor++;
+                correct_chars++;
 
-		   // Announce remaining letters to be typed
-		   if(phrases[cur_phrase][cursor-1] != L' ')
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,
-					"%S", get_next_word_letters(cur_phrase,cursor,1));
+                /* --------- Announcing the next word to Type --------------------------*/
+                wchar_t next_word[1000];
+                next_word[0] = L'\0';
+                tts_temp[0]  = L'\0';
+                if (phrases[cur_phrase][cursor - 1] == L' ')
+                {
+                    if (pphrase == NULL)
+                    {
+                        //For phrase typing
+                        T4K_Tts_say(
+                            DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%S %S",
+                            get_next_word(cur_phrase, cursor),
+                            get_next_word_letters(cur_phrase, cursor, 1));
+                    }
+                    else
+                    {
+                        //For Lesson's
+                        T4K_Tts_say(
+                            DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%S",
+                            get_next_word_letters(cur_phrase, cursor, 1));
+                    }
+                }
+                else
+                {
+                    //Next letter is not Space
+                    //T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%C",phrases[cur_phrase][cursor]);
+                    PlaySound(snd_ok);
+                }
 
-          /* Handle wrapping if we are at the end of the current display. */
-          /* NOTE now also checking for space at end of line so we wrap   */
-          /* automatically without waiting for user to type invisible     */
-          /* space                                                        */
-          if (cursor >= prev_wrap + wrap_pt + 2) /* wrap onto next line */
-          {
-            /* This will cause the next line of the phrase to be drawn: */
-            prev_wrap = prev_wrap + wrap_pt + 2;
-            state = 1;
-          }
-          else if ((cursor == prev_wrap + wrap_pt + 1) /* skip terminal space */
-               && (phrases[cur_phrase][cursor] == ' '))
-          {
-            /* Need to increment cursor another time in this case: */
-            cursor ++;
-            prev_wrap = prev_wrap + wrap_pt + 2;
-            state = 1;
-          }
-          else
-            state = 2;
+                // Announce remaining letters to be typed
+                if (phrases[cur_phrase][cursor - 1] != L' ')
+                {
+                    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%S",
+                                get_next_word_letters(cur_phrase, cursor, 1));
+                }
 
-          /* Redraw everything below any "completed" lines of input text, */
-          /* except we don't want to redraw keyboard to avoid flicker:    */
-          tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                   medfontsize, &white,
-                                   cursor - prev_wrap);
+                /* Handle wrapping if we are at the end of the current display. */
+                /* NOTE now also checking for space at end of line so we wrap   */
+                /* automatically without waiting for user to type invisible     */
+                /* space                                                        */
+                if (cursor >= prev_wrap + wrap_pt + 2) /* wrap onto next line */
+                {
+                    /* This will cause the next line of the phrase to be drawn: */
+                    prev_wrap = prev_wrap + wrap_pt + 2;
+                    state     = 1;
+                }
+                else if ((cursor ==
+                          prev_wrap + wrap_pt + 1) /* skip terminal space */
+                         && (phrases[cur_phrase][cursor] == ' '))
+                {
+                    /* Need to increment cursor another time in this case: */
+                    cursor++;
+                    prev_wrap = prev_wrap + wrap_pt + 2;
+                    state     = 1;
+                }
+                else
+                {
+                    state = 2;
+                }
 
-          int typed_w = 0;
-          SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen,
-                          &user_text_rect);
-          if (tmpsurf)
-          {
-              SDL_Rect src = {0, 0,
-                              (tmpsurf->w > user_text_rect.w) ? user_text_rect.w
-                                                              : tmpsurf->w,
-                              tmpsurf->h};
-              SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
-              typed_w = src.w;
-              SDL_DestroySurface(tmpsurf);
-              tmpsurf = NULL;
-          }
-          {
-              SDL_Rect cur = {user_text_rect.x + typed_w,
-                              user_text_rect.y + user_text_rect.h - 4,
-                              medfontsize / 2, 2};
-              if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
-              {
-                  cur.w = user_text_rect.x + user_text_rect.w - cur.x;
-              }
-              if (cur.w > 0)
-              {
-                  SDL_Rect shadow = {cur.x + 1, cur.y + 1, cur.w, cur.h};
-                  const SDL_PixelFormatDetails* pf =
-                      SDL_GetPixelFormatDetails(screen->format);
-                  SDL_FillSurfaceRect(screen, &shadow,
-                                      SDL_MapRGB(pf, NULL, 0, 0, 0));
-                  SDL_FillSurfaceRect(screen, &cur,
-                                      SDL_MapRGB(pf, NULL, 255, 255, 255));
-              }
-          }
+                /* Redraw everything below any "completed" lines of input text, */
+                /* except we don't want to redraw keyboard to avoid flicker:    */
+                tmpsurf =
+                    BlackOutline_w(&phrases[cur_phrase][prev_wrap], medfontsize,
+                                   &white, cursor - prev_wrap);
 
-          tmpsurf = BlackOutline(time_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &time_rect, screen, &time_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &time_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                int typed_w = 0;
+                SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen,
+                                &user_text_rect);
+                if (tmpsurf)
+                {
+                    SDL_Rect src = {0, 0,
+                                    (tmpsurf->w > user_text_rect.w)
+                                        ? user_text_rect.w
+                                        : tmpsurf->w,
+                                    tmpsurf->h};
+                    SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
+                    typed_w = src.w;
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
+                {
+                    SDL_Rect cur = {user_text_rect.x + typed_w,
+                                    user_text_rect.y + user_text_rect.h - 4,
+                                    medfontsize / 2, 2};
+                    if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
+                    {
+                        cur.w = user_text_rect.x + user_text_rect.w - cur.x;
+                    }
+                    if (cur.w > 0)
+                    {
+                        SDL_Rect shadow = {cur.x + 1, cur.y + 1, cur.w, cur.h};
+                        const SDL_PixelFormatDetails* pf =
+                            SDL_GetPixelFormatDetails(screen->format);
+                        SDL_FillSurfaceRect(screen, &shadow,
+                                            SDL_MapRGB(pf, NULL, 0, 0, 0));
+                        SDL_FillSurfaceRect(
+                            screen, &cur, SDL_MapRGB(pf, NULL, 255, 255, 255));
+                    }
+                }
 
-          tmpsurf = BlackOutline(chars_typed_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &chars_typed_rect, screen, &chars_typed_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &chars_typed_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                tmpsurf = BlackOutline(time_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &time_rect, screen,
+                                    &time_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &time_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          tmpsurf = BlackOutline(cpm_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &cpm_rect, screen, &cpm_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &cpm_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                tmpsurf = BlackOutline(chars_typed_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &chars_typed_rect, screen,
+                                    &chars_typed_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &chars_typed_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          tmpsurf = BlackOutline(wpm_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &wpm_rect, screen, &wpm_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &wpm_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                tmpsurf = BlackOutline(cpm_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &cpm_rect, screen,
+                                    &cpm_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &cpm_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          tmpsurf = BlackOutline(errors_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &errors_rect, screen, &errors_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &errors_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                tmpsurf = BlackOutline(wpm_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &wpm_rect, screen,
+                                    &wpm_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &wpm_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          tmpsurf = BlackOutline(accuracy_str, fontsize, &white);
-          if (tmpsurf)
-          {
-            SDL_BlitSurface(CurrentBkgd(), &accuracy_rect, screen, &accuracy_rect);
-            SDL_BlitSurface(tmpsurf, NULL, screen, &accuracy_rect);
-            SDL_DestroySurface(tmpsurf);
-            tmpsurf = NULL;
-          }
+                tmpsurf = BlackOutline(errors_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &errors_rect, screen,
+                                    &errors_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &errors_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          T4K_UpdateRect(screen, NULL);
+                tmpsurf = BlackOutline(accuracy_str, fontsize, &white);
+                if (tmpsurf)
+                {
+                    SDL_BlitSurface(CurrentBkgd(), &accuracy_rect, screen,
+                                    &accuracy_rect);
+                    SDL_BlitSurface(tmpsurf, NULL, screen, &accuracy_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
 
-          /* If player has completed phrase, celebrate! */
-          if (cursor == wcslen(phrases[cur_phrase]))
-          {
-              /* Annoncing the result */
-              T4K_Tts_say(
-                  DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
-                  gettext("Wow. you completed sentence with %s characters in \
+                T4K_UpdateRect(screen, NULL);
+
+                /* If player has completed phrase, celebrate! */
+                if (cursor == wcslen(phrases[cur_phrase]))
+                {
+                    /* Annoncing the result */
+                    T4K_Tts_say(
+                        DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                        gettext(
+                            "Wow. you completed sentence with %s characters in \
 			      %s time, your speed is %s word per minut and \
 			      percentage of accuracy is %s"),
-                  chars_typed_str, time_str, wpm_str, accuracy_str);
-              /* Phrase complete: clear the typed-line area, show a banner, and
+                        chars_typed_str, time_str, wpm_str, accuracy_str);
+                    /* Phrase complete: clear the typed-line area, show a banner, and
              * auto-advance after a short pause. Without this, the next phrase
              * would just start drawing on top of the finished one with no
              * visible "done" feedback. */
-              {
-                  Uint32       cel_start    = SDL_GetTicks();
-                  const Uint32 CELEBRATE_MS = 1500;
-                  int          done         = 0;
+                    {
+                        Uint32       cel_start    = SDL_GetTicks();
+                        const Uint32 CELEBRATE_MS = 1500;
+                        int          done         = 0;
 
-                  PlaySound(cheer);
+                        PlaySound(cheer);
 
-                  /* Drain any queued input so the keystroke that completed the
+                        /* Drain any queued input so the keystroke that completed the
                * phrase doesn't immediately dismiss the celebration. */
-                  while (SDL_PollEvent(&event))
-                  { /* discard */
-                  }
+                        while (SDL_PollEvent(&event))
+                        { /* discard */
+                        }
 
-                  /* Wipe the typed-line area to a clean slate. */
-                  SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
-                  SDL_BlitSurface(time_label_srfc, NULL, screen, &time_label);
-                  SDL_BlitSurface(chars_label_srfc, NULL, screen,
-                                  &chars_typed_label);
-                  SDL_BlitSurface(cpm_label_srfc, NULL, screen, &cpm_label);
-                  SDL_BlitSurface(wpm_label_srfc, NULL, screen, &wpm_label);
-                  SDL_BlitSurface(errors_label_srfc, NULL, screen,
-                                  &errors_label);
-                  SDL_BlitSurface(accuracy_label_srfc, NULL, screen,
-                                  &accuracy_label);
+                        /* Wipe the typed-line area to a clean slate. */
+                        SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
+                        SDL_BlitSurface(time_label_srfc, NULL, screen,
+                                        &time_label);
+                        SDL_BlitSurface(chars_label_srfc, NULL, screen,
+                                        &chars_typed_label);
+                        SDL_BlitSurface(cpm_label_srfc, NULL, screen,
+                                        &cpm_label);
+                        SDL_BlitSurface(wpm_label_srfc, NULL, screen,
+                                        &wpm_label);
+                        SDL_BlitSurface(errors_label_srfc, NULL, screen,
+                                        &errors_label);
+                        SDL_BlitSurface(accuracy_label_srfc, NULL, screen,
+                                        &accuracy_label);
 
-                  /* Big yellow banner so completion is unmistakable. */
-                  SDL_Surface* banner =
-                      BlackOutline(gettext("Done!"), bigfontsize, &yellow);
-                  if (banner)
-                  {
-                      SDL_Rect br;
-                      br.x = (screen->w - banner->w) / 2;
-                      br.y = (screen->h - banner->h) / 2 - 40;
-                      br.w = banner->w;
-                      br.h = banner->h;
-                      SDL_BlitSurface(banner, NULL, screen, &br);
-                      SDL_DestroySurface(banner);
-                  }
+                        /* Big yellow banner so completion is unmistakable. */
+                        SDL_Surface* banner = BlackOutline(
+                            gettext("Done!"), bigfontsize, &yellow);
+                        if (banner)
+                        {
+                            SDL_Rect br;
+                            br.x = (screen->w - banner->w) / 2;
+                            br.y = (screen->h - banner->h) / 2 - 40;
+                            br.w = banner->w;
+                            br.h = banner->h;
+                            SDL_BlitSurface(banner, NULL, screen, &br);
+                            SDL_DestroySurface(banner);
+                        }
 
-                  while (!done)
-                  {
-                      while (SDL_PollEvent(&event))
-                      {
-                          if ((event.type == SDL_EVENT_KEY_DOWN) ||
-                              (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN))
-                          {
-                              done = 1;
-                          }
-                      }
-                      if (SDL_GetTicks() - cel_start >= CELEBRATE_MS)
-                      {
-                          done = 1;
-                      }
+                        while (!done)
+                        {
+                            while (SDL_PollEvent(&event))
+                            {
+                                if ((event.type == SDL_EVENT_KEY_DOWN) ||
+                                    (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN))
+                                {
+                                    done = 1;
+                                }
+                            }
+                            if (SDL_GetTicks() - cel_start >= CELEBRATE_MS)
+                            {
+                                done = 1;
+                            }
 
-                      /* Draw Tux: */
-                      SDL_BlitSurface(CurrentBkgd(), &tux_loc, screen,
-                                      &tux_loc);
-                      if (tux_win && tux_win->frame[tux_win->cur])
-                          SDL_BlitSurface(tux_win->frame[tux_win->cur], NULL,
-                                          screen, &tux_loc);
-                      T4K_UpdateRect(screen, NULL);
-                      NEXT_FRAME(tux_win);
-                      SDL_Delay(80);
-                  }
-            }
+                            /* Draw Tux: */
+                            SDL_BlitSurface(CurrentBkgd(), &tux_loc, screen,
+                                            &tux_loc);
+                            if (tux_win && tux_win->frame[tux_win->cur])
+                            {
+                                SDL_BlitSurface(tux_win->frame[tux_win->cur],
+                                                NULL, screen, &tux_loc);
+                            }
+                            T4K_UpdateRect(screen, NULL);
+                            NEXT_FRAME(tux_win);
+                            SDL_Delay(80);
+                        }
+                    }
 
-            /* if we are just doing a single phrase passed as arg to function, */
-            /* we stop here:                                                   */
-            if (once_only)
-              quit = 1;
-            else  /* means we are using the phrases from the file */
-            {
-              /* Go on to next phrase, or back to first one if all done */
-              if (cur_phrase < num_phrases)
-                cur_phrase++;
-              else
-                cur_phrase = 0;
-            }
-            state = 0;
-          }
-        }
-        /* -------- handle incorrect key press: -------------*/
-        else  if (check_key)
-        {
-            // int key = GetIndex((wchar_t)event.key.key);
-            if (key != -1)
-            {
-                keypress1 = GetWrongKeypress(key);
-
-                if (keypress1) // avoid segfault if NULL
-                {
-                    SDL_BlitSurface(keypress1, NULL, screen, &keyboard_loc);
-                    SDL_DestroySurface(keypress1);
+                    /* if we are just doing a single phrase passed as arg to function, */
+                    /* we stop here:                                                   */
+                    if (once_only)
+                    {
+                        quit = 1;
+                    }
+                    else /* means we are using the phrases from the file */
+                    {
+                        /* Go on to next phrase, or back to first one if all done */
+                        if (cur_phrase < num_phrases)
+                        {
+                            cur_phrase++;
+                        }
+                        else
+                        {
+                            cur_phrase = 0;
+                        }
+                    }
+                    state = 0;
                 }
-          }
-          state = 2;
-
-          /* Don't count shift keys as wrong: */
-          if (event.key.key != SDLK_RSHIFT && event.key.key != SDLK_LSHIFT)
-          {
-            /* Also, don't count spacebar as wrong on first char */
-            /* after wrap because we automatically skip it above */
-            if ((cursor != prev_wrap) || (event.key.key != SDLK_SPACE))
+            }
+            /* -------- handle incorrect key press: -------------*/
+            else if (check_key)
             {
-              wrong_chars++;
-              PlaySound(wrong);
-              
-              /* Announce the letter again when incorrect letter. */
-				 if (!settings.braille)
-				 {
-					  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Type %S",
-				      get_next_word_letters(cur_phrase,cursor,1));
-				}
-				else
-				{
-						  
-						  int j,len;
-						  wchar_t tts_temp[255];
-						  tts_temp[0] = L'\0';
-						  len = 0;
-						  
-						  /* hear we check for the keycombination of the next letter to be typed */
-						  for (i=0;i<100;i++)
-						  {
-							  /* We have to check each case because braille combination is same for
+                // int key = GetIndex((wchar_t)event.key.key);
+                if (key != -1)
+                {
+                    keypress1 = GetWrongKeypress(key);
+
+                    if (keypress1) // avoid segfault if NULL
+                    {
+                        SDL_BlitSurface(keypress1, NULL, screen, &keyboard_loc);
+                        SDL_DestroySurface(keypress1);
+                    }
+                }
+                state = 2;
+
+                /* Don't count shift keys as wrong: */
+                if (event.key.key != SDLK_RSHIFT &&
+                    event.key.key != SDLK_LSHIFT)
+                {
+                    /* Also, don't count spacebar as wrong on first char */
+                    /* after wrap because we automatically skip it above */
+                    if ((cursor != prev_wrap) || (event.key.key != SDLK_SPACE))
+                    {
+                        wrong_chars++;
+                        PlaySound(wrong);
+
+                        /* Announce the letter again when incorrect letter. */
+                        if (!settings.braille)
+                        {
+                            T4K_Tts_say(
+                                DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                                "Type %S",
+                                get_next_word_letters(cur_phrase, cursor, 1));
+                        }
+                        else
+                        {
+
+                            int     j, len;
+                            wchar_t tts_temp[255];
+                            tts_temp[0] = L'\0';
+                            len         = 0;
+
+                            /* hear we check for the keycombination of the next letter to be typed */
+                            for (i = 0; i < 100; i++)
+                            {
+                                /* We have to check each case because braille combination is same for
 							   * begining,middle and end of the word in which letters are not same */
-							   if (braille_key_value_map[i].value_begin[0] == phrases[cur_phrase][cursor] 
-								||  braille_key_value_map[i].value_middle[0] == phrases[cur_phrase][cursor]
-								||  braille_key_value_map[i].value_end[0] == phrases[cur_phrase][cursor] 
-								||  (settings.use_english == 1 && braille_key_value_map[i].value_begin[0] 
-													== tolower(phrases[cur_phrase][cursor])))
-								{
+                                if (braille_key_value_map[i].value_begin[0] ==
+                                        phrases[cur_phrase][cursor] ||
+                                    braille_key_value_map[i].value_middle[0] ==
+                                        phrases[cur_phrase][cursor] ||
+                                    braille_key_value_map[i].value_end[0] ==
+                                        phrases[cur_phrase][cursor] ||
+                                    (settings.use_english == 1 &&
+                                     braille_key_value_map[i].value_begin[0] ==
+                                         tolower(phrases[cur_phrase][cursor])))
+                                {
 									/* This is working with a six bit binary system */
 									
 									for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
@@ -1176,14 +1305,14 @@ int Phrases(wchar_t* pphrase )
 									tts_temp[0] = L'\0';
 						
 								}
-							}
-					  }
-				  }
-          }
+                            }
+                        }
+                    }
+                }
         }
-	}
+        }
 
-    }  /* ----- End of SDL_PollEvent() loop -------------- */
+    } /* ----- End of SDL_PollEvent() loop -------------- */
 
     /* Draw next tux frame if appropriate: */
     if ((SDL_GetTicks() - tuxtime) > SPRITE_FRAME_TIME)
@@ -1640,8 +1769,11 @@ static int load_phrases(const char* phrase_file)
     /* inspect return value of fscanf():                       */
     if (EOF != fscanf(fp, "%[^\n]\n", buf))
     {
-      T4K_ConvertFromUTF8(phrases[num_phrases], buf, MAX_PHRASE_LENGTH);
-      DEBUGCODE {printf("phrase %d:\t%S\n", num_phrases, phrases[num_phrases]);}
+        T4K_ConvertFromUTF8(phrases[num_phrases], buf, MAX_PHRASE_LENGTH);
+        DEBUGCODE
+        {
+            printf("phrase %d:\t%S\n", num_phrases, phrases[num_phrases]);
+        }
       num_phrases++;
     }
   }
@@ -1890,15 +2022,15 @@ void set_hand(int cursor,int cur_phrase)
 				SDL_BlitSurface(keypress1, NULL, screen, &keyboard_loc);
                 SDL_DestroySurface(keypress1);
                 keypress1 = NULL;
-			}
+            }
 
-			if (keypress2)
+            if (keypress2)
 			{
 				SDL_BlitSurface(keypress2, NULL, screen, &keyboard_loc);
                 SDL_DestroySurface(keypress2);
                 keypress2 = NULL;
-			}
-	    }
+            }
+        }
 	    else
 		{
 			/* If the next letter to be typed is space then the 64th image 
@@ -1983,32 +2115,32 @@ wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space)
 		{
             wcscat(temp, L"comma");
         }
-		else if (phrases[cur_phrase][i] == L'.')
-		{
+        else if (phrases[cur_phrase][i] == L'.')
+        {
             wcscat(temp, L"full stop");
         }
-		else if (phrases[cur_phrase][i] == L'\'')
-		{
+        else if (phrases[cur_phrase][i] == L'\'')
+        {
             wcscat(temp, L"apostophe");
         }
-		else if (phrases[cur_phrase][i] == L';')
-		{
+        else if (phrases[cur_phrase][i] == L';')
+        {
             wcscat(temp, L"semicolon");
-        }		
-		else if (phrases[cur_phrase][i] == L':')
-		{
+        }
+        else if (phrases[cur_phrase][i] == L':')
+        {
             wcscat(temp, L"colon");
         }
-		else if (phrases[cur_phrase][i] == L'?')
-		{
+        else if (phrases[cur_phrase][i] == L'?')
+        {
             wcscat(temp, L"Qustion mark");
         }
-		else if (phrases[cur_phrase][i] == L'-')
-		{
+        else if (phrases[cur_phrase][i] == L'-')
+        {
             wcscat(temp, L"Hyphen");
-        }		
-		else
-		{
+        }
+        else
+        {
 			iter = wcslen(temp);
 			temp[iter++] = L' ';
 			if(iswupper(phrases[cur_phrase][i]))

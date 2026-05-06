@@ -288,9 +288,7 @@ void DisplayHighScores(int level)
             strcat(tts_temp,". Press space or escape to return to main menu.");
             T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_temp);
 
-            
             /* Update screen: */
-            
 
             old_diff_level = diff_level;
         }
@@ -323,7 +321,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 
     int redraw = 0;
     int first_draw = 1;
-    int finished = 0;
+    int       finished                              = 0;
     Uint32 start = 0;
     wchar_t wchar_buf[HIGH_SCORE_NAME_LENGTH + 1] = {'\0'};
     const int NAME_FONT_SIZE = 32;
@@ -406,7 +404,6 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_(s1));
 
     /* and update: */
-    
 
     while (!finished)
     {
@@ -478,7 +475,9 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                 case SDLK_BACKSPACE:
                 {
                     if (wcslen(wchar_buf) > 0)
+                    {
                         wchar_buf[(int)wcslen(wchar_buf) - 1] = '\0';
+                    }
                     redraw = 1;
                     break;
                 }
@@ -515,7 +514,6 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                         SDL_BlitSurface(current_bkg(), &redraw_rect, screen,
                                         &redraw_rect);
                         T4K_DrawButton(&redraw_rect, 0, REG_RGBA);
-                        
                     }
 
                     s = T4K_BlackOutline(UTF8_buf, NAME_FONT_SIZE, &yellow);
@@ -534,12 +532,11 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                         redraw_rect.w = s->w + 40;
                         first_draw    = 0;
 
-                        
                         SDL_DestroySurface(s);
                         s = NULL;
                     }
                 }
-                    }
+            }
             }
         }
 

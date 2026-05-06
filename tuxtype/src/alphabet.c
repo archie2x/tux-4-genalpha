@@ -25,8 +25,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
@@ -501,14 +499,17 @@ wchar_t* GetWord(void)
 /* returns "false"                                             */
 int GenerateWordList(const char* wordFn)
 {
-  int j;
-  char temp_word[FNLEN];
-  wchar_t temp_wide_word[FNLEN];
-  size_t length;
+    int     j;
+    char    temp_word[FNLEN];
+    wchar_t temp_wide_word[FNLEN];
+    size_t  length;
 
-  FILE* wordFile = NULL;
+    FILE* wordFile = NULL;
 
-  DEBUGCODE { fprintf(stderr, "Entering GenerateWordList() for file: %s\n", wordFn); }
+    DEBUGCODE
+    {
+        fprintf(stderr, "Entering GenerateWordList() for file: %s\n", wordFn);
+    }
 
   num_words = 0;
 
@@ -524,12 +525,15 @@ int GenerateWordList(const char* wordFn)
   DEBUGCODE { fprintf(stderr, "Loading words from file: %s\n", wordFn); }
 
   /* ignore the title (i.e. first line) */
-  (void)fscanf( wordFile, "%[^\n]\n", temp_word);
+  (void)fscanf(wordFile, "%[^\n]\n", temp_word);
 
   while (!feof(wordFile) && (num_words < MAX_NUM_WORDS))
   {
-    (void)fscanf( wordFile, "%[^\n]\n", temp_word);
-    DEBUGCODE {fprintf(stderr, "temp_word = %s\n", temp_word);}
+      (void)fscanf(wordFile, "%[^\n]\n", temp_word);
+      DEBUGCODE
+      {
+          fprintf(stderr, "temp_word = %s\n", temp_word);
+      }
 
     /* Ignore comment lines - starting with '#' */
     if (temp_word[0] == '#')
@@ -546,7 +550,8 @@ int GenerateWordList(const char* wordFn)
 
     DOUT((int)length);
 
-    if (length == (size_t)-1)  /* Means invalid UTF-8 sequence or conversion failed */
+    if (length ==
+        (size_t)-1) /* Means invalid UTF-8 sequence or conversion failed */
     {
       fprintf(stderr, "Word '%s' not added - invalid UTF-8 sequence!\n", temp_word);
       continue;

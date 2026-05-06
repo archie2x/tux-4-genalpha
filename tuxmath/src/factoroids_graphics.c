@@ -651,7 +651,6 @@ void factoroids_show_message(char* str)
         SDL_BlitSurface(s1, NULL, screen, &loc);
         SDL_DestroySurface(s1);
     }
-    
 }
 
 
@@ -685,8 +684,6 @@ void factoroids_level_objs_hints(char *label, char *contents, int x, int y )
         loc.y = s1->h + loc.y ;
         SDL_BlitSurface(s2, NULL, screen, &loc);
     }
-
-    
 
     SDL_DestroySurface(s1);
     SDL_DestroySurface(s2);

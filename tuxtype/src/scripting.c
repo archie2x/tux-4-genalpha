@@ -1466,14 +1466,14 @@ static void run_script(void)
                     //((void)0);
                   }
                   break;
-                }
+              }
 
-                case SDL_EVENT_QUIT:
-                {
+              case SDL_EVENT_QUIT:
+              {
                   curPage = NULL;
                   done = 1;
                   break;
-                }
+              }
 
                 case SDL_EVENT_KEY_DOWN:
                 {
@@ -1496,7 +1496,7 @@ static void run_script(void)
                       break;
                     default:
                       break;
-                  };
+                    };
 
                   break;
                 }
@@ -1514,9 +1514,8 @@ static void run_script(void)
           
           /* Announce the lesson instruction */
 		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_buffer);
-		  tts_buffer[0] = '\0';          
-          
-          
+          tts_buffer[0] = '\0';
+
           // Make sure everything is on screen
           T4K_UpdateRect(screen, NULL);
 
@@ -1532,18 +1531,18 @@ static void run_script(void)
                   curPage = NULL;
                   done = 1;
                   break;
-                }
+              }
 
-                case SDL_EVENT_KEY_DOWN:
-                {
-                    switch (event.key.key)
-                    {
-                    case SDLK_ESCAPE: 
-                    {
+              case SDL_EVENT_KEY_DOWN:
+              {
+                  switch (event.key.key)
+                  {
+                  case SDLK_ESCAPE:
+                  {
                       curPage = NULL;
                       done = 1;
                       break;  // quit
-                    }
+                  }
                     case SDLK_P:
                     case SDLK_SPACE:
                     {
@@ -1553,9 +1552,9 @@ static void run_script(void)
                     }
                     default:
                       break;
-                  };
+                    };
                   break;
-                }
+              }
               }
             }
           }

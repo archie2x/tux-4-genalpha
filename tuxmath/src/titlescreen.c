@@ -101,7 +101,7 @@ SDL_Surface* current_bkg()
     {
         return fs_bkg;
     }
-    return win_bkg; 
+    return win_bkg;
 }
 
 /* FIXME this function assumes the background is properly scaled */
@@ -178,8 +178,6 @@ void TitleScreen(void)
         SDL_BlitSurface(logo, NULL, screen, &logo_rect);
         SDL_DestroySurface(logo);
     }
-
-    
 
     /* Play "harp" greeting sound lifted from Tux Paint */
     playsound(SND_HARP);
@@ -264,10 +262,8 @@ void TitleScreen(void)
             if(current_bkg()->w != screen->w || current_bkg()->h != screen->h)
                 SDL_FillSurfaceRect(
                     screen,
-                    &(SDL_Rect){
-                        0, 0, (screen)->w,
-                        (screen)
-                            ->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */
+                    &(SDL_Rect){0, 0, (screen)->w, (screen)->h}
+                    /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */
                     ,
                     0);
 
@@ -282,9 +278,6 @@ void TitleScreen(void)
             /* update screen */
             SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_anim);
             SDL_BlitSurface(title, NULL, screen, &title_anim);
-
-            
-            
 
             T4K_Throttle(1000/ANIM_FPS, &timer);
         }
@@ -468,7 +461,8 @@ void HandleTitleScreenAnimations_Reset(bool reset)
         T4K_UpdateRect(screen, &tux_rect);
     }
 
-    if (egg_active) {
+    if (egg_active)
+    {
         float mx, my;
         SDL_GetMouseState(&mx, &my);
         cursor.x = (int)mx - egg->w / 2;
@@ -654,8 +648,6 @@ void ShowMessageWrap( int font_size, const char* str )
             }
         }
 
-        
-
         while(!finished)
         {
             while(SDL_PollEvent(&event))
@@ -683,7 +675,9 @@ void ShowMessageWrap( int font_size, const char* str )
                         DEBUGMSG(debug_titlescreen,
                                  "You clicked the left arrow.\n");
                         if (page > 0)
+                        {
                             page--;
+                        }
                         finished = 1;
                     }
                     /* right arrow button pressed */
@@ -692,7 +686,9 @@ void ShowMessageWrap( int font_size, const char* str )
                         DEBUGMSG(debug_titlescreen,
                                  "You clicked the right arrow.\n");
                         if (page * maxline + maxline < nline)
+                        {
                             page++;
+                        }
                         finished = 1;
                     }
                     else
@@ -702,38 +698,42 @@ void ShowMessageWrap( int font_size, const char* str )
                         finished   = 1;
                         inprogress = 0;
                     }
-                        }
-                        case SDL_EVENT_KEY_DOWN:
+                }
+                case SDL_EVENT_KEY_DOWN:
+                {
+                    switch (event.key.key)
+                    {
+                    case SDLK_LEFT:
+                    {
+                        if (page > 0)
                         {
-                            switch (event.key.key)
-                            { 
-                                case SDLK_LEFT:
-                                    {
-                                        if(page>0)
-                                            page--;
-                                        finished = 1;
-                                        break;
-                                    }
-                                case SDLK_RIGHT:
-                                    {
-                                        if(page*maxline+maxline<nline)
-                                            page++; 
-                                        finished = 1;
-                                        break;
-                                    }
-                                    case SDLK_Q:
-                                    {
-                                        finished = 1;
-                                        inprogress = 0;
-                                    }
-                                default:
-                                    {
-                                        finished = 1;
-                                        inprogress = 0; 
-                                        playsound(SND_TOCK);
-                                    }
-                            }
-                        } 
+                            page--;
+                        }
+                        finished = 1;
+                        break;
+                    }
+                    case SDLK_RIGHT:
+                    {
+                        if (page * maxline + maxline < nline)
+                        {
+                            page++;
+                        }
+                        finished = 1;
+                        break;
+                    }
+                    case SDLK_Q:
+                    {
+                        finished   = 1;
+                        inprogress = 0;
+                    }
+                    default:
+                    {
+                        finished   = 1;
+                        inprogress = 0;
+                        playsound(SND_TOCK);
+                    }
+                    }
+                }
                 }
                 /* Don't eat all CPU: */
                 T4K_Throttle(20, &timer);
@@ -808,7 +808,6 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     }
 
     /* and update: */
-    
 
     while (!finished)
     {
@@ -1121,7 +1120,7 @@ int handle_easter_egg(const SDL_Event* evt)
             //SDL_FillSurfaceRect(screen, &cursor, 0);
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
             SDL_WarpMouseInWindow(T4K_GetWindow(), cursor.x, cursor.y);
-             //egg->x, egg->y, egg->w, egg->h);
+            //egg->x, egg->y, egg->w, egg->h);
             egg_active = 0;
         }
         return 1;
@@ -1139,7 +1138,7 @@ int handle_easter_egg(const SDL_Event* evt)
             {
                 SDL_BlitSurface(current_bkg(), &tux_rect, screen, &tux_rect);
                 SDL_BlitSurface(Tux->frame[--tuxframe], NULL, screen, &tux_rect);
-                
+
                 SDL_Delay(GOBBLE_ANIM_MS / Tux->num_frames);
             }
 

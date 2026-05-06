@@ -90,14 +90,12 @@ static int tts_announcer(void *unused);
 
 int PlayLaserGame(int diff_level)
 {
-	int i, img, done, quit, frame, lowest, lowest_y,
-	    tux_img, old_tux_img, tux_pressing, tux_anim, tux_anim_frame,
-	    tux_same_counter, level_start_wait,
-	    num_comets_alive, paused,
-	    gameover;
+    int i, img, done, quit, frame, lowest, lowest_y, tux_img, old_tux_img,
+        tux_pressing, tux_anim, tux_anim_frame, tux_same_counter,
+        level_start_wait, num_comets_alive, paused, gameover;
 
-	//Braille Variables
-	wchar_t pressed_letters[1000];
+    //Braille Variables
+    wchar_t pressed_letters[1000];
 	int braille_iter;
 
 	Uint16 key_unicode;
@@ -168,23 +166,23 @@ int PlayLaserGame(int diff_level)
 	/* --- MAIN GAME LOOP!!! --- */
   
 	frame = 0;
-	paused = 0;
-	tux_img = IMG_TUX_RELAX1;
-	tux_anim = -1;
+    paused           = 0;
+    tux_img          = IMG_TUX_RELAX1;
+    tux_anim = -1;
 	tux_anim_frame = 0;
 	tux_same_counter = 0;
 	ans_num = 0;
 
-	MusicPlay(musics[MUS_GAME + (rand() % NUM_MUSICS)], 0);
-	
+    MusicPlay(musics[MUS_GAME + (rand() % NUM_MUSICS)], 0);
 
-
-	 //Call announcer function in thread which annonces the word to type
-	if(settings.tts)
+    //Call announcer function in thread which annonces the word to type
+    if (settings.tts)
+    {
         tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+    }
 
     //Inetialising braille variables
-	braille_iter = 0;
+    braille_iter                  = 0;
     pressed_letters[braille_iter] = L'\0';
 
 	do {
@@ -202,19 +200,19 @@ int PlayLaserGame(int diff_level)
             if (event.type == SDL_EVENT_QUIT)
             {
                 /* Window close event - quit! */
-				exit(0);
+                exit(0);
             }
             else if (event.type == SDL_EVENT_KEY_DOWN)
             {
 
                 key = event.key.key;
-                if (key == SDLK_F10) 
-                                {
-				  SwitchScreenMode();
-                                  calc_city_pos();
-                                  recalc_comet_pos();
-                                }
-				if (key == SDLK_F11)
+                if (key == SDLK_F10)
+                {
+                    SwitchScreenMode();
+                    calc_city_pos();
+                    recalc_comet_pos();
+                }
+                if (key == SDLK_F11)
 					SDL_SaveBMP( screen, "laser.bmp");
 
 				if (key == SDLK_RALT)
@@ -243,8 +241,8 @@ int PlayLaserGame(int diff_level)
                 /* Braille mode tracks raw KEY_DOWN. Everything else routes
 				 * typed characters through SDL_EVENT_TEXT_INPUT below — that
 				 * is the only path that sees composed glyphs (ü/ö/é). */
-                if(settings.braille)
-				{
+                if (settings.braille)
+                {
                     pressed_letters[braille_iter] = event.key.key;
                     braille_iter++;
                     pressed_letters[braille_iter] = L'\0';
@@ -272,14 +270,14 @@ int PlayLaserGame(int diff_level)
                         key_unicode -= 1;
                     }
                     ans[ans_num++] = key_unicode;
-				}
+                }
             }
             else if (event.type == SDL_EVENT_KEY_UP)
             {
                 /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-                if(settings.braille)
-				{
-					arrange_in_order(pressed_letters);
+                if (settings.braille)
+                {
+                    arrange_in_order(pressed_letters);
 				    if (wcscmp(pressed_letters,L"") != 0)
 				    {
 					   for(i=0;i<100;i++)
@@ -306,13 +304,11 @@ int PlayLaserGame(int diff_level)
 				   
 				   braille_iter = 0;
 				   pressed_letters[braille_iter] = L'\0';
-			
-			  }
-			}
-		}
-      
-      
-		/* Handle answer: */
+                }
+            }
+        }
+
+        /* Handle answer: */
 
 		for (;ans_num>0;ans_num--) {
 
@@ -742,30 +738,34 @@ int PlayLaserGame(int diff_level)
 	
 			SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest);
 		}
-      
-      
-		/* Swap buffers: */
+
+        /* Swap buffers: */
 
         T4K_UpdateRect(screen, NULL);
 
         /* If we're in "PAUSE" mode, pause! */
 
-		if (paused) {
-			if(settings.tts)
+        if (paused)
+        {
+            if(settings.tts)
 				stop_tts_announcer();
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Game Paused!"));
             quit = Pause(1);
-            if(quit == 0){
-					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
-					//Call announcer function in thread which annonces the word to type
-					if(settings.tts)
-                        tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
-            }							
-			paused = 0;
-		}
+            if (quit == 0)
+            {
+                T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                            gettext("Pause Released!"));
+                //Call announcer function in thread which annonces the word to type
+                if (settings.tts)
+                {
+                    tts_thread =
+                        SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+                }
+            }
+            paused = 0;
+        }
 
-      
-		/* Keep playing music: */
+        /* Keep playing music: */
 
         if (settings.sys_sound && !T4K_IsPlayingMusic())
         {
@@ -773,13 +773,14 @@ int PlayLaserGame(int diff_level)
         }
 
         /* Pause (keep frame-rate event) */
-                DEBUGCODE
-                {
-                  fprintf(stderr, "now_time = %d\tlast_time = %d, elapsed time = %d\n",
-                          now_time, last_time, now_time - last_time);
-                }
+        DEBUGCODE
+        {
+            fprintf(stderr,
+                    "now_time = %d\tlast_time = %d, elapsed time = %d\n",
+                    now_time, last_time, now_time - last_time);
+        }
 
-		now_time = SDL_GetTicks();
+        now_time = SDL_GetTicks();
 		if (now_time < last_time + FPS)
 			SDL_Delay(last_time + FPS - now_time);
 	}
@@ -865,24 +866,23 @@ static void recalc_comet_pos(void)
 /* --- Load all media --- */
 static void laser_load_data(void)
 {
-	/* Create the SDL_Surfaces for all of the characters */
-        /* used in the word list: */
-	RenderLetters(COMET_ZAP_FONT_SIZE);
+    /* Create the SDL_Surfaces for all of the characters */
+    /* used in the word list: */
+    RenderLetters(COMET_ZAP_FONT_SIZE);
 
 	shield = LoadSprite( "cities/shield", IMG_ALPHA );
 
 //	PauseLoadMedia();
 }
 
-
 /* --- unload all media --- */
-static void laser_unload_data(void) {
-	FreeLetters();
+static void laser_unload_data(void)
+{
+    FreeLetters();
 
-	FreeSprite(shield);
+    FreeSprite(shield);
         shield = NULL;
 }
-
 
 /* Reset stuff for the next level! */
 
