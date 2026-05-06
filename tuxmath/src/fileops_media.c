@@ -248,20 +248,10 @@ int load_sound_data(void)
     int i = 0;
 
     static char* sound_filenames[NUM_SOUNDS] = {
-        "sounds/harp.wav",
-        "sounds/pop.wav",
-        "sounds/tock.wav",
-        "sounds/laser.wav",
-        "sounds/buzz.wav",
-        "sounds/alarm.wav",
-        "sounds/shieldsdown.wav",
-        "sounds/explosion.wav",
-        "sounds/sizzling.wav",
-        "sounds/towerclock.wav",
-        "sounds/cheer.wav",
-        "sounds/engine.wav"
-    };
-
+        "sounds/harp.wav",        "sounds/pop.wav",       "sounds/tock.wav",
+        "sounds/laser.wav",       "sounds/buzz.wav",      "sounds/alarm.wav",
+        "sounds/shieldsdown.wav", "sounds/explosion.wav", "sounds/sizzling.wav",
+        "sounds/towerclock.wav",  "sounds/cheer.wav",     "sounds/engine.wav"};
 
     /* skip loading sound files if sound system not available: */
     if (Opts_UsingSound())

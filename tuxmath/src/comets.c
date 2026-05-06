@@ -192,7 +192,9 @@ static void comets_draw(void);
 static void comets_handle_game_over(int comets_status);
 
 static SDL_Surface* current_bkgd()
-{ return screen->flags & SDL_WINDOW_FULLSCREEN ? scaled_bkgd : bkgd; } //too clever for my brain to process
+{
+    return screen->flags & SDL_WINDOW_FULLSCREEN ? scaled_bkgd : bkgd;
+} //too clever for my brain to process
 
 static int check_extra_life(void);
 static int check_exit_conditions(void);
@@ -277,7 +279,8 @@ int comets_game(MC_MathGame* mgame)
 
     //see if the option matches the actual screen
     //FIXME figure out how this is happening so we don't need this workaround
-    if (Opts_GetGlobalOpt(FULLSCREEN) == !(screen->flags & SDL_WINDOW_FULLSCREEN) )
+    if (Opts_GetGlobalOpt(FULLSCREEN) ==
+        !(screen->flags & SDL_WINDOW_FULLSCREEN))
     {
         fprintf(stderr, "\nWarning: Opts_GetGlobalOpt(FULLSCREEN) does not match"
                 " actual screen resolution! Resetting selected option.\n");
@@ -417,7 +420,9 @@ int comets_initialize(void)
     DEBUGCODE(debug_game) print_game_options(stderr, 0);
 
     /* Clear window: */
-    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+    SDL_FillSurfaceRect(
+        screen, NULL,
+        SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
     T4K_UpdateRect(screen, NULL);
 
     comets_status = GAME_IN_PROGRESS;
@@ -1006,8 +1011,14 @@ void help_add_comet(const char* formula_str, const char* ans_str)
 
     strncpy(comets[0].flashcard.formula_string,formula_str, MC_MaxFormulaSize() );
     strncpy(comets[0].flashcard.answer_string,ans_str,MC_MaxAnswerSize() );
-    if(comets[0].formula_surf) SDL_DestroySurface(comets[0].formula_surf);
-    if(comets[0].answer_surf) SDL_DestroySurface(comets[0].answer_surf);
+    if (comets[0].formula_surf)
+    {
+        SDL_DestroySurface(comets[0].formula_surf);
+    }
+    if (comets[0].answer_surf)
+    {
+        SDL_DestroySurface(comets[0].answer_surf);
+    }
     comets[0].formula_surf = T4K_BlackOutline(comets[0].flashcard.formula_string, comet_fontsize, &white);
     comets[0].answer_surf = T4K_BlackOutline(comets[0].flashcard.answer_string, comet_fontsize, &white);
 }
@@ -1075,7 +1086,7 @@ void comets_handle_user_events(void)
 {
     SDL_Event event;
     SDL_Keycode key;
-    SDL_Keymod mod;
+    SDL_Keymod  mod;
 
     while (SDL_PollEvent(&event) > 0)
     {
@@ -1568,9 +1579,15 @@ void comets_handle_comets(void)
                     comets[i].alive = 0;
                     comets[i].expl = -1;
                     if(comets[i].answer_surf)
-                    {SDL_DestroySurface(comets[i].answer_surf); comets[i].answer_surf = NULL; }
+                    {
+                        SDL_DestroySurface(comets[i].answer_surf);
+                        comets[i].answer_surf = NULL;
+                    }
                     if(comets[i].formula_surf)
-                    {SDL_DestroySurface(comets[i].formula_surf); comets[i].formula_surf = NULL; }
+                    {
+                        SDL_DestroySurface(comets[i].formula_surf);
+                        comets[i].formula_surf = NULL;
+                    }
                     if (bonus_comet_counter > 1 && comets[i].zapped) {
                         bonus_comet_counter--;
                         DEBUGMSG(debug_game, "bonus_comet_counter is now %d\n",bonus_comet_counter);
@@ -2227,9 +2244,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_EVENT_QUIT
-                            || event.type == SDL_EVENT_KEY_DOWN
-                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                    if (event.type == SDL_EVENT_QUIT ||
+                        event.type == SDL_EVENT_KEY_DOWN ||
+                        event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2326,9 +2343,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_EVENT_QUIT
-                            || event.type == SDL_EVENT_KEY_DOWN
-                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                    if (event.type == SDL_EVENT_QUIT ||
+                        event.type == SDL_EVENT_KEY_DOWN ||
+                        event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2466,9 +2483,9 @@ void comets_handle_game_over(int game_status)
 
                 while (SDL_PollEvent(&event) > 0)
                 {
-                    if  (event.type == SDL_EVENT_QUIT
-                            || event.type == SDL_EVENT_KEY_DOWN
-                            || event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+                    if (event.type == SDL_EVENT_QUIT ||
+                        event.type == SDL_EVENT_KEY_DOWN ||
+                        event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     {
                         looping = 0;
                     }
@@ -2745,8 +2762,14 @@ int add_comet(void)
     /* If we make it to here, create a new comet!*/
     comets[com_found].answer = comets[com_found].flashcard.answer;
     comets[com_found].alive = 1;
-    if(comets[com_found].formula_surf) SDL_DestroySurface(comets[com_found].formula_surf);
-    if(comets[com_found].answer_surf) SDL_DestroySurface(comets[com_found].answer_surf);
+    if (comets[com_found].formula_surf)
+    {
+        SDL_DestroySurface(comets[com_found].formula_surf);
+    }
+    if (comets[com_found].answer_surf)
+    {
+        SDL_DestroySurface(comets[com_found].answer_surf);
+    }
     comets[com_found].formula_surf = T4K_BlackOutline(comets[com_found].flashcard.formula_string, comet_fontsize, &white);
     comets[com_found].answer_surf = T4K_BlackOutline(comets[com_found].flashcard.answer_string, comet_fontsize, &white);
     //  num_comets_alive++;
@@ -2808,7 +2831,7 @@ void comets_mouse_event(SDL_Event event)
 {
     int keypad_w, keypad_h, x, y, row, column;
     SDL_Keycode key = SDLK_UNKNOWN;
-    SDL_Keymod mod = event.key.mod;
+    SDL_Keymod  mod = event.key.mod;
     keypad_w = 0;
     keypad_h = 0;
 
@@ -3008,8 +3031,7 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
             user_quit_received = GAME_OVER_CHEATER;
         }
     }
-    else if (key == SDLK_TAB
-            || key == SDLK_P)
+    else if (key == SDLK_TAB || key == SDLK_P)
     {
         /* [TAB] or [P]: Pause! (if settings allow) */
         if (Opts_AllowPause())
@@ -3062,7 +3084,7 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
         /* Keypad [0]-[9]: Add a new digit: */
         for (i = 0; i < MC_MAX_DIGITS-1; ++i)
             digits[i] = digits[i+1];
-        digits[MC_MAX_DIGITS-1] = key - SDLK_KP_0;
+        digits[MC_MAX_DIGITS - 1] = key - SDLK_KP_0;
 
         //    digits[0] = digits[1];
         //    digits[1] = digits[2];
@@ -3077,19 +3099,13 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
         neg_answer_picked = 1;
         tux_pressing = 1;
     }
-    else if (     /* Effort to make logical operators clear: */
-            (
-             ( /* HACK this hard-codes the plus sign to the US layout: */
-               (key == SDLK_EQUALS) && (mod & SDL_KMOD_SHIFT)
-             ) 
-             ||
-             (
-              key == SDLK_KP_PLUS
-             )
-            )
-            &&
-            MC_GetOpt(curr_game, ALLOW_NEGATIVES)
-            )  /* do nothing unless neg answers allowed */
+    else if (  /* Effort to make logical operators clear: */
+             ((/* HACK this hard-codes the plus sign to the US layout: */
+               (key == SDLK_EQUALS) && (mod & SDL_KMOD_SHIFT)) ||
+              (key == SDLK_KP_PLUS)) &&
+             MC_GetOpt(
+                 curr_game,
+                 ALLOW_NEGATIVES)) /* do nothing unless neg answers allowed */
     {
         /* allow player to make answer positive: */
         fprintf(stderr, "SDKL_PLUS received\n");
@@ -3141,25 +3157,23 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
 
     else if(key == SDLK_PAGEUP)
     {
-		volume = 0; /* Mix_Volume dropped */
-	}
+        volume = 0; /* Mix_Volume dropped */
+    }
 
     else if(key == SDLK_PAGEDOWN)
     {
-		volume = 0; /* Mix_Volume dropped */
-	}
+        volume = 0; /* Mix_Volume dropped */
+    }
 
     else if(key == SDLK_HOME)
     {
-		volume = 0; /* Mix_VolumeMusic dropped */
-	}
+        volume = 0; /* Mix_VolumeMusic dropped */
+    }
 
     else if(key == SDLK_END)
     {
-		volume = 0; /* Mix_VolumeMusic dropped */
-	}
-
-	
+        volume = 0; /* Mix_VolumeMusic dropped */
+    }
 }
 
 /* Increment score: */
@@ -3192,9 +3206,15 @@ void reset_comets(void)
         comets[i].answer = 0;
         MC_ResetFlashCard(&(comets[i].flashcard));
         comets[i].bonus = 0;
-        if(comets[i].formula_surf) SDL_DestroySurface(comets[i].formula_surf);
+        if (comets[i].formula_surf)
+        {
+            SDL_DestroySurface(comets[i].formula_surf);
+        }
         comets[i].formula_surf = NULL;
-        if(comets[i].answer_surf) SDL_DestroySurface(comets[i].answer_surf);
+        if (comets[i].answer_surf)
+        {
+            SDL_DestroySurface(comets[i].answer_surf);
+        }
         comets[i].answer_surf = NULL;
     }
 }
@@ -3503,9 +3523,15 @@ void comets_handle_powerup(void)
             powerup_comet->comet.alive = 0;
             powerup_comet->comet.expl = -1;
             if(powerup_comet->comet.answer_surf)
-            {SDL_DestroySurface(powerup_comet->comet.answer_surf); powerup_comet->comet.answer_surf = NULL; }
+            {
+                SDL_DestroySurface(powerup_comet->comet.answer_surf);
+                powerup_comet->comet.answer_surf = NULL;
+            }
             if(powerup_comet->comet.formula_surf)
-            {SDL_DestroySurface(powerup_comet->comet.formula_surf); powerup_comet->comet.formula_surf = NULL; }
+            {
+                SDL_DestroySurface(powerup_comet->comet.formula_surf);
+                powerup_comet->comet.formula_surf = NULL;
+            }
             if(powerup_comet->comet.zapped)
             {
                 switch(powerup_comet->type)
@@ -3747,8 +3773,14 @@ int lan_add_comet(MC_FlashCard* fc)
     MC_CopyCard(fc, &(comets[com_found].flashcard));
     comets[com_found].answer = fc->answer;
     comets[com_found].alive = 1;
-    if(comets[com_found].formula_surf) SDL_DestroySurface(comets[com_found].formula_surf);
-    if(comets[com_found].answer_surf) SDL_DestroySurface(comets[com_found].answer_surf);
+    if (comets[com_found].formula_surf)
+    {
+        SDL_DestroySurface(comets[com_found].formula_surf);
+    }
+    if (comets[com_found].answer_surf)
+    {
+        SDL_DestroySurface(comets[com_found].answer_surf);
+    }
     comets[com_found].formula_surf = T4K_BlackOutline(comets[com_found].flashcard.formula_string, comet_fontsize, &white);
     comets[com_found].answer_surf = T4K_BlackOutline(comets[com_found].flashcard.answer_string, comet_fontsize, &white);
     //  num_comets_alive++;
@@ -4104,27 +4136,29 @@ int tts_announcer(void *unused)
 					iter++;
 				}
 			}
-			
-			/* Order by y-axis descending. We announce the lowest
+
+            /* Order by y-axis descending. We announce the lowest
 			 * three comets (closest to the cities). Bound the sort
 			 * by `iter` so we never read past the alive-count. */
-			if (iter != 0)
+            if (iter != 0)
 			{
-				for (i = 0; i < iter; i++){
-					for(j = 0; j + 1 < iter; j++){
-						if (comets[order[j]].y < comets[order[j+1]].y){
+                for (i = 0; i < iter; i++)
+                {
+                    for (j = 0; j + 1 < iter; j++)
+                    {
+                        if (comets[order[j]].y < comets[order[j+1]].y){
 							y_axis = order[j+1];
 							order[j+1] = order[j];
 							order[j] = y_axis;
 						}
-					}
-				}
-				
-				/* Announce up to the lowest three comets,
+                    }
+                }
+
+                /* Announce up to the lowest three comets,
 				 * but never more than are actually alive. */
-				int n_announce = (iter < 3) ? iter : 3;
-				for (i = 0; i < n_announce; i++)
-				{
+                int n_announce = (iter < 3) ? iter : 3;
+                for (i = 0; i < n_announce; i++)
+                {
 					if (tts_announcer_switch == 0)
 						goto end;
 				
@@ -4151,7 +4185,8 @@ int tts_announcer(void *unused)
 }
 void start_tts_announcer_thread(){
 	extern SDL_Thread *tts_announcer_thread;
-	tts_announcer_thread = SDL_CreateThread(tts_announcer, "tts_announcer", NULL);
+    tts_announcer_thread =
+        SDL_CreateThread(tts_announcer, "tts_announcer", NULL);
 }
 
 void stop_tts_announcer_thread(){

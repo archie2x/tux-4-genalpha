@@ -31,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include <ctype.h>
 
-
 #define MAX_LANGUAGES 100
 
 
@@ -159,11 +158,11 @@ void ChooseTheme(void)
     while (SDL_PollEvent(&event)) 
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
-        exit(0);
-        break;
+      case SDL_EVENT_QUIT:
+          exit(0);
+          break;
 
-        case SDL_EVENT_MOUSE_MOTION:
+      case SDL_EVENT_MOUSE_MOTION:
           for (i = 0; (i < 8) && (loc - (loc%8) + i < themes); i++)
             if (inRect( titleRects[i], event.motion.x, event.motion.y ))
             {
@@ -173,7 +172,7 @@ void ChooseTheme(void)
 
           break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN: 
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (inRect( leftRect, event.button.x, event.button.y )) 
             if (loc-(loc%8)-8 >= 0)
             {
@@ -208,7 +207,7 @@ void ChooseTheme(void)
             }
           break;
 
-        case SDL_EVENT_KEY_DOWN:
+      case SDL_EVENT_KEY_DOWN:
           if (event.key.key == SDLK_ESCAPE)
           {
             settings.use_english = old_use_english;
@@ -234,31 +233,25 @@ void ChooseTheme(void)
             break;
           }
 
-          if ((event.key.key == SDLK_LEFT)
-           || (event.key.key == SDLK_PAGEUP))
+          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
             if (loc-(loc%8)-8 >= 0) 
               loc=loc-(loc%8)-8;
           }
 
-          if ((event.key.key == SDLK_RIGHT)
-           || (event.key.key == SDLK_PAGEDOWN))
+          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
           {
             if (loc-(loc%8)+8 < themes)
               loc=(loc-(loc%8)+8);
           }
 
-          if ((event.key.key == SDLK_UP)
-	     ||
-	      (event.key.key == SDLK_K))
+          if ((event.key.key == SDLK_UP) || (event.key.key == SDLK_K))
           {
             if (loc > 0)
               loc--;
           }
 
-          if ((event.key.key == SDLK_DOWN)
-	     ||
-	      (event.key.key == SDLK_J))
+          if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
           {
             if (loc+1<themes)
               loc++;
@@ -281,7 +274,7 @@ void ChooseTheme(void)
       if (map)
       {
         SDL_BlitSurface( map, NULL, screen, &worldRect );
-        SDL_DestroySurface( map );
+        SDL_DestroySurface(map);
       }
 
       photo = LoadImage( "photo.png", IMG_ALPHA|IMG_NOT_REQUIRED );
@@ -292,7 +285,7 @@ void ChooseTheme(void)
         photoRect.w = photo->w;
         photoRect.h = photo->h;
         SDL_BlitSurface( photo, NULL, screen, &photoRect );
-        SDL_DestroySurface( photo );
+        SDL_DestroySurface(photo);
       }
 
       start = loc - (loc % 8);
@@ -300,8 +293,8 @@ void ChooseTheme(void)
       for (i = start; i<MIN(start+8,themes); i++)
       {
         titleRects[i%8].x = 160 - (titles[i]->w/2);
-        titleRects[i%8].w = titles[i]->w;
-        titleRects[i%8].h = titles[i]->h;
+        titleRects[i % 8].w = titles[i]->w;
+        titleRects[i % 8].h = titles[i]->h;
 
         if (i == loc){
           SDL_BlitSurface(select[loc], NULL, screen, &titleRects[i%8]);
@@ -331,12 +324,11 @@ void ChooseTheme(void)
 
   for (i = 0; i<themes; i++)
   {
-    SDL_DestroySurface(titles[i]);
-    SDL_DestroySurface(select[i]);
+      SDL_DestroySurface(titles[i]);
+      SDL_DestroySurface(select[i]);
   }
 
   SDL_DestroySurface(world);
   SDL_DestroySurface(left);
   SDL_DestroySurface(right);
-
 }

@@ -80,54 +80,53 @@ void DisplayHighScores(int level)
         {
             switch (event.type)
             {
-                case SDL_EVENT_QUIT:
-                    {
-                        cleanup();
-                    }
+            case SDL_EVENT_QUIT:
+            {
+                cleanup();
+            }
 
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    /* "Stop" button - go to main menu: */
-                    {
-                        if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
-                        {
-                            finished = 1;
-                            playsound(SND_TOCK);
-                        }
-
-                        /* "Left" button - go to previous page: */
-                        if (T4K_inRect(prev_rect, event.button.x, event.button.y))
-                        {
-                            if (diff_level > CADET_HIGH_SCORE)
-                            {
-                                diff_level--;
-                                if (Opts_GetGlobalOpt(MENU_SOUND))
-                                {
-                                    playsound(SND_TOCK);
-                                }
-                            }
-                        }
-
-                        /* "Right" button - go to next page: */
-                        if (T4K_inRect(next_rect, event.button.x, event.button.y ))
-                        {
-                            if (diff_level < (NUM_HIGH_SCORE_LEVELS-1))
-                            {
-                                diff_level++;
-                                if (Opts_GetGlobalOpt(MENU_SOUND))
-                                {
-                                    playsound(SND_TOCK);
-                                }
-                            }
-                        }
-                        break;
-                    }
-
-
-                case SDL_EVENT_KEY_DOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                /* "Stop" button - go to main menu: */
+                {
+                    if (T4K_inRect(stop_rect, event.button.x, event.button.y))
                     {
                         finished = 1;
                         playsound(SND_TOCK);
                     }
+
+                    /* "Left" button - go to previous page: */
+                    if (T4K_inRect(prev_rect, event.button.x, event.button.y))
+                    {
+                        if (diff_level > CADET_HIGH_SCORE)
+                        {
+                            diff_level--;
+                            if (Opts_GetGlobalOpt(MENU_SOUND))
+                            {
+                                playsound(SND_TOCK);
+                            }
+                        }
+                    }
+
+                    /* "Right" button - go to next page: */
+                    if (T4K_inRect(next_rect, event.button.x, event.button.y))
+                    {
+                        if (diff_level < (NUM_HIGH_SCORE_LEVELS - 1))
+                        {
+                            diff_level++;
+                            if (Opts_GetGlobalOpt(MENU_SOUND))
+                            {
+                                playsound(SND_TOCK);
+                            }
+                        }
+                    }
+                    break;
+                }
+
+            case SDL_EVENT_KEY_DOWN:
+            {
+                finished = 1;
+                playsound(SND_TOCK);
+            }
             }
         }
 
@@ -291,7 +290,8 @@ void DisplayHighScores(int level)
 
             
             /* Update screen: */
-            /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+            /* SDL_UpdateRect dropped — caller updates window */ (
+                void)(screen, 0, 0, 0, 0);
 
             old_diff_level = diff_level;
         }
@@ -408,8 +408,8 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_(s1));
 
     /* and update: */
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
-
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
+                                                                0);
 
     while (!finished)
     {
@@ -419,121 +419,128 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         {
             switch (event.type)
             {
-                case SDL_EVENT_QUIT:
-                    {
-                        cleanup();
-                    }
+            case SDL_EVENT_QUIT:
+            {
+                cleanup();
+            }
 
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    /* "Stop" button - go to main menu: */
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                /* "Stop" button - go to main menu: */
+                {
+                    if (T4K_inRect(stop_rect, event.button.x, event.button.y))
                     {
-                        if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
-                        {
-                            finished = 1;
-                            playsound(SND_TOCK);
-                            break;
-                        }
+                        finished = 1;
+                        playsound(SND_TOCK);
+                        break;
                     }
-                case SDL_EVENT_TEXT_INPUT:
-                    {
-                        /* event.text.text is a UTF-8 string (one or more
+                }
+            case SDL_EVENT_TEXT_INPUT:
+            {
+                /* event.text.text is a UTF-8 string (one or more
                          * glyphs from a single OS-level input event).
                          * Decode each multibyte sequence to wchar_t and
                          * append to wchar_buf. */
-                        const char* p = event.text.text;
-                        mbstate_t st = {0};
-                        while (*p && wcslen(wchar_buf) < HIGH_SCORE_NAME_LENGTH) {
-                            wchar_t wc;
-                            size_t n = mbrtowc(&wc, p, MB_CUR_MAX, &st);
-                            if (n == (size_t)-1 || n == (size_t)-2 || n == 0) break;
-                            wchar_buf[wcslen(wchar_buf)] = wc;
-                            p += n;
-                            redraw = 1;
-                        }
-                        if (redraw)
-                            T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",event.text.text);
-                        /* Fall through to the redraw block below by
-                         * jumping into the KEY_DOWN case's tail. */
-                        goto name_redraw;
-                    }
-                case SDL_EVENT_KEY_DOWN:
+                const char* p  = event.text.text;
+                mbstate_t   st = {0};
+                while (*p && wcslen(wchar_buf) < HIGH_SCORE_NAME_LENGTH)
+                {
+                    wchar_t wc;
+                    size_t  n = mbrtowc(&wc, p, MB_CUR_MAX, &st);
+                    if (n == (size_t)-1 || n == (size_t)-2 || n == 0)
                     {
-                        DEBUGMSG(debug_highscore, "Before keypress, string is %S\tlength = %d\n",
-                                wchar_buf, (int)wcslen(wchar_buf));
-                        switch (event.key.key)
-                        {
-                            case SDLK_ESCAPE:
-                            case SDLK_RETURN:
-                            case SDLK_KP_ENTER:
-                                {
-                                    finished = 1;
-                                    playsound(SND_TOCK);
-                                    break;
-                                }
-                            case SDLK_BACKSPACE:
-                                {
-                                    if (wcslen(wchar_buf) > 0)
-                                        wchar_buf[(int)wcslen(wchar_buf) - 1] = '\0';
-                                    redraw = 1;
-                                    break;
-                                }
+                        break;
+                    }
+                    wchar_buf[wcslen(wchar_buf)] = wc;
+                    p += n;
+                    redraw = 1;
+                }
+                if (redraw)
+                {
+                    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s",
+                                event.text.text);
+                }
+                /* Fall through to the redraw block below by
+                         * jumping into the KEY_DOWN case's tail. */
+                goto name_redraw;
+            }
+            case SDL_EVENT_KEY_DOWN:
+            {
+                DEBUGMSG(debug_highscore,
+                         "Before keypress, string is %S\tlength = %d\n",
+                         wchar_buf, (int)wcslen(wchar_buf));
+                switch (event.key.key)
+                {
+                case SDLK_ESCAPE:
+                case SDLK_RETURN:
+                case SDLK_KP_ENTER:
+                {
+                    finished = 1;
+                    playsound(SND_TOCK);
+                    break;
+                }
+                case SDLK_BACKSPACE:
+                {
+                    if (wcslen(wchar_buf) > 0)
+                        wchar_buf[(int)wcslen(wchar_buf) - 1] = '\0';
+                    redraw = 1;
+                    break;
+                }
 
-                                /* Printable characters are delivered via
+                    /* Printable characters are delivered via
                                  * SDL_EVENT_TEXT_INPUT; ignore them here
                                  * to avoid double-typing. */
-                            default:
-                                break;
-                        }  /* end  'switch (event.key.key)'  */
+                default:
+                    break;
+                } /* end  'switch (event.key.key)'  */
 
-                    name_redraw:
-                        DEBUGMSG(debug_highscore, "After keypress, string is %S\tlength = %d\n",
-                                wchar_buf, (int)wcslen(wchar_buf));
-                        /* Now draw name, if needed: */
-                        if (redraw)
-                        {
-                            SDL_Surface* s = NULL;
-                            redraw = 0;
+            name_redraw:
+                DEBUGMSG(debug_highscore,
+                         "After keypress, string is %S\tlength = %d\n",
+                         wchar_buf, (int)wcslen(wchar_buf));
+                /* Now draw name, if needed: */
+                if (redraw)
+                {
+                    SDL_Surface* s = NULL;
+                    redraw         = 0;
 
-                            /* Convert text to UTF-8 so T4K_BlackOutline() can handle it: */
-                            //         wcstombs((char*) UTF8_buf, wchar_buf, HIGH_SCORE_NAME_LENGTH * 3);
-                            T4K_ConvertToUTF8(wchar_buf, UTF8_buf, HIGH_SCORE_NAME_LENGTH * 3);
-                            /* Redraw background and shading in area where we drew text last time: */ 
-                            if (!first_draw)
-                            {
-                                SDL_BlitSurface(current_bkg(), &redraw_rect, screen, &redraw_rect);
-                                T4K_DrawButton(&redraw_rect, 0, REG_RGBA);
-                                /* SDL_UpdateRect dropped — caller updates window */ (void)(screen,
-                                        redraw_rect.x,
-                                        redraw_rect.y,
-                                        redraw_rect.w,
-                                        redraw_rect.h);
-                            }
+                    /* Convert text to UTF-8 so T4K_BlackOutline() can handle it: */
+                    //         wcstombs((char*) UTF8_buf, wchar_buf, HIGH_SCORE_NAME_LENGTH * 3);
+                    T4K_ConvertToUTF8(wchar_buf, UTF8_buf,
+                                      HIGH_SCORE_NAME_LENGTH * 3);
+                    /* Redraw background and shading in area where we drew text last time: */
+                    if (!first_draw)
+                    {
+                        SDL_BlitSurface(current_bkg(), &redraw_rect, screen,
+                                        &redraw_rect);
+                        T4K_DrawButton(&redraw_rect, 0, REG_RGBA);
+                        /* SDL_UpdateRect dropped — caller updates window */ (
+                            void)(screen, redraw_rect.x, redraw_rect.y,
+                                  redraw_rect.w, redraw_rect.h);
+                    }
 
-                            s = T4K_BlackOutline(UTF8_buf, NAME_FONT_SIZE, &yellow);
-                            if (s)
-                            {
-                                /* set up loc and blit: */
-                                loc.x = (screen->w/2) - (s->w/2);
-                                loc.y = 230;
-                                SDL_BlitSurface(s, NULL, screen, &loc);
+                    s = T4K_BlackOutline(UTF8_buf, NAME_FONT_SIZE, &yellow);
+                    if (s)
+                    {
+                        /* set up loc and blit: */
+                        loc.x = (screen->w / 2) - (s->w / 2);
+                        loc.y = 230;
+                        SDL_BlitSurface(s, NULL, screen, &loc);
 
-                                /* Remember where we drew so we can update background next time through:  */
-                                /* (for some reason we need to update a wider area to get clean image)    */
-                                redraw_rect.x = loc.x - 20;
-                                redraw_rect.y = loc.y - 10;
-                                redraw_rect.h = s->h + 20;
-                                redraw_rect.w = s->w + 40;
-                                first_draw = 0;
+                        /* Remember where we drew so we can update background next time through:  */
+                        /* (for some reason we need to update a wider area to get clean image)    */
+                        redraw_rect.x = loc.x - 20;
+                        redraw_rect.y = loc.y - 10;
+                        redraw_rect.h = s->h + 20;
+                        redraw_rect.w = s->w + 40;
+                        first_draw    = 0;
 
-                                /* SDL_UpdateRect dropped — caller updates window */ (void)(screen,
-                                        redraw_rect.x,
-                                        redraw_rect.y,
-                                        redraw_rect.w,
-                                        redraw_rect.h);
-                                SDL_DestroySurface(s);
-                                s = NULL;
-                            }
-                        }
+                        /* SDL_UpdateRect dropped — caller updates window */ (
+                            void)(screen, redraw_rect.x, redraw_rect.y,
+                                  redraw_rect.w, redraw_rect.h);
+                        SDL_DestroySurface(s);
+                        s = NULL;
+                    }
+                }
                     }
             }
         }
@@ -747,21 +754,51 @@ int read_high_scores_fp(FILE* fp)
         /* The terminating "\t\n" of each line still leaves a \n at the end
          * of the name token; strip it so T4K_BlackOutline's multiline path
          * isn't triggered. */
-        if (name_read) {
+        if (name_read)
+        {
             char* nl = strchr(name_read, '\n');
-            if (nl) *nl = '\0';
+            if (nl)
+            {
+                *nl = '\0';
+            }
             /* Drop any non-UTF-8 garbage so a corrupt byte sequence
              * doesn't truncate the rendered score row. */
-            for (unsigned char* p = (unsigned char*)name_read; *p; ) {
+            for (unsigned char* p = (unsigned char*)name_read; *p;)
+            {
                 int n = 0;
-                if (*p < 0x80)              n = 1;
-                else if ((*p & 0xe0) == 0xc0) n = 2;
-                else if ((*p & 0xf0) == 0xe0) n = 3;
-                else if ((*p & 0xf8) == 0xf0) n = 4;
-                if (!n) { *name_read = '\0'; break; }
+                if (*p < 0x80)
+                {
+                    n = 1;
+                }
+                else if ((*p & 0xe0) == 0xc0)
+                {
+                    n = 2;
+                }
+                else if ((*p & 0xf0) == 0xe0)
+                {
+                    n = 3;
+                }
+                else if ((*p & 0xf8) == 0xf0)
+                {
+                    n = 4;
+                }
+                if (!n)
+                {
+                    *name_read = '\0';
+                    break;
+                }
                 for (int i = 1; i < n; i++)
-                    if ((p[i] & 0xc0) != 0x80) { *name_read = '\0'; break; }
-                if (!*name_read) break;
+                {
+                    if ((p[i] & 0xc0) != 0x80)
+                    {
+                        *name_read = '\0';
+                        break;
+                    }
+                }
+                if (!*name_read)
+                {
+                    break;
+                }
                 p += n;
             }
         }

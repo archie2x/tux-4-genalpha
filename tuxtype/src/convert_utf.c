@@ -38,16 +38,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
 {
-  if(max_length > UTF_BUF_LENGTH)
-  {
-    fprintf(stderr, "ConvertFromUTF8() - error - requested string length %d exceeds buffer length %d\n",
-            max_length, UTF_BUF_LENGTH);
-    return 0;
-  }
+    if (max_length > UTF_BUF_LENGTH)
+    {
+        fprintf(stderr,
+                "ConvertFromUTF8() - error - requested string length %d "
+                "exceeds buffer length %d\n",
+                max_length, UTF_BUF_LENGTH);
+        return 0;
+    }
 
-  DEBUGCODE {fprintf(stderr, "ConvertFromUTF8(): UTF8_word = %s\n", UTF8_word);}
+    DEBUGCODE
+    {
+        fprintf(stderr, "ConvertFromUTF8(): UTF8_word = %s\n", UTF8_word);
+    }
 
-  /* mbstowcs respects the current LC_CTYPE locale, so it correctly
+    /* mbstowcs respects the current LC_CTYPE locale, so it correctly
    * decodes multi-byte UTF-8 — Devanagari, Cyrillic, etc. — into wchar_t
    * code points. Force LC_CTYPE to UTF-8 here so the conversion works
    * even if the theme's theme_locale_name doesn't include .UTF-8 (e.g.
@@ -56,28 +61,43 @@ int ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
    * Old code used iconv("wchar_t", "UTF-8") which works on GNU iconv but
    * is not a recognized encoding on macOS's libiconv, so the conversion
    * silently failed and every non-ASCII word produced 0 wide chars. */
-  char* prev_ctype = setlocale(LC_CTYPE, NULL);
-  char  saved_ctype[64];
-  if (prev_ctype) { strncpy(saved_ctype, prev_ctype, sizeof(saved_ctype)-1); saved_ctype[sizeof(saved_ctype)-1] = '\0'; }
-  else            { saved_ctype[0] = '\0'; }
-  if (!setlocale(LC_CTYPE, "en_US.UTF-8"))
-      setlocale(LC_CTYPE, "C.UTF-8");
+    char* prev_ctype = setlocale(LC_CTYPE, NULL);
+    char  saved_ctype[64];
+    if (prev_ctype)
+    {
+        strncpy(saved_ctype, prev_ctype, sizeof(saved_ctype) - 1);
+        saved_ctype[sizeof(saved_ctype) - 1] = '\0';
+    }
+    else
+    {
+        saved_ctype[0] = '\0';
+    }
+    if (!setlocale(LC_CTYPE, "en_US.UTF-8"))
+    {
+        setlocale(LC_CTYPE, "C.UTF-8");
+    }
 
-  size_t n = mbstowcs(wide_word, UTF8_word, (size_t)max_length - 1);
+    size_t n = mbstowcs(wide_word, UTF8_word, (size_t)max_length - 1);
 
-  if (saved_ctype[0]) setlocale(LC_CTYPE, saved_ctype);
-  if (n == (size_t)-1)
-  {
-    fprintf(stderr, "ConvertFromUTF8(): invalid UTF-8 in '%s'\n", UTF8_word);
-    wide_word[0] = L'\0';
-    return -1;
-  }
-  wide_word[n] = L'\0';
+    if (saved_ctype[0])
+    {
+        setlocale(LC_CTYPE, saved_ctype);
+    }
+    if (n == (size_t)-1)
+    {
+        fprintf(stderr, "ConvertFromUTF8(): invalid UTF-8 in '%s'\n",
+                UTF8_word);
+        wide_word[0] = L'\0';
+        return -1;
+    }
+    wide_word[n] = L'\0';
 
-  DEBUGCODE {fprintf(stderr, "ConvertFromUTF8(): wide_word = %ls\n", wide_word);}
-  return (int)n;
+    DEBUGCODE
+    {
+        fprintf(stderr, "ConvertFromUTF8(): wide_word = %ls\n", wide_word);
+    }
+    return (int)n;
 }
-
 
 /* Now this uses GNU iconv and works correctly!   */
 /* This probably could be simplified - not certain */

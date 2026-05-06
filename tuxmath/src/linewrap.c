@@ -16,8 +16,8 @@ int linewrap(const char* input, char str_list[MAX_LINES][MAX_LINEWIDTH],
 }
 
 void linewrap_list(const char input[MAX_LINES][MAX_LINEWIDTH],
-                   char str_list[MAX_LINES][MAX_LINEWIDTH],
-                   int width, int max_lines, int max_width)
+                   char str_list[MAX_LINES][MAX_LINEWIDTH], int width,
+                   int max_lines, int max_width)
 {
     T4K_LineWrapList(input, str_list, width, max_lines, max_width);
 }

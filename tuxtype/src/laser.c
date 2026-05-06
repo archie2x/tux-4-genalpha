@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "braille.h"
 #include <ctype.h>
 
-
 #define FPS (1000 / 15)   /* 15 fps max */
 #define CITY_EXPL_START 3 * 5  /* Must be mult. of 5 (number of expl frames) */
 #define COMET_EXPL_START 2 * 2 /* Must be mult. of 2 (number of expl frames) */
@@ -110,47 +109,49 @@ int PlayLaserGame(int diff_level)
 	SDL_Event event;
 	Uint32 last_time = 0;
         Uint32 now_time = 0;
-	SDL_Keycode    key;
-	SDL_Rect  src, dest;
-	/* str[] is a buffer to draw the scores, waves, etc. (don't need wchar_t) */
-	char str[64]; 
+        SDL_Keycode key;
+        SDL_Rect    src, dest;
+        /* str[] is a buffer to draw the scores, waves, etc. (don't need wchar_t) */
+        char str[64];
 
-	LOG( "starting Comet Zap game\n" );
-	DOUT( diff_level );
+        LOG("starting Comet Zap game\n");
+        DOUT(diff_level);
 
-	/* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+        /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
 	 * reaches us as SDL_EVENT_TEXT_INPUT — KEY_DOWN can't see composed glyphs. */
-	SDL_StartTextInput(tt_window);
+        SDL_StartTextInput(tt_window);
 
-	SDL_HideCursor();
-	laser_load_data();
+        SDL_HideCursor();
+        laser_load_data();
 
-	/* Clear window: */
-  
-	SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
-	T4K_UpdateRect(screen, NULL);
+        /* Clear window: */
 
-	/* --- MAIN GAME LOOP: --- */
+        SDL_FillSurfaceRect(
+            screen, NULL,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       0));
+        T4K_UpdateRect(screen, NULL);
 
-	done = 0;
-	quit = 0;
-	src.w = src.h = 0;
+        /* --- MAIN GAME LOOP: --- */
 
-	/* Prepare to start the game: */
-  
-	wave = 1;
-	score = 0;
-	gameover = 0;
-	level_start_wait = LEVEL_START_WAIT_START;
+        done  = 0;
+        quit  = 0;
+        src.w = src.h = 0;
 
-	
-  /* (Create and position cities) */
-  for (i = 0; i < NUM_CITIES; i++)
-  {
-    cities[i].alive = 1;
-    cities[i].expl = 0;
-    cities[i].shields = 1;
-  }
+        /* Prepare to start the game: */
+
+        wave             = 1;
+        score            = 0;
+        gameover         = 0;
+        level_start_wait = LEVEL_START_WAIT_START;
+
+        /* (Create and position cities) */
+        for (i = 0; i < NUM_CITIES; i++)
+        {
+            cities[i].alive   = 1;
+            cities[i].expl    = 0;
+            cities[i].shields = 1;
+        }
 
   /* figure out x placement: */
   calc_city_pos();
@@ -185,9 +186,9 @@ int PlayLaserGame(int diff_level)
 
 	 //Call announcer function in thread which annonces the word to type 
 	if(settings.tts)
-		thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);	
-	
-	//Inetialising braille variables
+        thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+
+    //Inetialising braille variables
 	braille_iter = 0;
     pressed_letters[braille_iter] = L'\0';
 
@@ -203,16 +204,16 @@ int PlayLaserGame(int diff_level)
      
 		while (SDL_PollEvent(&event) > 0) {
 
-			if (event.type == SDL_EVENT_QUIT) {
-				/* Window close event - quit! */
+            if (event.type == SDL_EVENT_QUIT)
+            {
+                /* Window close event - quit! */
 				exit(0);
-	      
-			}
-			else if (event.type == SDL_EVENT_KEY_DOWN)
-			{
+            }
+            else if (event.type == SDL_EVENT_KEY_DOWN)
+            {
 
-				key = event.key.key;
-				if (key == SDLK_F10) 
+                key = event.key.key;
+                if (key == SDLK_F10) 
                                 {
 				  SwitchScreenMode();
                                   calc_city_pos();
@@ -238,41 +239,50 @@ int PlayLaserGame(int diff_level)
 				if(key == SDLK_F3)
 					tts_announcer_switch = 4;
 
-				/* --- eat other keys until level wait has passed --- */
-				if (level_start_wait > 0)
-					key = SDLK_UNKNOWN;
+                /* --- eat other keys until level wait has passed --- */
+                if (level_start_wait > 0)
+                {
+                    key = SDLK_UNKNOWN;
+                }
 
-				/* Braille mode tracks raw KEY_DOWN. Everything else routes
+                /* Braille mode tracks raw KEY_DOWN. Everything else routes
 				 * typed characters through SDL_EVENT_TEXT_INPUT below — that
 				 * is the only path that sees composed glyphs (ü/ö/é). */
-				if(settings.braille)
+                if(settings.braille)
 				{
-				   pressed_letters[braille_iter] = event.key.key;
-                   braille_iter++;
-                   pressed_letters[braille_iter] = L'\0';
+                    pressed_letters[braille_iter] = event.key.key;
+                    braille_iter++;
+                    pressed_letters[braille_iter] = L'\0';
+                }
+            }
+            else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille &&
+                     level_start_wait <= 0)
+            {
+                wchar_t   typed = 0;
+                mbstate_t mbs   = {0};
+                if (mbrtowc(&typed, event.text.text, strlen(event.text.text),
+                            &mbs) > 0)
+                {
+                    key_unicode = typed;
+                    if (key_unicode >= 97 && key_unicode <= 122)
+                    {
+                        key_unicode -= 32;
+                    }
+                    if (key_unicode >= 224 && key_unicode <= 255)
+                    {
+                        key_unicode -= 32;
+                    }
+                    if ((key_unicode >= 256) && (key_unicode <= 382))
+                    {
+                        key_unicode -= 1;
+                    }
+                    ans[ans_num++] = key_unicode;
 				}
-			}
-			else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille
-			         && level_start_wait <= 0)
-			{
-				wchar_t typed = 0;
-				mbstate_t mbs = {0};
-				if (mbrtowc(&typed, event.text.text, strlen(event.text.text), &mbs) > 0)
-				{
-					key_unicode = typed;
-					if (key_unicode >= 97 && key_unicode <= 122)
-						key_unicode -= 32;
-					if (key_unicode >= 224 && key_unicode <= 255)
-						key_unicode -= 32;
-					if ((key_unicode >= 256) && (key_unicode <= 382))
-						key_unicode -= 1;
-					ans[ans_num++] = key_unicode;
-				}
-			}
-			else if (event.type == SDL_EVENT_KEY_UP)
-			{
-				/* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-				if(settings.braille)
+            }
+            else if (event.type == SDL_EVENT_KEY_UP)
+            {
+                /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
+                if(settings.braille)
 				{
 					arrange_in_order(pressed_letters);
 				    if (wcscmp(pressed_letters,L"") != 0)
@@ -740,33 +750,35 @@ int PlayLaserGame(int diff_level)
       
       
 		/* Swap buffers: */
-      
-		T4K_UpdateRect(screen, NULL);
 
+        T4K_UpdateRect(screen, NULL);
 
-		/* If we're in "PAUSE" mode, pause! */
+        /* If we're in "PAUSE" mode, pause! */
 
 		if (paused) {
 			if(settings.tts)
 				stop_tts_announcer();
 			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Game Paused!"));
-			quit = Pause(1);
-			if(quit == 0){
+            quit = Pause(1);
+            if(quit == 0){
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 					//Call announcer function in thread which annonces the word to type
 					if(settings.tts)
-						thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
-			}							
+                        thread =
+                            SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+            }							
 			paused = 0;
 		}
 
       
 		/* Keep playing music: */
-      
-		if (settings.sys_sound && !T4K_IsPlayingMusic())
-			MusicPlay(musics[MUS_GAME + (rand() % NUM_MUSICS)], 0);
-      
-		/* Pause (keep frame-rate event) */
+
+        if (settings.sys_sound && !T4K_IsPlayingMusic())
+        {
+            MusicPlay(musics[MUS_GAME + (rand() % NUM_MUSICS)], 0);
+        }
+
+        /* Pause (keep frame-rate event) */
                 DEBUGCODE
                 {
                   fprintf(stderr, "now_time = %d\tlast_time = %d, elapsed time = %d\n",
@@ -785,7 +797,9 @@ int PlayLaserGame(int diff_level)
 
   /* Stop music: */
   if ((settings.sys_sound) && (T4K_IsPlayingMusic()))
+  {
       T4K_AudioMusicUnload();
+  }
 
   laser_unload_data();
 
@@ -1126,8 +1140,9 @@ static void laser_draw_line(int x1, int y1, int x2, int y2, int red, int grn, in
   float m, b;
   Uint32 pixel;
   SDL_Rect dest;
- 
-  pixel = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, red, grn, blu);
+
+  pixel = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, red, grn,
+                     blu);
 
   dx = x2 - x1;
   dy = y2 - y1;
@@ -1180,10 +1195,9 @@ static void laser_putpixel(SDL_Surface * surface, int x, int y, Uint32 pixel)
   Uint8 * p;
   
   /* Determine bytes-per-pixel for the surface in question: */
-  
+
   bpp = SDL_BYTESPERPIXEL(surface->format);
-  
-  
+
   /* Set a pointer to the exact location in memory of the pixel
      in question: */
   

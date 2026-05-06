@@ -37,7 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "input_methods.h"
 #include "braille.h"
 
-
 /* Should these be constants? */
 static int tux_max_width = 0;                // the max width of the images of tux
 static int number_max_w = 0;                 // the max width of a number image
@@ -110,79 +109,76 @@ int playing_level,fish_left,curlives;
 *************************************************************************/
 int PlayCascade(int diflevel)
 {
-  /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+    /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
    * reaches us as SDL_EVENT_TEXT_INPUT. SDL3 only delivers composed glyphs
    * via TEXT_INPUT — KEY_DOWN carries raw keycodes only. */
-  SDL_StartTextInput(tt_window);
+    SDL_StartTextInput(tt_window);
 
-  char filename[FNLEN];
-  int still_playing = 1;
-  playing_level = 1;
-  int setup_new_level = 1;
-  int won_level = 0;
-  int quitting = 0;
-  int curlevel = 0;
-  int i = 0;
-  curlives = 0;
-  int oldlives = 0;
-  int oldfish_left = 0;
-  fish_left = 0;
-  int fishies = 0;
-  int local_max_fishies = 1;
-  int frame = 0;
-  int done_frames;
-  int splats = 0;
-  SDL_Event event;
-  SDL_Surface *temp_text[CONGRATS_FRAMES + OH_NO_FRAMES];
-  SDL_Rect text_rect;
-  int text_y_end;
-  int xamp;
-  int yamp;
-  int x_not;
-  int y_not;
-  int temp_text_frames;
-  int temp_text_count;
-  Uint16 key_unicode;
-  Uint32 last_time, now_time;
-  
-  
-  //Braille Variables
-  wchar_t pressed_letters[1000];
-  int braille_iter;
+    char filename[FNLEN];
+    int  still_playing             = 1;
+    playing_level                  = 1;
+    int setup_new_level            = 1;
+    int won_level                  = 0;
+    int quitting                   = 0;
+    int curlevel                   = 0;
+    int i                          = 0;
+    curlives                       = 0;
+    int oldlives                   = 0;
+    int oldfish_left               = 0;
+    fish_left                      = 0;
+    int          fishies           = 0;
+    int          local_max_fishies = 1;
+    int          frame             = 0;
+    int          done_frames;
+    int          splats = 0;
+    SDL_Event    event;
+    SDL_Surface* temp_text[CONGRATS_FRAMES + OH_NO_FRAMES];
+    SDL_Rect     text_rect;
+    int          text_y_end;
+    int          xamp;
+    int          yamp;
+    int          x_not;
+    int          y_not;
+    int          temp_text_frames;
+    int          temp_text_count;
+    Uint16       key_unicode;
+    Uint32       last_time, now_time;
 
+    //Braille Variables
+    wchar_t pressed_letters[1000];
+    int     braille_iter;
 
+    //Structure which contain the address of above struct
+    //Why ? : Only one argument can be passed through thread
+    //Structure which contain the address of variables
+    struct tts_announcer_cascade_data_struct struct_with_data_address;
 
-  //Structure which contain the address of above struct 
-  //Why ? : Only one argument can be passed through thread    
-  //Structure which contain the address of variables 
-  struct tts_announcer_cascade_data_struct struct_with_data_address;
-  
-  //Giving address of variables
-  struct_with_data_address.address_of_fishies = &fishies;
+    //Giving address of variables
+    struct_with_data_address.address_of_fishies = &fishies;
 
+    //Call announcer function in thread which annonces the word to type
+    if (settings.tts)
+        tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread",
+                                                &struct_with_data_address);
 
-  //Call announcer function in thread which annonces the word to type 
-  if(settings.tts)
-	tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread", &struct_with_data_address);
-  
+    DEBUGCODE
+    {
+        fprintf(stderr, "->Entering PlayCascade(): level=%i\n", diflevel);
+    }
 
-  DEBUGCODE
-  {
-    fprintf(stderr, "->Entering PlayCascade(): level=%i\n", diflevel);
-  }
+    //  SDL_HideCursor(); //don't really need this and it causes a bug on windows
 
+    //	SNOW_init();
 
-//  SDL_HideCursor(); //don't really need this and it causes a bug on windows
-
-//	SNOW_init();
-
-  if(!LoadTuxAnims())
-  {
-    fprintf(stderr, "PlayCascade() - LoadTuxAnims() failed - returning to menu!\n\n\n");
-    FreeGame();
-    SDL_StopTextInput(tt_window);
-    return 0;
-  }
+    if (!LoadTuxAnims())
+    {
+        fprintf(
+            stderr,
+            "PlayCascade() - LoadTuxAnims() failed - returning to menu!\n\n\n");
+        FreeGame();
+        SDL_StopTextInput(tt_window);
+        return 0;
+    }
   
   LoadFishies();
   LoadOthers();
@@ -311,133 +307,141 @@ int PlayCascade(int diflevel)
       /* --- Poll input queue, get keyboard info --- */
       while (SDL_PollEvent(&event))
       {
-        if ( event.type == SDL_EVENT_QUIT )
-        {
-          exit(0); /* FIXME does memory get cleaned up properly if we do this? */
-        }
+          if (event.type == SDL_EVENT_QUIT)
+          {
+              exit(
+                  0); /* FIXME does memory get cleaned up properly if we do this? */
+          }
         else
         {
-          if (event.type == SDL_EVENT_KEY_DOWN)
-          {
-            switch (event.key.key)
+            if (event.type == SDL_EVENT_KEY_DOWN)
             {
-              case SDLK_F11:
-                SDL_SaveBMP(screen, "screenshot.bmp");
-                break;
-
-              case SDLK_F6:
-                settings.o_lives = settings.o_lives - 10;
-                curlives = curlives - 10;
-                break;
-
-              case SDLK_F7:
-                settings.o_lives = settings.o_lives + 10;
-                curlives = curlives + 10;
-                break;
-
-			  case SDLK_RALT:
-				braille_letter_pos = !braille_letter_pos;
-				break;
-
-              case SDLK_F10:
-                /* NOTE this could be used to "cheat" by wiping out all the */
-                /* current words if the player is about to lose.            */
-                /* first wipe out old blits because screen size is changing */
-                /* and otherwise we would segfault:                         */
-                ResetBlitQueue();
-                //numupdates = 0;
-                SwitchScreenMode();
-                DrawBackground();
-                ResetObjects();
-                break;
-
-              case SDLK_F12:
-                // SNOW_toggle();
-                break;
-
-
-			   /* Fish left */
-			   case SDLK_F1:
-				tts_announcer_switch = 2;
-				break;
-			
-			   /* lives remaining */
-			   case SDLK_F2:
-				tts_announcer_switch = 3;
-				break;				
-
-              case SDLK_ESCAPE:
-				if(settings.tts)
-					stop_tts_announcer();
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Game Paused."));
-                
-                /* Pause(1) returns 1 if quitting, */
-                /* 0 if returning to game:        */                
-                if (Pause(1) == 1)
+                switch (event.key.key)
                 {
-                  playing_level = 0;
-                  still_playing = 0;
-                  quitting = 1;
-                }
-                else  /* Returning to game */
-                {
-				  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
-				  //Call announcer function in thread which annonces the word to type
-				  if(settings.tts)
-						tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread", &struct_with_data_address);
-				  DrawBackground();
-				}
-                break;
+                case SDLK_F11:
+                    SDL_SaveBMP(screen, "screenshot.bmp");
+                    break;
 
-              /*  Don't count modifier keys as keystrokes in game: */ 
-	      case SDLK_RSHIFT:
-	      case SDLK_LSHIFT:
-              case SDLK_RCTRL:
-	      case SDLK_LCTRL:
-              case SDLK_LALT:
-	      case SDLK_RMETA:
-	      case SDLK_LMETA:
-              case SDLK_LGUI:
-              case SDLK_RGUI:
-	      //T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Please don't press modifier keys!");
-	      break;
+                case SDLK_F6:
+                    settings.o_lives = settings.o_lives - 10;
+                    curlives         = curlives - 10;
+                    break;
 
-              default:
-              /*----------------------------------------------------*/
-              /* Some other key - player is actually typing!!!!!!!! */
-              /*----------------------------------------------------*/
+                case SDLK_F7:
+                    settings.o_lives = settings.o_lives + 10;
+                    curlives         = curlives + 10;
+                    break;
 
-				/* Braille mode still works off raw KEY_DOWN. For everything
+                case SDLK_RALT:
+                    braille_letter_pos = !braille_letter_pos;
+                    break;
+
+                case SDLK_F10:
+                    /* NOTE this could be used to "cheat" by wiping out all the */
+                    /* current words if the player is about to lose.            */
+                    /* first wipe out old blits because screen size is changing */
+                    /* and otherwise we would segfault:                         */
+                    ResetBlitQueue();
+                    //numupdates = 0;
+                    SwitchScreenMode();
+                    DrawBackground();
+                    ResetObjects();
+                    break;
+
+                case SDLK_F12:
+                    // SNOW_toggle();
+                    break;
+
+                /* Fish left */
+                case SDLK_F1:
+                    tts_announcer_switch = 2;
+                    break;
+
+                /* lives remaining */
+                case SDLK_F2:
+                    tts_announcer_switch = 3;
+                    break;
+
+                case SDLK_ESCAPE:
+                    if (settings.tts)
+                        stop_tts_announcer();
+                    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                                gettext("Game Paused."));
+
+                    /* Pause(1) returns 1 if quitting, */
+                    /* 0 if returning to game:        */
+                    if (Pause(1) == 1)
+                    {
+                        playing_level = 0;
+                        still_playing = 0;
+                        quitting      = 1;
+                    }
+                    else /* Returning to game */
+                    {
+                        T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                                    gettext("Pause Released!"));
+                        //Call announcer function in thread which annonces the word to type
+                        if (settings.tts)
+                            tts_announcer_thread =
+                                SDL_CreateThread(tts_announcer, "tt_thread",
+                                                 &struct_with_data_address);
+                        DrawBackground();
+                    }
+                    break;
+
+                    /*  Don't count modifier keys as keystrokes in game: */
+                case SDLK_RSHIFT:
+                case SDLK_LSHIFT:
+                case SDLK_RCTRL:
+                case SDLK_LCTRL:
+                case SDLK_LALT:
+                case SDLK_RMETA:
+                case SDLK_LMETA:
+                case SDLK_LGUI:
+                case SDLK_RGUI:
+                    //T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Please don't press modifier keys!");
+                    break;
+
+                default:
+                    /*----------------------------------------------------*/
+                    /* Some other key - player is actually typing!!!!!!!! */
+                    /*----------------------------------------------------*/
+
+                    /* Braille mode still works off raw KEY_DOWN. For everything
 				 * else, typed glyphs come via SDL_EVENT_TEXT_INPUT below —
 				 * SDL3 only delivers composed chars (e.g. ü) that way. */
-				if(settings.braille)
-				{
-				   pressed_letters[braille_iter] = event.key.key;
-                   braille_iter++;
-                   pressed_letters[braille_iter] = L'\0';
-				}
+                    if (settings.braille)
+                    {
+                        pressed_letters[braille_iter] = event.key.key;
+                        braille_iter++;
+                        pressed_letters[braille_iter] = L'\0';
+                    }
+                }
             }
-          }
-          else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille)
-          {
-				wchar_t typed = 0;
-				mbstate_t mbs = {0};
-				if (mbrtowc(&typed, event.text.text, strlen(event.text.text), &mbs) > 0)
-				{
-					key_unicode = typed;
-					if (key_unicode >= 97 && key_unicode <= 122)
-						key_unicode -= 32;  //convert lowercase to uppercase
-					if (key_unicode >= 224 && key_unicode <= 255)
-						key_unicode -= 32; //same for non-US Western European chars
-					if ((key_unicode >= 256) && (key_unicode <= 382))
-						key_unicode -= 1;
-					UpdateTux(key_unicode, fishies, frame);
-				}
-          }
-          else if (event.type == SDL_EVENT_KEY_UP)
-			{
-				/* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-				if(settings.braille)
+            else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille)
+            {
+                wchar_t   typed = 0;
+                mbstate_t mbs   = {0};
+                if (mbrtowc(&typed, event.text.text, strlen(event.text.text),
+                            &mbs) > 0)
+                {
+                    key_unicode = typed;
+                    if (key_unicode >= 97 && key_unicode <= 122)
+                        key_unicode -= 32; //convert lowercase to uppercase
+                    if (key_unicode >= 224 && key_unicode <= 255)
+                        key_unicode -=
+                            32; //same for non-US Western European chars
+                    if ((key_unicode >= 256) && (key_unicode <= 382))
+                    {
+                        key_unicode -= 1;
+                    }
+                    UpdateTux(key_unicode, fishies, frame);
+                }
+            }
+            else if (event.type == SDL_EVENT_KEY_UP)
+            {
+                /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
+                if(settings.braille)
 				{
 					arrange_in_order(pressed_letters);
 				    if (wcscmp(pressed_letters,L"") != 0)
@@ -538,7 +542,7 @@ int PlayCascade(int diflevel)
 
 
     if (settings.sys_sound)
-      T4K_AudioMusicUnload();
+        T4K_AudioMusicUnload();
 
     DrawBackground();
 
@@ -551,9 +555,11 @@ int PlayCascade(int diflevel)
 		 
 		if(settings.tts)
 			stop_tts_announcer();
-  
+
         if (settings.sys_sound)
-          PlaySound(sound[WIN_WAV]);
+        {
+            PlaySound(sound[WIN_WAV]);
+        }
 
         if (curlevel < 4)  /* Advance to next level */
         {
@@ -594,9 +600,9 @@ int PlayCascade(int diflevel)
 			stop_tts_announcer();        
 
         if (settings.sys_sound)
-          PlaySound(sound[LOSE_WAV]);
+            PlaySound(sound[LOSE_WAV]);
 
-		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("yep you miss it. hahh hahh haa. game over! goodbye!"));
+        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("yep you miss it. hahh hahh haa. game over! goodbye!"));
 			
 
         for (i = 0; i < OH_NO_FRAMES; i++)
@@ -616,23 +622,23 @@ int PlayCascade(int diflevel)
 
       LOG( "--->Starting Ending Animation\n" );
 
-      for ( i=0; i<= done_frames; i++ )
+      for (i = 0; i <= done_frames; i++)
       {
-        /* Drain the event queue each frame — without this the OS treats
+          /* Drain the event queue each frame — without this the OS treats
          * the process as hung after a few hundred ms of no event activity. */
-        SDL_PumpEvents();
+          SDL_PumpEvents();
 
-        temp_text_count = (temp_text_count+1) % temp_text_frames;
+          temp_text_count = (temp_text_count + 1) % temp_text_frames;
 
-        text_rect.y -= END_FRAME_DY;
-        y_not = text_rect.y;
+          text_rect.y -= END_FRAME_DY;
+          y_not = text_rect.y;
 
-        if (text_rect.y < text_y_end)
-        {
-          y_not = text_y_end + yamp * sin(i / WIN_GAME_ANGLE_MULT);
-          text_rect.y = text_y_end;
-          text_rect.x = x_not + xamp * cos(i / WIN_GAME_ANGLE_MULT);
-        }
+          if (text_rect.y < text_y_end)
+          {
+              y_not       = text_y_end + yamp * sin(i / WIN_GAME_ANGLE_MULT);
+              text_rect.y = text_y_end;
+              text_rect.x = x_not + xamp * cos(i / WIN_GAME_ANGLE_MULT);
+          }
 
         DrawSprite( tux_object.spr[tux_object.state][tux_object.facing], tux_object.x, tux_object.y );
         DrawObject(temp_text[temp_text_count], text_rect.x, y_not);
@@ -642,7 +648,9 @@ int PlayCascade(int diflevel)
         /* Match MoveTux's pacing — advance the animation every 3rd frame
          * (≈5 fps) so the win/lose Tux doesn't flap his arms wildly. */
         if ((i % 3) == 0)
+        {
             next_tux_frame();
+        }
 //        SNOW_update();
         /* Do all pending blits and increment frame counter: */
         UpdateScreen(&frame);
@@ -658,8 +666,9 @@ int PlayCascade(int diflevel)
      {
 		fishies = 0; //Otherwise thread will announce old words and cause segfault
 		if(settings.tts)
-			tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread", &struct_with_data_address);
-	 }
+            tts_announcer_thread = SDL_CreateThread(tts_announcer, "tt_thread",
+                                                    &struct_with_data_address);
+     }
 	
     }  /* End of post-level wrap-up  */
   
@@ -1035,35 +1044,35 @@ static void FreeGame(void)
   FreeBothBkgds();
 
   if (curlev)
-    SDL_DestroySurface(curlev);
+      SDL_DestroySurface(curlev);
   if (fish)
-    SDL_DestroySurface(fish);
+      SDL_DestroySurface(fish);
   if (lives)
-    SDL_DestroySurface(lives);
+      SDL_DestroySurface(lives);
   curlev = fish = lives = NULL;
 
   for (i = 0; i < NUM_LEVELS; i++)
   {
     if (level[i])
-      SDL_DestroySurface(level[i]);
+        SDL_DestroySurface(level[i]);
     level[i] = NULL;
   }
   for (i = 0; i < NUM_NUMS; i++)
   {
     if (number[i])
-      SDL_DestroySurface(number[i]);
+        SDL_DestroySurface(number[i]);
     number[i] = NULL;
   }
   for (i = 0; i < CONGRATS_FRAMES; i++)
   {
     if (congrats[i])
-      SDL_DestroySurface(congrats[i]);
+        SDL_DestroySurface(congrats[i]);
     congrats[i] = NULL;
   }
   for (i = 0; i < OH_NO_FRAMES; i++)
   {
     if (ohno[i])
-      SDL_DestroySurface(ohno[i]);
+        SDL_DestroySurface(ohno[i]);
     ohno[i] = NULL;
   }
   if (settings.sys_sound)
@@ -1072,7 +1081,7 @@ static void FreeGame(void)
     for (i = 0; i < NUM_WAVES; ++i)
     {
       if (sound[i])
-        MIX_DestroyAudio(sound[i]);
+          MIX_DestroyAudio(sound[i]);
       sound[i] = NULL;
     }
   }
@@ -1346,7 +1355,9 @@ static void AddSplat(int* splats, struct fishypoo* f, int* curlives, int* frame)
     *curlives = 0;
 
   if (settings.sys_sound)
-    PlaySound(sound[SPLAT_WAV]);
+  {
+      PlaySound(sound[SPLAT_WAV]);
+  }
 
   LOG("Enterint AddSplat()\n");
 }
@@ -1469,14 +1480,18 @@ static void MoveFishies(int *fishies, int *splats, int *lifes, int *frame)
   {
     if (fish_object[i].alive) 
     {
-      /* Erase one extra slot past the word — Indic conjuncts (and some
+        /* Erase one extra slot past the word — Indic conjuncts (and some
        * accented Latin) can render wider than fish_sprite.w, spilling
        * into the slot to the right; without this last-slot erase, the
        * trailing pixels of the last char leave a streak as the fish
        * moves down. */
-      for (j = 0; j <= fish_object[i].len; j++)
-        EraseSprite( fish_sprite, fish_object[i].x + (fish_sprite->frame[0]->w*j), fish_object[i].y );
-	            
+        for (j = 0; j <= fish_object[i].len; j++)
+        {
+            EraseSprite(fish_sprite,
+                        fish_object[i].x + (fish_sprite->frame[0]->w * j),
+                        fish_object[i].y);
+        }
+
       fish_object[i].y += fish_object[i].dy;
 	
       if (fish_object[i].y >= (screen->h) - fish_sprite->frame[fish_sprite->cur]->h - 1) 
@@ -1578,19 +1593,22 @@ static void CheckCollision(int fishies, int *fish_left, int frame )
 				tux_object.dx = 0;
 				tux_object.endx = tux_object.x;
 
-				if (settings.sys_sound) PlaySound(sound[BITE_WAV]);
-
-			} else if (tux_object.state == TUX_STANDING) {
+                if (settings.sys_sound)
+                {
+                    PlaySound(sound[BITE_WAV]);
+                }
+            } else if (tux_object.state == TUX_STANDING) {
 				LOG( "***EXCUSE ME!** - in CheckCollision()\n" );
 
-				/* Play "excuse me" once per fish — without the per-fish
+                /* Play "excuse me" once per fish — without the per-fish
 				 * latch, every frame Tux stays under the same fish would
 				 * retrigger it. */
-				if (settings.sys_sound && !fish_object[i].excused) {
-					PlaySound(sound[EXCUSEME_WAV]);
-					fish_object[i].excused = 1;
-				}
-			}
+                if (settings.sys_sound && !fish_object[i].excused)
+                {
+                    PlaySound(sound[EXCUSEME_WAV]);
+                    fish_object[i].excused = 1;
+                }
+            }
 		}
 	}
   LOG("Leaving CheckCollision()\n");
@@ -1644,17 +1662,29 @@ static void MoveTux( int frame, int fishies )
 					tux_object.dx = WALKING_SPEED;
 					tux_object.state = TUX_WALKING;
 
-					if (settings.sys_sound && T4K_IsPlayingSound(sound[RUN_WAV]))
-						T4K_StopSound(sound[RUN_WAV]);
-				} else {
-					if (time_to_splat > frame)
-						tux_object.dx = float_restrict( MIN_RUNNING_SPEED, abs(tux_object.endx - tux_object.x) / (time_to_splat-frame), MAX_RUNNING_SPEED );
-					else {
+                    if (settings.sys_sound &&
+                        T4K_IsPlayingSound(sound[RUN_WAV]))
+                    {
+                        T4K_StopSound(sound[RUN_WAV]);
+                    }
+                } else {
+                    if (time_to_splat > frame)
+                    {
+                        tux_object.dx =
+                            float_restrict(MIN_RUNNING_SPEED,
+                                           abs(tux_object.endx - tux_object.x) /
+                                               (time_to_splat - frame),
+                                           MAX_RUNNING_SPEED);
+                    }
+                    else {
 						tux_object.dx = MAX_RUNNING_SPEED;
-						if (settings.sys_sound && !T4K_IsPlayingSound(sound[RUN_WAV]))
-							if (abs(tux_object.endx - tux_object.x) > 50)
-								PlaySound(sound[RUN_WAV]);
-					}
+                        if (settings.sys_sound &&
+                            !T4K_IsPlayingSound(sound[RUN_WAV]))
+                        {
+                            if (abs(tux_object.endx - tux_object.x) > 50)
+                                PlaySound(sound[RUN_WAV]);
+                        }
+                    }
 
 					tux_object.state = TUX_RUNNING;
 				}

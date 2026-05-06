@@ -10,10 +10,6 @@
      - David Bruce
 */
 
-
-
-
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -44,10 +40,11 @@ int my_setenv (const char * name, const char * value)
    }
 #endif
 
-  /* The HAVE_PUTENV / HAVE_SETENV autoconf macros aren't defined under our
+   /* The HAVE_PUTENV / HAVE_SETENV autoconf macros aren't defined under our
    * CMake build. setenv(3) is POSIX and present on every supported target,
    * so call it directly. (mysetenv.c was originally a Windows shim from the
    * gettext FAQ; on Windows we additionally update the OS-side env above.) */
-  (void)namelen; (void)valuelen;
-  return setenv(name, value, 1);
+   (void)namelen;
+   (void)valuelen;
+   return setenv(name, value, 1);
 }

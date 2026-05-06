@@ -49,26 +49,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* these are all menu choices that are available in tuxmath.
    By using a define we can create both an enum and
    a string array without writing these names twice */
-#define ACTIVITIES \
-    X( RUN_QUIT ),\
-X( RUN_CASCADE_LEVEL1 ),\
-X( RUN_CASCADE_LEVEL2 ),\
-X( RUN_CASCADE_LEVEL3 ),\
-X( RUN_INSTRUCT ),\
-X( RUN_LASER_LEVEL1 ),\
-X( RUN_LASER_LEVEL2 ),\
-X( RUN_LASER_LEVEL3 ),\
-X( RUN_LASER_LEVEL4 ),\
-X( RUN_LESSONS ),\
-X( RUN_PHRASE_TYPING ),\
-X( RUN_SET_LANGUAGE ),\
-X( RUN_EDIT_WORDLIST ),\
-X( RUN_SET_BRAILLE_KEYS ),\
-X( RUN_SET_VOLUME ),\
-X( RUN_PROJECT_INFO ),\
-X( N_OF_ACTIVITIES )  /* this one has to be the last one */
-
-
+#define ACTIVITIES                                                             \
+    X(RUN_QUIT), X(RUN_CASCADE_LEVEL1), X(RUN_CASCADE_LEVEL2),                 \
+        X(RUN_CASCADE_LEVEL3), X(RUN_INSTRUCT), X(RUN_LASER_LEVEL1),           \
+        X(RUN_LASER_LEVEL2), X(RUN_LASER_LEVEL3), X(RUN_LASER_LEVEL4),         \
+        X(RUN_LESSONS), X(RUN_PHRASE_TYPING), X(RUN_SET_LANGUAGE),             \
+        X(RUN_EDIT_WORDLIST), X(RUN_SET_BRAILLE_KEYS), X(RUN_SET_VOLUME),      \
+        X(RUN_PROJECT_INFO),                                                   \
+        X(N_OF_ACTIVITIES) /* this one has to be the last one */
 
 /* create enum */
 #define X(name) name

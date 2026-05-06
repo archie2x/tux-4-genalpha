@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __PLAYGAME_H__
 #define __PLAYGAME_H__
 
-
 #include "SDL_extras.h"
 
 //definitions
@@ -106,7 +105,7 @@ typedef struct {
 struct fishypoo {
     int alive;
     int can_eat;
-    int excused;        /* set after we play the "excuse me" SFX once */
+    int      excused; /* set after we play the "excuse me" SFX once */
     wchar_t* word;
     double x, y;
     int    w;

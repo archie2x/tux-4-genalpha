@@ -26,9 +26,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -258,11 +255,14 @@ void showWinners(int* winners, int num)
         //reveal text specifying the winner
         SDL_FillSurfaceRect(screen, &box, 0);
         draw_text(text, center);
-        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, box.x, box.y, box.w, box.h);
+        /* SDL_UpdateRect dropped — caller updates window */ (
+            void)(screen, box.x, box.y, box.w, box.h);
 
         while (SDL_PollEvent(&evt) )
             if (evt.type == SDL_EVENT_KEY_DOWN && evt.key.key == SDLK_ESCAPE)
+            {
                 skip = 1;
+            }
         if (skip)
             break;
         SDL_Delay(50);
@@ -274,11 +274,16 @@ void showWinners(int* winners, int num)
     /* Wait for any key-down or mouse-button-down event. */
     {
         SDL_Event ev;
-        for (;;) {
-            if (SDL_WaitEvent(&ev)) {
+        for (;;)
+        {
+            if (SDL_WaitEvent(&ev))
+            {
                 if (ev.type == SDL_EVENT_KEY_DOWN ||
                     ev.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
-                    ev.type == SDL_EVENT_QUIT) break;
+                    ev.type == SDL_EVENT_QUIT)
+                {
+                    break;
+                }
             }
         }
     }

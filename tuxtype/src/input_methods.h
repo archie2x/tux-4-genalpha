@@ -47,13 +47,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * a minimal compat struct so the IM source compiles unchanged; callers
  * (playgame.c) construct one from the SDL3 event. Real Unicode input via
  * SDL_StartTextInput is a follow-up. */
-typedef struct {
-    SDL_Keycode sym;
+typedef struct
+{
+    SDL_Keycode  sym;
     SDL_Scancode scancode;
-    SDL_Keymod mod;
-    wchar_t unicode;
+    SDL_Keymod   mod;
+    wchar_t      unicode;
 } SDL_keysym;
-
 
 /* ***************************************************************************
 * TYPES

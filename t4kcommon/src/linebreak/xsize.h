@@ -24,7 +24,7 @@
 
 /* Get SIZE_MAX.  */
 #include <limits.h>
-#include <stdint.h>  /* For SIZE_MAX, which <limits.h> alone doesn't define. */
+#include <stdint.h> /* For SIZE_MAX, which <limits.h> alone doesn't define. */
 
 /* The size of memory objects is often computed through expressions of
    type size_t. Example:

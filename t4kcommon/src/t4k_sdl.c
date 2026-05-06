@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_globals.h"
 
 SDL_Surface* screen = NULL;
-SDL_Window* t4k_window = NULL;
+SDL_Window*  t4k_window = NULL;
 
 static ResSwitchCallback res_switch_callback = NULL;
 static ResSwitchCallback internal_res_switch_callback = NULL;
@@ -79,28 +79,29 @@ void T4K_RegisterWindow(SDL_Window* w)
     t4k_window = w;
     if (t4k_backing)
     {
-	SDL_DestroySurface(t4k_backing);
-	t4k_backing = NULL;
+        SDL_DestroySurface(t4k_backing);
+        t4k_backing = NULL;
     }
     if (w)
     {
-	int w_x, w_y;
-	SDL_GetWindowSize(w, &w_x, &w_y);
-	win_res_x = w_x;
-	win_res_y = w_y;
-	/* Allocate the backing surface at logical resolution. All game
+        int w_x, w_y;
+        SDL_GetWindowSize(w, &w_x, &w_y);
+        win_res_x = w_x;
+        win_res_y = w_y;
+        /* Allocate the backing surface at logical resolution. All game
 	 * drawing goes here, then T4K_UpdateRect scales it to the window. */
-	SDL_Surface* win_surf = SDL_GetWindowSurface(w);
-	SDL_PixelFormat fmt = win_surf ? win_surf->format : SDL_PIXELFORMAT_RGBA8888;
-	t4k_backing = SDL_CreateSurface(T4K_LOGICAL_W, T4K_LOGICAL_H, fmt);
-	screen = t4k_backing;
-	last_mouse_activity_ms = SDL_GetTicks();
-	SDL_SetEventFilter(t4k_event_filter, NULL);
+        SDL_Surface*    win_surf = SDL_GetWindowSurface(w);
+        SDL_PixelFormat fmt =
+            win_surf ? win_surf->format : SDL_PIXELFORMAT_RGBA8888;
+        t4k_backing = SDL_CreateSurface(T4K_LOGICAL_W, T4K_LOGICAL_H, fmt);
+        screen      = t4k_backing;
+        last_mouse_activity_ms = SDL_GetTicks();
+        SDL_SetEventFilter(t4k_event_filter, NULL);
     }
     else
     {
-	screen = NULL;
-	SDL_SetEventFilter(NULL, NULL);
+        screen = NULL;
+        SDL_SetEventFilter(NULL, NULL);
     }
 }
 
@@ -109,26 +110,36 @@ void T4K_RegisterWindow(SDL_Window* w)
 static void t4k_compute_present_rect(SDL_Rect* out)
 {
     int win_w = T4K_LOGICAL_W, win_h = T4K_LOGICAL_H;
-    if (t4k_window) SDL_GetWindowSize(t4k_window, &win_w, &win_h);
+    if (t4k_window)
+    {
+        SDL_GetWindowSize(t4k_window, &win_w, &win_h);
+    }
     /* Surface size may differ from logical window size on HiDPI; use the
      * window-surface dims for the actual blit target. */
     SDL_Surface* ws = t4k_window ? SDL_GetWindowSurface(t4k_window) : NULL;
-    if (ws) { win_w = ws->w; win_h = ws->h; }
+    if (ws)
+    {
+        win_w = ws->w;
+        win_h = ws->h;
+    }
 
     float src_aspect = (float)T4K_LOGICAL_W / (float)T4K_LOGICAL_H;
     float dst_aspect = (float)win_w / (float)win_h;
-    if (dst_aspect > src_aspect) {
-	/* Window is wider than logical → pillarbox left/right */
-	out->h = win_h;
-	out->w = (int)(win_h * src_aspect + 0.5f);
-	out->x = (win_w - out->w) / 2;
-	out->y = 0;
-    } else {
-	/* Window is taller than logical → letterbox top/bottom */
-	out->w = win_w;
-	out->h = (int)(win_w / src_aspect + 0.5f);
-	out->x = 0;
-	out->y = (win_h - out->h) / 2;
+    if (dst_aspect > src_aspect)
+    {
+        /* Window is wider than logical → pillarbox left/right */
+        out->h = win_h;
+        out->w = (int)(win_h * src_aspect + 0.5f);
+        out->x = (win_w - out->w) / 2;
+        out->y = 0;
+    }
+    else
+    {
+        /* Window is taller than logical → letterbox top/bottom */
+        out->w = win_w;
+        out->h = (int)(win_w / src_aspect + 0.5f);
+        out->x = 0;
+        out->y = (win_h - out->h) / 2;
     }
 }
 
@@ -139,55 +150,76 @@ static void t4k_compute_present_rect(SDL_Rect* out)
 static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
 {
     (void)userdata;
-    if (!t4k_window) return true;
+    if (!t4k_window)
+    {
+        return true;
+    }
 
     float* px = NULL;
     float* py = NULL;
     switch (event->type)
     {
-        case SDL_EVENT_MOUSE_MOTION:
-            px = &event->motion.x; py = &event->motion.y; break;
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-            px = &event->button.x; py = &event->button.y; break;
-        case SDL_EVENT_MOUSE_WHEEL:
-            px = &event->wheel.mouse_x; py = &event->wheel.mouse_y; break;
-        default:
-            return true;
+    case SDL_EVENT_MOUSE_MOTION:
+        px = &event->motion.x;
+        py = &event->motion.y;
+        break;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        px = &event->button.x;
+        py = &event->button.y;
+        break;
+    case SDL_EVENT_MOUSE_WHEEL:
+        px = &event->wheel.mouse_x;
+        py = &event->wheel.mouse_y;
+        break;
+    default:
+        return true;
     }
 
     /* Any mouse activity counts: refresh the idle timer and ensure the
      * cursor is shown. SDL_ShowCursor is a no-op if already visible. */
     last_mouse_activity_ms = SDL_GetTicks();
-    if (!SDL_CursorVisible()) SDL_ShowCursor();
+    if (!SDL_CursorVisible())
+    {
+        SDL_ShowCursor();
+    }
 
     int win_w = T4K_LOGICAL_W, win_h = T4K_LOGICAL_H;
     SDL_GetWindowSize(t4k_window, &win_w, &win_h);
-    SDL_Surface* ws = SDL_GetWindowSurface(t4k_window);
-    int surf_w = ws ? ws->w : win_w;
-    int surf_h = ws ? ws->h : win_h;
+    SDL_Surface* ws     = SDL_GetWindowSurface(t4k_window);
+    int          surf_w = ws ? ws->w : win_w;
+    int          surf_h = ws ? ws->h : win_h;
 
     SDL_Rect dst;
     t4k_compute_present_rect(&dst);
-    if (dst.w <= 0 || dst.h <= 0) return true;
+    if (dst.w <= 0 || dst.h <= 0)
+    {
+        return true;
+    }
 
     /* event coords are in window-logical units; scale to surface units,
      * subtract the present-rect offset, then scale into 640x480. */
-    float sx = (float)surf_w / (float)win_w;
-    float sy = (float)surf_h / (float)win_h;
+    float sx     = (float)surf_w / (float)win_w;
+    float sy     = (float)surf_h / (float)win_h;
     float surf_x = (*px) * sx;
     float surf_y = (*py) * sy;
-    *px = (surf_x - dst.x) * (float)T4K_LOGICAL_W / (float)dst.w;
-    *py = (surf_y - dst.y) * (float)T4K_LOGICAL_H / (float)dst.h;
+    *px          = (surf_x - dst.x) * (float)T4K_LOGICAL_W / (float)dst.w;
+    *py          = (surf_y - dst.y) * (float)T4K_LOGICAL_H / (float)dst.h;
     return true;
 }
 
 /* Push the backing surface to the window, scaling to fit + letterboxing. */
 static void t4k_present(void)
 {
-    if (!t4k_window || !t4k_backing) return;
+    if (!t4k_window || !t4k_backing)
+    {
+        return;
+    }
     SDL_Surface* ws = SDL_GetWindowSurface(t4k_window);
-    if (!ws) return;
+    if (!ws)
+    {
+        return;
+    }
 
     if (SDL_CursorVisible() &&
         SDL_GetTicks() - last_mouse_activity_ms > T4K_CURSOR_IDLE_MS)
@@ -197,11 +229,11 @@ static void t4k_present(void)
     SDL_Rect dst;
     t4k_compute_present_rect(&dst);
     /* Clear the letterbox area to black before scaling the backing in. */
-    if (dst.x > 0 || dst.y > 0 ||
-	dst.w < ws->w || dst.h < ws->h)
+    if (dst.x > 0 || dst.y > 0 || dst.w < ws->w || dst.h < ws->h)
     {
-	SDL_FillSurfaceRect(ws, NULL,
-	    SDL_MapRGB(SDL_GetPixelFormatDetails(ws->format), NULL, 0, 0, 0));
+        SDL_FillSurfaceRect(
+            ws, NULL,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(ws->format), NULL, 0, 0, 0));
     }
     SDL_BlitSurfaceScaled(t4k_backing, NULL, ws, &dst, SDL_SCALEMODE_LINEAR);
     SDL_UpdateWindowSurface(t4k_window);
@@ -226,9 +258,9 @@ SDL_Surface* T4K_GetScreen()
 {
     if (!t4k_backing)
     {
-	fprintf(stderr, "T4K_GetScreen(): no backing surface. "
-			"Call T4K_RegisterWindow() after SDL_CreateWindow.\n");
-	return NULL;
+        fprintf(stderr, "T4K_GetScreen(): no backing surface. "
+                        "Call T4K_RegisterWindow() after SDL_CreateWindow.\n");
+        return NULL;
     }
     return t4k_backing;
 }
@@ -292,7 +324,8 @@ SDL_Surface* T4K_CreateButton(int w, int h, int radius,
      * channel is ignored on blit and the button appears fully opaque. */
     SDL_SetSurfaceBlendMode(tmp_surf, SDL_BLENDMODE_BLEND);
 
-    Uint32 color = SDL_MapRGBA(SDL_GetPixelFormatDetails(tmp_surf->format), NULL, r, g, b, a);
+    Uint32 color = SDL_MapRGBA(SDL_GetPixelFormatDetails(tmp_surf->format),
+                               NULL, r, g, b, a);
     SDL_FillSurfaceRect(tmp_surf, NULL, color);
     T4K_RoundCorners(tmp_surf, radius);
     return tmp_surf;
@@ -321,7 +354,6 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
 	radius = (s->w)/2;
     if (radius > (s->h)/2)
 	radius = (s->h)/2;
-
 
     alpha_mask = SDL_GetPixelFormatDetails(s->format)->Amask;
 
@@ -407,21 +439,24 @@ if y is a nonzero value, then flip vertically
 note: you can have it flip both
  **********************/
 SDL_Surface* T4K_Flip( SDL_Surface *in, int x, int y ) {
-    SDL_Surface *out;
+    SDL_Surface* out;
     SDL_Rect from_rect, to_rect;
-    Uint32 colorkey = 0;
-    bool has_colorkey = SDL_SurfaceHasColorKey(in);
+    Uint32       colorkey     = 0;
+    bool         has_colorkey = SDL_SurfaceHasColorKey(in);
 
     if (has_colorkey)
     {
-	SDL_GetSurfaceColorKey(in, &colorkey);
-	/* Temporarily disable color key during blit */
-	SDL_SetSurfaceColorKey(in, false, 0);
+        SDL_GetSurfaceColorKey(in, &colorkey);
+        /* Temporarily disable color key during blit */
+        SDL_SetSurfaceColorKey(in, false, 0);
     }
 
     /* --- create our new surface --- */
     out = SDL_CreateSurface(in->w, in->h, SDL_PIXELFORMAT_RGBA8888);
-    if (!out) return NULL;
+    if (!out)
+    {
+        return NULL;
+    }
 
     /* --- flip horizontally if requested --- */
     if (x) {
@@ -454,9 +489,10 @@ SDL_Surface* T4K_Flip( SDL_Surface *in, int x, int y ) {
     }
 
     /* --- restore colorkey on in and replicate on out --- */
-    if (has_colorkey) {
-	SDL_SetSurfaceColorKey(in, true, colorkey);
-	SDL_SetSurfaceColorKey(out, true, colorkey);
+    if (has_colorkey)
+    {
+        SDL_SetSurfaceColorKey(in, true, colorkey);
+        SDL_SetSurfaceColorKey(out, true, colorkey);
     }
 
     SDL_UnlockSurface(in);
@@ -501,12 +537,12 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
     }
     if (S2 != NULL)
     {
-	fmt2 = SDL_GetPixelFormatDetails(S2->format);
-	if (fmt2->bits_per_pixel != 32)
-	{
-	    perror("This works only with RGBA images");
-	    return S1;
-	}
+        fmt2 = SDL_GetPixelFormatDetails(S2->format);
+        if (fmt2->bits_per_pixel != 32)
+        {
+            perror("This works only with RGBA images");
+            return S1;
+        }
 	// Check that both images have the same width dimension
 	if (S1->w != S2->w)
 	{
@@ -547,17 +583,17 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 
     for (; cpix1 > epix1; cpix1--, cpix2--)
     {
-	SDL_GetRGBA(*cpix1, fmt1, NULL, &r1, &g1, &b1, &a1);
-	a1 = gamma * a1;
-	if (S2 != NULL && cpix2 > epix2)
-	{
-	    SDL_GetRGBA(*cpix2, fmt2, NULL, &r2, &g2, &b2, &a2);
-	    r1 = gamma * r1 + gamflip * r2;
-	    g1 = gamma * g1 + gamflip * g2;
-	    b1 = gamma * b1 + gamflip * b2;
-	    a1 += gamflip * a2;
-	}
-	*cpix1 = SDL_MapRGBA(fmt1, NULL, r1, g1, b1, a1);
+        SDL_GetRGBA(*cpix1, fmt1, NULL, &r1, &g1, &b1, &a1);
+        a1 = gamma * a1;
+        if (S2 != NULL && cpix2 > epix2)
+        {
+            SDL_GetRGBA(*cpix2, fmt2, NULL, &r2, &g2, &b2, &a2);
+            r1 = gamma * r1 + gamflip * r2;
+            g1 = gamma * g1 + gamflip * g2;
+            b1 = gamma * b1 + gamflip * b2;
+            a1 += gamflip * a2;
+        }
+        *cpix1 = SDL_MapRGBA(fmt1, NULL, r1, g1, b1, a1);
     }
 
     SDL_UnlockSurface(tmpS);
@@ -582,7 +618,7 @@ void T4K_FreeSurfaceArray(SDL_Surface** surfs, int length)
 
     for(i = 0; i < length; i++)
 	if(surfs[i] != NULL)
-	    SDL_DestroySurface(surfs[i]);
+        SDL_DestroySurface(surfs[i]);
     free(surfs);
 }
 
@@ -600,7 +636,9 @@ void T4K_UpdateRect(SDL_Surface* surf, SDL_Rect* rect)
     (void)surf;
     (void)rect;
     if (t4k_window)
-    t4k_present();
+    {
+        t4k_present();
+    }
 }
 
 void T4K_SetRect(SDL_Rect* rect, const float* pos)
@@ -630,7 +668,6 @@ void T4K_DarkenScreen(Uint8 bits)
      * the dim is invisible. */
     Uint32 am = SDL_GetPixelFormatDetails(screen->format)->Amask;
 
-
     int x, y;
 
     /* (realistically, 1 and 2 are the only useful values) */
@@ -643,11 +680,9 @@ void T4K_DarkenScreen(Uint8 bits)
     {
 	for (x = 0; x < screen->w; x++)
 	{
-	    *p = (((*p&rm)>>bits)&rm)
-		| (((*p&gm)>>bits)&gm)
-		| (((*p&bm)>>bits)&bm)
-		| ((*p)&am);
-	    p++;
+        *p = (((*p & rm) >> bits) & rm) | (((*p & gm) >> bits) & gm) |
+             (((*p & bm) >> bits) & bm) | ((*p) & am);
+        p++;
 	}
     }
 }
@@ -655,12 +690,16 @@ void T4K_DarkenScreen(Uint8 bits)
 /* change window size (works only in windowed mode) */
 void T4K_ChangeWindowSize(int new_res_x, int new_res_y)
 {
-    if (!t4k_window) return;
+    if (!t4k_window)
+    {
+        return;
+    }
 
     if (SDL_GetWindowFlags(t4k_window) & SDL_WINDOW_FULLSCREEN)
     {
-	DEBUGMSG(debug_sdl, "T4K_ChangeWindowSize() can be run only in windowed mode!\n");
-	return;
+        DEBUGMSG(debug_sdl,
+                 "T4K_ChangeWindowSize() can be run only in windowed mode!\n");
+        return;
     }
 
     SDL_SetWindowSize(t4k_window, new_res_x, new_res_y);
@@ -671,7 +710,9 @@ void T4K_ChangeWindowSize(int new_res_x, int new_res_y)
     DEBUGMSG(debug_sdl, "T4K_ChangeWindowSize(): %d x %d\n", w, h);
 
     if (res_switch_callback)
-	res_switch_callback(win_res_x, win_res_y);
+    {
+        res_switch_callback(win_res_x, win_res_y);
+    }
 
     t4k_present();
 }
@@ -679,28 +720,34 @@ void T4K_ChangeWindowSize(int new_res_x, int new_res_y)
 /* switch between fullscreen and windowed mode */
 void T4K_SwitchScreenMode(void)
 {
-    if (!t4k_window) return;
+    if (!t4k_window)
+    {
+        return;
+    }
 
-    bool was_fullscreen = (SDL_GetWindowFlags(t4k_window) & SDL_WINDOW_FULLSCREEN) != 0;
+    bool was_fullscreen =
+        (SDL_GetWindowFlags(t4k_window) & SDL_WINDOW_FULLSCREEN) != 0;
 
     if (!SDL_SetWindowFullscreen(t4k_window, !was_fullscreen))
     {
-	fprintf(stderr,
-		"\nError: I could not switch to %s mode: %s\n",
-		was_fullscreen ? "windowed" : "fullscreen",
-		SDL_GetError());
-	return;
+        fprintf(stderr, "\nError: I could not switch to %s mode: %s\n",
+                was_fullscreen ? "windowed" : "fullscreen", SDL_GetError());
+        return;
     }
 
     DEBUGMSG(debug_sdl, "Switched screen mode to %s\n",
-	    was_fullscreen ? "windowed" : "fullscreen");
+             was_fullscreen ? "windowed" : "fullscreen");
 
     int w, h;
     SDL_GetWindowSize(t4k_window, &w, &h);
     if (res_switch_callback)
-	res_switch_callback(w, h);
+    {
+        res_switch_callback(w, h);
+    }
     if (internal_res_switch_callback)
-	internal_res_switch_callback(w, h);
+    {
+        internal_res_switch_callback(w, h);
+    }
 
     t4k_present();
 }
@@ -762,9 +809,9 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
     }
 
     DEBUGMSG(debug_sdl, "T4K_zoom(): orig surface %dx%d, %d bytes per pixel\n",
-	    src->w, src->h, SDL_BYTESPERPIXEL(src->format));
+             src->w, src->h, SDL_BYTESPERPIXEL(src->format));
     DEBUGMSG(debug_sdl, "T4K_zoom(): new surface %dx%d, %d bytes per pixel\n",
-	    s->w, s->h, SDL_BYTESPERPIXEL(s->format));
+             s->w, s->h, SDL_BYTESPERPIXEL(s->format));
 
     /* Now assign function pointers to correct functions based */
     /* on data format of original and zoomed surfaces:         */
@@ -803,16 +850,20 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	    one_minus_y = 1.0 - fraction_y;
 
 	    /* Grab their values:  */
-	    SDL_GetRGBA(getpixel(src, floor_x, floor_y), SDL_GetPixelFormatDetails(src->format), NULL,
-		    &r1, &g1, &b1, &a1);
-	    SDL_GetRGBA(getpixel(src, ceil_x,  floor_y), SDL_GetPixelFormatDetails(src->format), NULL,
-		    &r2, &g2, &b2, &a2);
-	    SDL_GetRGBA(getpixel(src, floor_x, ceil_y), SDL_GetPixelFormatDetails(src->format), NULL,
-		    &r3, &g3, &b3, &a3);
-	    SDL_GetRGBA(getpixel(src, ceil_x,  ceil_y), SDL_GetPixelFormatDetails(src->format), NULL,
-		    &r4, &g4, &b4, &a4);
+        SDL_GetRGBA(getpixel(src, floor_x, floor_y),
+                    SDL_GetPixelFormatDetails(src->format), NULL, &r1, &g1, &b1,
+                    &a1);
+        SDL_GetRGBA(getpixel(src, ceil_x, floor_y),
+                    SDL_GetPixelFormatDetails(src->format), NULL, &r2, &g2, &b2,
+                    &a2);
+        SDL_GetRGBA(getpixel(src, floor_x, ceil_y),
+                    SDL_GetPixelFormatDetails(src->format), NULL, &r3, &g3, &b3,
+                    &a3);
+        SDL_GetRGBA(getpixel(src, ceil_x, ceil_y),
+                    SDL_GetPixelFormatDetails(src->format), NULL, &r4, &g4, &b4,
+                    &a4);
 
-	    /* Create the weighted averages: */
+        /* Create the weighted averages: */
 	    n1 = (one_minus_x * r1 + fraction_x * r2);
 	    n2 = (one_minus_x * r3 + fraction_x * r4);
 	    r = (one_minus_y * n1 + fraction_y * n2);
@@ -830,9 +881,10 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	    a = (one_minus_y * n1 + fraction_y * n2);
 
 	    /* and put them into our new surface: */
-	    putpixel(s, x, y, SDL_MapRGBA(SDL_GetPixelFormatDetails(s->format), NULL, r, g, b, a));
-
-	}
+        putpixel(s, x, y,
+                 SDL_MapRGBA(SDL_GetPixelFormatDetails(s->format), NULL, r, g,
+                             b, a));
+    }
     }
 
     SDL_UnlockSurface(s);
@@ -923,8 +975,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    t4k_present();
-		    SDL_Delay(10);
+            t4k_present();
+            SDL_Delay(10);
 		}
 
 		src.x = 0;
@@ -932,9 +984,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		t4k_present();
+        t4k_present();
 
-		break;
+        break;
 	    }
 
 	case WIPE_BLINDS_HORIZ:
@@ -963,8 +1015,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    t4k_present();
-		    SDL_Delay(10);
+            t4k_present();
+            SDL_Delay(10);
 		}
 
 		src.x = 0;
@@ -972,9 +1024,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		t4k_present();
+        t4k_present();
 
-		break;
+        break;
 	    }
 
 	case WIPE_BLINDS_BOX:
@@ -1016,8 +1068,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    t4k_present();
-		    SDL_Delay(10);
+            t4k_present();
+            SDL_Delay(10);
 		}
 
 		src.x = 0;
@@ -1025,9 +1077,9 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		t4k_present();
+        t4k_present();
 
-		break;
+        break;
 	    }
 	default:
 	    break;
@@ -1222,8 +1274,9 @@ void T4K_UpdateScreen(int* frame)
 	    //               blits[i].dstrect->x, blits[i].dstrect->y, blits[i].dstrect->w, blits[i].dstrect->h);
 	    //       }
 
-	    SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
-	}
+        SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen,
+                                 blits[i].dstrect);
+    }
     }
 
     //  SNOW_erase();
@@ -1254,7 +1307,8 @@ void T4K_UpdateScreen(int* frame)
     //  else
     /* Backing-surface model: ignore the per-rect optimization and just
      * scale-blit the whole backing on every update. */
-    (void)dstupdate; (void)numupdates;
+    (void)dstupdate;
+    (void)numupdates;
     t4k_present();
 
     numupdates = 0;
@@ -1368,7 +1422,6 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
 
 //NOTE to test program with SDL_ttf, do "./configure --without-sdlpango"
 
-
 /*-- file-scope variables and local file prototypes for SDL3_ttf-based code: */
 #include <SDL3_ttf/SDL_ttf.h>
 /* We cache fonts here once loaded to improve performance: */
@@ -1377,10 +1430,8 @@ static void free_font_list(void);
 static TTF_Font* get_font(int size);
 static TTF_Font* load_font(const char* font_name, int font_size);
 
-
 /* "Public" functions called from other files that use either */
 /*SDL_Pango or SDL_ttf:                                       */
-
 
 /* Initialize SDL3_ttf: */
 int T4K_Setup_SDL_Text(void)
@@ -1389,8 +1440,8 @@ int T4K_Setup_SDL_Text(void)
 
     if (!TTF_Init())
     {
-	fprintf(stderr, "\nError: I could not initialize SDL3_ttf\n");
-	return 0;
+        fprintf(stderr, "\nError: I could not initialize SDL3_ttf\n");
+        return 0;
     }
     return 1;
 }
@@ -1402,7 +1453,6 @@ void T4K_Cleanup_SDL_Text(void)
     free_font_list();
     TTF_Quit();
 }
-
 
 /* T4K_BlackOutline() creates a surface containing text of the designated */
 /* foreground color, surrounded by a black shadow, on a transparent    */
@@ -1446,9 +1496,13 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
      * honored. wrapLength=0 means "wrap at newlines only". */
     bool multiline = (strchr(t, '\n') != NULL);
     if (multiline)
-	black_letters = TTF_RenderText_Blended_Wrapped(font, t, 0, black, 0);
+    {
+        black_letters = TTF_RenderText_Blended_Wrapped(font, t, 0, black, 0);
+    }
     else
-	black_letters = TTF_RenderText_Blended(font, t, 0, black);
+    {
+        black_letters = TTF_RenderText_Blended(font, t, 0, black);
+    }
 
     if (!black_letters)
     {
@@ -1457,9 +1511,10 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     }
 
     bg = SDL_CreateSurface((black_letters->w) + 5, (black_letters->h) + 5,
-	    SDL_PIXELFORMAT_RGBA8888);
+                           SDL_PIXELFORMAT_RGBA8888);
     /* Use color key for eventual transparency: */
-    color_key = SDL_MapRGB(SDL_GetPixelFormatDetails(bg->format), NULL, 30, 30, 30);
+    color_key =
+        SDL_MapRGB(SDL_GetPixelFormatDetails(bg->format), NULL, 30, 30, 30);
     SDL_FillSurfaceRect(bg, NULL, color_key);
 
     /* Now draw black outline/shadow 2 pixels on each side: */
@@ -1476,9 +1531,13 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 
     /* --- Put the color version of the text on top! --- */
     if (multiline)
-	white_letters = TTF_RenderText_Blended_Wrapped(font, t, 0, *c, 0);
+    {
+        white_letters = TTF_RenderText_Blended_Wrapped(font, t, 0, *c, 0);
+    }
     else
-	white_letters = TTF_RenderText_Blended(font, t, 0, *c);
+    {
+        white_letters = TTF_RenderText_Blended(font, t, 0, *c);
+    }
 
     if (!white_letters)
     {
@@ -1517,7 +1576,7 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, const SDL_Color* col)
 	TTF_Font* font = get_font(size);
 	if (!font)
 	    return NULL;
-	surf = TTF_RenderText_Blended(font, t, 0, *col);
+    surf = TTF_RenderText_Blended(font, t, 0, *col);
     }
 
     return surf;
@@ -1541,14 +1600,15 @@ int T4K_CharsForWidth(int fontsize, int pixel_width)
 	s = T4K_SimpleText(buf, fontsize, &white);
 	if(s && s->w > pixel_width)  //means string of (i++) 'x' exceeds width
 	    done = 1;
-	SDL_DestroySurface(s);
+    SDL_DestroySurface(s);
     }
     return  i;
 }
 
 int size_text(const char* text, int font_size, int* width, int* height)
 {
-    return TTF_GetStringSize(get_font(font_size), text, 0, width, height) ? 0 : -1;
+    return TTF_GetStringSize(get_font(font_size), text, 0, width, height) ? 0
+                                                                          : -1;
 }
 /* This (fast) function just returns a non-outlined surf */
 /* using SDL_Pango if available, SDL_ttf as fallback     */
@@ -1563,20 +1623,20 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* 
 	TTF_Font* font = get_font(size);
 	if (!font)
 	    return NULL;
-	surf = TTF_RenderText_Blended(font, t, 0, *col);
-	{
+    surf = TTF_RenderText_Blended(font, t, 0, *col);
+    {
 	    int h;
 	    int hmax = 0;
 	    int len = strlen(t);
 	    int i;
 	    for (i = 0; i < len; i++)
 	    {
-		TTF_GetGlyphMetrics(font, t[i], NULL, NULL, NULL, &h, NULL);
-		if (h > hmax)
-		    hmax = h;
+            TTF_GetGlyphMetrics(font, t[i], NULL, NULL, NULL, &h, NULL);
+            if (h > hmax)
+                hmax = h;
 	    }
-	    *glyph_offset = hmax - TTF_GetFontAscent(font);
-	}
+        *glyph_offset = hmax - TTF_GetFontAscent(font);
+    }
     }
 
     return surf;
@@ -1588,8 +1648,6 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* 
 /* Local functions, callable only within SDL_extras, divided */
 /* according with which text lib we are using:               */
 /*-----------------------------------------------------------*/
-
-
 
 /* Local functions used by SDL3_ttf code above: */
 
@@ -1635,20 +1693,23 @@ static TTF_Font* get_font(int size)
 
     if(font_list[size] == NULL)
     {
-	/* Load the default (Latin) font as primary, then chain the theme
+        /* Load the default (Latin) font as primary, then chain the theme
 	 * font as a fallback so glyphs missing from the default — e.g.
 	 * Devanagari, Bengali — get rendered from the theme font. UI
 	 * chrome (English menu labels) stays in Andika; theme content
 	 * (Hindi wordlist titles, Hindi falling fish) renders via the
 	 * theme font automatically. */
-	font_list[size] = load_font(DEFAULT_FONT_NAME, size);
-	const char* theme_font = T4K_AskFontName();
-	if (font_list[size] && theme_font &&
-	    strcmp(theme_font, DEFAULT_FONT_NAME) != 0)
-	{
-	    TTF_Font* fb = load_font(theme_font, size);
-	    if (fb) TTF_AddFallbackFont(font_list[size], fb);
-	}
+        font_list[size]        = load_font(DEFAULT_FONT_NAME, size);
+        const char* theme_font = T4K_AskFontName();
+        if (font_list[size] && theme_font &&
+            strcmp(theme_font, DEFAULT_FONT_NAME) != 0)
+        {
+            TTF_Font* fb = load_font(theme_font, size);
+            if (fb)
+            {
+                TTF_AddFallbackFont(font_list[size], fb);
+            }
+        }
     }
     return font_list[size];
 }
@@ -1659,8 +1720,8 @@ static TTF_Font* get_font(int size)
 static TTF_Font* load_font(const char* font_name, int font_size)
 {
     TTF_Font* f = NULL;
-    char rel[T4K_PATH_MAX];
-    char fontfile[T4K_PATH_MAX];
+    char      rel[T4K_PATH_MAX];
+    char      fontfile[T4K_PATH_MAX];
 
     /* Search the registered data prefix list (T4K_AddDataPrefix) for fonts/<name>.
      * The host app (tuxtype/tuxmath) registers its data dir there, which is
@@ -1669,22 +1730,23 @@ static TTF_Font* load_font(const char* font_name, int font_size)
     const char* found = find_file(rel);
     if (found && found[0])
     {
-	strncpy(fontfile, found, T4K_PATH_MAX - 1);
-	fontfile[T4K_PATH_MAX - 1] = '\0';
-	f = TTF_OpenFont(fontfile, font_size);
+        strncpy(fontfile, found, T4K_PATH_MAX - 1);
+        fontfile[T4K_PATH_MAX - 1] = '\0';
+        f                          = TTF_OpenFont(fontfile, font_size);
     }
 
     /* Fallbacks: t4k_common's own data dir, then a typical Debian path. */
     if (!f)
     {
-	snprintf(fontfile, T4K_PATH_MAX, "%s/fonts/%s", COMMON_DATA_PREFIX, font_name);
-	f = TTF_OpenFont(fontfile, font_size);
+        snprintf(fontfile, T4K_PATH_MAX, "%s/fonts/%s", COMMON_DATA_PREFIX,
+                 font_name);
+        f = TTF_OpenFont(fontfile, font_size);
     }
     if (!f)
     {
-	snprintf(fontfile, T4K_PATH_MAX,
-		"/usr/share/fonts/truetype/ttf-sil-andika/AndikaDesRevG.ttf");
-	f = TTF_OpenFont(fontfile, font_size);
+        snprintf(fontfile, T4K_PATH_MAX,
+                 "/usr/share/fonts/truetype/ttf-sil-andika/AndikaDesRevG.ttf");
+        f = TTF_OpenFont(fontfile, font_size);
     }
 
     if (f)

@@ -40,7 +40,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "transtruct.h"
 /* SDL_net dropped — networking disabled */
 
-
 typedef struct {
     IPaddress ip;            /* 32-bit IPv4 host address */
     char name[NAME_SIZE];

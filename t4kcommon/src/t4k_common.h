@@ -55,7 +55,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdbool.h>
-#include <stdio.h>  /* DEBUGCODE/DEBUGMSG below use stderr+fprintf+fflush. */
+#include <stdio.h> /* DEBUGCODE/DEBUGMSG below use stderr+fprintf+fflush. */
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -281,9 +281,6 @@ void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
 void T4K_Tts_wait(void);
 void T4K_Tts_cancel(void);
 void T4K_Tts_stop(void);
-
-
-
 
 //==============================================================================
 //                     Public Definitions in t4k_main.c                       
@@ -1391,7 +1388,7 @@ void T4K_AddDataPrefix( const char* path );
 //!     exists on disk; NULL otherwise. The buffer is overwritten by
 //!     subsequent calls; caller must copy if it needs to persist.
 //!
-const char* T4K_RelocatablePath( const char* exe_relative );
+const char* T4K_RelocatablePath(const char* exe_relative);
 
 //==============================================================================
 //
@@ -1401,8 +1398,8 @@ const char* T4K_RelocatablePath( const char* exe_relative );
 //!     Set music or SFX volume. Range 0..128 (SDL2_mixer convention).
 //!     Internally mapped to SDL3_mixer's 0.0..1.0 track gain.
 //!
-void T4K_SetMusicVolume( int volume );
-void T4K_SetSfxVolume( int volume );
+void T4K_SetMusicVolume(int volume);
+void T4K_SetSfxVolume(int volume);
 
 //==============================================================================
 //
@@ -1772,10 +1769,10 @@ void T4K_PlaySoundLoop( Mix_Chunk* sound,
                       );
 
 /* True iff the given Mix_Chunk is currently playing on any SFX track. */
-bool T4K_IsPlayingSound( Mix_Chunk* sound );
+bool T4K_IsPlayingSound(Mix_Chunk* sound);
 
 /* Stop any SFX track that is currently playing the given Mix_Chunk. */
-void T4K_StopSound( Mix_Chunk* sound );
+void T4K_StopSound(Mix_Chunk* sound);
 
 //==============================================================================
 // 

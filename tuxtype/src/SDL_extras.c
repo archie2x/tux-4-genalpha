@@ -13,8 +13,8 @@
 #include "SDL_extras.h"
 #include "convert_utf.h"
 
-void DrawButton(SDL_Rect* target_rect, int radius,
-                Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b,
+                Uint8 a)
 {
     T4K_DrawButton(target_rect, radius, r, g, b, a);
 }
@@ -48,10 +48,19 @@ void SwitchScreenMode(void)
 int WaitForKeypress(void)
 {
     SDL_Event e;
-    while (SDL_PollEvent(&e)) { /* drain */ }
-    while (SDL_WaitEvent(&e)) {
-        if (e.type == SDL_EVENT_KEY_DOWN) return e.key.key;
-        if (e.type == SDL_EVENT_QUIT) return 0;
+    while (SDL_PollEvent(&e))
+    { /* drain */
+    }
+    while (SDL_WaitEvent(&e))
+    {
+        if (e.type == SDL_EVENT_KEY_DOWN)
+        {
+            return e.key.key;
+        }
+        if (e.type == SDL_EVENT_QUIT)
+        {
+            return 0;
+        }
     }
     return 0;
 }
@@ -73,20 +82,50 @@ int TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration)
 }
 
 /* Blit queue */
-void InitBlitQueue(void)         { T4K_InitBlitQueue(); }
-void ResetBlitQueue(void)        { T4K_ResetBlitQueue(); }
-int  AddRect(SDL_Rect* src, SDL_Rect* dst)            { return T4K_AddRect(src, dst); }
-int  DrawObject(SDL_Surface* s, int x, int y)         { return T4K_DrawObject(s, x, y); }
-int  DrawSprite(sprite* gfx, int x, int y)            { return T4K_DrawSprite(gfx, x, y); }
+void InitBlitQueue(void)
+{
+    T4K_InitBlitQueue();
+}
+void ResetBlitQueue(void)
+{
+    T4K_ResetBlitQueue();
+}
+int AddRect(SDL_Rect* src, SDL_Rect* dst)
+{
+    return T4K_AddRect(src, dst);
+}
+int DrawObject(SDL_Surface* s, int x, int y)
+{
+    return T4K_DrawObject(s, x, y);
+}
+int DrawSprite(sprite* gfx, int x, int y)
+{
+    return T4K_DrawSprite(gfx, x, y);
+}
 /* T4K_Erase* take an extra current-background surface arg in t4k_common —
  * we pass tuxtype's CurrentBkgd() so the erase blits the right backdrop. */
-int  EraseObject(SDL_Surface* s, int x, int y)        { return T4K_EraseObject(s, CurrentBkgd(), x, y); }
-int  EraseSprite(sprite* img, int x, int y)           { return T4K_EraseSprite(img, CurrentBkgd(), x, y); }
-void UpdateScreen(int* frame)                         { T4K_UpdateScreen(frame); }
+int EraseObject(SDL_Surface* s, int x, int y)
+{
+    return T4K_EraseObject(s, CurrentBkgd(), x, y);
+}
+int EraseSprite(sprite* img, int x, int y)
+{
+    return T4K_EraseSprite(img, CurrentBkgd(), x, y);
+}
+void UpdateScreen(int* frame)
+{
+    T4K_UpdateScreen(frame);
+}
 
 /* Text */
-int  Setup_SDL_Text(void)        { return T4K_Setup_SDL_Text(); }
-void Cleanup_SDL_Text(void)      { T4K_Cleanup_SDL_Text(); }
+int Setup_SDL_Text(void)
+{
+    return T4K_Setup_SDL_Text();
+}
+void Cleanup_SDL_Text(void)
+{
+    T4K_Cleanup_SDL_Text();
+}
 
 SDL_Surface* BlackOutline(const char* t, int font_size, const SDL_Color* c)
 {
@@ -103,22 +142,33 @@ SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c,
      * return NULL so the caller skips rendering. (Old behavior fell back
      * to wcslen(t), which redrew the whole prompt under the user's typed
      * line before they had typed anything.) */
-    if (length <= 0) return NULL;
+    if (length <= 0)
+    {
+        return NULL;
+    }
     char utf8[4096];
-    int max = length;
-    int o = 0;
-    for (int i = 0; i < max && o + 4 < (int)sizeof(utf8); i++) {
+    int  max = length;
+    int  o   = 0;
+    for (int i = 0; i < max && o + 4 < (int)sizeof(utf8); i++)
+    {
         wchar_t cp = t[i];
-        if (cp < 0x80) {
+        if (cp < 0x80)
+        {
             utf8[o++] = (char)cp;
-        } else if (cp < 0x800) {
+        }
+        else if (cp < 0x800)
+        {
             utf8[o++] = (char)(0xC0 | (cp >> 6));
             utf8[o++] = (char)(0x80 | (cp & 0x3F));
-        } else if (cp < 0x10000) {
+        }
+        else if (cp < 0x10000)
+        {
             utf8[o++] = (char)(0xE0 | (cp >> 12));
             utf8[o++] = (char)(0x80 | ((cp >> 6) & 0x3F));
             utf8[o++] = (char)(0x80 | (cp & 0x3F));
-        } else {
+        }
+        else
+        {
             utf8[o++] = (char)(0xF0 | (cp >> 18));
             utf8[o++] = (char)(0x80 | ((cp >> 12) & 0x3F));
             utf8[o++] = (char)(0x80 | ((cp >> 6) & 0x3F));

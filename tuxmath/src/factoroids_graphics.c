@@ -5,7 +5,8 @@
 #include "factoroids.h"
 #include "frame_counter.h"
 #include "draw_utils.h"
-extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom, int smooth);
+extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
+                                    int smooth);
 
 /* definitions for cockpit buttons */
 #define BUTTONW 24
@@ -281,7 +282,9 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
     SDL_Surface* surf;
     SDL_Rect dest;
 
-    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+    SDL_FillSurfaceRect(
+        screen, NULL,
+        SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
     /************ Draw Background ***************/
 
@@ -647,7 +650,8 @@ void factoroids_show_message(char* str)
         SDL_BlitSurface(s1, NULL, screen, &loc);
         SDL_DestroySurface(s1);
     }
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
+                                                                0);
 }
 
 
@@ -682,7 +686,8 @@ void factoroids_level_objs_hints(char *label, char *contents, int x, int y )
         SDL_BlitSurface(s2, NULL, screen, &loc);
     }
 
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
+                                                                0);
 
     SDL_DestroySurface(s1);
     SDL_DestroySurface(s2);

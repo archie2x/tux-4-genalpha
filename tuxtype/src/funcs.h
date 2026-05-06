@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 /* NOTE - there is no reason to declare functions using "extern", as all */
-/* non-local functions are visible throughout the program.               */ 
+/* non-local functions are visible throughout the program.               */
 
 #include <t4k_common.h>
 /* t4k_common.h redefines DEBUGCODE/DOUT/LOG with a different (mask-taking)
@@ -35,9 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #undef DEBUGCODE
 #undef DOUT
 #undef LOG
-#define LOG(str) if (settings.debug_on) fprintf(stderr, str);
+#define LOG(str)                                                               \
+    if (settings.debug_on)                                                     \
+        fprintf(stderr, str);
 #define DEBUGCODE if (settings.debug_on)
-#define DOUT(x) if (settings.debug_on) fprintf(stderr, "%s = %d\n", #x, x);
+#define DOUT(x)                                                                \
+    if (settings.debug_on)                                                     \
+        fprintf(stderr, "%s = %d\n", #x, x);
 
 /* TTS functions tuxtype calls but t4k_common.h doesn't declare publicly. */
 
@@ -99,8 +103,7 @@ sprite* LoadSprite(const char* name, int MODE);
 void Opts_Initialize(void);
 
 /* In pause.c: */
-int  Pause(int in_game);
-
+int Pause(int in_game);
 
 /* In playgame.c: */
 int PlayCascade(int level);

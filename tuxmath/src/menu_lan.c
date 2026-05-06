@@ -98,7 +98,8 @@ int ConnectToServer(void)
     /* Draw Tux (use "reset" flavor so Tux gets drawn immediately): */
     HandleTitleScreenAnimations_Reset(true);
     /* and update: */
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
+                                                                0);
 
     while (!finished)
     {
@@ -163,28 +164,29 @@ int ConnectToServer(void)
         {
             switch (event.type)
             {
-                case SDL_EVENT_QUIT:
-                    {
-                        cleanup();
-                    }
+            case SDL_EVENT_QUIT:
+            {
+                cleanup();
+            }
 
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    /* "Stop" button - go to main menu: */
-                    { 
-                        if (T4K_inRect(stopRect, event.button.x, event.button.y ))
-                        {
-                            finished = 1;
-                            playsound(SND_TOCK);
-                            break;
-                        }
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                /* "Stop" button - go to main menu: */
+                {
+                    if (T4K_inRect(stopRect, event.button.x, event.button.y))
+                    {
+                        finished = 1;
+                        playsound(SND_TOCK);
+                        break;
                     }
+                }
             }
         }
 
         /* Draw Tux: */
         HandleTitleScreenAnimations();
         /* and update: */
-        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0,
+                                                                    0, 0, 0);
         /* Wait so we keep frame rate constant: */
         T4K_Throttle(20, &timer);
     }  // End of while (!finished) loop
@@ -304,83 +306,91 @@ int Pregame(void)
         //Draw status of other players:
         draw_player_table();
 
-        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0,
+                                                                    0, 0, 0);
 
         //Check SDL events:
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
             {
-                case SDL_EVENT_QUIT:
-                    {
-                        cleanup();
-                    }
+            case SDL_EVENT_QUIT:
+            {
+                cleanup();
+            }
 
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    /* "Stop" button - go to main menu: */
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                /* "Stop" button - go to main menu: */
+                {
+                    if (T4K_inRect(stop_rect, event.button.x, event.button.y))
                     {
-                        if (T4K_inRect(stop_rect, event.button.x, event.button.y ))
+                        status = PREGAME_OVER_ESCAPE;
+                        playsound(SND_TOCK);
+                        break;
+                    }
+                    else if (T4K_inRect(ready_rect, event.button.x,
+                                        event.button.y))
+                    {
+                        //Player clicked play/pause, toggle "ready" flag:
+                        ready = !ready;
+                        LAN_SetReady(ready); //tell server we are ready to start
+                        playsound(SND_TOCK);
+                        break;
+                    }
+                }
+            case SDL_EVENT_KEY_DOWN:
+            {
+                switch (event.key.key)
+                {
+                case SDLK_ESCAPE:
+                {
+                    status = PREGAME_OVER_ESCAPE;
+                    playsound(SND_TOCK);
+                    break;
+                }
+                case SDLK_RETURN:
+                case SDLK_KP_ENTER:
+                {
+                    ready = true;
+                    LAN_SetReady(true); //tell server we are ready to start
+                    playsound(SND_TOCK);
+                    break;
+                }
+                case SDLK_SPACE:
+                {
+
+                    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                                _("Server Name: %s"),
+                                LAN_ConnectedServerName());
+                    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+                                _("Lesson: %s"), LAN_ConnectedServerLesson());
+                    for (i = 0; i < MAX_CLIENTS; i++)
+                    {
+                        if (LAN_PlayerConnected(i))
                         {
-                            status = PREGAME_OVER_ESCAPE;
-                            playsound(SND_TOCK);
-                            break;
-                        } 
-                        else if (T4K_inRect(ready_rect, event.button.x, event.button.y ))
-                        {
-                            //Player clicked play/pause, toggle "ready" flag:       
-                            ready = !ready;
-                            LAN_SetReady(ready);  //tell server we are ready to start
-                            playsound(SND_TOCK);
-                            break;
+                            if (LAN_PlayerReady(i))
+                                T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
+                                            APPEND, "%s %s", LAN_PlayerName(i),
+                                            _("Ready"));
+                            else
+                                T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
+                                            APPEND, "%s %s", LAN_PlayerName(i),
+                                            _("Not Ready"));
                         }
-
                     }
-                case SDL_EVENT_KEY_DOWN:
-                    {
-                        switch (event.key.key)
-                        {
-                            case SDLK_ESCAPE:
-                                {
-                                    status =  PREGAME_OVER_ESCAPE;
-                                    playsound(SND_TOCK);
-                                    break;
-                                }
-                            case SDLK_RETURN:
-                            case SDLK_KP_ENTER:
-                                {
-                                    ready = true;
-                                    LAN_SetReady(true);  //tell server we are ready to start
-                                    playsound(SND_TOCK);
-                                    break;
-                                }
-                            case SDLK_SPACE:
-								{
-									
-									T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,_("Server Name: %s"), LAN_ConnectedServerName());
-									T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,_("Lesson: %s"), LAN_ConnectedServerLesson());
-									   for(i = 0; i < MAX_CLIENTS; i++)
-									   {
-										   if(LAN_PlayerConnected(i))
-										   {
-												if (LAN_PlayerReady(i))
-													T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s",LAN_PlayerName(i),_("Ready"));
-												else
-													T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s %s",LAN_PlayerName(i),_("Not Ready"));
-											}
-										}
-								}    
-                            case SDLK_BACKSPACE:
-                                {
-                                    ready = false;
-                                    LAN_SetReady(false);  //tell server we are NOT ready to start
-                                    playsound(SND_TOCK);
-                                    break;
-                                }
-                            default:
-                                {
-                                    //Do nothing - event. add support for toggle fullscreen, etc.
-                                }
-                        } 
+                }
+                case SDLK_BACKSPACE:
+                {
+                    ready = false;
+                    LAN_SetReady(false); //tell server we are NOT ready to start
+                    playsound(SND_TOCK);
+                    break;
+                }
+                default:
+                {
+                    //Do nothing - event. add support for toggle fullscreen, etc.
+                }
+                } 
                     }
             }
         }  // End while(SDL_PollEvent(&event))
@@ -416,7 +426,8 @@ int Pregame(void)
         T4K_Throttle(loop_msec, &timer);
     }  // End while(status = PREGAME_WAITING)
 
-    SDL_DestroySurface(play_surf);    //we know these can't be NULL from check above
+    SDL_DestroySurface(
+        play_surf); //we know these can't be NULL from check above
     SDL_DestroySurface(pause_surf);
     SDL_DestroySurface(ready_title);
     SDL_DestroySurface(notready_title);

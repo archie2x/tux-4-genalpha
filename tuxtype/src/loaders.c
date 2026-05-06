@@ -90,7 +90,9 @@ void LoadLang(void)
    * Latin font, which has no Devanagari/Bengali/etc. glyphs — Hindi
    * lists rendered as empty rows. */
   if (settings.theme_font_name[0])
+  {
       T4K_SetFontName(settings.theme_font_name);
+  }
   s2 = bindtextdomain(PACKAGE, tt_locale_dir());
   s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
   s4 = textdomain(PACKAGE);
@@ -353,24 +355,26 @@ SDL_Surface* LoadImage(const char* datafile, int mode)
   switch (mode & IMG_MODES)
   {
     case IMG_REGULAR:
-    { 
-      final_pic = SDL_DuplicateSurface(tmp_pic);
-      SDL_DestroySurface(tmp_pic);
-      break;
+    {
+        final_pic = SDL_DuplicateSurface(tmp_pic);
+        SDL_DestroySurface(tmp_pic);
+        break;
     }
 
     case IMG_ALPHA:
     {
-      final_pic = SDL_DuplicateSurface(tmp_pic);
-      SDL_DestroySurface(tmp_pic);
-      break;
+        final_pic = SDL_DuplicateSurface(tmp_pic);
+        SDL_DestroySurface(tmp_pic);
+        break;
     }
 
     case IMG_COLORKEY:
     {
       SDL_LockSurface(tmp_pic);
-      SDL_SetSurfaceColorKey(tmp_pic, true,
-                      SDL_MapRGB(SDL_GetPixelFormatDetails(tmp_pic->format), NULL, 255, 255, 0));
+      SDL_SetSurfaceColorKey(
+          tmp_pic, true,
+          SDL_MapRGB(SDL_GetPixelFormatDetails(tmp_pic->format), NULL, 255, 255,
+                     0));
       final_pic = SDL_DuplicateSurface(tmp_pic);
       SDL_DestroySurface(tmp_pic);
       break;
@@ -433,8 +437,8 @@ int LoadBothBkgds(const char* datafile)
   }
   
   if (ret == 2) //orig won't be used at all
-    SDL_DestroySurface(orig);
-    
+      SDL_DestroySurface(orig);
+
   DEBUGCODE
   {
     printf("%d images scaled\nLeaving LoadBothBkgds()\n", ret);
@@ -455,11 +459,11 @@ SDL_Surface* CurrentBkgd(void)
 void FreeBothBkgds(void)
 {
   if (win_bkgd)
-    SDL_DestroySurface(win_bkgd);
+      SDL_DestroySurface(win_bkgd);
   win_bkgd = NULL;
 
   if (fullscr_bkgd)
-    SDL_DestroySurface(fullscr_bkgd);
+      SDL_DestroySurface(fullscr_bkgd);
   fullscr_bkgd = NULL;
 }
 
@@ -517,10 +521,10 @@ void FreeSprite(sprite* gfx )
   for (x = 0; x < gfx->num_frames; x++)
   {
     if (gfx->frame[x])
-      SDL_DestroySurface(gfx->frame[x]);
+        SDL_DestroySurface(gfx->frame[x]);
   }
   if (gfx->default_img)
-    SDL_DestroySurface(gfx->default_img);
+      SDL_DestroySurface(gfx->default_img);
   free(gfx);
 }
 
@@ -530,26 +534,34 @@ void FreeSprite(sprite* gfx )
 ****************************/
 Mix_Chunk* LoadSound(const char* datafile)
 {
-  Mix_Chunk* tmp = NULL;
-  char fn[FNLEN];
-  if (!settings.use_english) {
-    sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
-    tmp = T4K_LoadSound(fn);
-    if (tmp) return tmp;
-  }
-  sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
-  return T4K_LoadSound(fn);
+    Mix_Chunk* tmp = NULL;
+    char       fn[FNLEN];
+    if (!settings.use_english)
+    {
+        sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
+        tmp = T4K_LoadSound(fn);
+        if (tmp)
+        {
+            return tmp;
+        }
+    }
+    sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
+    return T4K_LoadSound(fn);
 }
 
 Mix_Music* LoadMusic(const char* datafile)
 {
-  Mix_Music* tmp = NULL;
-  char fn[FNLEN];
-  if (!settings.use_english) {
-    sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
-    tmp = T4K_LoadMusic(fn);
-    if (tmp) return tmp;
-  }
-  sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
-  return T4K_LoadMusic(fn);
+    Mix_Music* tmp = NULL;
+    char       fn[FNLEN];
+    if (!settings.use_english)
+    {
+        sprintf(fn, "%s/sounds/%s", settings.theme_data_path, datafile);
+        tmp = T4K_LoadMusic(fn);
+        if (tmp)
+        {
+            return tmp;
+        }
+    }
+    sprintf(fn, "%s/sounds/%s", settings.default_data_path, datafile);
+    return T4K_LoadMusic(fn);
 }

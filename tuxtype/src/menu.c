@@ -250,7 +250,8 @@ void RunMainMenu(void)
      * instead of exiting the whole program. Restore the cursor each
      * iteration in case a game/Pause left it hidden. */
     int rc;
-    do {
+    do
+    {
         SDL_ShowCursor();
         rc = run_menu(MENU_MAIN, false);
     } while (rc != QUIT);
@@ -486,9 +487,9 @@ static int chooseWordlist(void)
   
     for (i = 0; i < lists; i++)
     {
-      SDL_DestroySurface(titles[i]);
-      SDL_DestroySurface(select[i]);
-      titles[i] = select[i] = NULL;
+        SDL_DestroySurface(titles[i]);
+        SDL_DestroySurface(select[i]);
+        titles[i] = select[i] = NULL;
     }
 
     SDL_DestroySurface(left);
@@ -526,11 +527,11 @@ static int chooseWordlist(void)
     {
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
+      case SDL_EVENT_QUIT:
           exit(0); /* FIXME may need to cleanup memory and exit more cleanly */
           break;
 
-        case SDL_EVENT_MOUSE_MOTION:
+      case SDL_EVENT_MOUSE_MOTION:
           for (i=0; (i<8) && (loc-(loc%8)+i<lists); i++)
             if (inRect( titleRects[i], event.motion.x, event.motion.y ))
             {
@@ -539,7 +540,7 @@ static int chooseWordlist(void)
             }
           break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (inRect( leftRect, event.button.x, event.button.y ))
           {
             if (loc - (loc % 8) - 8 >= 0)
@@ -572,7 +573,7 @@ static int chooseWordlist(void)
 
           break;
 
-        case SDL_EVENT_KEY_DOWN:
+      case SDL_EVENT_KEY_DOWN:
           if (event.key.key == SDLK_ESCAPE)
           {
             stop = 2;
@@ -587,31 +588,25 @@ static int chooseWordlist(void)
             break;
           }
 
-          if ((event.key.key == SDLK_LEFT)
-           || (event.key.key == SDLK_PAGEUP))
+          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
             if (loc - (loc % 8) - 8 >= 0)
               loc = loc - (loc % 8) - 8;
           }
 
-          if ((event.key.key == SDLK_RIGHT)
-           || (event.key.key == SDLK_PAGEDOWN))
+          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
           {
             if (loc - (loc % 8) + 8 < lists)
               loc = (loc - (loc % 8) + 8);
           }
 
-          if ((event.key.key == SDLK_UP)
-	     ||
-	      (event.key.key == SDLK_K))
+          if ((event.key.key == SDLK_UP) || (event.key.key == SDLK_K))
           {
             if (loc > 0)
               loc--;
           }
 
-          if ((event.key.key == SDLK_DOWN)
-	     ||
-	      (event.key.key == SDLK_J))
+          if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
           {
             if (loc+1<lists)
               loc++;
@@ -628,7 +623,7 @@ static int chooseWordlist(void)
 
       start = loc - (loc % 8);
 
-      for (i = start; i< MIN(start + 8,lists); i++)
+      for (i = start; i < MIN(start + 8, lists); i++)
       {
         titleRects[i % 8].x = screen->w/2 - (titles[i]->w/2);
         titleRects[i % 8].w = titles[i]->w;
@@ -665,9 +660,9 @@ static int chooseWordlist(void)
   /* --- clear graphics before leaving function --- */ 
   for (i = 0; i < lists; i++)
   {
-    SDL_DestroySurface(titles[i]);
-    SDL_DestroySurface(select[i]);
-    titles[i] = select[i] = NULL;
+      SDL_DestroySurface(titles[i]);
+      SDL_DestroySurface(select[i]);
+      titles[i] = select[i] = NULL;
   }
 
   SDL_DestroySurface(left);

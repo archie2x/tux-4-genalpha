@@ -34,7 +34,8 @@ void draw_line(SDL_Surface* surface, int x1, int y1, int x2, int y2, int red, in
     Uint32 pixel;
     SDL_Rect dest;
 
-    pixel = SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format), NULL, red, grn, blu);
+    pixel = SDL_MapRGB(SDL_GetPixelFormatDetails(surface->format), NULL, red,
+                       grn, blu);
 
     dx = x2 - x1;
     dy = y2 - y1;

@@ -13,12 +13,16 @@
 
 #include <SDL3/SDL_thread.h>
 
-SDL_Thread *tts_thread = NULL;
-int text_to_speech_status = 0;
-int text_to_speech_speaking = 0;
+SDL_Thread* tts_thread              = NULL;
+int         text_to_speech_status   = 0;
+int         text_to_speech_speaking = 0;
 
-void T4K_Tts_cancel(void) {}
-void T4K_Tts_wait(void) {}
+void T4K_Tts_cancel(void)
+{
+}
+void T4K_Tts_wait(void)
+{
+}
 
 int T4K_Tts_init(void)
 {
@@ -32,10 +36,21 @@ int T4K_Tts_set_voice(char voice_name[])
     return 0;
 }
 
-void T4K_Tts_stop(void) {}
-void T4K_Tts_set_volume(int volume) { (void)volume; }
-void T4K_Tts_set_rate(int rate) { (void)rate; }
-void T4K_Tts_set_pitch(int pitch) { (void)pitch; }
+void T4K_Tts_stop(void)
+{
+}
+void T4K_Tts_set_volume(int volume)
+{
+    (void)volume;
+}
+void T4K_Tts_set_rate(int rate)
+{
+    (void)rate;
+}
+void T4K_Tts_set_pitch(int pitch)
+{
+    (void)pitch;
+}
 
 void T4K_Tts_say(int rate, int pitch, int mode, const char* text, ...)
 {

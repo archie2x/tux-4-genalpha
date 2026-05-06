@@ -170,10 +170,14 @@ const char* find_file(const char* base_name)
      * Lets the package run from any install root without the compile-time
      * COMMON_DATA_PREFIX matching the actual on-disk layout. */
     const char* base = SDL_GetBasePath();
-    if (base) {
-	snprintf(tmp_path, T4K_PATH_MAX, "%s../share/t4k_common/%s", base, base_name);
-	if (T4K_CheckFile(tmp_path))
-	    return tmp_path;
+    if (base)
+    {
+        snprintf(tmp_path, T4K_PATH_MAX, "%s../share/t4k_common/%s", base,
+                 base_name);
+        if (T4K_CheckFile(tmp_path))
+        {
+            return tmp_path;
+        }
     }
     return "";
 }
@@ -187,7 +191,10 @@ const char* T4K_RelocatablePath(const char* exe_relative)
     /* SDL3: returns a string owned by SDL — do NOT SDL_free it (changed
      * from SDL2). Stable across calls. */
     const char* base = SDL_GetBasePath();
-    if (!base) return NULL;
+    if (!base)
+    {
+        return NULL;
+    }
     snprintf(tmp, T4K_PATH_MAX, "%s%s", base, exe_relative);
     return T4K_CheckFile(tmp) ? tmp : NULL;
 }
@@ -612,8 +619,8 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 	    height = h;
 	}
 	final_pic = T4K_zoom(loaded_pic, width, height);
-	SDL_DestroySurface(loaded_pic);
-	loaded_pic = final_pic;
+    SDL_DestroySurface(loaded_pic);
+    loaded_pic = final_pic;
 	final_pic = NULL;
     }
 
@@ -646,30 +653,35 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 	case IMG_REGULAR:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_REGULAR mode.\n");
-		return SDL_DuplicateSurface(img);
-	    }
+        return SDL_DuplicateSurface(img);
+        }
 
 	case IMG_ALPHA:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
-		/* SDL2 defaulted alpha-channel surfaces to BLENDMODE_BLEND;
+        /* SDL2 defaulted alpha-channel surfaces to BLENDMODE_BLEND;
 		 * SDL3 defaults to BLENDMODE_NONE, which makes soft edges
 		 * look hard-cut or fully opaque (visible on Comet Zap's
 		 * glowing tails). Set blend explicitly to restore SDL2
 		 * behavior. */
-		SDL_Surface* dup = SDL_DuplicateSurface(img);
-		if (dup) SDL_SetSurfaceBlendMode(dup, SDL_BLENDMODE_BLEND);
-		return dup;
-	    }
+        SDL_Surface* dup = SDL_DuplicateSurface(img);
+        if (dup)
+        {
+            SDL_SetSurfaceBlendMode(dup, SDL_BLENDMODE_BLEND);
+        }
+        return dup;
+        }
 
 	case IMG_COLORKEY:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
 		SDL_LockSurface(img);
-		SDL_SetSurfaceColorKey(img, true,
-			SDL_MapRGB(SDL_GetPixelFormatDetails(img->format), NULL, 255, 255, 0));
-		return SDL_DuplicateSurface(img);
-	    }
+        SDL_SetSurfaceColorKey(
+            img, true,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(img->format), NULL, 255, 255,
+                       0));
+        return SDL_DuplicateSurface(img);
+        }
 
 	default:
 	    {
@@ -901,15 +913,15 @@ void T4K_FreeSprite(sprite* gfx)
 	DEBUGMSG(debug_loaders, ".");
 	if (gfx->frame[x])
 	{
-	    SDL_DestroySurface(gfx->frame[x]);
-	    gfx->frame[x] = NULL;
+        SDL_DestroySurface(gfx->frame[x]);
+        gfx->frame[x] = NULL;
 	}
     }
 
     if (gfx->default_img)
     {
-	SDL_DestroySurface(gfx->default_img);
-	gfx->default_img = NULL;
+        SDL_DestroySurface(gfx->default_img);
+        gfx->default_img = NULL;
     }
 
     DEBUGMSG(debug_loaders, "T4K_FreeSprite() - done\n");
@@ -1077,9 +1089,8 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
     unsigned char **png_rows;
     Uint8 r, g, b, a;
     int x, y, count;
-    Uint32(*getpixel) (SDL_Surface *, int, int) =
-	getpixels[SDL_BYTESPERPIXEL(surf->format)];
-
+    Uint32 (*getpixel)(SDL_Surface*, int, int) =
+        getpixels[SDL_BYTESPERPIXEL(surf->format)];
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png_ptr == NULL)
@@ -1159,12 +1170,14 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
 		    for (x = 0; x < surf->w; x++)
 		    {
-			SDL_GetRGBA(getpixel(surf, x, y), SDL_GetPixelFormatDetails(surf->format), NULL, &r, &g, &b, &a);
+                SDL_GetRGBA(getpixel(surf, x, y),
+                            SDL_GetPixelFormatDetails(surf->format), NULL, &r,
+                            &g, &b, &a);
 
-			png_rows[y][x * 4 + 0] = r;
-			png_rows[y][x * 4 + 1] = g;
-			png_rows[y][x * 4 + 2] = b;
-			png_rows[y][x * 4 + 3] = a;
+                png_rows[y][x * 4 + 0] = r;
+                png_rows[y][x * 4 + 1] = g;
+                png_rows[y][x * 4 + 2] = b;
+                png_rows[y][x * 4 + 3] = a;
 		    }
 		}
 
@@ -1195,33 +1208,46 @@ void savePNG(SDL_Surface* surf, char* fn)
 }
 #endif //HAVE_LIBPNG
 
-
 /* T4K_LoadSound / T4K_LoadMusic: in SDL3_mixer there's no distinction —
  * MIX_Audio handles both short SFX and longer music. We resolve the file
  * via find_file (data prefix list, then COMMON_DATA_PREFIX) and load it
  * through the mixer maintained by t4k_audio.c. */
-extern MIX_Mixer* t4k_audio_get_mixer(void);  /* forward decl */
+extern MIX_Mixer* t4k_audio_get_mixer(void); /* forward decl */
 
 static MIX_Audio* t4k_load_audio(char* datafile, bool predecode)
 {
-    if (!datafile) return NULL;
+    if (!datafile)
+    {
+        return NULL;
+    }
     char rel[T4K_PATH_MAX];
     /* Try as-is, then under sounds/<name> for SFX-style basenames. */
     const char* path = T4K_CheckFile(datafile) ? datafile : NULL;
-    if (!path) {
+    if (!path)
+    {
         snprintf(rel, T4K_PATH_MAX, "sounds/%s", datafile);
         path = find_file(rel);
-        if (!path || !path[0]) path = find_file(datafile);
+        if (!path || !path[0])
+        {
+            path = find_file(datafile);
+        }
     }
-    if (!path || !path[0]) {
+    if (!path || !path[0])
+    {
         fprintf(stderr, "T4K_LoadAudio: '%s' not found\n", datafile);
         return NULL;
     }
     MIX_Mixer* mixer = t4k_audio_get_mixer();
-    if (!mixer) return NULL;
+    if (!mixer)
+    {
+        return NULL;
+    }
     MIX_Audio* a = MIX_LoadAudio(mixer, path, predecode);
-    if (!a) fprintf(stderr, "T4K_LoadAudio: MIX_LoadAudio('%s') failed: %s\n",
-                    path, SDL_GetError());
+    if (!a)
+    {
+        fprintf(stderr, "T4K_LoadAudio: MIX_LoadAudio('%s') failed: %s\n", path,
+                SDL_GetError());
+    }
     return a;
 }
 

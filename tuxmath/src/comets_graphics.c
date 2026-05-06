@@ -16,15 +16,15 @@ void comets_draw_background(SDL_Surface *bkgd, int wave)
     SDL_Rect dest;
 
     if (fgcolor == 0)
-        fgcolor = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 64, 96, 64);
+        fgcolor = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL,
+                             64, 96, 64);
     if (old_wave != wave)
     {
         DEBUGMSG(debug_game,"Wave %d\n", wave);
         old_wave = wave;
-        bgcolor = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL,
-                64,
-                64 + ((wave * 32) % 192),
-                128 - ((wave * 16) % 128) );
+        bgcolor =
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 64,
+                       64 + ((wave * 32) % 192), 128 - ((wave * 16) % 128));
         DEBUGMSG(debug_game,"Filling screen with color %d\n", bgcolor);
     }
 
@@ -36,7 +36,6 @@ void comets_draw_background(SDL_Surface *bkgd, int wave)
         dest.h = ((screen->h) / 4) * 3;
 
         SDL_FillSurfaceRect(screen, &dest, bgcolor);
-
 
         dest.y = ((screen->h) / 4) * 3;
         dest.h = (screen->h) / 4;
@@ -317,7 +316,10 @@ void comets_draw_misc(MC_MathGame *curr_game, int wave,
         dest.h = images[IMG_EXTRA_LIFE]->h/2;
         dest.w = ((Opts_BonusCometInterval() + 1 - bonus_comet_counter)
                 * images[IMG_EXTRA_LIFE]->w) / Opts_BonusCometInterval();
-        SDL_FillSurfaceRect(screen, &dest, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 255, 0));
+        SDL_FillSurfaceRect(
+            screen, &dest,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 255,
+                       0));
     }
 
     /* Draw wave: */

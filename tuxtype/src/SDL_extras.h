@@ -32,8 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SDL_EXTRAS_H
 
 #include <SDL3/SDL.h>
-#include <t4k_common.h>  /* sprite, MAX_SPRITE_FRAMES, color constants, WIPE_* enum */
-
+#include <t4k_common.h> /* sprite, MAX_SPRITE_FRAMES, color constants, WIPE_* enum */
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define rmask 0xff000000
@@ -52,7 +51,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * (included from funcs.h). NEXT_FRAME and REWIND are still tuxtype-local: */
 #define NEXT_FRAME(SPRITE) if ((SPRITE)->num_frames) (SPRITE)->cur = (((SPRITE)->cur)+1) % (SPRITE)->num_frames;
 #define REWIND(SPRITE) (SPRITE)->cur = 0;
-
 
 /* "Public" function prototypes: */
 void DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);

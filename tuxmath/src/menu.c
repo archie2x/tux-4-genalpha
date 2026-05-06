@@ -23,8 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
 #include "comets.h"
 #include "globals.h"
 #include "menu.h"
@@ -253,7 +251,9 @@ int run_academy(void)
         /* Guard against menu returning an index when no lessons were
          * found on disk (lesson_list_filenames stays NULL in that case). */
         if (!lesson_list_filenames || chosen_lesson >= num_lessons)
+        {
             break;
+        }
         if (Opts_GetGlobalOpt(MENU_SOUND))
             playsound(SND_POP);
 
@@ -647,7 +647,7 @@ int RunLoginMenu(void)
     int level;
     int i;
     char *trailer = NULL;
-    SDL_Keymod mod;
+    SDL_Keymod  mod;
 
     DEBUGMSG(debug_menu, "Entering RunLoginMenu()");
     // Check for & read user_login_questions file
@@ -712,7 +712,9 @@ int RunLoginMenu(void)
         // If the CTRL key was pressed, choose this as the identity, even
         // if there is a lower level to the hierarchy
         if (mod & SDL_KMOD_CTRL)
+        {
             break;
+        }
         // Set the title appropriately for the next menu
         if (level < n_login_questions)
             title = user_login_questions[level];

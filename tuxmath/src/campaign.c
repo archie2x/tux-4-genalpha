@@ -23,9 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
 #include "comets.h"
 #include "campaign.h"
 #include "tuxmath.h"
@@ -123,7 +120,12 @@ int start_campaign()
               game();
               */
     }
-    scroll_text(endtext, (SDL_Rect){0,0,(screen)->w,(screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */, 3);
+    scroll_text(
+        endtext,
+        (SDL_Rect){
+            0, 0, (screen)->w,
+            (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */,
+        3);
     return 0;
 }
 
@@ -201,7 +203,9 @@ void briefPlayer(int stage)
     };
 
     SDL_Surface* icon = NULL;
-    SDL_Rect textarea = (SDL_Rect){0,0,(screen)->w,(screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */;
+    SDL_Rect     textarea = (SDL_Rect){
+        0, 0, (screen)->w,
+        (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */;
     SDL_Surface* loadedsprite = T4K_LoadScaledImage(
             sprites[stage], IMG_REGULAR|IMG_NOT_REQUIRED, 
             screen->h / 4, screen->h / 4
@@ -227,7 +231,9 @@ void briefPlayer(int stage)
 	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_text);
 
     //background is dark blue with a black text area
-    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 32));
+    SDL_FillSurfaceRect(
+        screen, NULL,
+        SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 32));
     SDL_FillSurfaceRect(screen, &textarea, 0);
 
     //show this stage's text
@@ -266,12 +272,22 @@ void showGameOver()
 {
     const char text[2][MAX_LINEWIDTH] = {N_("Sorry, try again!"), ""};
     T4K_LineWrapList(text, wrapped_lines, 40, MAX_LINES, MAX_LINEWIDTH);
-    scroll_text(wrapped_lines, (SDL_Rect){0,0,(screen)->w,(screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */, 3);
+    scroll_text(
+        wrapped_lines,
+        (SDL_Rect){
+            0, 0, (screen)->w,
+            (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */,
+        3);
 }
 
 void showGameWon()
 {
     const char text[2][MAX_LINEWIDTH] = {N_("Mission accomplished. The galaxy is safe!"), ""};
     T4K_LineWrapList(text, wrapped_lines, 40, MAX_LINES, MAX_LINEWIDTH);
-    scroll_text(wrapped_lines, (SDL_Rect){0,0,(screen)->w,(screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */, 3);
+    scroll_text(
+        wrapped_lines,
+        (SDL_Rect){
+            0, 0, (screen)->w,
+            (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */,
+        3);
 }

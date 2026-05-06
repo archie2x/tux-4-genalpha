@@ -55,10 +55,10 @@ Pause : Pause the game
  * in_game = 0 when called from a menu (Volume Settings) — text mentions
  *               returning to menu, return value is ignored. */
 static int g_pause_in_game = 1;
-int Pause(int in_game)
+int        Pause(int in_game)
 {
-	g_pause_in_game = in_game;
-	int paused = 1;
+    g_pause_in_game     = in_game;
+    int paused = 1;
 	int sfx_volume=0;
 	int old_sfx_volume;
 	int mus_volume=0;
@@ -74,84 +74,96 @@ int Pause(int in_game)
 	/* --- stop all sounds, play pause noise --- */
 
 	if (settings.sys_sound) {
-		/* Audio pause + volume queries stubbed for SDL3 port (task #13). */
-		sfx_volume = settings.sfx_volume;
-		mus_volume = settings.mus_volume;
-	}
+        /* Audio pause + volume queries stubbed for SDL3 port (task #13). */
+        sfx_volume = settings.sfx_volume;
+        mus_volume = settings.mus_volume;
+    }
 
 	/* --- show the pause screen --- */
 
-	SDL_ShowCursor();
+    SDL_ShowCursor();
 
-	// Darken the screen — bits=2 (quarter brightness) keeps the volume
-	// sliders and labels readable; bits=1 (half) was too pale.
-	DarkenScreen(2);
+    // Darken the screen — bits=2 (quarter brightness) keeps the volume
+    // sliders and labels readable; bits=1 (half) was too pale.
+    DarkenScreen(2);
 
-	pause_draw();
+    pause_draw();
 
 	if (settings.sys_sound) {
 		draw_vols(sfx_volume, mus_volume);
 	}
 
-	T4K_UpdateRect(screen, NULL);
+    T4K_UpdateRect(screen, NULL);
 
-	/* SDL_EnableKeyRepeat removed in SDL3. */
+    /* SDL_EnableKeyRepeat removed in SDL3. */
 
-	/* --- wait for space, click, or exit --- */
+    /* --- wait for space, click, or exit --- */
 
 	while (paused) {
 		old_sfx_volume = sfx_volume;
 		old_mus_volume = mus_volume;
 		while (SDL_PollEvent(&event)) 
 			switch (event.type) {
-				case SDL_EVENT_QUIT: 
-					exit(0);
-					break;
-				case SDL_EVENT_KEY_UP:
-					if (settings.sys_sound && 
-					   ((event.key.key == SDLK_RIGHT) ||
-					    (event.key.key == SDLK_LEFT))) 
-					    	tocks = 0;
-					break;
-				case SDL_EVENT_KEY_DOWN:
-					/* SPACE or ESC always returns to caller (game or
+            case SDL_EVENT_QUIT:
+                exit(0);
+                break;
+            case SDL_EVENT_KEY_UP:
+                if (settings.sys_sound && ((event.key.key == SDLK_RIGHT) ||
+                                           (event.key.key == SDLK_LEFT)))
+                {
+                    tocks = 0;
+                }
+                break;
+            case SDL_EVENT_KEY_DOWN:
+                /* SPACE or ESC always returns to caller (game or
 					 * options menu). 'Q' quits to menu, but only when
 					 * we're paused from a game — from options it's a
 					 * no-op so the user can't accidentally drop their
 					 * place in the menu. */
-					if (event.key.key == SDLK_SPACE
-					 || event.key.key == SDLK_ESCAPE)
-						paused = 0;
-					if (event.key.key == SDLK_Q && in_game) {
-						paused = 0;
-						quit = 1;
-					}
-					if (settings.sys_sound) { 
-						if (event.key.key == SDLK_RIGHT) 
-							sfx_volume += 4;
-						if (event.key.key == SDLK_LEFT) 
-							sfx_volume -= 4;
-						if (event.key.key == SDLK_UP) 
-							mus_volume += 4;
-						if (event.key.key == SDLK_DOWN) 
-							mus_volume -= 4;
-					}
-					break;
-				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-					mousePressed = 1;
-					tocks = 0;
-					break;
-				case SDL_EVENT_MOUSE_BUTTON_UP:
-					mousePressed = 0;
-					break;
+                if (event.key.key == SDLK_SPACE || event.key.key == SDLK_ESCAPE)
+                {
+                    paused = 0;
+                }
+                if (event.key.key == SDLK_Q && in_game)
+                {
+                    paused = 0;
+                    quit   = 1;
+                }
+                if (settings.sys_sound)
+                {
+                    if (event.key.key == SDLK_RIGHT)
+                    {
+                        sfx_volume += 4;
+                    }
+                    if (event.key.key == SDLK_LEFT)
+                    {
+                        sfx_volume -= 4;
+                    }
+                    if (event.key.key == SDLK_UP)
+                    {
+                        mus_volume += 4;
+                    }
+                    if (event.key.key == SDLK_DOWN)
+                    {
+                        mus_volume -= 4;
+                    }
+                }
+                break;
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                mousePressed = 1;
+                tocks        = 0;
+                break;
+            case SDL_EVENT_MOUSE_BUTTON_UP:
+                mousePressed = 0;
+                break;
 
-					break;
+                break;
 			}
 		if (settings.sys_sound && mousePressed) {
-			float fx, fy;
-			SDL_GetMouseState(&fx, &fy);
-			int x = (int)fx, y = (int)fy;
-			/* check to see if they clicked on a button */
+            float fx, fy;
+            SDL_GetMouseState(&fx, &fy);
+            int x = (int)fx, y = (int)fy;
+            /* check to see if they clicked on a button */
 
 			if (inRect(rectUp, x, y)) {
 				mus_volume += 4;
@@ -178,44 +190,59 @@ int Pause(int in_game)
 		}
 
 		if (settings.sys_sound) {
-			const int MIX_MAX_VOLUME = 128;
-			if (sfx_volume > MIX_MAX_VOLUME) sfx_volume = MIX_MAX_VOLUME;
-			if (sfx_volume < 0) sfx_volume = 0;
-			if (mus_volume > MIX_MAX_VOLUME) mus_volume = MIX_MAX_VOLUME;
-			if (mus_volume < 0) mus_volume = 0;
+            const int MIX_MAX_VOLUME = 128;
+            if (sfx_volume > MIX_MAX_VOLUME)
+            {
+                sfx_volume = MIX_MAX_VOLUME;
+            }
+            if (sfx_volume < 0)
+            {
+                sfx_volume = 0;
+            }
+            if (mus_volume > MIX_MAX_VOLUME)
+            {
+                mus_volume = MIX_MAX_VOLUME;
+            }
+            if (mus_volume < 0)
+            {
+                mus_volume = 0;
+            }
 
-			if ((mus_volume != old_mus_volume) ||
-			    (sfx_volume != old_sfx_volume)) {
-				/* Apply to the mixer immediately so the user hears the
+            if ((mus_volume != old_mus_volume) ||
+                (sfx_volume != old_sfx_volume))
+            {
+                /* Apply to the mixer immediately so the user hears the
 				 * change while dragging the slider. */
-				if (mus_volume != old_mus_volume)
-					T4K_SetMusicVolume(mus_volume);
-				if (sfx_volume != old_sfx_volume) {
-					T4K_SetSfxVolume(sfx_volume);
-					/* Play a tick sound as feedback (capped to avoid spam). */
-					if (pause_sfx && tocks % 4 == 0)
-						T4K_PlaySound(pause_sfx);
-					tocks++;
-				}
-				draw_vols(sfx_volume, mus_volume);
-				settings.mus_volume = mus_volume;
-				settings.sfx_volume = sfx_volume;
-				T4K_UpdateRect(screen, NULL);
-			}
-		}
+                if (mus_volume != old_mus_volume)
+                    T4K_SetMusicVolume(mus_volume);
+                if (sfx_volume != old_sfx_volume) {
+                    T4K_SetSfxVolume(sfx_volume);
+                    /* Play a tick sound as feedback (capped to avoid spam). */
+                    if (pause_sfx && tocks % 4 == 0)
+                    {
+                        T4K_PlaySound(pause_sfx);
+                    }
+                    tocks++;
+                }
+                draw_vols(sfx_volume, mus_volume);
+                settings.mus_volume = mus_volume;
+                settings.sfx_volume = sfx_volume;
+                T4K_UpdateRect(screen, NULL);
+            }
+        }
 
 		SDL_Delay(33);
 	}
 
 	/* --- Return to previous state --- */
 
-	/* SDL_EnableKeyRepeat removed in SDL3 (no equivalent needed). */
+    /* SDL_EnableKeyRepeat removed in SDL3 (no equivalent needed). */
 
-	SDL_HideCursor();
+    SDL_HideCursor();
 
-	/* Audio resume stubbed (task #13). */
+    /* Audio resume stubbed (task #13). */
 
-	pause_unload_media();
+    pause_unload_media();
 
 	LOG( "Leaving Pause()\n" );
 
@@ -246,13 +273,13 @@ static void pause_load_media(void) {
 static void pause_unload_media(void) {
 	if (settings.sys_sound)
         {
-	  /* Mix_FreeChunk stubbed for SDL3 port (task #13). */
-	  pause_sfx = NULL;
+            /* Mix_FreeChunk stubbed for SDL3 port (task #13). */
+            pause_sfx = NULL;
         }
-	SDL_DestroySurface(up);
-	SDL_DestroySurface(down);
-	SDL_DestroySurface(left);
-	SDL_DestroySurface(right);
+        SDL_DestroySurface(up);
+        SDL_DestroySurface(down);
+        SDL_DestroySurface(left);
+        SDL_DestroySurface(right);
         up = down = left = right = NULL;
 }
 
@@ -323,35 +350,36 @@ static void pause_draw(void)
 
   if (g_pause_in_game)
   {
-    t = BlackOutline(gettext("Paused!"), pause_font_size2, &white);
-    if (t)
-    {
-      s.y = screen->h/2 - 180; //60;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
-    }
+      t = BlackOutline(gettext("Paused!"), pause_font_size2, &white);
+      if (t)
+      {
+          s.y = screen->h / 2 - 180; //60;
+          s.x = screen->w / 2 - t->w / 2;
+          SDL_BlitSurface(t, NULL, screen, &s);
+          SDL_DestroySurface(t);
+      }
   }
 
-  t = BlackOutline(gettext("'SPACE' or 'ESC' to return."), pause_font_size1, &white);
+  t = BlackOutline(gettext("'SPACE' or 'ESC' to return."), pause_font_size1,
+                   &white);
   if (t)
   {
-    s.y = screen->h/2 + (g_pause_in_game ? 160 : 180);
-    s.x = screen->w/2 - t->w/2;
-    SDL_BlitSurface(t, NULL, screen, &s);
-    SDL_DestroySurface(t);
+      s.y = screen->h / 2 + (g_pause_in_game ? 160 : 180);
+      s.x = screen->w / 2 - t->w / 2;
+      SDL_BlitSurface(t, NULL, screen, &s);
+      SDL_DestroySurface(t);
   }
 
   if (g_pause_in_game)
   {
-    t = BlackOutline(gettext("'Q' to quit."), pause_font_size1, &white);
-    if (t)
-    {
-      s.y = screen->h/2 + 200;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
-    }
+      t = BlackOutline(gettext("'Q' to quit."), pause_font_size1, &white);
+      if (t)
+      {
+          s.y = screen->h / 2 + 200;
+          s.x = screen->w / 2 - t->w / 2;
+          SDL_BlitSurface(t, NULL, screen, &s);
+          SDL_DestroySurface(t);
+      }
   }
 
   LOG("Leaving pause_draw()\n");
@@ -374,14 +402,26 @@ static void draw_vols(int sfx, int mus)
   for (i = 1; i<=32; i++)
   {
     if (sfx >= i * 4)
-      SDL_FillSurfaceRect(screen, &s, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 127 + sfx));
+        SDL_FillSurfaceRect(
+            screen, &s,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       127 + sfx));
     else
-      SDL_FillSurfaceRect(screen, &s, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+        SDL_FillSurfaceRect(
+            screen, &s,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       0));
 
     if (mus >= i * 4)
-      SDL_FillSurfaceRect(screen, &m, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 127 + mus));
+        SDL_FillSurfaceRect(
+            screen, &m,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       127 + mus));
     else
-      SDL_FillSurfaceRect(screen, &m, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+        SDL_FillSurfaceRect(
+            screen, &m,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       0));
 
     m.x = s.x += 7;
   }

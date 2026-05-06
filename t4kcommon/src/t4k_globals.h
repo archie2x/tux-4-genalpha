@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #ifndef T4K_GLOBALS_H
 #define T4K_GLOBALS_H
 
-
 // Translation stuff (now works for Mac and Win too!):
 #include "gettext.h"
 #define _(String) gettext (String)

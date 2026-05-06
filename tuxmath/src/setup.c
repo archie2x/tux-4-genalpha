@@ -681,7 +681,9 @@ void initialize_SDL(void)
     Opts_SetSoundHWAvailable(1);
 #ifndef NOSOUND
     if (!Opts_GetGlobalOpt(USE_SOUND))
+    {
         Opts_SetSoundHWAvailable(0);
+    }
 #else
     Opts_SetSoundHWAvailable(0);
 #endif
@@ -693,31 +695,42 @@ void initialize_SDL(void)
     }
 
     /* SDL3: create the window and hand it to t4k_common. */
-    const SDL_DisplayMode* dm = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
-    if (dm) {
+    const SDL_DisplayMode* dm =
+        SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+    if (dm)
+    {
         fs_res_x = (Opts_GetGlobalOpt(FULLSCREEN) && Opts_CustomRes())
-                   ? Opts_WindowWidth() : dm->w;
+                       ? Opts_WindowWidth()
+                       : dm->w;
         fs_res_y = (Opts_GetGlobalOpt(FULLSCREEN) && Opts_CustomRes())
-                   ? Opts_WindowHeight() : dm->h;
-    } else {
+                       ? Opts_WindowHeight()
+                       : dm->h;
+    }
+    else
+    {
         fs_res_x = Opts_WindowWidth();
         fs_res_y = Opts_WindowHeight();
     }
 
     Uint32 win_flags = SDL_WINDOW_RESIZABLE;
-    int win_w = Opts_WindowWidth(), win_h = Opts_WindowHeight();
-    if (Opts_GetGlobalOpt(FULLSCREEN)) {
+    int    win_w = Opts_WindowWidth(), win_h = Opts_WindowHeight();
+    if (Opts_GetGlobalOpt(FULLSCREEN))
+    {
         win_flags |= SDL_WINDOW_FULLSCREEN;
-        win_w = fs_res_x; win_h = fs_res_y;
+        win_w = fs_res_x;
+        win_h = fs_res_y;
     }
 
-    SDL_Window* w = SDL_CreateWindow("Tux, of Math Command", win_w, win_h, win_flags);
-    if (!w && Opts_GetGlobalOpt(FULLSCREEN)) {
+    SDL_Window* w =
+        SDL_CreateWindow("Tux, of Math Command", win_w, win_h, win_flags);
+    if (!w && Opts_GetGlobalOpt(FULLSCREEN))
+    {
         Opts_SetGlobalOpt(FULLSCREEN, 0);
-        w = SDL_CreateWindow("Tux, of Math Command",
-                             Opts_WindowWidth(), Opts_WindowHeight(), 0);
+        w = SDL_CreateWindow("Tux, of Math Command", Opts_WindowWidth(),
+                             Opts_WindowHeight(), 0);
     }
-    if (!w) {
+    if (!w)
+    {
         fprintf(stderr, "Could not open the display: %s\n", SDL_GetError());
         cleanup_on_error();
         exit(1);
@@ -728,7 +741,6 @@ void initialize_SDL(void)
     seticon();
 }
 
-
 /* Cached runtime data prefix — relocatable lookup the first time, then
  * the compile-time fallback. Exposed via tm_data_prefix() so other TUs
  * can build paths to data files without hard-coding DATA_PREFIX. */
@@ -736,7 +748,10 @@ static char tm_rt_data_prefix[PATH_MAX];
 
 const char* tm_data_prefix(void)
 {
-    if (tm_rt_data_prefix[0]) return tm_rt_data_prefix;
+    if (tm_rt_data_prefix[0])
+    {
+        return tm_rt_data_prefix;
+    }
     const char* p = T4K_RelocatablePath("../share/tuxmath");
     strncpy(tm_rt_data_prefix, p ? p : DATA_PREFIX, PATH_MAX - 1);
     return tm_rt_data_prefix;
@@ -927,9 +942,15 @@ void seticon(void)
 {
     /* SDL3: SDL_SetWindowIcon takes the SDL_Surface*; mask not needed. */
     SDL_Surface* icon = IMG_Load(DATA_PREFIX "/images/icons/icon.png");
-    if (!icon) return;
+    if (!icon)
+    {
+        return;
+    }
     SDL_Window* w = T4K_GetWindow();
-    if (w) SDL_SetWindowIcon(w, icon);
+    if (w)
+    {
+        SDL_SetWindowIcon(w, icon);
+    }
     SDL_DestroySurface(icon);
 }
 

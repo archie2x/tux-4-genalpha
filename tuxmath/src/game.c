@@ -33,7 +33,8 @@ int pause_game(void)
 
     T4K_DarkenScreen(1);  // cut all channels by half
     SDL_BlitSurface(images[IMG_PAUSED], NULL, screen, &dest);
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
+                                                                0);
 
 #ifndef NOSOUND
     if(Opts_GetGlobalOpt(USE_SOUND))
@@ -45,7 +46,9 @@ int pause_game(void)
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_EVENT_KEY_DOWN)
+            {
                 pause_done = 1;
+            }
             else if (event.type == SDL_EVENT_QUIT)
             {
                 user_quit_received = GAME_OVER_WINDOW_CLOSE;

@@ -175,11 +175,13 @@ int main(int argc, char *argv[])
      * the chosen theme's locale into the environment *before* the first
      * setlocale/bindtextdomain — otherwise the user always sees English
      * even after picking another language. */
-    if (settings.theme_locale_name[0]) {
+    if (settings.theme_locale_name[0])
+    {
         char short_lang[6];
-        snprintf(short_lang, sizeof(short_lang), "%s", settings.theme_locale_name);
+        snprintf(short_lang, sizeof(short_lang), "%s",
+                 settings.theme_locale_name);
         short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
-        my_setenv("LANG",     settings.theme_locale_name);
+        my_setenv("LANG", settings.theme_locale_name);
         my_setenv("LANGUAGE", short_lang);
     }
 
@@ -211,37 +213,37 @@ int main(int argc, char *argv[])
 
   if (settings.sys_sound)
   {
-/* Mix_VolumeMusic stubbed for SDL3 port */
-/* Mix_Volume stubbed for SDL3 port */
+      /* Mix_VolumeMusic stubbed for SDL3 port */
+      /* Mix_Volume stubbed for SDL3 port */
   }
   
   
   /* Initialising TTS */
    T4K_Tts_init();
    T4K_Tts_set_volume(settings.tts_volume);
-   
+
    T4K_AddDataPrefix(tt_data_prefix());
 
    /* Apply saved volume settings so launches honor what the user picked. */
    T4K_SetMusicVolume(settings.mus_volume);
    T4K_SetSfxVolume(settings.sfx_volume);
-  
-  /* FIXME: we should check config files/environment variables like LANG! */
-  /* NOTE what should we do if LANG is something without a theme - should */
-  /* we then default to English?                                          */
 
-  LoadLang();
-  LoadKeyboard();
+   /* FIXME: we should check config files/environment variables like LANG! */
+   /* NOTE what should we do if LANG is something without a theme - should */
+   /* we then default to English?                                          */
 
-  /* Now actually play the game: */
-  TitleScreen();
+   LoadLang();
+   LoadKeyboard();
 
-  SaveSettings();
+   /* Now actually play the game: */
+   TitleScreen();
 
-  /* Release heap: */
-  Cleanup();
+   SaveSettings();
 
-  LOG( "---GAME DONE, EXIT---- Thank you.\n" );
+   /* Release heap: */
+   Cleanup();
 
-  return EXIT_SUCCESS;
+   LOG("---GAME DONE, EXIT---- Thank you.\n");
+
+   return EXIT_SUCCESS;
 }

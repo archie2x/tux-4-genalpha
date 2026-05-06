@@ -60,8 +60,8 @@ int InitT4KCommon(int debug_flags)
     /* Text (SDL3_ttf): */
     if (!T4K_Setup_SDL_Text())
     {
-	fprintf( stderr, "Couldn't initialize text (SDL3_ttf)\n");
-	return 0;
+        fprintf(stderr, "Couldn't initialize text (SDL3_ttf)\n");
+        return 0;
     }
 
     /* Seed random-number generator: */
@@ -90,7 +90,9 @@ int T4K_HandleStdEvents (const SDL_Event* event)
     int ret = 0;
 
     if (event->type != SDL_EVENT_KEY_DOWN)
-	return 0;
+    {
+        return 0;
+    }
 
     SDL_Keycode key = event->key.key;
 

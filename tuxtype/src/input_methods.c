@@ -974,12 +974,18 @@ static int im_event_zh_tw(IM_DATA* im, SDL_keysym ks)
   /* Handle keys */
   switch(ks.sym) {
     /* Keys to ignore */
-    case SDLK_NUMLOCKCLEAR: case SDLK_CAPSLOCK: case SDLK_SCROLLLOCK:
-    case SDLK_LSHIFT:  case SDLK_RSHIFT:
-    case SDLK_LCTRL:   case SDLK_RCTRL:
-    case SDLK_LMETA:   case SDLK_RMETA:
-    case SDLK_LGUI:  case SDLK_RGUI:
-    case SDLK_MODE:
+  case SDLK_NUMLOCKCLEAR:
+  case SDLK_CAPSLOCK:
+  case SDLK_SCROLLLOCK:
+  case SDLK_LSHIFT:
+  case SDLK_RSHIFT:
+  case SDLK_LCTRL:
+  case SDLK_RCTRL:
+  case SDLK_LMETA:
+  case SDLK_RMETA:
+  case SDLK_LGUI:
+  case SDLK_RGUI:
+  case SDLK_MODE:
       break;
 
     /* Left-Alt & Right-Alt mapped to mode-switch */
@@ -1159,13 +1165,19 @@ static int im_event_th(IM_DATA* im, SDL_keysym ks)
   /* Handle keys */
   switch(ks.sym) {
     /* Keys to ignore */
-    case SDLK_NUMLOCKCLEAR: case SDLK_CAPSLOCK: case SDLK_SCROLLLOCK:
-    case SDLK_LSHIFT:  case SDLK_RSHIFT:
-    case SDLK_LCTRL:   case SDLK_RCTRL:
-    case SDLK_LALT:
-    case SDLK_LMETA:   case SDLK_RMETA:
-    case SDLK_LGUI:  case SDLK_RGUI:
-    case SDLK_MODE:
+  case SDLK_NUMLOCKCLEAR:
+  case SDLK_CAPSLOCK:
+  case SDLK_SCROLLLOCK:
+  case SDLK_LSHIFT:
+  case SDLK_RSHIFT:
+  case SDLK_LCTRL:
+  case SDLK_RCTRL:
+  case SDLK_LALT:
+  case SDLK_LMETA:
+  case SDLK_RMETA:
+  case SDLK_LGUI:
+  case SDLK_RGUI:
+  case SDLK_MODE:
       break;
 
     /* Right-Alt mapped to mode-switch */
@@ -1345,13 +1357,19 @@ static int im_event_ja(IM_DATA* im, SDL_keysym ks)
   /* Handle keys */
   switch(ks.sym) {
     /* Keys to ignore */
-    case SDLK_NUMLOCKCLEAR: case SDLK_CAPSLOCK: case SDLK_SCROLLLOCK:
-    case SDLK_LSHIFT:  case SDLK_RSHIFT:
-    case SDLK_LCTRL:   case SDLK_RCTRL:
-    case SDLK_LALT:
-    case SDLK_LMETA:   case SDLK_RMETA:
-    case SDLK_LGUI:  case SDLK_RGUI:
-    case SDLK_MODE:
+  case SDLK_NUMLOCKCLEAR:
+  case SDLK_CAPSLOCK:
+  case SDLK_SCROLLLOCK:
+  case SDLK_LSHIFT:
+  case SDLK_RSHIFT:
+  case SDLK_LCTRL:
+  case SDLK_RCTRL:
+  case SDLK_LALT:
+  case SDLK_LMETA:
+  case SDLK_RMETA:
+  case SDLK_LGUI:
+  case SDLK_RGUI:
+  case SDLK_MODE:
       break;
 
     /* Right-Alt mapped to mode-switch */
@@ -1556,12 +1574,18 @@ static int im_event_ko(IM_DATA* im, SDL_keysym ks)
   /* Handle keys */
   switch(ks.sym) {
     /* Keys to ignore */
-    case SDLK_NUMLOCKCLEAR: case SDLK_CAPSLOCK: case SDLK_SCROLLLOCK:
-    case SDLK_LSHIFT:  case SDLK_RSHIFT:
-    case SDLK_LCTRL:   case SDLK_RCTRL:
-    case SDLK_LMETA:   case SDLK_RMETA:
-    case SDLK_LGUI:  case SDLK_RGUI:
-    case SDLK_MODE:
+  case SDLK_NUMLOCKCLEAR:
+  case SDLK_CAPSLOCK:
+  case SDLK_SCROLLLOCK:
+  case SDLK_LSHIFT:
+  case SDLK_RSHIFT:
+  case SDLK_LCTRL:
+  case SDLK_RCTRL:
+  case SDLK_LMETA:
+  case SDLK_RMETA:
+  case SDLK_LGUI:
+  case SDLK_RGUI:
+  case SDLK_MODE:
       break;
 
     /* Right-Alt mapped to mode-switch */

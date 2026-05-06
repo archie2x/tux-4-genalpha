@@ -7,7 +7,8 @@
 #include <SDL3/SDL.h>
 
 /* SDL_gfx rotozoom replacement (no-op rotation, just duplicates). */
-SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom, int smooth);
+SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
+                             int smooth);
 
 /* LAN/network stubs — networking play disabled in this port.
  * Provide lan_player_type / LAN_* prototypes here so call sites compile
@@ -16,7 +17,8 @@ SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom, int sm
 #include <stdbool.h>
 #ifndef LAN_PLAYER_TYPE_DEFINED
 #define LAN_PLAYER_TYPE_DEFINED
-typedef struct lan_player_type {
+typedef struct lan_player_type
+{
     bool connected;
     char name[NAME_SIZE];
     bool mine;

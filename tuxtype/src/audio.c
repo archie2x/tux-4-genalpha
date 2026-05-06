@@ -50,40 +50,49 @@ void playsound(int snd)
 #endif
 }
 
-
 /* Thin delegation to t4k_common's SDL3_mixer-backed audio. */
 
 void PlaySoundLoop(Mix_Chunk* snd, int loops)
 {
-  if (!settings.sys_sound) return;
-  T4K_PlaySoundLoop(snd, loops);
+    if (!settings.sys_sound)
+    {
+        return;
+    }
+    T4K_PlaySoundLoop(snd, loops);
 }
 
 void audioHaltChannel(int channel)
 {
-  T4K_AudioHaltChannel(channel);
+    T4K_AudioHaltChannel(channel);
 }
 
 void MusicLoad(const char* musicFilename, int loops)
 {
-  if (!settings.sys_sound || !musicFilename) return;
-  Mix_Music* m = LoadMusic(musicFilename);
-  if (m) {
-    MusicUnload();
-    defaultMusic = m;
-    T4K_AudioMusicPlay(m, loops);
-  }
+    if (!settings.sys_sound || !musicFilename)
+    {
+        return;
+    }
+    Mix_Music* m = LoadMusic(musicFilename);
+    if (m)
+    {
+        MusicUnload();
+        defaultMusic = m;
+        T4K_AudioMusicPlay(m, loops);
+    }
 }
 
 void MusicUnload(void)
 {
-  T4K_AudioMusicUnload();
-  defaultMusic = NULL;
+    T4K_AudioMusicUnload();
+    defaultMusic = NULL;
 }
 
 void MusicPlay(Mix_Music* musicData, int loops)
 {
-  if (!settings.sys_sound || !musicData) return;
-  MusicUnload();
-  T4K_AudioMusicPlay(musicData, loops);
+    if (!settings.sys_sound || !musicData)
+    {
+        return;
+    }
+    MusicUnload();
+    T4K_AudioMusicPlay(musicData, loops);
 }

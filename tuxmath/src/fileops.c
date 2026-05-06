@@ -573,7 +573,8 @@ int parse_lesson_file_directory(void)
     num_lessons = 0;
 
     /* find the directory containing the lesson files:  */
-    nchars = snprintf(lesson_path, PATH_MAX, "%s/missions/lessons", tm_data_prefix());
+    nchars = snprintf(lesson_path, PATH_MAX, "%s/missions/lessons",
+                      tm_data_prefix());
     if (nchars < 0 || nchars >= PATH_MAX) {
         perror("formatting lesson directory");
         return 0;

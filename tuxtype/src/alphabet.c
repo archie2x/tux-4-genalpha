@@ -379,21 +379,21 @@ int unicode_in_key_list(wchar_t uni_char)
 // 	dst.h = abit->h;
 // 
 // 	SDL_BlitSurface(abit, NULL, screen, &dst);
-// 
+//
 // 	SDL_DestroySurface(abit);
-// 
+//
 // 	abit = BlackOutline("Alphabet Set To:", font, &white);
 // 	dst.x = 320 - (abit->w / 2);
 // 	dst.y = 200;
 // 	dst.w = abit->w;
 // 	dst.h = abit->h;
-// 
+//
 // 	SDL_BlitSurface(abit, NULL, screen, &dst);
-// 
+//
 // 	T4K_UpdateRect(screen, NULL);
-// 
-// 	while (!stop) 
-// 		while (SDL_PollEvent(&event)) 
+//
+// 	while (!stop)
+// 		while (SDL_PollEvent(&event))
 // 			switch (event.type) {
 // 				case SDL_EVENT_QUIT:
 // 					exit(0);
@@ -401,11 +401,9 @@ int unicode_in_key_list(wchar_t uni_char)
 // 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
 // 					stop = 1;
 // 			}
-// 
+//
 // 	SDL_DestroySurface(abit);
 // }
-
-
 
 /* Returns a random Unicode char from the char_glyphs list: */
 /* --- get a letter --- */
@@ -663,13 +661,13 @@ void FreeLetters(void)
   {
     if (char_glyphs[i].white_glyph)
     {
-      SDL_DestroySurface(char_glyphs[i].white_glyph);
-      char_glyphs[i].white_glyph = NULL;
+        SDL_DestroySurface(char_glyphs[i].white_glyph);
+        char_glyphs[i].white_glyph = NULL;
     }
     if (char_glyphs[i].red_glyph)
     {
-      SDL_DestroySurface(char_glyphs[i].red_glyph);
-      char_glyphs[i].red_glyph = NULL;
+        SDL_DestroySurface(char_glyphs[i].red_glyph);
+        char_glyphs[i].red_glyph = NULL;
     }
     char_glyphs[i].unicode_value = 0;
     char_glyphs[i].white_glyph = NULL;

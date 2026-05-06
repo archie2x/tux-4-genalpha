@@ -241,8 +241,9 @@ void SNOW_init( void ) {
 
 	int i;
 
-	snow_color = SDL_MapRGB( SDL_GetPixelFormatDetails(screen->format), NULL, 255, 255, 255 );
-	for (i=0; i<NUM_FLAKES; i++) {
+    snow_color = SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL,
+                            255, 255, 255);
+    for (i=0; i<NUM_FLAKES; i++) {
 		flake[i].x = (int)(8*638.0*rand()/(RAND_MAX+1.0));
 		flake[i].y = (int)(480.0*rand()/(RAND_MAX+1.0));
 	}

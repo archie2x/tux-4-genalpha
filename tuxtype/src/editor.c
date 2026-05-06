@@ -41,8 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * (alphabetical on APFS, hash on ext4) so without this the editor shows
  * lists in different orders across platforms. Insertion sort — n is small
  * (max a few dozen lists per user). */
-static void sort_wordlists(int n,
-                           char file_names[][FNLEN],
+static void sort_wordlists(int n, char file_names[][FNLEN],
                            char list_titles[][MAX_WORD_SIZE + 1])
 {
     char tmp_fn[FNLEN];
@@ -53,7 +52,7 @@ static void sort_wordlists(int n,
         tmp_title[MAX_WORD_SIZE] = '\0';
         strncpy(tmp_fn, file_names[i], FNLEN - 1);
         tmp_fn[FNLEN - 1] = '\0';
-        int j = i;
+        int j             = i;
         while (j > 0 && strcasecmp(list_titles[j - 1], tmp_title) > 0)
         {
             strncpy(list_titles[j], list_titles[j - 1], MAX_WORD_SIZE);
@@ -68,7 +67,6 @@ static void sort_wordlists(int n,
         file_names[j][FNLEN - 1] = '\0';
     }
 }
-
 
 void ChooseListToEdit(void)
 {
@@ -128,12 +126,15 @@ void ChooseListToEdit(void)
   }
   else
   {
-    /* First-run: create the user's custom-words dir under their config
+      /* First-run: create the user's custom-words dir under their config
      * dir (e.g. ~/.config/tuxtype/words) so the editor has somewhere to
      * write New lists. Falling through to var_data_path would only work
      * if that's writable, which it usually isn't (system install). */
-    DEBUGCODE { fprintf(stderr, "Creating wordlist dir: %s\n", wordsDir); }
-    mkdir(wordsDir, 0755);
+      DEBUGCODE
+      {
+          fprintf(stderr, "Creating wordlist dir: %s\n", wordsDir);
+      }
+      mkdir(wordsDir, 0755);
   }
   lists_dir = opendir(wordsDir);
 
@@ -185,7 +186,6 @@ void ChooseListToEdit(void)
 
   sort_wordlists(num_lists, file_names, list_titles);
 
-
   /* Render SDL_Surfaces of title text for later blitting: */
   for (i = 0; i < num_lists; i++)
   {
@@ -195,10 +195,17 @@ void ChooseListToEdit(void)
  
   /* Render text and instructions */
   directions[0] = BlackOutline(gettext_noop("Word List Editor"), 22, &yellow);
-  directions[1] = BlackOutline(gettext_noop("Click 'NEW' to add a new list."), 16, &white);
-  directions[2] = BlackOutline(gettext_noop("Select and click 'REMOVE' (or press 'DELETE') to remove a list."), 16, &white);
-  directions[3] = BlackOutline(gettext_noop("Select and press 'ENTER/RETURN' to edit a list."), 16, &white);
-  directions[4] = BlackOutline(gettext_noop("Click 'DONE' or press 'ESC' to exit."), 16, &white);
+  directions[1] =
+      BlackOutline(gettext_noop("Click 'NEW' to add a new list."), 16, &white);
+  directions[2] = BlackOutline(
+      gettext_noop(
+          "Select and click 'REMOVE' (or press 'DELETE') to remove a list."),
+      16, &white);
+  directions[3] = BlackOutline(
+      gettext_noop("Select and press 'ENTER/RETURN' to edit a list."), 16,
+      &white);
+  directions[4] = BlackOutline(
+      gettext_noop("Click 'DONE' or press 'ESC' to exit."), 16, &white);
 
   max_title_size = BlackOutline(gettext_noop("WWWWWWWWW"), DEFAULT_MENU_FONT_SIZE, &yellow);
 
@@ -208,11 +215,14 @@ void ChooseListToEdit(void)
 
   /* Load image of new/remove/done buttons: */
   /* Original asset is huge; scale into a 140x50 box. */
-  new_button    = T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
-  remove_button = T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
-  done_button   = T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
+  new_button =
+      T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
+  remove_button =
+      T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
+  done_button =
+      T4K_LoadImageOfBoundingBox("wordlist_button.png", IMG_ALPHA, 140, 50);
 
-	/*Load image for left and right buttons: */
+  /*Load image for left and right buttons: */
   left = LoadImage("left.png", IMG_ALPHA);
   right = LoadImage("right.png", IMG_ALPHA);
   LoadBothBkgds("title/menu_bkg.jpg");
@@ -254,12 +264,18 @@ void ChooseListToEdit(void)
 
   /* Center each label inside its button rect (was using fixed y offsets
    * that drifted off the smaller buttons after the bbox shrink). */
-  button_text_rect[New].x    = button_rect[New].x    + button_rect[New].w/2    - NEW->w/2;
-  button_text_rect[New].y    = button_rect[New].y    + button_rect[New].h/2    - NEW->h/2;
-  button_text_rect[Remove].x = button_rect[Remove].x + button_rect[Remove].w/2 - REMOVE->w/2;
-  button_text_rect[Remove].y = button_rect[Remove].y + button_rect[Remove].h/2 - REMOVE->h/2;
-  button_text_rect[Done].x   = button_rect[Done].x   + button_rect[Done].w/2   - DONE->w/2;
-  button_text_rect[Done].y   = button_rect[Done].y   + button_rect[Done].h/2   - DONE->h/2;
+  button_text_rect[New].x =
+      button_rect[New].x + button_rect[New].w / 2 - NEW->w / 2;
+  button_text_rect[New].y =
+      button_rect[New].y + button_rect[New].h / 2 - NEW->h / 2;
+  button_text_rect[Remove].x =
+      button_rect[Remove].x + button_rect[Remove].w / 2 - REMOVE->w / 2;
+  button_text_rect[Remove].y =
+      button_rect[Remove].y + button_rect[Remove].h / 2 - REMOVE->h / 2;
+  button_text_rect[Done].x =
+      button_rect[Done].x + button_rect[Done].w / 2 - DONE->w / 2;
+  button_text_rect[Done].y =
+      button_rect[Done].y + button_rect[Done].h / 2 - DONE->h / 2;
 
   leftRect.w = left->w;
   leftRect.h = left->h;
@@ -290,7 +306,7 @@ void ChooseListToEdit(void)
   }
 
   T4K_UpdateRect(screen, NULL);
-  
+
   /* Event loop for this screen: */
   while (!stop)
   {
@@ -300,11 +316,11 @@ void ChooseListToEdit(void)
     {
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
+      case SDL_EVENT_QUIT:
           exit(0);
           break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN: 
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (inRect(leftRect, event.button.x, event.button.y)) 
             if (loc - (loc % 8) - 8 >= 0) 
             {
@@ -328,40 +344,42 @@ void ChooseListToEdit(void)
 
           if (inRect(button_rect[Remove], event.button.x, event.button.y))
           {
-            if (loc >= 0 && loc < num_lists) {
-              ChooseRemoveList(list_titles[loc], file_names[loc]);
-              change = 1;
-            }
+              if (loc >= 0 && loc < num_lists)
+              {
+                  ChooseRemoveList(list_titles[loc], file_names[loc]);
+                  change = 1;
+              }
           }
 
           if (inRect(button_rect[Done], event.button.x, event.button.y))
           {
-            stop = 1;
-            break;
+              stop = 1;
+              break;
           }
 
           /* Click on a wordlist title to select it (yellow highlight),
            * matching the arrow-key behavior. */
           {
-            int start = loc - (loc % 8);
-            for (i = 0; i < 8 && start + i < num_lists; i++)
-            {
-              if (inRect(titleRects[i], event.button.x, event.button.y))
+              int start = loc - (loc % 8);
+              for (i = 0; i < 8 && start + i < num_lists; i++)
               {
-                loc = start + i;
-                break;
+                  if (inRect(titleRects[i], event.button.x, event.button.y))
+                  {
+                      loc = start + i;
+                      break;
+                  }
               }
-            }
           }
           break;
 
-        case SDL_EVENT_KEY_DOWN:
+      case SDL_EVENT_KEY_DOWN:
           if (event.key.key == SDLK_BACKSPACE)
           {
-            if (loc >= 0 && loc < num_lists) {
-              ChooseRemoveList(list_titles[loc], file_names[loc]);
-              change = 1;
-            }
+              if (loc >= 0 && loc < num_lists)
+              {
+                  ChooseRemoveList(list_titles[loc], file_names[loc]);
+                  change = 1;
+              }
           }
 
           if (event.key.key == SDLK_ESCAPE)
@@ -371,27 +389,24 @@ void ChooseListToEdit(void)
           }
 
           // User going to actual word editing:
-          if ((event.key.key == SDLK_RETURN)
-           || (event.key.key == SDLK_SPACE))
+          if ((event.key.key == SDLK_RETURN) || (event.key.key == SDLK_SPACE))
           {
-            if (loc >= 0 && loc < num_lists)
-            {
-              EditWordList(file_names[loc]);
-              loc = 0;
-              redraw = 1;
-            }
+              if (loc >= 0 && loc < num_lists)
+              {
+                  EditWordList(file_names[loc]);
+                  loc    = 0;
+                  redraw = 1;
+              }
             break;
           }
           // Go to top of previous page:
-          if ((event.key.key == SDLK_LEFT)
-           || (event.key.key == SDLK_PAGEUP))
+          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
             if (loc - (loc % 8) - 8 >= 0)
               loc = loc - (loc % 8) - 8;
           }
           // Go to top of next page:
-          if ((event.key.key == SDLK_RIGHT)
-           || (event.key.key == SDLK_PAGEDOWN))
+          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
           {
             if (loc - (loc % 8) + 8 < num_lists)
               loc = (loc - (loc % 8) + 8);
@@ -459,10 +474,8 @@ void ChooseListToEdit(void)
 
       sort_wordlists(num_lists, file_names, list_titles);
 
-
       // white_titles_surf[MAX_WORD_LISTS] = {NULL};
       // yellow_titles_surf[MAX_WORD_LISTS] = {NULL};
-
 
       /* Render SDL_Surfaces of title text for later blitting: */
       for (i = 0; i < num_lists; i++)
@@ -516,7 +529,7 @@ void ChooseListToEdit(void)
       if (start + 8 < num_lists) 
         SDL_BlitSurface(right, NULL, screen, &rightRect);
 
-      T4K_UpdateRect(screen, NULL); 
+      T4K_UpdateRect(screen, NULL);
       redraw = 0;
     }
     SDL_Delay(40);
@@ -531,33 +544,33 @@ void ChooseListToEdit(void)
   for (i = 0; i < num_lists; i++)
   {
     if(white_titles_surf[i])
-      SDL_DestroySurface(white_titles_surf[i]);
+        SDL_DestroySurface(white_titles_surf[i]);
     if(yellow_titles_surf[i])
-      SDL_DestroySurface(yellow_titles_surf[i]);
+        SDL_DestroySurface(yellow_titles_surf[i]);
   }
 
   for (i = 0; i < 5; i ++)
   {
     if(directions[i])
-      SDL_DestroySurface(directions[i]);
+        SDL_DestroySurface(directions[i]);
   }
 
   if(new_button)
-    SDL_DestroySurface(new_button);
+      SDL_DestroySurface(new_button);
   if(remove_button)
-    SDL_DestroySurface(remove_button);
+      SDL_DestroySurface(remove_button);
   if(done_button)
-    SDL_DestroySurface(done_button);
+      SDL_DestroySurface(done_button);
   if(NEW)
-    SDL_DestroySurface(NEW);
+      SDL_DestroySurface(NEW);
   if(REMOVE)
-    SDL_DestroySurface(REMOVE);
+      SDL_DestroySurface(REMOVE);
   if(DONE)
-    SDL_DestroySurface(DONE);
+      SDL_DestroySurface(DONE);
   if(left)
-    SDL_DestroySurface(left);
+      SDL_DestroySurface(left);
   if(right)
-    SDL_DestroySurface(right);
+      SDL_DestroySurface(right);
 }
 
 
@@ -709,8 +722,8 @@ void EditWordList(char* words_file)
     {
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
-        {
+      case SDL_EVENT_QUIT:
+      {
           exit(0);
           break;
         }
@@ -823,14 +836,13 @@ void EditWordList(char* words_file)
             break;
           }  // end of handling of SDLK_BACKSPACE
 
-          if (event.key.key == SDLK_ESCAPE) 
+          if (event.key.key == SDLK_ESCAPE)
           {
             stop = 1;
             break; 
           }
 
-          if ((event.key.key == SDLK_LEFT)
-           || (event.key.key == SDLK_PAGEUP))
+          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
             if (loc - (loc % 8) - 8 >= 0)
               loc = loc - (loc % 8) - 8;
@@ -839,8 +851,7 @@ void EditWordList(char* words_file)
             break;
           }
 
-          if ((event.key.key == SDLK_RIGHT)
-           || (event.key.key == SDLK_PAGEDOWN))
+          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
           {
             if (loc - (loc % 8) + 8 < number_of_words-1)
               loc = (loc - (loc % 8) + 8);
@@ -916,7 +927,7 @@ void EditWordList(char* words_file)
             if (len < MAX_WORD_SIZE - 1)
             {
               // Add the character to the end of the existing string
-              temp[len] = toupper(event.key.key);
+              temp[len]     = toupper(event.key.key);
               temp[len + 1] = 0;
               ConvertToUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
 
@@ -929,7 +940,7 @@ void EditWordList(char* words_file)
             i = 0;
             break;
           }
-        }  // end of CASE SDL_EVENT_KEY_DOWN:
+        } // end of CASE SDL_EVENT_KEY_DOWN:
       }  // end of 'switch (event.type)'
 
       /* Redraw screen: */
@@ -1005,26 +1016,26 @@ void EditWordList(char* words_file)
   {
     if(white_words[i] != NULL)
     {
-      SDL_DestroySurface(white_words[i]);
-      white_words[i] = NULL;
+        SDL_DestroySurface(white_words[i]);
+        white_words[i] = NULL;
     }
     if(yellow_words[i] != NULL)
     {
-      SDL_DestroySurface(yellow_words[i]);
-      yellow_words[i] = NULL;
+        SDL_DestroySurface(yellow_words[i]);
+        yellow_words[i] = NULL;
     }
   }
 
   for (i = 0; i < 4; i ++)
   {
     if(directions[i])
-      SDL_DestroySurface(directions[i]);
+        SDL_DestroySurface(directions[i]);
   }
 
   if(left)
-    SDL_DestroySurface(left);
+      SDL_DestroySurface(left);
   if(right)
-    SDL_DestroySurface(right);
+      SDL_DestroySurface(right);
   /* the pointers are going out of scope so we don't */
   /* have to worry about setting them to NULL              */
 }              
@@ -1095,25 +1106,29 @@ int CreateNewWordList(void)
    * (Earlier "OK at w/4, CANCEL at 2w/4" overlapped them; "3w/4" pushed
    * CANCEL off the right edge for buttons wider than w/4.) */
   {
-    const int gap = 40;
-    int btns_w = OK_button->w + gap + CANCEL_button->w;
-    int ok_x  = (screen->w - btns_w) / 2;
-    int cnc_x = ok_x + OK_button->w + gap;
-    int btn_y = screen->h/3 * 2;
+      const int gap    = 40;
+      int       btns_w = OK_button->w + gap + CANCEL_button->w;
+      int       ok_x   = (screen->w - btns_w) / 2;
+      int       cnc_x  = ok_x + OK_button->w + gap;
+      int       btn_y  = screen->h / 3 * 2;
 
-    OK_rect.x = ok_x; OK_rect.y = btn_y;
-    OK_rect.w = OK_button->w; OK_rect.h = OK_button->h;
-    SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
-    OK_rect_text.x = ok_x + OK_button->w/2 - OK->w/2;
-    OK_rect_text.y = btn_y + (OK->h/2);
-    SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
+      OK_rect.x = ok_x;
+      OK_rect.y = btn_y;
+      OK_rect.w = OK_button->w;
+      OK_rect.h = OK_button->h;
+      SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
+      OK_rect_text.x = ok_x + OK_button->w / 2 - OK->w / 2;
+      OK_rect_text.y = btn_y + (OK->h / 2);
+      SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
 
-    CANCEL_rect.x = cnc_x; CANCEL_rect.y = btn_y;
-    CANCEL_rect.w = CANCEL_button->w; CANCEL_rect.h = CANCEL_button->h;
-    SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
-    CANCEL_rect_text.x = cnc_x + CANCEL_button->w/2 - CANCEL->w/2;
-    CANCEL_rect_text.y = btn_y + (CANCEL->h/2);
-    SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
+      CANCEL_rect.x = cnc_x;
+      CANCEL_rect.y = btn_y;
+      CANCEL_rect.w = CANCEL_button->w;
+      CANCEL_rect.h = CANCEL_button->h;
+      SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
+      CANCEL_rect_text.x = cnc_x + CANCEL_button->w / 2 - CANCEL->w / 2;
+      CANCEL_rect_text.y = btn_y + (CANCEL->h / 2);
+      SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
   }
 
   Text.y = screen->h / 2;
@@ -1129,12 +1144,12 @@ int CreateNewWordList(void)
     {
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
+      case SDL_EVENT_QUIT:
           stop = 1;
           break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN: 
-        {
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      {
           if (inRect(OK_rect, event.button.x, event.button.y)) 
           {
             if (len == 0)
@@ -1211,7 +1226,7 @@ int CreateNewWordList(void)
             if (len < MAX_WORD_SIZE)
             {
               // adds a character to the end of existing string
-              temp[len] = toupper(event.key.key);
+              temp[len]     = toupper(event.key.key);
               temp[len + 1] = 0;
             }
             len = ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
@@ -1224,7 +1239,7 @@ int CreateNewWordList(void)
             i = 0;
             break;
           } // end of if(i)
-        }//end of Case SDL_EVENT_KEY_DOWN
+        } //end of Case SDL_EVENT_KEY_DOWN
       }//end of 'switch (event.type)'
 
       /* FIXME apparently redrawing every frame, even if not needed: */
@@ -1241,23 +1256,25 @@ int CreateNewWordList(void)
         SDL_BlitSurface(Direction2, NULL, screen, &Directions_rect);
 
         {
-          const int gap = 40;
-          int btns_w = OK_button->w + gap + CANCEL_button->w;
-          int ok_x  = (screen->w - btns_w) / 2;
-          int cnc_x = ok_x + OK_button->w + gap;
-          int btn_y = screen->h/3 * 2;
+            const int gap    = 40;
+            int       btns_w = OK_button->w + gap + CANCEL_button->w;
+            int       ok_x   = (screen->w - btns_w) / 2;
+            int       cnc_x  = ok_x + OK_button->w + gap;
+            int       btn_y  = screen->h / 3 * 2;
 
-          OK_rect.x = ok_x; OK_rect.y = btn_y;
-          SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
-          OK_rect_text.x = ok_x + OK_button->w/2 - OK->w/2;
-          OK_rect_text.y = btn_y + (OK->h/2);
-          SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
+            OK_rect.x = ok_x;
+            OK_rect.y = btn_y;
+            SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
+            OK_rect_text.x = ok_x + OK_button->w / 2 - OK->w / 2;
+            OK_rect_text.y = btn_y + (OK->h / 2);
+            SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
 
-          CANCEL_rect.x = cnc_x; CANCEL_rect.y = btn_y;
-          SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
-          CANCEL_rect_text.x = cnc_x + CANCEL_button->w/2 - CANCEL->w/2;
-          CANCEL_rect_text.y = btn_y + (CANCEL->h/2);
-          SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
+            CANCEL_rect.x = cnc_x;
+            CANCEL_rect.y = btn_y;
+            SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
+            CANCEL_rect_text.x = cnc_x + CANCEL_button->w / 2 - CANCEL->w / 2;
+            CANCEL_rect_text.y = btn_y + (CANCEL->h / 2);
+            SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
         }
 
         Text.y = screen->h / 2;
@@ -1285,43 +1302,53 @@ int CreateNewWordList(void)
      * truncate it, wiping the user's words. */
     if (CheckFile(fn) == 1)
     {
-      fprintf(stderr, "Wordlist '%s' already exists — not overwriting.\n", fn);
-      save = 0;
+        fprintf(stderr, "Wordlist '%s' already exists — not overwriting.\n",
+                fn);
+        save = 0;
     }
     else
     {
-      fp = fopen(fn, "w");
-      if(fp)
-      {
-        DEBUGCODE{ fprintf(stderr, "Opened File\n"); }
-        fprintf(fp,"%s", wordlist);
-        DEBUGCODE{ fprintf(stderr, "Wrote file\n"); }
-        fclose(fp);
-        DEBUGCODE { fprintf(stderr, "Closed file\n"); }
-      }
-      else
-      {
-        fprintf(stderr, "Unable to create file: %s for writing\n", fn);
-        save = 0;
-      }
+        fp = fopen(fn, "w");
+        if (fp)
+        {
+            DEBUGCODE
+            {
+                fprintf(stderr, "Opened File\n");
+            }
+            fprintf(fp, "%s", wordlist);
+            DEBUGCODE
+            {
+                fprintf(stderr, "Wrote file\n");
+            }
+            fclose(fp);
+            DEBUGCODE
+            {
+                fprintf(stderr, "Closed file\n");
+            }
+        }
+        else
+        {
+            fprintf(stderr, "Unable to create file: %s for writing\n", fn);
+            save = 0;
+        }
     }
   }
 
   //we free stuff  
   if(OK_button)
-    SDL_DestroySurface(OK_button);
+      SDL_DestroySurface(OK_button);
   if(CANCEL_button)
-    SDL_DestroySurface(CANCEL_button);
+      SDL_DestroySurface(CANCEL_button);
   if(OK)
-    SDL_DestroySurface(OK);
+      SDL_DestroySurface(OK);
   if(CANCEL)
-    SDL_DestroySurface(CANCEL);
+      SDL_DestroySurface(CANCEL);
   if(NewWordlist)
-    SDL_DestroySurface(NewWordlist);
+      SDL_DestroySurface(NewWordlist);
   if(Direction1)
-    SDL_DestroySurface(Direction1);
+      SDL_DestroySurface(Direction1);
   if(Direction2)
-    SDL_DestroySurface(Direction2);
+      SDL_DestroySurface(Direction2);
 
 //  OK = CANCEL = OK_button = CANCEL_button = NULL;
   return save;
@@ -1358,25 +1385,29 @@ int ChooseRemoveList(char *name, char *filename)
   SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
   {
-    const int gap = 40;
-    int btns_w = OK_button->w + gap + CANCEL_button->w;
-    int ok_x  = (screen->w - btns_w) / 2;
-    int cnc_x = ok_x + OK_button->w + gap;
-    int btn_y = screen->h/3 * 2;
+      const int gap    = 40;
+      int       btns_w = OK_button->w + gap + CANCEL_button->w;
+      int       ok_x   = (screen->w - btns_w) / 2;
+      int       cnc_x  = ok_x + OK_button->w + gap;
+      int       btn_y  = screen->h / 3 * 2;
 
-    OK_rect.x = ok_x; OK_rect.y = btn_y;
-    OK_rect.w = OK_button->w; OK_rect.h = OK_button->h;
-    SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
-    OK_rect_text.x = ok_x + OK_button->w/2 - OK->w/2;
-    OK_rect_text.y = btn_y + (OK->h/2);
-    SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
+      OK_rect.x = ok_x;
+      OK_rect.y = btn_y;
+      OK_rect.w = OK_button->w;
+      OK_rect.h = OK_button->h;
+      SDL_BlitSurface(OK_button, NULL, screen, &OK_rect);
+      OK_rect_text.x = ok_x + OK_button->w / 2 - OK->w / 2;
+      OK_rect_text.y = btn_y + (OK->h / 2);
+      SDL_BlitSurface(OK, NULL, screen, &OK_rect_text);
 
-    CANCEL_rect.x = cnc_x; CANCEL_rect.y = btn_y;
-    CANCEL_rect.w = CANCEL_button->w; CANCEL_rect.h = CANCEL_button->h;
-    SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
-    CANCEL_rect_text.x = cnc_x + CANCEL_button->w/2 - CANCEL->w/2;
-    CANCEL_rect_text.y = btn_y + (CANCEL->h/2);
-    SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
+      CANCEL_rect.x = cnc_x;
+      CANCEL_rect.y = btn_y;
+      CANCEL_rect.w = CANCEL_button->w;
+      CANCEL_rect.h = CANCEL_button->h;
+      SDL_BlitSurface(CANCEL_button, NULL, screen, &CANCEL_rect);
+      CANCEL_rect_text.x = cnc_x + CANCEL_button->w / 2 - CANCEL->w / 2;
+      CANCEL_rect_text.y = btn_y + (CANCEL->h / 2);
+      SDL_BlitSurface(CANCEL, NULL, screen, &CANCEL_rect_text);
   }
 
   Directions_rect.x = screen->w/2 - (Directions->w/2);
@@ -1396,7 +1427,7 @@ int ChooseRemoveList(char *name, char *filename)
       /* FIXME should handle other events - Escape, SDL_WindowClose, etc. */
       switch (event.type)
       {
-        case SDL_EVENT_MOUSE_BUTTON_DOWN: 
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (inRect(OK_rect, event.button.x, event.button.y)) 
           {
             RemoveList(filename);

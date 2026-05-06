@@ -404,8 +404,9 @@ int credits(void)
 
     /* Clear window: */
 
-    SDL_FillSurfaceRect(screen, NULL, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
-
+    SDL_FillSurfaceRect(
+        screen, NULL,
+        SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
     /* Draw title: */
 
@@ -495,7 +496,10 @@ int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int spe
         dest.w = subscreen.w;
         dest.h = speed;
 
-        SDL_FillSurfaceRect(screen, &dest, SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+        SDL_FillSurfaceRect(
+            screen, &dest,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
+                       0));
 
         ++scroll;
 

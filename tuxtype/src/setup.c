@@ -46,7 +46,10 @@ static char rt_locale_dir[FNLEN];
 static void init_runtime_paths(void)
 {
     static int initialized = 0;
-    if (initialized) return;
+    if (initialized)
+    {
+        return;
+    }
     initialized = 1;
 
     /* If <exe_dir>/../share/tuxtype exists, derive var + conf alongside it.
@@ -54,7 +57,8 @@ static void init_runtime_paths(void)
      * gets clobbered by subsequent calls, so copy each result before the
      * next call. */
     const char* p = T4K_RelocatablePath("../share/tuxtype");
-    if (p) {
+    if (p)
+    {
         strncpy(rt_data_prefix, p, FNLEN - 1);
         p = T4K_RelocatablePath("../var/tuxtype");
         strncpy(rt_var_prefix, p ? p : VAR_PREFIX, FNLEN - 1);
@@ -67,15 +71,31 @@ static void init_runtime_paths(void)
 
     /* Fallback: compile-time prefixes baked in by CMake (-DDATA_PREFIX=...). */
     strncpy(rt_data_prefix, DATA_PREFIX, FNLEN - 1);
-    strncpy(rt_var_prefix,  VAR_PREFIX,  FNLEN - 1);
+    strncpy(rt_var_prefix, VAR_PREFIX, FNLEN - 1);
     strncpy(rt_conf_prefix, CONF_PREFIX, FNLEN - 1);
     strncpy(rt_locale_dir, LOCALEDIR, FNLEN - 1);
 }
 
-const char* tt_data_prefix(void) { init_runtime_paths(); return rt_data_prefix; }
-const char* tt_var_prefix(void)  { init_runtime_paths(); return rt_var_prefix; }
-const char* tt_conf_prefix(void) { init_runtime_paths(); return rt_conf_prefix; }
-const char* tt_locale_dir(void)  { init_runtime_paths(); return rt_locale_dir; }
+const char* tt_data_prefix(void)
+{
+    init_runtime_paths();
+    return rt_data_prefix;
+}
+const char* tt_var_prefix(void)
+{
+    init_runtime_paths();
+    return rt_var_prefix;
+}
+const char* tt_conf_prefix(void)
+{
+    init_runtime_paths();
+    return rt_conf_prefix;
+}
+const char* tt_locale_dir(void)
+{
+    init_runtime_paths();
+    return rt_locale_dir;
+}
 
 /* The SDL_Window we created (also handed off to t4k_common). Declared
  * extern in globals.h so the rest of tuxtype (titlescreen.c, etc.) can
@@ -92,62 +112,73 @@ static int load_settings_filename(const char* fn);
 ****************************/
 void GraphicsInit(void)
 {
-  DEBUGCODE { fprintf(stderr, "Entering GraphicsInit()\n"); }
+    DEBUGCODE
+    {
+        fprintf(stderr, "Entering GraphicsInit()\n");
+    }
 
-  /* SDL3: get desktop resolution for fullscreen mode. */
-  const SDL_DisplayMode* dm = SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
-  if (dm) {
-    fs_res_x = dm->w;
-    fs_res_y = dm->h;
-  } else {
-    fs_res_x = RES_X;
-    fs_res_y = RES_Y;
-  }
+    /* SDL3: get desktop resolution for fullscreen mode. */
+    const SDL_DisplayMode* dm =
+        SDL_GetDesktopDisplayMode(SDL_GetPrimaryDisplay());
+    if (dm)
+    {
+        fs_res_x = dm->w;
+        fs_res_y = dm->h;
+    }
+    else
+    {
+        fs_res_x = RES_X;
+        fs_res_y = RES_Y;
+    }
 
-  /* RESIZABLE makes macOS show the green native-fullscreen traffic-light
+    /* RESIZABLE makes macOS show the green native-fullscreen traffic-light
    * button (and lets the user drag-resize). Our backing surface stays at a
    * fixed 640x480 logical resolution; t4k_present() rescales each frame, so
    * any window size adapts automatically. */
-  Uint32 win_flags = SDL_WINDOW_RESIZABLE;
-  int win_w = RES_X, win_h = RES_Y;
-  if (settings.fullscreen == 1) {
-    win_flags |= SDL_WINDOW_FULLSCREEN;
-    win_w = fs_res_x;
-    win_h = fs_res_y;
-  }
+    Uint32 win_flags = SDL_WINDOW_RESIZABLE;
+    int    win_w = RES_X, win_h = RES_Y;
+    if (settings.fullscreen == 1)
+    {
+        win_flags |= SDL_WINDOW_FULLSCREEN;
+        win_w = fs_res_x;
+        win_h = fs_res_y;
+    }
 
-  tt_window = SDL_CreateWindow("Tux Typing", win_w, win_h, win_flags);
-  if (!tt_window && settings.fullscreen) {
-    fprintf(stderr,
-            "\nWarning: I could not open fullscreen mode: %s\n", SDL_GetError());
-    settings.fullscreen = 0;
-    tt_window = SDL_CreateWindow("Tux Typing", RES_X, RES_Y, 0);
-  }
+    tt_window = SDL_CreateWindow("Tux Typing", win_w, win_h, win_flags);
+    if (!tt_window && settings.fullscreen)
+    {
+        fprintf(stderr, "\nWarning: I could not open fullscreen mode: %s\n",
+                SDL_GetError());
+        settings.fullscreen = 0;
+        tt_window           = SDL_CreateWindow("Tux Typing", RES_X, RES_Y, 0);
+    }
 
-  if (!tt_window) {
-    fprintf(stderr,
-            "\nError: I could not open the display: %s\n", SDL_GetError());
-    exit(2);
-  }
+    if (!tt_window)
+    {
+        fprintf(stderr, "\nError: I could not open the display: %s\n",
+                SDL_GetError());
+        exit(2);
+    }
 
-  /* Tell t4k_common about the window. It allocates a fixed-resolution
+    /* Tell t4k_common about the window. It allocates a fixed-resolution
    * backing surface (640x480) that all rendering targets — t4k_common
    * scale-blits it onto the actual window surface in T4K_UpdateRect.
    * Use T4K_GetScreen() so tuxtype draws to the same backing. */
-  T4K_RegisterWindow(tt_window);
-  screen = T4K_GetScreen();
+    T4K_RegisterWindow(tt_window);
+    screen = T4K_GetScreen();
 
-  /* seticon() commented out — SDL3 expects an SDL_Surface* via
+    /* seticon() commented out — SDL3 expects an SDL_Surface* via
    * SDL_SetWindowIcon; do that in a follow-up. */
 
-  InitBlitQueue();
+    InitBlitQueue();
 
-  DEBUGCODE {
-    fprintf(stderr, "-SDL VidMode successfully set to %ix%i\n",
-            screen ? screen->w : 0, screen ? screen->h : 0);
-  }
+    DEBUGCODE
+    {
+        fprintf(stderr, "-SDL VidMode successfully set to %ix%i\n",
+                screen ? screen->w : 0, screen ? screen->h : 0);
+    }
 
-	LOG( "GraphicsInit():END\n" );
+    LOG( "GraphicsInit():END\n" );
 }
 
 /****************************
@@ -163,13 +194,13 @@ void LibInit(Uint32 lib_flags)
   /* SDL3: SDL_Init returns bool (true=success) instead of int<0. */
   if (!SDL_Init(SDL_INIT_VIDEO))
   {
-    fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
-    exit(2);
+      fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+      exit(2);
   }
   /* Audio: SDL3_mixer init lazily on first use via t4k_common's T4K_PlaySound
    * etc. The settings.sys_sound flag remains as the per-user enable. */
 
-// atexit(SDL_Quit); // fire and forget... 
+  // atexit(SDL_Quit); // fire and forget... 
 
   LOG( "-SDL Library init'd successfully\n" );
 
@@ -402,13 +433,12 @@ void SaveSettings(void)
 	fprintf( settingsFile, "fullscreen=%d\n", settings.fullscreen);
 	fprintf( settingsFile, "tts_volume=%d\n", settings.tts_volume);
 
-
-// 	if ((tt_window ? (SDL_GetWindowFlags(tt_window) & SDL_WINDOW_FULLSCREEN) : 0)){
-// 		fprintf( settingsFile, "fullscreen=%s\n", "1");
-// 	} else {
-// 		fprintf( settingsFile, "fullscreen=%s\n", "0");
-// 	}
-	fclose(settingsFile);
+    // 	if ((tt_window ? (SDL_GetWindowFlags(tt_window) & SDL_WINDOW_FULLSCREEN) : 0)){
+    // 		fprintf( settingsFile, "fullscreen=%s\n", "1");
+    // 	} else {
+    // 		fprintf( settingsFile, "fullscreen=%s\n", "0");
+    // 	}
+    fclose(settingsFile);
 }
 
 
@@ -432,13 +462,18 @@ int SetupPaths(const char* theme_dir)
   const char* data_prefix = tt_data_prefix();
   if (CheckFile(data_prefix))
   {
-    strncpy(settings.default_data_path, data_prefix, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.default_data_path\n", data_prefix);}
+      strncpy(settings.default_data_path, data_prefix, FNLEN - 1);
+      DEBUGCODE
+      {
+          fprintf(stderr,
+                  "path '%s' found, copy to settings.default_data_path\n",
+                  data_prefix);
+      }
   }
   else
   {
-    fprintf(stderr, "Error - data prefix = '%s' not found!\n", data_prefix);
-    return 0;
+      fprintf(stderr, "Error - data prefix = '%s' not found!\n", data_prefix);
+      return 0;
   }
 
   /* Now look for theme directory: */
@@ -505,13 +540,17 @@ int SetupPaths(const char* theme_dir)
   const char* var_prefix = tt_var_prefix();
   if (CheckFile(var_prefix))
   {
-    strncpy(settings.var_data_path, var_prefix, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.var_data_path\n", var_prefix);}
+      strncpy(settings.var_data_path, var_prefix, FNLEN - 1);
+      DEBUGCODE
+      {
+          fprintf(stderr, "path '%s' found, copy to settings.var_data_path\n",
+                  var_prefix);
+      }
   }
   else
   {
-    fprintf(stderr, "Error - var prefix = '%s' not found!\n", var_prefix);
-    return 0;
+      fprintf(stderr, "Error - var prefix = '%s' not found!\n", var_prefix);
+      return 0;
   }
 
   /* Now check for CONF_PREFIX (for program wide settings that apply to all users). */ 
@@ -520,13 +559,18 @@ int SetupPaths(const char* theme_dir)
   const char* conf_prefix = tt_conf_prefix();
   if (CheckFile(conf_prefix))
   {
-    strncpy(settings.global_settings_path, conf_prefix, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copy to settings.global_settings_path\n", conf_prefix);}
+      strncpy(settings.global_settings_path, conf_prefix, FNLEN - 1);
+      DEBUGCODE
+      {
+          fprintf(stderr,
+                  "path '%s' found, copy to settings.global_settings_path\n",
+                  conf_prefix);
+      }
   }
   else
   {
-    fprintf(stderr, "Error - conf prefix = '%s' not found!\n", conf_prefix);
-    return 0;
+      fprintf(stderr, "Error - conf prefix = '%s' not found!\n", conf_prefix);
+      return 0;
   }
 
 
@@ -613,11 +657,15 @@ static void seticon(void)
   }
 
   /* Set up key for transparency: */
-  colorkey = SDL_MapRGB(SDL_GetPixelFormatDetails(icon->format), NULL, 255, 0, 255);
+  colorkey =
+      SDL_MapRGB(SDL_GetPixelFormatDetails(icon->format), NULL, 255, 0, 255);
   SDL_SetSurfaceColorKey(icon, true, colorkey);
 
   /* SDL3: SDL_SetWindowIcon takes the window pointer. */
-  if (tt_window) SDL_SetWindowIcon(tt_window, icon);
+  if (tt_window)
+  {
+      SDL_SetWindowIcon(tt_window, icon);
+  }
 
   SDL_DestroySurface(icon);
 }
@@ -625,8 +673,8 @@ static void seticon(void)
 
 void Cleanup(void)
 {
-  SDL_DestroySurface(screen);
-  screen = NULL;
-  Cleanup_SDL_Text();
-  SDL_Quit();
+    SDL_DestroySurface(screen);
+    screen = NULL;
+    Cleanup_SDL_Text();
+    SDL_Quit();
 }

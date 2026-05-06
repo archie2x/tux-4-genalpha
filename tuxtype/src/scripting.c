@@ -303,9 +303,9 @@ int XMLLesson(void)
   
     for (i = 0; i < num_scripts; i++)
     {
-      SDL_DestroySurface(titles[i]);
-      SDL_DestroySurface(select[i]);
-      titles[i] = select[i] = NULL;
+        SDL_DestroySurface(titles[i]);
+        SDL_DestroySurface(select[i]);
+        titles[i] = select[i] = NULL;
     }
 
     SDL_DestroySurface(left);
@@ -343,11 +343,11 @@ int XMLLesson(void)
     {
       switch (event.type)
       {
-        case SDL_EVENT_QUIT:
+      case SDL_EVENT_QUIT:
           return 0; /* Return control to the main program so we can exit cleanly */
           break;
 
-        case SDL_EVENT_MOUSE_MOTION:
+      case SDL_EVENT_MOUSE_MOTION:
           for (i = 0; (i < 8) && (loc - (loc % 8) + i < num_scripts); i++)
             if (inRect(titleRects[i], event.motion.x, event.motion.y ))
             {
@@ -356,7 +356,7 @@ int XMLLesson(void)
             }
           break;
 
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (inRect( leftRect, event.button.x, event.button.y ))
           {
             if (loc - (loc % 8) - 8 >= 0)
@@ -403,7 +403,7 @@ int XMLLesson(void)
 
           break;
 
-        case SDL_EVENT_KEY_DOWN:
+      case SDL_EVENT_KEY_DOWN:
           if (event.key.key == SDLK_ESCAPE)
           {
             stop = 2;
@@ -431,31 +431,25 @@ int XMLLesson(void)
 			  break;
           }
 
-          if ((event.key.key == SDLK_LEFT)
-           || (event.key.key == SDLK_PAGEUP))
+          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
           {
             if (loc - (loc % 8) - 8 >= 0)
               loc = loc - (loc % 8) - 8;
           }
 
-          if ((event.key.key == SDLK_RIGHT)
-           || (event.key.key == SDLK_PAGEDOWN))
+          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
           {
             if (loc - (loc % 8) + 8 < num_scripts)
               loc = (loc - (loc % 8) + 8);
           }
 
-          if ((event.key.key == SDLK_UP)
-	     ||
-	      (event.key.key == SDLK_K))
+          if ((event.key.key == SDLK_UP) || (event.key.key == SDLK_K))
           {
             if (loc > 0)
               loc--;
           }
 
-          if ((event.key.key == SDLK_DOWN)
-	     ||
-	      (event.key.key == SDLK_J))
+          if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
           {
             if (loc + 1 < num_scripts)
               loc++;           
@@ -472,7 +466,7 @@ int XMLLesson(void)
 
       start = loc - (loc % 8);
 
-      for (i = start; i <  MIN(start + 8, num_scripts); i++)
+      for (i = start; i < MIN(start + 8, num_scripts); i++)
       {
         titleRects[i % 8].x = screen->w/2 - (titles[i]->w/2);
         titleRects[i % 8].w = titles[i]->w;
@@ -506,9 +500,9 @@ int XMLLesson(void)
   for (i = 0; i < num_scripts; i++)
   {
     if (titles[i])
-      SDL_DestroySurface(titles[i]);
+        SDL_DestroySurface(titles[i]);
     if (select[i])
-      SDL_DestroySurface(select[i]);
+        SDL_DestroySurface(select[i]);
     titles[i] = select[i] = NULL;
   }
 
@@ -521,8 +515,8 @@ int XMLLesson(void)
 
   if (stop == 2)
   {
-    SDL_ShowCursor();
-    return 0;
+      SDL_ShowCursor();
+      return 0;
   }
 
   /* Getting to here means "stop == 1", try to run chosen script: */
@@ -1190,9 +1184,9 @@ static void run_script(void)
 
     /* --- setup background color --- */
     if (curPage->bgcolor)
-      SDL_FillSurfaceRect( screen, NULL, COL2RGB(curPage->bgcolor));
+        SDL_FillSurfaceRect(screen, NULL, COL2RGB(curPage->bgcolor));
     else if (curScript->bgcolor)
-      SDL_FillSurfaceRect(screen, NULL, COL2RGB(curScript->bgcolor));
+        SDL_FillSurfaceRect(screen, NULL, COL2RGB(curScript->bgcolor));
 
     /* --- setup background image --- */
     if (curPage->background)
@@ -1210,10 +1204,9 @@ static void run_script(void)
       else
       { 
         SDL_BlitSurface(img, NULL, screen, NULL);
-      } 
+      }
 
       SDL_DestroySurface(img);
-
     }
     else if (curScript->background)
     {
@@ -1229,7 +1222,7 @@ static void run_script(void)
       else
       { 
         SDL_BlitSurface(img, NULL, screen, NULL);
-      } 
+      }
 
       SDL_DestroySurface(img);
     }
@@ -1435,7 +1428,7 @@ static void run_script(void)
 
           // let audio.c handle calls to SDL_mixer
           //((void)0);
-          
+
           PlaySoundLoop( sounds[numWavs], -curItem->loop );
           numWavs++;
           break;
@@ -1447,9 +1440,9 @@ static void run_script(void)
 
           int done = 0;
 
-          // Make sure everything is on screen 
+          // Make sure everything is on screen
           T4K_UpdateRect(screen, NULL);
-          
+
           /* Announce the lesson instruction */
 		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_buffer);
 		  tts_buffer[0] = '\0'; 
@@ -1462,8 +1455,8 @@ static void run_script(void)
             {
               switch (event.type)
               {
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                {
+              case SDL_EVENT_MOUSE_BUTTON_DOWN:
+              {
                   int j;
 
                   for (j=0; j<numClicks; j++) 
@@ -1471,7 +1464,7 @@ static void run_script(void)
                     if (inRect(clickRects[j], event.button.x, event.button.y))
                      PlaySound( clickWavs[j] );
                      // let audio.c handle calls to SDL_mixer
-                     //((void)0);
+                    //((void)0);
                   }
                   break;
                 }
@@ -1483,10 +1476,10 @@ static void run_script(void)
                   break;
                 }
 
-                case SDL_EVENT_KEY_DOWN: 
+                case SDL_EVENT_KEY_DOWN:
                 {
-                  switch (event.key.key)
-                  {
+                    switch (event.key.key)
+                    {
                     case SDLK_ESCAPE: 
                       curPage = NULL;
                       done = 1;
@@ -1525,10 +1518,8 @@ static void run_script(void)
 		  tts_buffer[0] = '\0';          
           
           
-          // Make sure everything is on screen 
+          // Make sure everything is on screen
           T4K_UpdateRect(screen, NULL);
-          
-          
 
           while (!done)
           {
@@ -1537,17 +1528,17 @@ static void run_script(void)
             {
               switch (event.type)
               {
-                case SDL_EVENT_QUIT:
-                {
+              case SDL_EVENT_QUIT:
+              {
                   curPage = NULL;
                   done = 1;
                   break;
                 }
 
-                case SDL_EVENT_KEY_DOWN: 
+                case SDL_EVENT_KEY_DOWN:
                 {
-                  switch (event.key.key)
-                  {
+                    switch (event.key.key)
+                    {
                     case SDLK_ESCAPE: 
                     {
                       curPage = NULL;
@@ -1607,8 +1598,7 @@ static void run_script(void)
       else
         curItem = curItem->next;
     }
-    
-    
+
     T4K_UpdateRect(screen, NULL);
     SDL_Delay(30);
         
