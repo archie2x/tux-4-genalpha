@@ -123,28 +123,28 @@ char *T4K_RemoveSlash(char *path)
     return path;
 }
 
+/* Returns 1 if regular file, 2 if directory, 0 otherwise. */
 int T4K_CheckFile(const char* file)
 {
-    FILE* fp = NULL;
-
     if (!file)
     {
-	DEBUGMSG(debug_loaders, "T4K_CheckFile(): invalid char* argument!\n");
-	return 0;
+        DEBUGMSG(debug_loaders, "T4K_CheckFile(): invalid char* argument!\n");
+        return 0;
     }
-
     DEBUGMSG(debug_loaders, "T4K_CheckFile(): checking: %s\n", file);
-
-    fp = fopen(file, "r");
-    if (fp)
+    SDL_PathInfo info;
+    if (!SDL_GetPathInfo(file, &info))
     {
-	DEBUGMSG(debug_loaders, "T4K_CheckFile(): Opened successfully as FILE\n");
-	fclose(fp);
-	return 1;
+        return 0;
     }
-
-    DEBUGMSG(debug_loaders, "fopen(): %s\n", strerror(errno));
-    DEBUGMSG(debug_loaders, "T4K_CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
+    if (info.type == SDL_PATHTYPE_DIRECTORY)
+    {
+        return 2;
+    }
+    if (info.type == SDL_PATHTYPE_FILE)
+    {
+        return 1;
+    }
     return 0;
 }
 

@@ -100,7 +100,7 @@ int LoadKeyboard(void)
   if (!settings.use_english)
   {
     sprintf(fn , "%s/keyboard.lst", settings.theme_data_path);
-    if (CheckFile(fn))
+    if (T4K_CheckFile(fn))
     {
       found = 1;
     }
@@ -110,7 +110,7 @@ int LoadKeyboard(void)
   if (!found)
   {
     sprintf(fn , "%s/keyboard.lst", settings.default_data_path);
-    if (CheckFile(fn))
+    if (T4K_CheckFile(fn))
     {
       found = 1;
     }

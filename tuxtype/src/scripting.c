@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "scripting.h"
 #define MAX_LESSONS 100
 #include "SDL_extras.h"
-#include "scandir.h"
 
 /* Local function prototypes: */
 static void clear_items(itemType* i);
@@ -39,7 +38,11 @@ static char* get_quote(const char* in);
 static char hex2int(char b, char s);
 static int load_script(const char* fn);
 static void run_script(void);
-static int is_xml_file(const struct dirent* xml_dirent);
+/* qsort comparator for char*-array (used to sort SDL_GlobDirectory results). */
+static int str_compare(const void* a, const void* b)
+{
+    return strcmp(*(const char* const*)a, *(const char* const*)b);
+}
 /************************************************************************/
 /*                                                                      */
 /*         "Public" functions (callable throughout program)             */
@@ -128,7 +131,7 @@ int XMLLesson(void)
   SDL_Rect titleRects[8];
 
   int nchars;
-  struct dirent **script_list_dirents = NULL;
+  char**          script_list_names = NULL;
   int i = 0;
   int scriptIterator = 0;  //Iterator over matching files in script dir
   int scripts = 0;         //Iterator over accepted (& parsed) script files
@@ -151,14 +154,19 @@ int XMLLesson(void)
 	  /* If braille is not enabled or scripts_braille folder does not exist
 	   * then select the default theme path */
 	  sprintf(script_path, "%s/scripts_braille", settings.theme_data_path);
-	  if(!settings.braille || !CheckFile(script_path))
-		sprintf(script_path, "%s/scripts", settings.theme_data_path);
+      if (!settings.braille || !T4K_CheckFile(script_path))
+      {
+          sprintf(script_path, "%s/scripts", settings.theme_data_path);
+      }
 
-    if (CheckFile(script_path))
-    {
-      DEBUGCODE {fprintf(stderr, "Using theme script dir: %s\n", script_path);}
-      found = 1;
-    }
+      if (T4K_CheckFile(script_path))
+      {
+          DEBUGCODE
+          {
+              fprintf(stderr, "Using theme script dir: %s\n", script_path);
+          }
+          found = 1;
+      }
   }
 
   /* Now look in default path if desired or needed: */
@@ -167,14 +175,19 @@ int XMLLesson(void)
 	  /* If braille is not enabled or scripts_braille folder does not exist
 	   * then select the default data path */
 	  sprintf( script_path, "%s/scripts_braille", settings.default_data_path);
-	  if(!settings.braille || !CheckFile(script_path))
-		sprintf( script_path, "%s/scripts", settings.default_data_path);
+      if (!settings.braille || !T4K_CheckFile(script_path))
+      {
+          sprintf(script_path, "%s/scripts", settings.default_data_path);
+      }
 
-    if (CheckFile(script_path))
-    {
-      DEBUGCODE { fprintf(stderr, "Using theme script dir: %s\n", script_path); }
-      found = 1;
-    }
+      if (T4K_CheckFile(script_path))
+      {
+          DEBUGCODE
+          {
+              fprintf(stderr, "Using theme script dir: %s\n", script_path);
+          }
+          found = 1;
+      }
   }
 
   if (!found)
@@ -189,54 +202,48 @@ int XMLLesson(void)
 
   DEBUGCODE { fprintf(stderr, "script_path is: %s\n", script_path); }
 
+  /* List all .xml files (case-insensitive). SDL_GlobDirectory returns
+   * names in OS-iteration order — sort with qsort to match alphasort. */
+  script_list_names = SDL_GlobDirectory(script_path, "*.xml",
+                                        SDL_GLOB_CASEINSENSITIVE, &num_scripts);
 
-  /* create a list of all the .xml files */
-  num_scripts = scandir(script_path, &script_list_dirents, is_xml_file, alphasort);
+  if (script_list_names && num_scripts > 1)
+  {
+      qsort(script_list_names, num_scripts, sizeof(char*), str_compare);
+  }
 
   for (scriptIterator = 0, scripts = 0;
        scriptIterator < num_scripts && scripts < MAX_LESSONS;
        scriptIterator++)
   {
-    /* Copy over the filename: */
-    nchars = snprintf(script_filenames[scripts], FNLEN, "%s",
-                      script_list_dirents[scriptIterator]->d_name);
+      nchars = snprintf(script_filenames[scripts], FNLEN, "%s",
+                        script_list_names[scriptIterator]);
 
-    /* Skip (actually clobber) any invalid or undesired files: */
-    if (nchars < 0 || nchars >= FNLEN)
-      continue;
-    /* Don't show project info file or instructions files */
-    if (strcmp(script_filenames[scripts], "projectInfo.xml") == 0 ||
-        strcmp(script_filenames[scripts], "laser.xml") == 0 ||
-        strcmp(script_filenames[scripts], "cascade.xml") == 0)
-      continue;
+      if (nchars < 0 || nchars >= FNLEN)
+          continue;
+      /* Don't show project info file or instructions files */
+      if (strcmp(script_filenames[scripts], "projectInfo.xml") == 0 ||
+          strcmp(script_filenames[scripts], "laser.xml") == 0 ||
+          strcmp(script_filenames[scripts], "cascade.xml") == 0)
+          continue;
 
-    DEBUGCODE
-    {
-      fprintf(stderr, "Found script file %d:\t%s\n", scripts, script_filenames[scripts]);
-    }
+      DEBUGCODE
+      {
+          fprintf(stderr, "Found script file %d:\t%s\n", scripts,
+                  script_filenames[scripts]);
+      }
 
-    /* Increment the iterator for correctly-parsed lesson files */
-    scripts++;
+      scripts++;
   }
 
-  //  DEBUGCODE
+  DEBUGCODE
   {
-    fprintf(stderr, "Before undesired files screened out:\n");
-    for(i = 0; i < num_scripts; i++)
-      fprintf(stderr, "script %d filename: %s\n", i,
-              script_list_dirents[i]->d_name);
-    fprintf(stderr, "After undesired files screened out:\n");
-    for(i = 0; i < scripts; i++)
-      fprintf(stderr, "script %d filename: %s\n", i,
-              script_filenames[i]);
+      fprintf(stderr, "After undesired files screened out:\n");
+      for (i = 0; i < scripts; i++)
+          fprintf(stderr, "script %d filename: %s\n", i, script_filenames[i]);
   }
 
-
-  /* Now free the individual dirents. We do this on a second pass */
-  /* because of the "continue" approach used to error handling.   */
-  for (scriptIterator = 0; scriptIterator < num_scripts; scriptIterator++)
-    free(script_list_dirents[scriptIterator]);
-  free(script_list_dirents);
+  SDL_free(script_list_names);
 
   /* Adjust num_scripts for any skipped files: */
   num_scripts = scripts;
@@ -384,7 +391,7 @@ int XMLLesson(void)
 			  else
 				sprintf(fn, "%s/scripts_braille/%s", settings.theme_data_path, script_filenames[loc]);
 
-              if(!settings.braille || !CheckFile(fn))
+              if (!settings.braille || !T4K_CheckFile(fn))
               {
 				if(settings.use_english)
 					sprintf(fn, "%s/scripts/%s", settings.default_data_path, script_filenames[loc]);
@@ -415,7 +422,7 @@ int XMLLesson(void)
 			  else
 				sprintf(fn, "%s/scripts_braille/%s", settings.theme_data_path, script_filenames[loc]);
 
-              if(!settings.braille || !CheckFile(fn))
+              if (!settings.braille || !T4K_CheckFile(fn))
               {
 				if(settings.use_english)
 					sprintf(fn, "%s/scripts/%s", settings.default_data_path, script_filenames[loc]);
@@ -1699,13 +1706,4 @@ static void close_script(void)
     /* -- and remember you did -- */
     curScript = NULL;
   }
-}
-
-
-/* NOTE we just check to see if the name ends in ".xml", but we don't */
-/* verify that it really contains XML.                                */
-static int is_xml_file(const struct dirent* xml_dirent)
-{
-    const char* ending = &xml_dirent->d_name[strlen(xml_dirent->d_name) - 4];
-    return (0 == strncasecmp(ending, ".xml", 4));
 }

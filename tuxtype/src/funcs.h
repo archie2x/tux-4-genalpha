@@ -83,9 +83,7 @@ void MusicPlay(Mix_Music* musicData, int repeatQty);
 /* In laser.c:        */
 int PlayLaserGame(int diff_level);
 
-
 /* In loaders.c: */
-int CheckFile(const char* file);
 sprite* FlipSprite(sprite* in, int X, int Y);
 void FreeSprite(sprite* gfx);
 SDL_Surface* LoadImage(const char* datafile, int mode);

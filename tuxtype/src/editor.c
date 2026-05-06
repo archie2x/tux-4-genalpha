@@ -105,9 +105,7 @@ void ChooseListToEdit(void)
   //Temporary holders and ptrs used while scanning list directory:
   char wordsDir[FNLEN];
   char           fn[FNLEN];
-  FILE* fp = NULL;
-  DIR* lists_dir = NULL;
-  struct dirent* list_dirent = NULL;
+  FILE*          fp = NULL;
 
   /* First part - scan through our word list directory and create lists */
   /* of the filenames and titles (first lines in files).                */
@@ -118,7 +116,7 @@ void ChooseListToEdit(void)
   //Try to open a directory for modifiable word lists:
 
   sprintf(wordsDir, "%s/words", settings.user_settings_path);
-  if (CheckFile(wordsDir))
+  if (T4K_CheckFile(wordsDir))
   {
     DEBUGCODE { fprintf(stderr, "User specific wordlist path found: %s\n", wordsDir); }
   }
@@ -132,60 +130,47 @@ void ChooseListToEdit(void)
       {
           fprintf(stderr, "Creating wordlist dir: %s\n", wordsDir);
       }
-      mkdir(wordsDir, 0755);
+      SDL_CreateDirectory(wordsDir);
   }
-  lists_dir = opendir(wordsDir);
 
-  if (!lists_dir)
+  /* Glob *.txt files (case-insensitive). CVS dirs are auto-excluded by
+   * the .txt extension; dotfiles (.foo.txt) get filtered in the loop. */
+  int    wordlist_count = 0;
+  char** wordlist_files = SDL_GlobDirectory(
+      wordsDir, "*.txt", SDL_GLOB_CASEINSENSITIVE, &wordlist_count);
+
+  if (!wordlist_files)
   {
     fprintf(stderr, "ChooseListToEdit() - cannot open custom word list directory!\n");
     return;
   }
 
-  //Now scan through directory and gather file names and list titles:
-  while (1)
+  for (int j = 0; j < wordlist_count; j++)
   {
-    list_dirent = readdir(lists_dir);
-    if (!list_dirent)
-      break;
+      const char* name = wordlist_files[j];
+      if (name[0] == '.')
+      {
+          continue;
+      }
 
-   /* we ignore any hidden file and CVS */
+      snprintf(fn, FNLEN, "%s/%s", wordsDir, name);
 
-    if (list_dirent->d_name[0] == '.')
-    {
-        continue;
-    }
-
-    if (strcmp("CVS", list_dirent->d_name) == 0)
-      continue;
-
-    /* must have at least .txt at the end */
-    if (strlen(list_dirent->d_name) < 5)
-      continue;
-
-    if (0 !=
-        strcmp(&list_dirent->d_name[strlen(list_dirent->d_name) - 4], ".txt"))
-    {
-        continue;
-    }
-
-    snprintf(fn, FNLEN, "%s/%s", wordsDir, list_dirent->d_name);
-
-    /* CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
-    if (CheckFile(fn) == 1)
-    {
-      /* We know it opens safely because CheckFile() returned 1 */
-      fp = fopen(fn,"r");
-      /* HACK: we should get the names from file :) */
-      if (EOF ==fscanf(fp, "%[^\n]\n", list_titles[num_lists]))
-        continue;
-      /* Make sure list title is capitalized: */
-      list_titles[num_lists][0] = toupper(list_titles[num_lists][0]);
-      fclose(fp);
-      strncpy(file_names[num_lists++], list_dirent->d_name, FNLEN-1);
-    }
+      /* T4K_CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
+      if (T4K_CheckFile(fn) == 1)
+      {
+          fp = fopen(fn, "r");
+          /* HACK: we should get the names from file :) */
+          if (EOF == fscanf(fp, "%[^\n]\n", list_titles[num_lists]))
+          {
+              continue;
+          }
+          /* Make sure list title is capitalized: */
+          list_titles[num_lists][0] = toupper(list_titles[num_lists][0]);
+          fclose(fp);
+          strncpy(file_names[num_lists++], name, FNLEN - 1);
+      }
   }
-  closedir(lists_dir);
+  SDL_free(wordlist_files);
 
   sort_wordlists(num_lists, file_names, list_titles);
 
@@ -437,49 +422,40 @@ void ChooseListToEdit(void)
     if (change)
     {
       num_lists = 0;
-      //Try to open directory for modifiable word lists:
-      sprintf(fn , "%s" , wordsDir);
-      lists_dir = opendir(fn);
+      int    reload_count = 0;
+      char** reload_files = SDL_GlobDirectory(
+          wordsDir, "*.txt", SDL_GLOB_CASEINSENSITIVE, &reload_count);
 
-      if (!lists_dir)
+      if (!reload_files)
       {
         LOG("ChooseListToEdit() - cannot open custom word list directory!\n");
         return;
       }
 
-      //FIXME we should use scandir() for this - DSB
-      //Now scan through directory and gather file names and list titles:
-      while (1)
+      for (int j = 0; j < reload_count; j++)
       {
-        list_dirent = readdir(lists_dir);
-        if (!list_dirent)
-          break;
+          const char* name = reload_files[j];
+          if (name[0] == '.')
+          {
+              continue;
+          }
 
-        /* we ignore any hidden file and CVS */
-        if (list_dirent->d_name[0] == '.')
-        {
-            continue;
-        }
-        if (strcmp("CVS", list_dirent->d_name) == 0)
-          continue;
+          snprintf(fn, FNLEN, "%s/%s", wordsDir, name);
 
-        snprintf(fn, FNLEN, "%s/%s", wordsDir, list_dirent->d_name);
-
-        /* CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
-        if (CheckFile(fn) == 1)
-        {
-          /* We know it opens safely because CheckFile() returned 1 */
-          fp = fopen(fn,"r");
-          /* HACK: we should get the names from file :) */
-          if (EOF ==fscanf(fp, "%[^\n]\n", list_titles[num_lists]))
-            continue;
-          /* Make sure list title is capitalized: */
-          list_titles[num_lists][0] = toupper(list_titles[num_lists][0]);
-          fclose(fp);
-          strncpy(file_names[num_lists++], list_dirent->d_name, FNLEN-1);
-        }
+          /* T4K_CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
+          if (T4K_CheckFile(fn) == 1)
+          {
+              fp = fopen(fn, "r");
+              if (EOF == fscanf(fp, "%[^\n]\n", list_titles[num_lists]))
+              {
+                  continue;
+              }
+              list_titles[num_lists][0] = toupper(list_titles[num_lists][0]);
+              fclose(fp);
+              strncpy(file_names[num_lists++], name, FNLEN - 1);
+          }
       }
-      closedir(lists_dir);
+      SDL_free(reload_files);
 
       sort_wordlists(num_lists, file_names, list_titles);
 
@@ -620,7 +596,7 @@ void EditWordList(char* words_file)
 
   // get appropriate directory
   sprintf(wordsDir, "%s/words", settings.user_settings_path);
-  if (CheckFile(wordsDir))
+  if (T4K_CheckFile(wordsDir))
   {
     DEBUGCODE { fprintf(stderr, "User specific wordlist path found: %s\n", wordsDir); }
   }
@@ -1135,7 +1111,7 @@ int CreateNewWordList(void)
 
   // get appropriate directory
   sprintf(wordsDir, "%s/words", settings.user_settings_path);
-  if (CheckFile(wordsDir))
+  if (T4K_CheckFile(wordsDir))
   {
     DEBUGCODE { fprintf(stderr, "User specific wordlist path found: %s\n", wordsDir); }
   }
@@ -1368,7 +1344,7 @@ int CreateNewWordList(void)
 
     /* Refuse to clobber an existing list — fopen("w") would otherwise
      * truncate it, wiping the user's words. */
-    if (CheckFile(fn) == 1)
+    if (T4K_CheckFile(fn) == 1)
     {
         fprintf(stderr, "Wordlist '%s' already exists — not overwriting.\n",
                 fn);
@@ -1535,7 +1511,7 @@ int RemoveList(char* words_file)
   LOG("Enter RemoveList()\n");
   // get appropriate directory
   sprintf(wordsDir, "%s/words", settings.user_settings_path);
-  if (CheckFile(wordsDir))
+  if (T4K_CheckFile(wordsDir))
   {
     DEBUGCODE { fprintf(stderr, "User specific wordlist path found: %s\n", wordsDir); }
   }

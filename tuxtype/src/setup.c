@@ -457,7 +457,7 @@ int SetupPaths(const char* theme_dir)
   char fn[FNLEN];           // used later when setting settings.user_settings_path
 
   const char* data_prefix = tt_data_prefix();
-  if (CheckFile(data_prefix))
+  if (T4K_CheckFile(data_prefix))
   {
       strncpy(settings.default_data_path, data_prefix, FNLEN - 1);
       DEBUGCODE
@@ -486,7 +486,7 @@ int SetupPaths(const char* theme_dir)
       fprintf(stderr, "SetupPaths(): checking for '%s' as theme path\n", full_theme_path);
     }
 
-    if (CheckFile(full_theme_path)) /* Theme found - set it up! */
+    if (T4K_CheckFile(full_theme_path)) /* Theme found - set it up! */
     {
       settings.use_english = 0;
       strncpy(settings.theme_data_path, full_theme_path, FNLEN - 1);
@@ -533,7 +533,7 @@ int SetupPaths(const char* theme_dir)
   /* This will generally be /var/lib/tuxtype (distro-provided pkg)      */
   /* or /usr/local/etc/tuxtype (locally-built and installed pkg)        */
   const char* var_prefix = tt_var_prefix();
-  if (CheckFile(var_prefix))
+  if (T4K_CheckFile(var_prefix))
   {
       strncpy(settings.var_data_path, var_prefix, FNLEN - 1);
       DEBUGCODE
@@ -552,7 +552,7 @@ int SetupPaths(const char* theme_dir)
   /* This would typically be /etc/tuxtype if tuxtype is installed by a distro pkg,  */
   /* or /usr/local/etc/tuxtype if the package is built locally                      */
   const char* conf_prefix = tt_conf_prefix();
-  if (CheckFile(conf_prefix))
+  if (T4K_CheckFile(conf_prefix))
   {
       strncpy(settings.global_settings_path, conf_prefix, FNLEN - 1);
       DEBUGCODE
@@ -584,10 +584,15 @@ int SetupPaths(const char* theme_dir)
       snprintf(fn, FNLEN - 1, (const char*)"%s/.config/tuxtype", getenv("HOME"));
   #endif
 
-  if (CheckFile(fn))
-  {
-    strncpy(settings.user_settings_path, fn, FNLEN - 1);
-    DEBUGCODE {fprintf(stderr, "path '%s' found, copying to settings.user_settings_path\n", fn);}
+    if (T4K_CheckFile(fn))
+    {
+        strncpy(settings.user_settings_path, fn, FNLEN - 1);
+        DEBUGCODE
+        {
+            fprintf(stderr,
+                    "path '%s' found, copying to settings.user_settings_path\n",
+                    fn);
+        }
   }
   else
   {
@@ -597,10 +602,16 @@ int SetupPaths(const char* theme_dir)
   #else
      mkdir( fn, 0755 );
   #endif
-    if (CheckFile(fn))
-    {
-      strncpy(settings.user_settings_path, fn, FNLEN - 1);
-      DEBUGCODE {fprintf(stderr, "path '%s' successfully created, copy to settings.user_settings_path\n", fn);}
+     if (T4K_CheckFile(fn))
+     {
+         strncpy(settings.user_settings_path, fn, FNLEN - 1);
+         DEBUGCODE
+         {
+             fprintf(stderr,
+                     "path '%s' successfully created, copy to "
+                     "settings.user_settings_path\n",
+                     fn);
+         }
     }
     else
     {

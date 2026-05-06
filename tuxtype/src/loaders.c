@@ -37,45 +37,6 @@ static SDL_Surface* fullscr_bkgd = NULL;
 /* Local function prototypes: */
 //static SDL_Surface* flip(SDL_Surface *in, int x, int y);
 
-/* Returns 1 if valid file, 2 if valid dir, 0 if neither: */
-int CheckFile(const char* file)
-{
-  FILE* fp = NULL;
-  DIR* dp = NULL;
-
-  if (!file)
-  {
-    fprintf(stderr, "CheckFile(): invalid char* argument!");
-    return -1;
-  }
-
-  DEBUGCODE
-  {
-      fprintf(stderr, "CheckFile() - checking: %s\n", file);
-  }
-
-  dp = opendir(file);
-  if (dp)
-  {
-    LOG("Opened successfully as DIR\n");
-
-    closedir(dp);
-    return 2;
-  }
-
-  fp = fopen(file, "r");
-  if (fp)
-  {
-    LOG("Opened successfully as FILE\n");
-    fclose(fp);
-    return 1;
-  }
-
-  LOG("Unable to open as either FILE or DIR\n");
-  return 0;
-}
-
-
 /* FIXME not sure we need to call *textdomain() functions again here  */
 /* FIXME need to read language's font name, if needed - e.g. Russian. */
 /* also should have return value reflect success or failure.     */

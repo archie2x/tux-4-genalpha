@@ -279,7 +279,7 @@ static int chooseWordlist(void)
     if (!settings.use_english)  /* Using theme: */
     {
       sprintf(wordPath,"%s/words", settings.theme_data_path);
-      if (!CheckFile(wordPath))
+      if (!T4K_CheckFile(wordPath))
       {
         fprintf(stderr, "chooseWordList() - theme contains no wordlist dir \n");
         return 0;
@@ -288,7 +288,7 @@ static int chooseWordlist(void)
     else  /* No user settings or theme selected - using English: */
     {
       sprintf(wordPath,"%s/words", settings.default_data_path);
-      if (!CheckFile(wordPath))
+      if (!T4K_CheckFile(wordPath))
       {
         fprintf(stderr, "chooseWordList() - data path contains no wordlist dir \n");
         return 0;
@@ -347,7 +347,7 @@ static int chooseWordlist(void)
   /* Adding global custom wordlists ------------------------------------ */
 
   sprintf(wordPath,"%s/words", settings.var_data_path);
-  if (!CheckFile(wordPath))
+  if (!T4K_CheckFile(wordPath))
   {
     //DEBUGMSG { fprintf(stderr, "chooseWordList() -  path \"%s\" not found\n", wordPath); }
   }
@@ -404,7 +404,7 @@ static int chooseWordlist(void)
   /* Now add any lists in the user's personal settings path: ------------ */
 
   sprintf(wordPath,"%s/words", settings.user_settings_path);
-  if (!CheckFile(wordPath))
+  if (!T4K_CheckFile(wordPath))
   {
     //DEBUGMSG { fprintf(stderr, "chooseWordList() -  path \"%s\" not found\n", wordPath); }
   }

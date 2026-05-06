@@ -54,19 +54,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <wchar.h>
 
 #include <t4k_common.h>
-/* Conditional includes of t4k_common replacement functions
- * if not supplied by platform:
- */
-/* Somehow, configure defines HAVE_ALPHASORT and
- * HAVE_SCANDIR for mingw32 even though they are
- * not available for that build, so use our own:
- */
-#if !defined HAVE_ALPHASORT || defined BUILD_MINGW32
-#include <t4k_alphasort.h>
-#endif
-#if !defined HAVE_SCANDIR || defined BUILD_MINGW32
-#include <t4k_scandir.h>
-#endif
 
 #include "sdl3_compat.h"
 

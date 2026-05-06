@@ -377,7 +377,6 @@ void handle_debug_args(int argc, char* argv[])
 /* for debug flags which we already have dealt with.     */
 void handle_command_args(int argc, char* argv[])
 {
-    DIR *dirp;
     int i;
 
     for (i = 1; i < argc; i++)
@@ -527,8 +526,9 @@ void handle_command_args(int argc, char* argv[])
             }
             else // see whether the specified name is a directory
             {
-                dirp = opendir(argv[i + 1]);
-                if (dirp == NULL)
+                SDL_PathInfo info;
+                if (!SDL_GetPathInfo(argv[i + 1], &info) ||
+                    info.type != SDL_PATHTYPE_DIRECTORY)
                 {
                     fprintf(stderr,
                             "homedir: %s is not a directory, or it could not "
@@ -536,8 +536,7 @@ void handle_command_args(int argc, char* argv[])
                             argv[i + 1]);
                 }
                 else {
-                    set_user_data_dir(argv[i+1]);  // copy the homedir setting
-                    closedir(dirp);
+                    set_user_data_dir(argv[i + 1]); // copy the homedir setting
                 }
                 i++;   // to pass over the next argument, so remaining options parsed
             }
@@ -694,7 +693,6 @@ void handle_command_args(int argc, char* argv[])
         Opts_SetGlobalOpt(USE_KEYPAD, 0);
     }
 }
-
 
 void initialize_SDL(void)
 {

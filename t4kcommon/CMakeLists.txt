@@ -63,7 +63,6 @@ add_library(
     src/t4k_main.c
     src/t4k_menu.c
     src/t4k_pixels.c
-    src/t4k_replacements.c
     src/t4k_sdl.c
     src/t4k_throttle.c
     src/t4k_tts.c
@@ -119,8 +118,6 @@ target_compile_definitions(
         HAVE_LIBSDL_MIXER=1
         HAVE_LIBSDL_TTF=1
         HAVE_LIBXML2=1
-        HAVE_SCANDIR=1
-        HAVE_ALPHASORT=1
         HAVE_INLINE=1
         PACKAGE="${PROJECT_NAME}"
         PACKAGE_STRING="${PROJECT_NAME} ${PROJECT_VERSION}"
@@ -155,7 +152,7 @@ set_target_properties(
     PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION 0
-        PUBLIC_HEADER "src/t4k_common.h;src/t4k_alphasort.h;src/t4k_scandir.h"
+        PUBLIC_HEADER "src/t4k_common.h"
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")

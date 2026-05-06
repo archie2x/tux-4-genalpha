@@ -41,10 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "highscore.h"
 #include "lessons.h"
 
-
 /* OS includes - NOTE: these may not be very portable */
-#include <dirent.h>  /* for opendir() */
-#include <sys/stat.h>/* for mkdir() */
 #include <unistd.h>  /* for getcwd() */
 #include <sys/types.h> /* for umask() */
 
@@ -83,7 +80,11 @@ static int find_tuxmath_dir(void);
 static int str_to_bool(const char* val);
 static int read_config_file(MC_MathGame* game, FILE* fp, int file_type);
 static int write_config_file(MC_MathGame* game, FILE* fp, int verbose);
-static int is_lesson_file(const struct dirent *lfdirent);
+/* qsort comparator for char*-array (used to sort SDL_GlobDirectory results). */
+static int str_compare(const void* a, const void* b)
+{
+    return strcmp(*(const char* const*)a, *(const char* const*)b);
+}
 static int read_goldstars(void);
 static int read_lines_from_file(FILE *fp,char ***lines);
 static int parse_option(MC_MathGame* game, const char* name, int val, int file_type);
@@ -546,15 +547,6 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     return 0;
 }
 
-/* NOTE the cast to "const char*" just prevents compiler from complaining */
-static int is_lesson_file(const struct dirent *lfdirent)
-{
-    return (0 == strncasecmp((const char*)&(lfdirent->d_name), "lesson", 6));
-    /* FIXME Should somehow test each file to see if it is a tuxmath config file */
-}
-
-
-
 int parse_lesson_file_directory(void)
 {
     char lesson_path[PATH_MAX];             //Path to lesson directory
@@ -562,7 +554,7 @@ int parse_lesson_file_directory(void)
     char name_buf[NAME_BUF_SIZE];
     int nchars;
 
-    struct dirent **lesson_list_dirents = NULL;
+    char** lesson_list_names = NULL;
     FILE* tempFile = NULL;
 
     int i = 0;
@@ -582,16 +574,20 @@ int parse_lesson_file_directory(void)
 
     DEBUGMSG(debug_fileops, "lesson_path is: %s\n", lesson_path);
 
-    /* Believe we now have complete scandir() for all platforms :) */
-    num_lessons = scandir(lesson_path, &lesson_list_dirents, is_lesson_file, alphasort);
+    /* Glob "lesson*" (case-insensitive). SDL_GlobDirectory returns
+     * names in OS-iteration order — sort with qsort to match the
+     * deterministic alphasort behavior the old scandir gave us. */
+    lesson_list_names = SDL_GlobDirectory(
+        lesson_path, "lesson*", SDL_GLOB_CASEINSENSITIVE, &num_lessons);
 
     DEBUGMSG(debug_fileops, "num_lessons is: %d\n", num_lessons);
 
-    if (num_lessons < 0) {
-        perror("scanning lesson directory");
+    if (!lesson_list_names || num_lessons <= 0)
+    {
         num_lessons = 0;
         return 0;
     }
+    qsort(lesson_list_names, num_lessons, sizeof(char*), str_compare);
 
     /* Allocate storage for lesson list */
     lesson_list_titles = (char**) malloc(num_lessons * sizeof(char*));
@@ -617,7 +613,9 @@ int parse_lesson_file_directory(void)
     /* next one (or simply never used, if it was the last).   */
     for (lessonIterator = 0, lessons = 0; lessonIterator < num_lessons; lessonIterator++) {
         /* Copy over the filename (as a full pathname) */
-        nchars = snprintf(lesson_list_filenames[lessons], NAME_BUF_SIZE, "%s/%s", lesson_path, lesson_list_dirents[lessonIterator]->d_name);
+        nchars =
+            snprintf(lesson_list_filenames[lessons], NAME_BUF_SIZE, "%s/%s",
+                     lesson_path, lesson_list_names[lessonIterator]);
         if (nchars < 0 || nchars >= NAME_BUF_SIZE)
             continue;
 
@@ -661,11 +659,7 @@ int parse_lesson_file_directory(void)
         /* Increment the iterator for correctly-parsed lesson files */
         lessons++;
     }
-    /* Now free the individual dirents. We do this on a second pass */
-    /* because of the "continue" approach used to error handling.   */
-    for (lessonIterator = 0; lessonIterator < num_lessons; lessonIterator++)
-        free(lesson_list_dirents[lessonIterator]);
-    free(lesson_list_dirents);
+    SDL_free(lesson_list_names);
 
     /* In case we didn't keep all of them, revise our count of how */
     /* many there are */
@@ -976,8 +970,6 @@ void user_data_dirname_up(void)
 
 void user_data_dirname_down(char *subdir)
 {
-    DIR *dir;
-
     // The space for user_data_dir has to have sufficient memory
     // available for concatenating subdir and a possible final "/",
     // hence the +2s.
@@ -1003,19 +995,20 @@ void user_data_dirname_down(char *subdir)
         strcpy(user_data_dir,subdir);
     }
     strcat(user_data_dir,"/");
-    dir = opendir(user_data_dir);
-    if (dir == NULL) {
+    SDL_PathInfo info;
+    if (!SDL_GetPathInfo(user_data_dir, &info) ||
+        info.type != SDL_PATHTYPE_DIRECTORY)
+    {
         fprintf(stderr, "User data directory cannot be opened, there is a configuration error\n");
         fprintf(stderr, "Continuing anyway without saving or loading individual settings.\n");
     }
-    else {
-        closedir(dir);
+    else
+    {
         // If we have multi-user logins, don't create restrictive
         // permissions on new or rewritten files
         umask(0x0);
     }
 }
-
 
 /***********************************************************
  *                                                          *
@@ -2246,20 +2239,16 @@ int write_postgame_summary(MC_MathGame* game)
 static int find_tuxmath_dir(void)
 {
     char opt_path[PATH_MAX];
-    DIR* dir_ptr;
 
     /* find $HOME */
     get_user_data_dir_with_subdir(opt_path);
 
     DEBUGMSG(debug_fileops, "In find_tuxmath_dir() tuxmath dir is: = %s\n", opt_path);
 
-    /* find out if directory exists - if not, create it: */
-    dir_ptr = opendir(opt_path);
-    if (dir_ptr)  /* don't leave DIR* open if it was already there */
+    SDL_PathInfo info;
+    if (SDL_GetPathInfo(opt_path, &info) && info.type == SDL_PATHTYPE_DIRECTORY)
     {
-        DEBUGMSG(debug_fileops, "In find_tuxmath_dir() tuxmath dir opened OK\n");
-
-        closedir(dir_ptr);
+        DEBUGMSG(debug_fileops, "In find_tuxmath_dir() tuxmath dir found\n");
         return 1;
     }
     else /* need to create tuxmath config directory: */

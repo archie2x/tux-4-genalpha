@@ -90,8 +90,8 @@ void ChooseTheme(void)
     /* check to see if it is a directory */
     sprintf(fn, "%s/themes/%s", settings.default_data_path, themesFile->d_name);
 
-    /* CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
-    if (CheckFile(fn) == 2)
+    /* T4K_CheckFile() returns 2 if dir, 1 if file, 0 if neither: */
+    if (T4K_CheckFile(fn) == 2)
     {
       /* HACK: we should get the names from file :) */
       strncpy( themeNames[themes], themesFile->d_name, FNLEN-1);

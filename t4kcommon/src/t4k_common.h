@@ -1379,15 +1379,17 @@ void T4K_SetSfxVolume(int volume);
 //  T4K_CheckFile
 //
 //! \brief
-//!     Check whether a file exists.
+//!     Check whether a path exists, and what kind of object it is.
 //!
 //! \param
-//!    file        - File to check.
+//!    file        - Path to check.
 //!
 //! \return
-//!    1           - The file is valid.
+//!    1           - Regular file.
 //! \return
-//!    0           - The file is not valid.
+//!    2           - Directory.
+//! \return
+//!    0           - Not present (or any other path type).
 //!
 int T4K_CheckFile( const char* file );
 

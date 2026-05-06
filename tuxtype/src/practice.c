@@ -1730,16 +1730,20 @@ static int load_phrases(const char* phrase_file)
   if (!settings.use_english)
   {
     sprintf(fn , "%s/%s", settings.theme_data_path, phrase_file);
-    if (CheckFile(fn))
-      found = 1;
+    if (T4K_CheckFile(fn))
+    {
+        found = 1;
+    }
   }
 
   /* Now checking English: */
   if (!found)
   {
     sprintf(fn , "%s/%s", settings.default_data_path, phrase_file);
-    if (CheckFile(fn))
-      found = 1;
+    if (T4K_CheckFile(fn))
+    {
+        found = 1;
+    }
   }
 
   if (!found)
@@ -1751,7 +1755,7 @@ static int load_phrases(const char* phrase_file)
 
   DEBUGCODE { printf("load_phrases(): phrases file is '%s'\n", fn ); }
 
-  /* We know it will open OK because we already ran CheckFile() on it */
+  /* We know it will open OK because we already ran T4K_CheckFile() on it */
   fp = fopen(fn, "r");
 
   /* So now copy each line into phrases array: */

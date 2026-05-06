@@ -93,7 +93,6 @@ add_executable(
     src/pixels.c
     src/playgame.c
     src/practice.c
-    src/scandir.c
     src/scripting.c
     src/SDL_extras.c
     src/setup.c
