@@ -90,15 +90,11 @@ static int tts_announcer(void *unused);
 
 int PlayLaserGame(int diff_level)
 {
-	int i, img, done, quit, frame, lowest, lowest_y, 
+	int i, img, done, quit, frame, lowest, lowest_y,
 	    tux_img, old_tux_img, tux_pressing, tux_anim, tux_anim_frame,
 	    tux_same_counter, level_start_wait,
-	    num_comets_alive, paused, picked_comet, 
+	    num_comets_alive, paused,
 	    gameover;
-	  
-
-	//TTS Word announcer variables
-	SDL_Thread *thread;
 
 	//Braille Variables
 	wchar_t pressed_letters[1000];
@@ -173,7 +169,6 @@ int PlayLaserGame(int diff_level)
   
 	frame = 0;
 	paused = 0;
-	picked_comet = -1;
 	tux_img = IMG_TUX_RELAX1;
 	tux_anim = -1;
 	tux_anim_frame = 0;
@@ -184,9 +179,9 @@ int PlayLaserGame(int diff_level)
 	
 
 
-	 //Call announcer function in thread which annonces the word to type 
+	 //Call announcer function in thread which annonces the word to type
 	if(settings.tts)
-        thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+        tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
 
     //Inetialising braille variables
 	braille_iter = 0;
@@ -764,8 +759,7 @@ int PlayLaserGame(int diff_level)
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,gettext("Pause Released!"));
 					//Call announcer function in thread which annonces the word to type
 					if(settings.tts)
-                        thread =
-                            SDL_CreateThread(tts_announcer, "tt_thread", NULL);
+                        tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
             }							
 			paused = 0;
 		}
@@ -871,8 +865,6 @@ static void recalc_comet_pos(void)
 /* --- Load all media --- */
 static void laser_load_data(void)
 {
-	int i;
-
 	/* Create the SDL_Surfaces for all of the characters */
         /* used in the word list: */
 	RenderLetters(COMET_ZAP_FONT_SIZE);
@@ -885,8 +877,6 @@ static void laser_load_data(void)
 
 /* --- unload all media --- */
 static void laser_unload_data(void) {
-	int i;
-
 	FreeLetters();
 
 	FreeSprite(shield);

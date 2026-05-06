@@ -11,7 +11,6 @@
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
-#include "convert_utf.h"
 
 void DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b,
                 Uint8 a)

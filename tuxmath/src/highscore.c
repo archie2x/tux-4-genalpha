@@ -290,8 +290,7 @@ void DisplayHighScores(int level)
 
             
             /* Update screen: */
-            /* SDL_UpdateRect dropped — caller updates window */ (
-                void)(screen, 0, 0, 0, 0);
+            
 
             old_diff_level = diff_level;
         }
@@ -325,7 +324,6 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
     int redraw = 0;
     int first_draw = 1;
     int finished = 0;
-    Uint32 frame = 0;
     Uint32 start = 0;
     wchar_t wchar_buf[HIGH_SCORE_NAME_LENGTH + 1] = {'\0'};
     const int NAME_FONT_SIZE = 32;
@@ -408,8 +406,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"%s",_(s1));
 
     /* and update: */
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 
     while (!finished)
     {
@@ -503,19 +500,22 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                     SDL_Surface* s = NULL;
                     redraw         = 0;
 
-                    /* Convert text to UTF-8 so T4K_BlackOutline() can handle it: */
-                    //         wcstombs((char*) UTF8_buf, wchar_buf, HIGH_SCORE_NAME_LENGTH * 3);
-                    T4K_ConvertToUTF8(wchar_buf, UTF8_buf,
-                                      HIGH_SCORE_NAME_LENGTH * 3);
+                    /* Convert text to UTF-8 so T4K_BlackOutline() can handle it.
+                     * On failure the output buffer is emptied; the BlackOutline
+                     * call below returns NULL on empty input, so no name draws. */
+                    if (!T4K_ConvertToUTF8(wchar_buf, UTF8_buf,
+                                           HIGH_SCORE_NAME_LENGTH * 3))
+                    {
+                        DEBUGMSG(debug_highscore,
+                                 "Name conversion to UTF-8 failed\n");
+                    }
                     /* Redraw background and shading in area where we drew text last time: */
                     if (!first_draw)
                     {
                         SDL_BlitSurface(current_bkg(), &redraw_rect, screen,
                                         &redraw_rect);
                         T4K_DrawButton(&redraw_rect, 0, REG_RGBA);
-                        /* SDL_UpdateRect dropped — caller updates window */ (
-                            void)(screen, redraw_rect.x, redraw_rect.y,
-                                  redraw_rect.w, redraw_rect.h);
+                        
                     }
 
                     s = T4K_BlackOutline(UTF8_buf, NAME_FONT_SIZE, &yellow);
@@ -534,9 +534,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                         redraw_rect.w = s->w + 40;
                         first_draw    = 0;
 
-                        /* SDL_UpdateRect dropped — caller updates window */ (
-                            void)(screen, redraw_rect.x, redraw_rect.y,
-                                  redraw_rect.w, redraw_rect.h);
+                        
                         SDL_DestroySurface(s);
                         s = NULL;
                     }
@@ -557,7 +555,6 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         {
             SDL_Delay(20);
         }
-        frame++;
     }  // End of while (!finished) loop
 
     SDL_StopTextInput(T4K_GetWindow());

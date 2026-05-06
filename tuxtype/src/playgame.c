@@ -65,7 +65,6 @@ static void AddSplat(int* splats, struct fishypoo* f, int* curlives, int* frame)
 static void CheckCollision(int fishies, int* fish_left, int frame );
 static void CheckFishies(int* fishies, int* splats);
 static int check_word(int f);
-static void display_msg(const char* msg, int x, int y);
 static void DrawBackground(void);
 static void draw_bar(int curlevel, int diflevel, int curlives,
                      int oldlives, int fish_left, int oldfish_left);
@@ -81,8 +80,6 @@ static int tts_announcer(void *struct_address);
 
 static void set_braille_letter_pos(int fishies);
 
-//static void HandleKey(SDL_keysym* key_sym);
-static void HandleKey(SDL_keysym* key_sym);
 static int int_restrict(int a, int x, int b);
 static void LoadFishies(void);
 static void LoadOthers(void);
@@ -856,22 +853,6 @@ static void LoadOthers(void)
 	LOG( "=LoadOthers() END\n" );
 }
 
-static void display_msg(const char* msg, int x, int y)
-{
-  if (msg == NULL || msg[0] == '\0')
-    return;
-
-  SDL_Surface* m;
-  m = BlackOutline(msg, LABEL_FONT_SIZE, &white);
-
-  if (m)
-  {
-    EraseObject(m, x, y);
-    DrawObject(m, x, y);
-    SDL_DestroySurface(m);
-  }
-}
-
 /***************************
 LoadFishies : Load the fish animations and graphics
 *****************************/
@@ -899,24 +880,22 @@ LoadTuxAnims : Load the Tux graphics and animations
 static int LoadTuxAnims(void)
 {
   int i;
-  int height = 0;                //temp width/height varis to determine max's
 
   LOG("LoadTuxAnims(): Loading Tux Animations\n");
 
   for (i = 0 ; i < TUX_NUM_STATES; i++)
   {
-    tux_object.spr[i][RIGHT] = LoadSprite(tux_sprite_fns[i], IMG_ALPHA); 
+    tux_object.spr[i][RIGHT] = LoadSprite(tux_sprite_fns[i], IMG_ALPHA);
     /* make sure image got loaded: */
     if(tux_object.spr[i][RIGHT] == NULL)
     {
       fprintf(stderr, "Warning - image %d failed to load\n", i);
       return 0;
     }
-    tux_object.spr[i][LEFT] = FlipSprite(tux_object.spr[i][RIGHT], 1, 0); 
+    tux_object.spr[i][LEFT] = FlipSprite(tux_object.spr[i][RIGHT], 1, 0);
   }
 
   tux_max_width = tux_object.spr[TUX_STANDING][RIGHT]->frame[0]->w;
-  height = tux_object.spr[TUX_STANDING][RIGHT]->frame[0]->h;
 
   LOG("LoadTuxAnims(): END\n");
 
@@ -1658,7 +1637,7 @@ static void MoveTux( int frame, int fishies )
 					tux_object.facing = LEFT;
 
 				/* see how fast we need to go to get there... */
-				if (time_to_splat - frame > (abs(tux_object.endx - tux_object.x) / WALKING_SPEED)) {
+				if (time_to_splat - frame > (fabs(tux_object.endx - tux_object.x) / WALKING_SPEED)) {
 					tux_object.dx = WALKING_SPEED;
 					tux_object.state = TUX_WALKING;
 
@@ -1672,7 +1651,7 @@ static void MoveTux( int frame, int fishies )
                     {
                         tux_object.dx =
                             float_restrict(MIN_RUNNING_SPEED,
-                                           abs(tux_object.endx - tux_object.x) /
+                                           fabs(tux_object.endx - tux_object.x) /
                                                (time_to_splat - frame),
                                            MAX_RUNNING_SPEED);
                     }
@@ -1681,7 +1660,7 @@ static void MoveTux( int frame, int fishies )
                         if (settings.sys_sound &&
                             !T4K_IsPlayingSound(sound[RUN_WAV]))
                         {
-                            if (abs(tux_object.endx - tux_object.x) > 50)
+                            if (fabs(tux_object.endx - tux_object.x) > 50)
                                 PlaySound(sound[RUN_WAV]);
                         }
                     }
@@ -1766,72 +1745,6 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives, int
 }
 
 
-/* Here we process the latest keystroke with the input_methods system. */ 
-/* Depending on whether the current language uses a single keystroke   */
-/* or multiple keystrokes per letter, we may or may not change what is displayed. */
-static void HandleKey(SDL_keysym* key_sym)
-{
-  static int redraw = 0;
-  wchar_t* im_cp = im_data.s;
-  int texttool_len = 0;
-  wchar_t texttool_str[256];
-  
-  /* Discard previous # of redraw characters */
-  if((int)texttool_len <= redraw) 
-    texttool_len = 0;
-  else texttool_len -= redraw;
-    texttool_str[texttool_len] = L'\0';
-
-  /* Read IM, remember how many to redraw next iteration */
-  redraw = im_read(&im_data, *key_sym);
-
-  /* Queue each character to be displayed */
-  while(*im_cp)
-  {
-    if (*im_cp == L'\b')
-    {
-      if (texttool_len > 0)
-      {
-        texttool_len--;
-        texttool_str[texttool_len] = 0;
-//        do_render_cur_text(0);
-      }
-    }
-    else if (*im_cp == L'\r')
-    {
-      if (texttool_len > 0)
-      {
-//        rec_undo_buffer();
-//        do_render_cur_text(1);
-        texttool_len = 0;
-      }
-      im_softreset(&im_data);
-    }
-    else if (*im_cp == L'\t')
-    {
-      if (texttool_len > 0)
-      {
-//        rec_undo_buffer();
-//        do_render_cur_text(1);
-//        cursor_x = min(cursor_x + cursor_textwidth, canvas->w);
-        texttool_len = 0;
-      }
-      im_softreset(&im_data);
-    }
-    //FIXME look up iswprint()
-    else if (1) //(iswprint(*im_cp))
-    {
-      if (texttool_len < (sizeof(texttool_str) / sizeof(wchar_t)) - 1)
-      {
-        texttool_str[texttool_len++] = *im_cp;
-        texttool_str[texttool_len] = 0;
-//        do_render_cur_text(0);
-      }
-    }
-
-    im_cp++;
-  } /* while(*im_cp) */
-}
 
 /**********************************************************************
  * This function will announce the bottum most word's in the screen
@@ -2053,7 +1966,7 @@ static void stop_tts_announcer()
  ****************************************************************/
 static void set_braille_letter_pos(int fishies)
 {
-	int which,i,correct_position;
+	int which,i;
 
     if (tux_object.wordlen == 0)
     {
@@ -2072,16 +1985,7 @@ static void set_braille_letter_pos(int fishies)
 					which = i;		
 			}
 		}
-		//Detecting the correct_position if word is not null
 		if (which != -1){
-			correct_position = 0;
-			for(i=0;i<tux_object.wordlen;i++)
-			{
-				if (tux_object.word[i] == fish_object[which].word[i])
-				{
-					correct_position+=1;
-				}
-			}
 			//Braille letter Position should be 2 if next letter is end
 			if (tux_object.wordlen == fish_object[which].len-1)
 				braille_letter_pos = 2;

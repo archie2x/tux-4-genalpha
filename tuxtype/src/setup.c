@@ -640,6 +640,7 @@ DEBUGCODE
 
 /* Set the application's icon: */
 
+__attribute__((unused))
 static void seticon(void)
 {
   SDL_Surface* icon;

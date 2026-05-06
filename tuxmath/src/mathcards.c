@@ -1952,8 +1952,9 @@ static int compare_card(const MC_FlashCard* a, const MC_FlashCard* b)
         return 1;
     if (strncmp(a->answer_string, b->answer_string, MC_ANSWER_LEN) )
         return 1;
-    if (a->answer != b->answer);
-    return 1;
+    if (a->answer != b->answer)
+        return 1;
+    return 0;
 
     return 0; //the cards are identical
 }
@@ -1963,7 +1964,7 @@ static int compare_card(const MC_FlashCard* a, const MC_FlashCard* b)
 /* allocate space for an MC_Flashcard */
 MC_FlashCard MC_AllocateFlashcard(void)
 {
-    MC_FlashCard ret;
+    MC_FlashCard ret = DEFAULT_CARD;
 
     //NOTE strings now simply hard-coded to MC_FORMULA_LEN (= 40) and
     //MC_ANSWER_LEN (= 5) instead of tailoring them to save a few bytes - DSB
@@ -2165,7 +2166,10 @@ int MC_MaxAnswerSize(void)
 
 void MC_ResetFlashCard(MC_FlashCard* fc)
 {
-    if (!fc || !fc->formula_string || !fc->answer_string)
+    /* formula_string / answer_string are now char[N] arrays inside fc;
+     * checking their address for NULL was a leftover from when they
+     * were heap-allocated. */
+    if (!fc)
         return;
     fc->formula_string[0] = '\0';
     fc->answer_string[0] = '\0';
@@ -2176,7 +2180,7 @@ void MC_ResetFlashCard(MC_FlashCard* fc)
 
 int MC_FlashCardGood(const MC_FlashCard* fc)
 {
-    return fc && fc->formula_string && fc->answer_string;
+    return fc != NULL;
 }
 
 int find_divisor(MC_MathGame* game, int a)

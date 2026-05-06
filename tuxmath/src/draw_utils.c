@@ -185,7 +185,7 @@ void draw_numbers(SDL_Surface* surface, const char* str, int x, int y)
 
 
 /* Draw numbers/symbols over the attacker: */
-void draw_nums(float zoom, const char* str, int x, int y, SDL_Color* col)
+void draw_nums(float zoom, const char* str, int x, int y, const SDL_Color* col)
 {
     if(!str || !col)
         return;

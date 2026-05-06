@@ -387,7 +387,7 @@ int line;
 
 int credits(void)
 {
-    int i,done, quit, scroll;
+    int i, quit;
     SDL_Rect subscreen, dest;
 	
 	char credit_tts_text[MAX_LINES*MAX_LINEWIDTH]; 
@@ -420,9 +420,7 @@ int credits(void)
 
     /* --- MAIN OPTIONS SCREEN LOOP: --- */
 
-    done = 0;
     quit = 0;
-    scroll = 0;
     line = 0;
 
     subscreen.x = 0;

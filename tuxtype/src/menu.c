@@ -229,20 +229,12 @@ void LoadMenus(void)
 /* run main menu. If this function ends it means that tuxmath is going to quit */
 void RunMainMenu(void)
 {
-    int i;
-    //  char* lltitle = "Lesson List"; //lesson list menu title
-    char* icon_names[num_lessons];
-
-
-    /* lessons menu */
-
+    /* Lesson-list menu wiring is currently commented out. If you bring
+     * it back, declare `int i;` and `char* icon_names[num_lessons];`
+     * alongside the loop below. */
     //for(i = 0; i < num_lessons; i++)
-   // {
     //    icon_names[i] = (lesson_list_goldstars[i] ? "goldstar" : "no_goldstar");
-    //}
-
     //T4K_CreateOneLevelMenu(MENU_LESSONS, num_lessons, lesson_list_titles, icon_names, NULL, "Back");
-
     //T4K_PrerenderMenu(MENU_LESSONS);
 
     /* Loop until the user actually picks Quit (T4K_RunMenu returns QUIT).

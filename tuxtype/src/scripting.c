@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "scripting.h"
 #define MAX_LESSONS 100
 #include "SDL_extras.h"
-#include "convert_utf.h"
 #include "scandir.h"
 
 /* Local function prototypes: */
@@ -1566,7 +1565,7 @@ static void run_script(void)
         case itemPRAC:
         {
           wchar_t wide_buf[FNLEN];
-          ConvertFromUTF8(wide_buf, curItem->data, FNLEN);
+          T4K_ConvertFromUTF8(wide_buf, curItem->data, FNLEN);
           if (curItem->goal > 0)
           {
             //printf( "goal is %d\n", curItem->goal );

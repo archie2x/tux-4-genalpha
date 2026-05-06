@@ -33,7 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include <ctype.h>
 #include <SDL3_image/SDL_image.h>
-#include "convert_utf.h"
 #include "editor.h"
 
 /* Sort the parallel file_names[]/list_titles[] arrays alphabetically by
@@ -593,7 +592,6 @@ void EditWordList(char* words_file)
   SDL_Rect word_rects[8];
   int stop = 0;
   int loc = 0;
-  int old_loc = 1;
 
   FILE* fp = NULL;
 
@@ -762,12 +760,12 @@ void EditWordList(char* words_file)
 
           if (event.key.key == SDLK_BACKSPACE)
           {
-            len = ConvertFromUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE); 
+            len = T4K_ConvertFromUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE); 
             if (len > 1 && number_of_words > 1)
             {                               
               // remove the last character from the string
               temp[len - 1] = temp[len];
-              len = ConvertToUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE);
+              len = T4K_ConvertToUTF8(temp, words_in_list[loc+1], MAX_WORD_SIZE);
               white_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &white );
               yellow_words[loc] = BlackOutline(words_in_list[loc+1], DEFAULT_MENU_FONT_SIZE, &yellow);  
             }
@@ -792,7 +790,7 @@ void EditWordList(char* words_file)
                 {
                   if(x < number_of_words-1)
                   {
-                    len = ConvertFromUTF8(temp, words_in_list[x+2], MAX_WORD_SIZE);
+                    len = T4K_ConvertFromUTF8(temp, words_in_list[x+2], MAX_WORD_SIZE);
 
                     DEBUGCODE
                     {
@@ -801,7 +799,7 @@ void EditWordList(char* words_file)
                       fprintf(stderr, "word in list = %s\n", words_in_list[x+2]);
                     }
 
-                    len = ConvertToUTF8(temp, words_in_list[x+1], MAX_WORD_SIZE);
+                    len = T4K_ConvertToUTF8(temp, words_in_list[x+1], MAX_WORD_SIZE);
 
                     DEBUGCODE
                     { fprintf(stderr, "word in list = %s\n", words_in_list[x+1]); }
@@ -922,14 +920,14 @@ void EditWordList(char* words_file)
             }
             else
             {
-              len = ConvertFromUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
+              len = T4K_ConvertFromUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
             }
             if (len < MAX_WORD_SIZE - 1)
             {
               // Add the character to the end of the existing string
               temp[len]     = toupper(event.key.key);
               temp[len + 1] = 0;
-              ConvertToUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
+              T4K_ConvertToUTF8(temp, words_in_list[loc + 1], MAX_WORD_SIZE);
 
               // Copy back to the on-screen list
               white_words[loc] = BlackOutline(words_in_list[loc + 1],
@@ -975,7 +973,6 @@ void EditWordList(char* words_file)
         T4K_UpdateRect(screen, NULL);
       }
       SDL_Delay(40);  // I assume throttling so we don't eat all CPU
-      old_loc = loc;
     }  // End of 'while (SDL_PollEvent(&event))' loop
   }  // End of 'while(!stop)' loop
 
@@ -1179,7 +1176,7 @@ int CreateNewWordList(void)
           switch (event.key.key)
           {
             case SDLK_BACKSPACE:
-              len = ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
+              len = T4K_ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
               if (len < 1)
               {
                 LOG("There are no letters to delete\n");
@@ -1187,7 +1184,7 @@ int CreateNewWordList(void)
               else
               {
                 temp[len - 1] = temp[len];
-                len = ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
+                len = T4K_ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
                 NewWordlist = BlackOutline(wordlist, DEFAULT_MENU_FONT_SIZE, &yellow);
                 DEBUGCODE{ fprintf(stderr, "Word: %s\n", wordlist); }
               }
@@ -1222,14 +1219,14 @@ int CreateNewWordList(void)
           {
             DEBUGCODE { fprintf(stderr, "TEMP 1: %s\n", wordlist); }
 
-            len = ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
+            len = T4K_ConvertFromUTF8(temp, wordlist, MAX_WORD_SIZE);
             if (len < MAX_WORD_SIZE)
             {
               // adds a character to the end of existing string
               temp[len]     = toupper(event.key.key);
               temp[len + 1] = 0;
             }
-            len = ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
+            len = T4K_ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
 
             DEBUGCODE { fprintf(stderr, "TEMP 2: %s\n", wordlist); }
 

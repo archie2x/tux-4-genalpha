@@ -24,7 +24,6 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
-#include "convert_utf.h"
 #include "braille.h"
 #include <ctype.h>
 #include <wctype.h>
@@ -156,7 +155,6 @@ int Phrases(wchar_t* pphrase )
   char errors_str[20];
   char accuracy_str[20];
   wchar_t tts_temp[1000];
-  int len,iter;
   SDL_Surface* tmpsurf = NULL;
 
   //Braille Variables
@@ -863,7 +861,6 @@ int Phrases(wchar_t* pphrase )
           wchar_t next_word[1000];
           next_word[0] = L'\0';
           tts_temp[0] = L'\0';
-          int iter_word;
 		  if (phrases[cur_phrase][cursor-1] == L' ')
 		  {
 			  if (pphrase == NULL){
@@ -1643,7 +1640,7 @@ static int load_phrases(const char* phrase_file)
     /* inspect return value of fscanf():                       */
     if (EOF != fscanf(fp, "%[^\n]\n", buf))
     {
-      ConvertFromUTF8(phrases[num_phrases], buf, MAX_PHRASE_LENGTH);
+      T4K_ConvertFromUTF8(phrases[num_phrases], buf, MAX_PHRASE_LENGTH);
       DEBUGCODE {printf("phrase %d:\t%S\n", num_phrases, phrases[num_phrases]);}
       num_phrases++;
     }
@@ -1726,7 +1723,7 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
     DEBUGCODE{ fprintf(stderr, "buf = %S\n", buf);}
 
     /* Need to convert to UTF8 because couldn't get UNICODE version to work: */
-    ConvertToUTF8(buf, UTF8buf, MAX_PHRASE_LENGTH);
+    T4K_ConvertToUTF8(buf, UTF8buf, MAX_PHRASE_LENGTH);
     /*  Now check width of string: */
     s = SimpleText(UTF8buf, font_size, &white);
     if (!s)

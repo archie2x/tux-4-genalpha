@@ -107,8 +107,11 @@ typedef MIX_Audio Mix_Music;
     fprintf(stderr, #Expr ": %f\n", (Expr)); fflush(stderr); \
 }
 
-//! DEBUGCODE is a conditional and should be followed by a code block
+//! DEBUGCODE is a conditional and should be followed by a code block.
+//! Guarded so callers that define their own (parameterless) DEBUGCODE win.
+#ifndef DEBUGCODE
 #define DEBUGCODE(mask) if((mask) & debug_status)
+#endif
 
 //! DEBUGMSG prints out a specific message, which can be formatted like printf
 #define DEBUGMSG(mask, ...) \
@@ -446,12 +449,12 @@ void T4K_SetMenuFontSize( MFStrategy strategy,
 //! \return
 //!     None
 //! 
-void T4K_CreateOneLevelMenu( int     index,
-                             int     items,
-                             char**  item_names, 
-                             char**  sprite_names, 
-                             char*   title, 
-                             char*   trailer
+void T4K_CreateOneLevelMenu( int            index,
+                             int            items,
+                             char**         item_names,
+                             char**         sprite_names,
+                             const char*    title,
+                             const char*    trailer
                             );
 
 //============================================================================== 

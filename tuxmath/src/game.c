@@ -33,8 +33,7 @@ int pause_game(void)
 
     T4K_DarkenScreen(1);  // cut all channels by half
     SDL_BlitSurface(images[IMG_PAUSED], NULL, screen, &dest);
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 
 #ifndef NOSOUND
     if(Opts_GetGlobalOpt(USE_SOUND))

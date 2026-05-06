@@ -250,7 +250,7 @@ void TitleScreen(void)
         /* FIXME not sure trans_wipe() works in Windows: */
         T4K_TransWipe(current_bkg(), RANDOM_WIPE, 5, 20);
 
-        DEBUGCODE(debug_all)
+        DEBUGCODE
         {
             /* Make sure background gets drawn (since trans_wipe() doesn't */
             /* seem to work reliably as of yet):                          */
@@ -1261,12 +1261,11 @@ int load_image_data()
     /* Load static images: */
     for (i = 0; i < NUM_IMAGES; i++)
     {
-		char fn[100];
+		//char fn[100];
 		//sprintf(fn,"images/%s",image_filenames[i]);
-		
 		//fprintf(stderr,"\nCheck out : %s-%d",fn,T4K_CheckFile(fn));
-		
-		
+
+
         images[i] = T4K_LoadImage(image_filenames[i], IMG_ALPHA);
 
         if (images[i] == NULL)

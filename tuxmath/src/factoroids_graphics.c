@@ -169,6 +169,7 @@ int factoroids_init_graphics(void)
 
     /* Create zoomed and scaled ship image for "lives" counter */
     IMG_lives_ship = rotozoomSurface(images[IMG_SHIP_CLOAKED], 90, zoom * 0.7, 1);
+    return 1;
 }
 
 
@@ -650,8 +651,7 @@ void factoroids_show_message(char* str)
         SDL_BlitSurface(s1, NULL, screen, &loc);
         SDL_DestroySurface(s1);
     }
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 }
 
 
@@ -686,8 +686,7 @@ void factoroids_level_objs_hints(char *label, char *contents, int x, int y )
         SDL_BlitSurface(s2, NULL, screen, &loc);
     }
 
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 
     SDL_DestroySurface(s1);
     SDL_DestroySurface(s2);

@@ -83,7 +83,6 @@ add_executable(
     src/game.c
     src/highscore.c
     src/lessons.c
-    src/linewrap.c
     src/mathcards.c
     src/menu.c
     src/multiplayer.c
@@ -124,10 +123,7 @@ target_link_libraries(
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(
-        tuxmath
-        PRIVATE -Wall -Wno-unused -Wno-deprecated-declarations
-    )
+    target_compile_options(tuxmath PRIVATE -Wall -Werror)
 endif()
 
 # ---------------------------------------------------------------------------

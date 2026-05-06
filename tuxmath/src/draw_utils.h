@@ -12,7 +12,7 @@ void draw_line(SDL_Surface* surface, int x1, int y1, int x2, int y2, int r, int 
 
 void draw_numbers(SDL_Surface* surface, const char* str, int x, int y);
 
-void draw_nums(float zoom, const char* str, int x, int y, SDL_Color* col);
+void draw_nums(float zoom, const char* str, int x, int y, const SDL_Color* col);
 
 void draw_console_image(int i);
 

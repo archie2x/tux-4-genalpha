@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#include "convert_utf.h"
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
@@ -150,7 +149,7 @@ int LoadKeyboard(void)
       if (fscanf_result == EOF)
         break;
       /* Convert to wcs from UTF-8, if needed; */
-      ConvertFromUTF8(wide_str, str, 255);
+      T4K_ConvertFromUTF8(wide_str, str, 255);
 
       /* Line must have 3 chars (if more, rest are ignored) */
       /* Format is: FINGER|Char  e.g   "3|d"                */
@@ -503,7 +502,6 @@ wchar_t* GetWord(void)
 int GenerateWordList(const char* wordFn)
 {
   int j;
-  int ret;
   char temp_word[FNLEN];
   wchar_t temp_wide_word[FNLEN];
   size_t length;
@@ -526,12 +524,11 @@ int GenerateWordList(const char* wordFn)
   DEBUGCODE { fprintf(stderr, "Loading words from file: %s\n", wordFn); }
 
   /* ignore the title (i.e. first line) */
-  /* (compiler complains unless we inspect return value) */
-  ret = fscanf( wordFile, "%[^\n]\n", temp_word);
+  (void)fscanf( wordFile, "%[^\n]\n", temp_word);
 
   while (!feof(wordFile) && (num_words < MAX_NUM_WORDS))
   {
-    ret = fscanf( wordFile, "%[^\n]\n", temp_word);
+    (void)fscanf( wordFile, "%[^\n]\n", temp_word);
     DEBUGCODE {fprintf(stderr, "temp_word = %s\n", temp_word);}
 
     /* Ignore comment lines - starting with '#' */
@@ -545,11 +542,11 @@ int GenerateWordList(const char* wordFn)
     }
 
     /* Convert from UTF-8 to wcs and make sure word is usable: */
-    length = ConvertFromUTF8(temp_wide_word, temp_word, FNLEN);
+    length = T4K_ConvertFromUTF8(temp_wide_word, temp_word, FNLEN);
 
-    DOUT(length);
+    DOUT((int)length);
 
-    if (length == -1)  /* Means invalid UTF-8 sequence or conversion failed */
+    if (length == (size_t)-1)  /* Means invalid UTF-8 sequence or conversion failed */
     {
       fprintf(stderr, "Word '%s' not added - invalid UTF-8 sequence!\n", temp_word);
       continue;
@@ -1246,7 +1243,7 @@ void GenerateKeyboard(SDL_Surface* keyboard)
     }
 
     DEBUGCODE { printf("Making %d : %C\n",i,keyboard_list[i].unicode_value); }
-    ConvertToUTF8(t, buf, 8);
+    T4K_ConvertToUTF8(t, buf, 8);
     tmp = SimpleText(buf, 15, &black);
 //    tmp = TTF_RenderUNICODE_Blended((TTF_Font*)smallfont, t, black);
     if(tmp == NULL)
@@ -1377,7 +1374,7 @@ void GenCharListFromString(const char* UTF8_str)
   int i = 0;
   wchar_t wchar_buf[MAX_UNICODES];
 
-  ConvertFromUTF8(wchar_buf, UTF8_str, MAX_UNICODES);
+  T4K_ConvertFromUTF8(wchar_buf, UTF8_str, MAX_UNICODES);
 
   /* FNLEN is max length of phrase (I think) */
   while (wchar_buf[i] != '\0' && i < FNLEN) 

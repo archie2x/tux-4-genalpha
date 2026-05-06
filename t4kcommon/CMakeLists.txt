@@ -150,7 +150,7 @@ set_target_properties(
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(
         t4k_common
-        PRIVATE -Wall -Wno-unused -Wno-deprecated-declarations
+        PRIVATE -Wall -Werror
     )
 endif()
 

@@ -36,8 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <dirent.h>
 #include <sys/stat.h>
 #include <png.h>
+#ifdef HAVE_RSVG
+/* PNG caching is only used by the SVG sprite loader. */
 static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
-static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of the API
+static void savePNG(SDL_Surface* surf, char* fn);
+#endif
 #endif
 
 #ifdef HAVE_RSVG
@@ -64,9 +67,6 @@ SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool p
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
-
-
-static void savePNG(SDL_Surface* surf, char* fn);
 
 
 #if HAVE_RSVG
@@ -1007,9 +1007,9 @@ SDL_Surface *IMG_Load_Cache(const char* fn)
 }
 
 
-#if HAVE_LIBPNG
+#if HAVE_LIBPNG && defined(HAVE_RSVG)
 //save a surface to file as a PNG.
-void savePNG(SDL_Surface* surf,char* fn)
+static void savePNG(SDL_Surface* surf,char* fn)
 {
     FILE* fi;
     DIR* dir_ptr;
@@ -1201,12 +1201,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
     return 0;
 }
-#else
-void savePNG(SDL_Surface* surf, char* fn)
-{
-    DEBUGMSG(debug_loaders, "PNG caching unavailable in this version\n");
-}
-#endif //HAVE_LIBPNG
+#endif //HAVE_LIBPNG && HAVE_RSVG
 
 /* T4K_LoadSound / T4K_LoadMusic: in SDL3_mixer there's no distinction —
  * MIX_Audio handles both short SFX and longer music. We resolve the file

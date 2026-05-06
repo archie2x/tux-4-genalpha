@@ -32,8 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TITLESCREEN_H
 #define TITLESCREEN_H
 
-#define to_upper(c) (((c) >= 'a' && (c) <= 'z') ? (c) -32 : (c))
-#define COL2RGB( col ) SDL_MapRGB( screen->format, col->r, col->g, col->b )
+/* to_upper / COL2RGB live in globals.h. */
 
 //#define FNLEN        200
 
@@ -65,6 +64,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MAX_UPDATES                     180
 
 #define WAIT_MS                         2500
+/* FRAMES_PER_SEC also defined (with a different value) in globals.h —
+ * keep this one since playgame.c was written against it. */
+#undef FRAMES_PER_SEC
 #define FRAMES_PER_SEC                  50
 #define FULL_CIRCLE                     140
 

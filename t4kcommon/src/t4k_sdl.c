@@ -342,7 +342,7 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
 
     if (!s)
 	return;
-    if (SDL_LockSurface(s) == -1)
+    if (!SDL_LockSurface(s))
 	return;
 
     bytes_per_pix = SDL_BYTESPERPIXEL(s->format);

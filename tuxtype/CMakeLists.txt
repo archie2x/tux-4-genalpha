@@ -80,7 +80,6 @@ add_executable(
     src/alphabet.c
     src/audio.c
     src/braille.c
-    src/convert_utf.c
     src/editor.c
     src/globals.c
     src/input_methods.c
@@ -133,10 +132,7 @@ target_link_libraries(
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(
-        tuxtype
-        PRIVATE -Wall -Wno-unused -Wno-deprecated-declarations
-    )
+    target_compile_options(tuxtype PRIVATE -Wall -Werror)
 endif()
 
 # ---------------------------------------------------------------------------

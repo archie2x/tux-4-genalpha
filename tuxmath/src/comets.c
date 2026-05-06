@@ -760,7 +760,8 @@ void comets_handle_help(void)
     level_start_wait = 0;
 
     timer = 0;
-    while (comets[0].alive && (timer+=FC_time_elapsed) < 7 && !(quit_help = help_renderframe_exit())); // advance comet
+    while (comets[0].alive && (timer+=FC_time_elapsed) < 7 && !(quit_help = help_renderframe_exit()))
+        ; // intentional empty body — advance comet via the conditions' side effects
     {
 		T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND,"2 + 1 = ?");
 		if (quit_help)
@@ -921,7 +922,8 @@ void comets_handle_help(void)
     powerup_add_comet();
     timer = 0;
 
-    while (powerup_comet->comet.alive && ((timer+=FC_time_elapsed) < 1) && !(quit_help = help_renderframe_exit()));
+    while (powerup_comet->comet.alive && ((timer+=FC_time_elapsed) < 1) && !(quit_help = help_renderframe_exit()))
+        ; // intentional empty body
     {
 		if (quit_help)
 			return;
@@ -1066,7 +1068,6 @@ void comets_write_message(const game_message *msg)
                 rect.x = msg->x;              // left justified
             rect.y = msg->y;
             //FIXME alpha blending doesn't seem to work properly
-            /* SDL_SetAlpha dropped */ (void)(surf, 0, msg->alpha);
             SDL_BlitSurface(surf, NULL, screen, &rect);
             SDL_DestroySurface(surf);
         }
@@ -2301,7 +2302,6 @@ void comets_handle_game_over(int game_status)
             int tux_step = -3;
             int i = 0;
             int rank = 1;
-            int entries = 0;
             int first = 1;
             char str[64];
             SDL_Surface* surf = NULL;
@@ -2338,7 +2338,6 @@ void comets_handle_game_over(int game_status)
             do
             {
                 FC_frame_begin();
-                entries = 0;
                 rank = 1;
 
                 while (SDL_PollEvent(&event) > 0)
@@ -2405,7 +2404,6 @@ void comets_handle_game_over(int game_status)
                             loc.h = surf->h;
                             loc.y += surf->h;
                             SDL_BlitSurface(surf, NULL, screen, &loc);
-                            entries++;
                             SDL_DestroySurface(surf);
                             surf = NULL;
                         }
@@ -4036,14 +4034,17 @@ wchar_t* convert_formula_to_sentence(char *formula_string)
 	sentence[0] = L'\0';
 	while(temp != NULL)
 	{
+		/* gettext _() takes narrow strings — plain wide literals here.
+		 * These are spoken by TTS, so localization can come later via
+		 * a wchar-aware wrapper if needed. */
 		if (wcscmp(temp,L"+") == 0)
-			wcscat(sentence,_(L"plus "));
+			wcscat(sentence, L"plus ");
 		else if (wcscmp(temp,L"-") == 0)
-			wcscat(sentence,_(L"minus "));
+			wcscat(sentence, L"minus ");
 		else if (wcscmp(temp,L"÷") == 0)
-			wcscat(sentence,_(L"divided by "));
+			wcscat(sentence, L"divided by ");
 		else if (wcscmp(temp,L"x") == 0)
-			wcscat(sentence,_(L"Times "));
+			wcscat(sentence, L"Times ");
 		else
 			{
 				wcscat(sentence,temp);
@@ -4060,9 +4061,6 @@ int tts_announcer(void *unused)
 	
 	int order[15],iter;
 	float y_axis;
-	
-	
-	int pitch;
 	int rate;
 	tts_announcer_switch = 1;
 	

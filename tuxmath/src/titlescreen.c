@@ -179,8 +179,7 @@ void TitleScreen(void)
         SDL_DestroySurface(logo);
     }
 
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 
     /* Play "harp" greeting sound lifted from Tux Paint */
     playsound(SND_HARP);
@@ -284,14 +283,8 @@ void TitleScreen(void)
             SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_anim);
             SDL_BlitSurface(title, NULL, screen, &title_anim);
 
-            /* SDL_UpdateRect dropped — caller updates window */ (
-                void)(screen, tux_anim.x, tux_anim.y, tux_anim.w,
-                      min(tux_anim.h + tux_pix_skip, screen->h - tux_anim.y));
-            /* SDL_UpdateRect dropped — caller updates window */ (
-                void)(screen, title_anim.x, title_anim.y,
-                      min(title_anim.w + title_pix_skip,
-                          screen->w - title_anim.x),
-                      title_anim.h);
+            
+            
 
             T4K_Throttle(1000/ANIM_FPS, &timer);
         }
@@ -324,7 +317,7 @@ void DrawTitleScreen(void)
     SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect);
     SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_rect);
     SDL_BlitSurface(title, NULL, screen, &title_rect);
-    ///* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0, 0);
+    //
 }
 
 /* Render and position all titlescreen items to match current
@@ -475,10 +468,11 @@ void HandleTitleScreenAnimations_Reset(bool reset)
         T4K_UpdateRect(screen, &tux_rect);
     }
 
-    if (egg_active) { //if we need to, draw the egg cursor
-        //who knows why GetMouseState() doesn't take Sint16's...
-        SDL_GetMouseState((int*)(&cursor.x), (int*)(&cursor.y));
-        cursor.x -= egg->w / 2; //center vertically
+    if (egg_active) {
+        float mx, my;
+        SDL_GetMouseState(&mx, &my);
+        cursor.x = (int)mx - egg->w / 2;
+        cursor.y = (int)my;
         SDL_BlitSurface(egg, NULL, screen, &cursor);
         T4K_UpdateRect(screen, &cursor);
     }
@@ -660,8 +654,7 @@ void ShowMessageWrap( int font_size, const char* str )
             }
         }
 
-        /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0,
-                                                                    0, 0, 0);
+        
 
         while(!finished)
         {
@@ -815,8 +808,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     }
 
     /* and update: */
-    /* SDL_UpdateRect dropped — caller updates window */ (void)(screen, 0, 0, 0,
-                                                                0);
+    
 
     while (!finished)
     {
@@ -1129,9 +1121,7 @@ int handle_easter_egg(const SDL_Event* evt)
             //SDL_FillSurfaceRect(screen, &cursor, 0);
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
             SDL_WarpMouseInWindow(T4K_GetWindow(), cursor.x, cursor.y);
-            /* SDL_UpdateRect dropped — caller updates window */ (
-                void)(screen, cursor.x, cursor.y, cursor.w,
-                      cursor.h); //egg->x, egg->y, egg->w, egg->h);
+             //egg->x, egg->y, egg->w, egg->h);
             egg_active = 0;
         }
         return 1;
@@ -1149,9 +1139,7 @@ int handle_easter_egg(const SDL_Event* evt)
             {
                 SDL_BlitSurface(current_bkg(), &tux_rect, screen, &tux_rect);
                 SDL_BlitSurface(Tux->frame[--tuxframe], NULL, screen, &tux_rect);
-                /* SDL_UpdateRect dropped — caller updates window */ (
-                    void)(screen, tux_rect.x, tux_rect.y, tux_rect.w,
-                          tux_rect.h);
+                
                 SDL_Delay(GOBBLE_ANIM_MS / Tux->num_frames);
             }
 

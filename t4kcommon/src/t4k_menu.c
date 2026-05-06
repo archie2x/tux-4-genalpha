@@ -95,7 +95,7 @@ static char* music_path;
 static MFStrategy font_strategy;
 
 /* buffer size used when reading attributes or names */
-static const int buf_size = 512;
+#define buf_size 512
 
 /* maximum menu buttons per page */
 static const int MAX_PAGE_SIZE = 8;
@@ -380,7 +380,7 @@ void free_menu(MenuNode* menu)
 
 /* create a simple one-level menu.
    All given strings are copied */
-void T4K_CreateOneLevelMenu(int index, int items, char** item_names, char** sprite_names, char* title, char* trailer)
+void T4K_CreateOneLevelMenu(int index, int items, char** item_names, char** sprite_names, const char* title, const char* trailer)
 {
     MenuNode* menu = create_empty_node();
     int i;

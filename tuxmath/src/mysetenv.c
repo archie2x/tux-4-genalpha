@@ -24,9 +24,6 @@
  
 int my_setenv (const char * name, const char * value)
 {
-   size_t namelen = strlen(name);
-   size_t valuelen = (value==NULL ? 0 : strlen(value));
-
 #ifdef WIN32
    /* On Woe32, each process has two copies of the environment variables,
       one managed by the OS and one managed by the C library. We set
@@ -46,6 +43,8 @@ int my_setenv (const char * name, const char * value)
 
 #ifdef HAVE_PUTENV
   {
+   size_t namelen = strlen(name);
+   size_t valuelen = (value==NULL ? 0 : strlen(value));
    char* buffer = (char*)malloc(namelen+1+valuelen+1);
    if (!buffer)
      return -1; /* no need to set errno = ENOMEM */

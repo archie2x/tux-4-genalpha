@@ -845,7 +845,6 @@ static void FF_add_level(void)
 static int FF_over(int game_status)
 {
     SDL_Rect dest_message;
-    SDL_Event event;
 
 
     /* TODO: need better "victory" screen with animation, special music, etc., */
@@ -863,8 +862,6 @@ static int FF_over(int game_status)
     {
         case FF_OVER_WON:
             {
-                int looping = 1;
-
                 DEBUGMSG(debug_factoroids, "Loop exited with GAME_OVER_WON\n");
 
                 /* set up victory message: */
@@ -1659,16 +1656,8 @@ static int game_mouse_event(SDL_Event event)
     if(event.button.button == SDL_BUTTON_LEFT) return  SDLK_RETURN;
     else if(event.button.button == SDL_BUTTON_MIDDLE) return SDLK_LSHIFT;
     else if(event.button.button == SDL_BUTTON_RIGHT) return SDLK_UP;
-    else if (event.button.button ==
-             /* SDL_BUTTON_WHEELUP — handle SDL_EVENT_MOUSE_WHEEL */ -1)
-    {
-        return CTRL_NEXT;
-    }
-    else if (event.button.button ==
-             /* SDL_BUTTON_WHEELDOWN — handle SDL_EVENT_MOUSE_WHEEL */ -1)
-    {
-        return CTRL_PREV;
-    }
+    /* Wheel events arrive via SDL_EVENT_MOUSE_WHEEL, not button presses;
+     * CTRL_NEXT / CTRL_PREV are reachable only via the keyboard here. */
     else return SDLK_UNKNOWN;
 }
 
@@ -1706,15 +1695,7 @@ void wait_for_input(void)
     {
         if(!SDL_PollEvent(&event))
         {
-            /* SDL_EventState dropped */ (void)(SDL_EVENT_MOUSE_MOTION, 0);
-            /* SDL_EventState dropped */ (void)(SDL_EVENT_JOYSTICK_AXIS_MOTION,
-                                                0);
-
             SDL_WaitEvent(&event);
-
-            /* SDL_EventState dropped */ (void)(SDL_EVENT_MOUSE_MOTION, 1);
-            /* SDL_EventState dropped */ (void)(SDL_EVENT_JOYSTICK_AXIS_MOTION,
-                                                1);
         }
 
         if (event.type == SDL_EVENT_QUIT)
