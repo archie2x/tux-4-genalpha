@@ -13,6 +13,15 @@ project(
     LANGUAGES C
 )
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+
+# Pin CPM's source cache to the OS-native per-user cache dir so packages
+# fetched here survive `rm -rf _build` and are shared across CPM-using
+# projects on this machine.
+include(CacheDir)
+set(CPM_SOURCE_CACHE ${SYS_CACHE_DIR}/CPM)
+include(CPM)
+
 # Auto-detect ccache. Skips silently if not installed, and yields if the
 # launcher's already been pinned by a parent build / explicit override.
 get_property(_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
