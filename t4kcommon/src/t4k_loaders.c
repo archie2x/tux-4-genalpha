@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_globals.h"
 #include "t4k_compiler.h"
 #include "t4k_common.h"
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -535,8 +536,9 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     /* add path prefix */
     snprintf(fn, T4K_PATH_MAX, IMAGE_DIR "/%s", file_name);
     fn_len = strlen(fn);
+    assert(fn_len >= 4); /* "images/" prefix guarantees this */
 
-    if(strcmp(fn + fn_len - 4, ".svg"))
+    if (0 != strcmp(fn + fn_len - 4, ".svg"))
     {
 	DEBUGMSG(debug_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
 	loaded_pic = IMG_Load_Cache(find_file(fn));

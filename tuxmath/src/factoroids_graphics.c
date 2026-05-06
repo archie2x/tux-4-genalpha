@@ -5,8 +5,6 @@
 #include "factoroids.h"
 #include "frame_counter.h"
 #include "draw_utils.h"
-extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
-                                    int smooth);
 
 /* definitions for cockpit buttons */
 #define BUTTONW 24
@@ -33,8 +31,7 @@ extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
 #define NUM_SPRITES 11
 #define TUXSHIP_LIVES 3
 #define DEG_PER_ROTATION 2
-#define NUM_OF_ROTO_IMGS 360/DEG_PER_ROTATION
-
+#define NUM_OF_ROTO_IMGS (360 / DEG_PER_ROTATION)
 
 /* definitions of level message */
 #define MAX_CHAR_MSG 256
@@ -324,11 +321,17 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
         //Google code in task
 
         if(!tuxship->thrust) {
-            SDL_Surface **_IMG_ship = bonus == TB_CLOAKING && bonus_time>0 ? IMG_tuxship_cloaked : IMG_tuxship;
-            SDL_BlitSurface(_IMG_ship[tuxship->angle/DEG_PER_ROTATION], NULL, screen, &dest);
+            SDL_Surface** img_ship = bonus == TB_CLOAKING && bonus_time > 0
+                                         ? IMG_tuxship_cloaked
+                                         : IMG_tuxship;
+            SDL_BlitSurface(img_ship[tuxship->angle / DEG_PER_ROTATION], NULL,
+                            screen, &dest);
         } else {
-            SDL_Surface **_IMG_ship = bonus == TB_CLOAKING && bonus_time>0 ? IMG_tuxship_thrust_cloaked : IMG_tuxship_thrust;
-            SDL_BlitSurface(_IMG_ship[tuxship->angle/DEG_PER_ROTATION], NULL, screen, &dest);
+            SDL_Surface** img_ship = bonus == TB_CLOAKING && bonus_time > 0
+                                         ? IMG_tuxship_thrust_cloaked
+                                         : IMG_tuxship_thrust;
+            SDL_BlitSurface(img_ship[tuxship->angle / DEG_PER_ROTATION], NULL,
+                            screen, &dest);
         }
 
 

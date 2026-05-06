@@ -318,8 +318,10 @@ static int chooseWordlist(void)
     if (strlen(wordsFile->d_name) < 5)
       continue;
 
-    if (strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) -4 ],".txt"))
-      continue;
+    if (0 != strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) - 4], ".txt"))
+    {
+        continue;
+    }
 
     sprintf(wordlistFile[lists], "%s/%s", wordPath, wordsFile->d_name);
 
@@ -371,8 +373,11 @@ static int chooseWordlist(void)
       if (strlen(wordsFile->d_name) < 5)
         continue;
 
-      if (strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) -4 ],".txt"))
-        continue;
+      if (0 !=
+          strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) - 4], ".txt"))
+      {
+          continue;
+      }
 
       sprintf(wordlistFile[lists], "%s/%s", wordPath, wordsFile->d_name);
 
@@ -425,8 +430,11 @@ static int chooseWordlist(void)
       if (strlen(wordsFile->d_name) < 5)
         continue;
 
-      if (strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) -4 ],".txt"))
-        continue;
+      if (0 !=
+          strcmp(&wordsFile->d_name[strlen(wordsFile->d_name) - 4], ".txt"))
+      {
+          continue;
+      }
 
       sprintf(wordlistFile[lists], "%s/%s", wordPath, wordsFile->d_name);
 

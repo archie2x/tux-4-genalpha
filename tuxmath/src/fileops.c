@@ -982,11 +982,16 @@ void user_data_dirname_down(char *subdir)
     // available for concatenating subdir and a possible final "/",
     // hence the +2s.
     if (user_data_dir != NULL) {
-        user_data_dir = (char*) realloc(user_data_dir,(strlen(user_data_dir) + strlen(subdir) + 2)*sizeof(char));
-        if (user_data_dir == NULL) {
+        char* tmp = (char*)realloc(
+            user_data_dir,
+            (strlen(user_data_dir) + strlen(subdir) + 2) * sizeof(char));
+        if (NULL == tmp)
+        {
+            free(user_data_dir);
             fprintf(stderr,"Error allocating memory in user_data_dirname_down.\n");
             exit(EXIT_FAILURE);
         }
+        user_data_dir = tmp;
         strcat(user_data_dir,subdir);
     }
     else {
@@ -1446,11 +1451,16 @@ static int parse_option(MC_MathGame* game, const char* name, int val, int file_t
 {
     int index = -1;
 
-    if ((index = MC_MapTextToIndex(name)) != -1) //is it a math opt?
+    if (-1 !=
+        (index = MC_MapTextToIndex(
+             name))) //is it a math opt? NOLINT(bugprone-assignment-in-if-condition)
     {
         MC_SetOpt(game, index, val);
     }
-    else if ((index = Opts_MapTextToIndex(name)) != -1) //is it a global opt?
+    else if (
+        -1 !=
+        (index = Opts_MapTextToIndex(
+             name))) //is it a global opt? NOLINT(bugprone-assignment-in-if-condition)
     {
         if (file_type == GLOBAL_CONFIG_FILE)
             Opts_SetGlobalOpt(index, val);

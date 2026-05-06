@@ -34,11 +34,6 @@ int pause_game(void)
     T4K_DarkenScreen(1);  // cut all channels by half
     SDL_BlitSurface(images[IMG_PAUSED], NULL, screen, &dest);
 
-#ifndef NOSOUND
-    if(Opts_GetGlobalOpt(USE_SOUND))
-        /* Mix_PauseMusic dropped */;
-#endif
-
     do
     {
         while (SDL_PollEvent(&event))
@@ -57,11 +52,6 @@ int pause_game(void)
         SDL_Delay(100);
     }
     while (!pause_done && !pause_quit);
-
-#ifndef NOSOUND
-    if(Opts_GetGlobalOpt(USE_SOUND))
-        /* T4K_AudioMusicResume not yet implemented */;
-#endif
 
     return (pause_quit);
 }

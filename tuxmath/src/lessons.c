@@ -128,12 +128,11 @@ void write_goldstars_fp(FILE* fp)
                 i, lesson_list_filenames[i],
                 lesson_list_goldstars[i]);
 
-        if(lesson_list_goldstars[i] == 1)
+        if (1 == lesson_list_goldstars[i])
         {
             fprintf(fp, "%s\n", lesson_list_filenames[i]);
         }
     }
-    return;
 }
 
 

@@ -307,55 +307,57 @@ static int load_settings_fp(FILE* fp)
     DEBUGCODE {fprintf(stderr, "%s = %s", setting, value );}
     //For now we are not reading or saving the language selection:
     //MDTTEMP: uncommented the following 8 lines and joined the else to the if on line 259
-    if (strncmp( setting, "lang", FNLEN ) == 0 )
+    if (0 == strncmp(setting, "lang", sizeof("lang")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting language to %s\n", value);}
       strncpy(settings.lang, value, FNLEN - 1);
       setting_found = 1;
       SetupPaths(value); /* Does this really belong here? */
     }
-    else if (strncmp( setting, "o_lives", FNLEN ) == 0 )
+    else if (0 == strncmp(setting, "o_lives", sizeof("o_lives")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting lives to %s\n", value);}
       settings.o_lives = atoi(value);
       setting_found = 1;
     }
-    else if (strncmp( setting, "mus_volume", FNLEN ) == 0 )
+    else if (0 == strncmp(setting, "mus_volume", sizeof("mus_volume")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting music volume to %s\n", value);}
       settings.mus_volume = atoi(value);
       setting_found = 1;
     }
-    else if (strncmp(setting, "sfx_volume", FNLEN) == 0)
+    else if (0 == strncmp(setting, "sfx_volume", sizeof("sfx_volume")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting effects volume to %s\n", value);}
       settings.sfx_volume = atoi(value);
       setting_found = 1;
     }
-    else if (strncmp(setting, "menu_music", FNLEN) == 0)
+    else if (0 == strncmp(setting, "menu_music", sizeof("menu_music")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting menu music to %s\n", value);}
       settings.menu_music = atoi(value);
       setting_found = 1;
     }
-    else if (strncmp( setting, "fullscreen", FNLEN ) == 0 )
+    else if (0 == strncmp(setting, "fullscreen", sizeof("fullscreen")))
     {
       settings.fullscreen = atoi(value);
       setting_found = 1;
     }
-    else if (strncmp( setting, "theme_font_name", FNLEN ) == 0 )
+    else if (0 ==
+             strncmp(setting, "theme_font_name", sizeof("theme_font_name")))
     {
       DEBUGCODE {fprintf(stderr, "load_settings_fp(): Setting theme font to %s\n", value);}
       strncpy(settings.theme_font_name, value, FNLEN - 1);
       setting_found = 1;
     }
-    else if (strncmp( setting, "theme_locale_name", FNLEN ) == 0 )
+    else if (0 ==
+             strncmp(setting, "theme_locale_name", sizeof("theme_locale_name")))
     {
       DEBUGCODE {fprintf(stderr, "load_settings_fp(): Setting theme locale to %s\n", value);}
       strncpy(settings.theme_locale_name, value, FNLEN - 1);
       setting_found = 1;
     }
-    else if (strncmp(setting, "tts_volume", FNLEN) == 0)
+    else if (0 == strncmp(setting, "tts_volume", sizeof("tts_volume")))
     {
       DEBUGCODE {fprintf(stderr, "LoadSettings: Setting tts volume to %s\n", value);}
       settings.tts_volume = atoi(value);

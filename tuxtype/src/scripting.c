@@ -1572,16 +1572,9 @@ static void run_script(void)
         {
           wchar_t wide_buf[FNLEN];
           T4K_ConvertFromUTF8(wide_buf, curItem->data, FNLEN);
-          if (curItem->goal > 0)
-          {
-            //printf( "goal is %d\n", curItem->goal );
-            Phrases(wide_buf);
-          }
-          else
-          {
-            //printf( "No goal \n" );
-            Phrases(wide_buf);
-          }
+          /* `goal` is currently ignored — Phrases() runs the same way
+           * either way. Original intent (variant for goal>0) was lost. */
+          Phrases(wide_buf);
           break;
         }
 

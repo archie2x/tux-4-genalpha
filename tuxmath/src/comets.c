@@ -81,8 +81,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #define SMARTBOMB_ICON_W 40
 #define SMARTBOMB_ICON_H 47
-#define SMARTBOMB_ICON_X screen->w - SMARTBOMB_ICON_W
-#define SMARTBOMB_ICON_Y screen->h - SMARTBOMB_ICON_H
+#define SMARTBOMB_ICON_X (screen->w - SMARTBOMB_ICON_W)
+#define SMARTBOMB_ICON_Y (screen->h - SMARTBOMB_ICON_H)
 
 #define BASE_COMET_FONTSIZE 24
 
@@ -3145,24 +3145,13 @@ void comets_key_event(SDL_Keycode key, SDL_Keymod mod)
 		tts_announcer_switch = 4;
     }
 
-    else if(key == SDLK_PAGEUP)
+    else if (SDLK_PAGEUP == key || SDLK_PAGEDOWN == key || SDLK_HOME == key ||
+             SDLK_END == key)
     {
-        volume = 0; /* Mix_Volume dropped */
-    }
-
-    else if(key == SDLK_PAGEDOWN)
-    {
-        volume = 0; /* Mix_Volume dropped */
-    }
-
-    else if(key == SDLK_HOME)
-    {
-        volume = 0; /* Mix_VolumeMusic dropped */
-    }
-
-    else if(key == SDLK_END)
-    {
-        volume = 0; /* Mix_VolumeMusic dropped */
+        /* PageUp/Down + Home/End would adjust SFX/music volume. Mix_Volume
+         * and Mix_VolumeMusic don't exist in this build, so the keys are
+         * inert. */
+        volume = 0;
     }
 }
 

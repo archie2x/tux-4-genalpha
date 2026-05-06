@@ -152,12 +152,10 @@ void LoadLang(void)
     fprintf(stderr, "Warning - could not set LANG to %s\n\n", buf);
   }
 
-  if (my_setenv("LANGUAGE", buf) == -1)
+  if (-1 == my_setenv("LANGUAGE", buf))
   {
     fprintf(stderr, "Warning - could not set LANGUAGE to %s\n\n", buf);
   }
-
-  return;
 }
 
 #ifdef HAVE_RSVG
@@ -350,19 +348,13 @@ SDL_Surface* LoadImage(const char* datafile, int mode)
 
   switch (mode & IMG_MODES)
   {
-    case IMG_REGULAR:
-    {
-        final_pic = SDL_DuplicateSurface(tmp_pic);
-        SDL_DestroySurface(tmp_pic);
-        break;
-    }
-
-    case IMG_ALPHA:
-    {
-        final_pic = SDL_DuplicateSurface(tmp_pic);
-        SDL_DestroySurface(tmp_pic);
-        break;
-    }
+  case IMG_REGULAR:
+  case IMG_ALPHA:
+  {
+      final_pic = SDL_DuplicateSurface(tmp_pic);
+      SDL_DestroySurface(tmp_pic);
+      break;
+  }
 
     case IMG_COLORKEY:
     {

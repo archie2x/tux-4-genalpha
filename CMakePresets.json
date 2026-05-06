@@ -5,6 +5,7 @@
         {
             "name": "base",
             "hidden": true,
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/_build/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "${presetName}",

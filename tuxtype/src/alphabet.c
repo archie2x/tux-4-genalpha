@@ -1270,7 +1270,7 @@ void GenerateKeyboard(SDL_Surface* keyboard)
 void updatekeylist(int key, char ch)
 {
   keyboard_list[key].latin_char = ch;
-  wchar_t wtmp = ch;
+  wchar_t wtmp                  = (unsigned char)ch;
   map_keys(wtmp, &keyboard_list[key]);
 }
 

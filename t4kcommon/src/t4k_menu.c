@@ -631,22 +631,12 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				}
             }
 
-                /* "Left" button - make click if button active: */
-			    if(T4K_inRect(prev_rect, event.motion.x, event.motion.y)
-				    && menu->first_entry > 0)
-			    {
-				if(click_flag)
-				{
-				    if(snd_hover)
-					T4K_PlaySound(snd_hover);
-				    click_flag = 0;
-				}
-			    }
-
-			    /* "Right" button - make click if button active: */
-			    else if(T4K_inRect(next_rect, event.motion.x, event.motion.y)
-				    && menu->first_entry + items < menu->submenu_size)
-			    {
+            /* Left/Right scroll arrows: hover sound on either if active. */
+            if ((T4K_inRect(prev_rect, event.motion.x, event.motion.y) &&
+                 menu->first_entry > 0) ||
+                (T4K_inRect(next_rect, event.motion.x, event.motion.y) &&
+                 menu->first_entry + items < menu->submenu_size))
+            {
 				if(click_flag)
 				{
 				    if(snd_hover)

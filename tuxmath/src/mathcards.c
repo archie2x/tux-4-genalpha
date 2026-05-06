@@ -1940,10 +1940,14 @@ MC_MathQuestion* generate_list(MC_MathGame* game)
 
 static int compare_card(const MC_FlashCard* a, const MC_FlashCard* b)
 {
-    if (strncmp(a->formula_string, b->formula_string, MC_FORMULA_LEN) )
+    if (0 != strncmp(a->formula_string, b->formula_string, MC_FORMULA_LEN))
+    {
         return 1;
-    if (strncmp(a->answer_string, b->answer_string, MC_ANSWER_LEN) )
+    }
+    if (0 != strncmp(a->answer_string, b->answer_string, MC_ANSWER_LEN))
+    {
         return 1;
+    }
     if (a->answer != b->answer)
     {
         return 1;

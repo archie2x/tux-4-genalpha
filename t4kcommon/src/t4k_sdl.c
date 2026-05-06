@@ -239,17 +239,17 @@ static void t4k_present(void)
     SDL_UpdateWindowSurface(t4k_window);
 }
 
-const char* _font_name = DEFAULT_FONT_NAME;
+const char* s_font_name = DEFAULT_FONT_NAME;
 
 void T4K_SetFontName(const char* name)
 {
     DEBUGMSG(debug_sdl, "Switching font to %s\n", name);
-    _font_name = name;
+    s_font_name = name;
 }
 
 const char* T4K_AskFontName()
 {
-    return _font_name;
+    return s_font_name;
 }
 
 /* Returns the logical backing surface (always T4K_LOGICAL_W x T4K_LOGICAL_H).
@@ -835,13 +835,13 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	    /* corresponding location in the orginal surface:       */
 
 	    /* figure out which original pixels to use in the calc: */
-	    floor_x = floor((float) x * xscale);
-	    ceil_x = floor_x + 1;
+        floor_x = floorf((float)x * xscale);
+        ceil_x = floor_x + 1;
 	    if (ceil_x >= src->w)
 		ceil_x = floor_x;
 
-	    floor_y = floor((float) y * yscale);
-	    ceil_y = floor_y + 1;
+        floor_y = floorf((float)y * yscale);
+        ceil_y = floor_y + 1;
 	    if (ceil_y >= src->h)
 		ceil_y = floor_y;
 

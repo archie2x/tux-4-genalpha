@@ -163,8 +163,11 @@ void ChooseListToEdit(void)
     if (strlen(list_dirent->d_name) < 5)
       continue;
 
-    if (strcmp(&list_dirent->d_name[strlen(list_dirent->d_name) -4 ],".txt"))
-      continue;
+    if (0 !=
+        strcmp(&list_dirent->d_name[strlen(list_dirent->d_name) - 4], ".txt"))
+    {
+        continue;
+    }
 
     snprintf(fn, FNLEN, "%s/%s", wordsDir, list_dirent->d_name);
 

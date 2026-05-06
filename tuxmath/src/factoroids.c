@@ -58,7 +58,7 @@ extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
 #define NUM_SPRITES 11
 #define TUXSHIP_LIVES 3
 #define DEG_PER_ROTATION 2
-#define NUM_OF_ROTO_IMGS 360/DEG_PER_ROTATION
+#define NUM_OF_ROTO_IMGS (360 / DEG_PER_ROTATION)
 /* TUXSHIP_DECEL controls "friction" - 1 means ship glides infinitely, 0 stops it instantly */
 #define TUXSHIP_DECEL 0.95
 #define DEG_TO_RAD 0.0174532925
@@ -84,7 +84,7 @@ extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
 #endif
 
 //a special value indicating that a bonus hasn't been used yet
-#define BONUS_NOTUSED -1
+#define BONUS_NOTUSED (-1)
 
 /********* Enumerations ***********/
 
@@ -218,7 +218,7 @@ static int validate_number(int num, int wave);
 static void game_handle_user_events(void);
 static int game_mouse_event(SDL_Event event);
 static int game_mouseroto(SDL_Event event) {return event.motion.xrel;}
-static void _tb_PowerBomb(int n);
+static void tb_PowerBomb(int n);
 
 /************** factors(): The factor main function ********************/
 void factors(void)
@@ -323,7 +323,8 @@ void fractions(void)
 
         FC_frame_begin();
 
-        if((timer+=FC_time_elapsed) >= 1)
+        timer += FC_time_elapsed;
+        if (timer >= 1)
         {
             if(tux_img < IMG_TUX_CONSOLE4)
                 tux_img++;
@@ -461,7 +462,8 @@ static void FF_handle_ship(void)
     {
         static float timer = 0;
 
-        if((timer+=FC_time_elapsed) >= 0.13f)
+        timer += FC_time_elapsed;
+        if (timer >= 0.13f)
         {
             tuxship.hurt_count--;
             if(tuxship.hurt_count <= 0)
@@ -533,7 +535,8 @@ static void FF_handle_ship(void)
     {
         static float timer = 0;
 
-        if ((timer+=FC_time_elapsed) >= 0.13)
+        timer += FC_time_elapsed;
+        if (timer >= 0.13)
         {
             tuxship.xspeed = tuxship.xspeed * TUXSHIP_DECEL;
             tuxship.yspeed = tuxship.yspeed * TUXSHIP_DECEL;
@@ -1044,16 +1047,25 @@ static int validate_number(int num, int wave)
 }
 
 //implementation of the powerbomb powerup
-void _tb_PowerBomb (int num) {
+void tb_PowerBomb(int num)
+{
     int i;
 
     for(i=0; i<MAX_ASTEROIDS; i++) {
         if(asteroid[i].alive == 1) {
-            if((FF_game==FACTOROIDS_GAME && (asteroid[i].isprime && ((num==asteroid[i].fact_number)||(num==0)))) ||
-                    (FF_game==FRACTIONS_GAME && (asteroid[i].isprime && num==0))) {
-                FF_destroy_asteroid(i, 0, 0);
-            } else if((FF_game==FACTOROIDS_GAME && num > 1 && ((asteroid[i].fact_number%num)==0) && (num!=asteroid[i].fact_number)) ||
-                    (FF_game==FRACTIONS_GAME && num > 1 && ((asteroid[i].a%num)==0) && ((asteroid[i].b%num)==0) && (num!=asteroid[i].fact_number))) {
+            const int prime_match =
+                (FF_game == FACTOROIDS_GAME && asteroid[i].isprime &&
+                 (num == asteroid[i].fact_number || 0 == num)) ||
+                (FF_game == FRACTIONS_GAME && asteroid[i].isprime && 0 == num);
+            const int factor_match =
+                (FF_game == FACTOROIDS_GAME && num > 1 &&
+                 0 == (asteroid[i].fact_number % num) &&
+                 num != asteroid[i].fact_number) ||
+                (FF_game == FRACTIONS_GAME && num > 1 &&
+                 0 == (asteroid[i].a % num) && 0 == (asteroid[i].b % num) &&
+                 num != asteroid[i].fact_number);
+            if (prime_match || factor_match)
+            {
                 FF_destroy_asteroid(i, 0, 0);
             }
         }
@@ -1165,8 +1177,11 @@ int FF_add_laser(void)
                 FF_destroy_asteroid(zapIndex,30*ux,30*uy);
                 playsound(SND_SIZZLE);
 
-                if (floor((float)score/100) < floor((float)(score+num)/100))
+                if (floorf((float)score / 100) <
+                    floorf((float)(score + num) / 100))
+                {
                     tuxship.lives++;
+                }
                 if(zapScore)
                 {
                     score += num;
@@ -1525,7 +1540,7 @@ void game_handle_user_events(void)
 
                     //special handling for the powerbomb, since it happens "at once"
                     if(bonus == TB_POWERBOMB) {
-                        _tb_PowerBomb(digits[1]*10 + digits[2]);
+                        tb_PowerBomb(digits[1] * 10 + digits[2]);
                         bonus_time = SDL_GetTicks() + 1000;
                         /* FIXME ugly hack to allow multiple lasers to display */
                     }

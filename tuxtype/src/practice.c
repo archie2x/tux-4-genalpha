@@ -1212,10 +1212,10 @@ int Phrases(wchar_t* pphrase )
                 }
             }
             /* -------- handle incorrect key press: -------------*/
-            else if (check_key)
+            else
             {
                 // int key = GetIndex((wchar_t)event.key.key);
-                if (key != -1)
+                if (-1 != key)
                 {
                     keypress1 = GetWrongKeypress(key);
 
