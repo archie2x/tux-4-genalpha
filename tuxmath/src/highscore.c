@@ -336,8 +336,10 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
     if (!pl_name)
         return;
 
-    /* We need to get Unicode vals from SDL keysyms */
-    /* SDL_EnableUNICODE dropped */;
+    /* SDL3: enable text-input mode so we receive SDL_EVENT_TEXT_INPUT
+     * events for composed glyphs (Option+u u → ü etc). Plain key events
+     * still arrive in parallel for control keys (BS/Enter/Esc). */
+    SDL_StartTextInput(T4K_GetWindow());
 
     DEBUGMSG(debug_highscore, "Enter NameEntry()\n" );
 
@@ -432,6 +434,28 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                             break;
                         }
                     }
+                case SDL_EVENT_TEXT_INPUT:
+                    {
+                        /* event.text.text is a UTF-8 string (one or more
+                         * glyphs from a single OS-level input event).
+                         * Decode each multibyte sequence to wchar_t and
+                         * append to wchar_buf. */
+                        const char* p = event.text.text;
+                        mbstate_t st = {0};
+                        while (*p && wcslen(wchar_buf) < HIGH_SCORE_NAME_LENGTH) {
+                            wchar_t wc;
+                            size_t n = mbrtowc(&wc, p, MB_CUR_MAX, &st);
+                            if (n == (size_t)-1 || n == (size_t)-2 || n == 0) break;
+                            wchar_buf[wcslen(wchar_buf)] = wc;
+                            p += n;
+                            redraw = 1;
+                        }
+                        if (redraw)
+                            T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",event.text.text);
+                        /* Fall through to the redraw block below by
+                         * jumping into the KEY_DOWN case's tail. */
+                        goto name_redraw;
+                    }
                 case SDL_EVENT_KEY_DOWN:
                     {
                         DEBUGMSG(debug_highscore, "Before keypress, string is %S\tlength = %d\n",
@@ -454,20 +478,14 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
                                     break;
                                 }
 
-                                /* For any other keys, if the key has a Unicode value, */
-                                /* we add it to our string:                            */
+                                /* Printable characters are delivered via
+                                 * SDL_EVENT_TEXT_INPUT; ignore them here
+                                 * to avoid double-typing. */
                             default:
-                                {
-                                    if ((event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */ > 0)
-                                            && (wcslen(wchar_buf) < HIGH_SCORE_NAME_LENGTH)) 
-                                    {
-                                        wchar_buf[(int)wcslen(wchar_buf)] = event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */;
-                                        redraw = 1;
-                                        T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%C",event.key.key /* TODO: SDL3 uses TEXT_INPUT for typed glyphs */);
-                                    }
-                                }
+                                break;
                         }  /* end  'switch (event.key.key)'  */
 
+                    name_redraw:
                         DEBUGMSG(debug_highscore, "After keypress, string is %S\tlength = %d\n",
                                 wchar_buf, (int)wcslen(wchar_buf));
                         /* Now draw name, if needed: */
@@ -521,6 +539,11 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         }
 
         HandleTitleScreenAnimations();
+        /* Present the backing surface — SDL3 dropped the per-rect
+         * SDL_UpdateRect calls scattered through this function, so we
+         * present once per frame here. Without this the typed name is
+         * drawn but never makes it to the visible window. */
+        T4K_UpdateRect(screen, NULL);
 
         /* Wait so we keep frame rate constant: */
         while ((SDL_GetTicks() - start) < 33)
@@ -530,8 +553,7 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
         frame++;
     }  // End of while (!finished) loop
 
-    /* Turn off SDL Unicode lookup (because has some overhead): */
-    /* SDL_EnableUNICODE dropped */;
+    SDL_StopTextInput(T4K_GetWindow());
 
     /* Now copy name into location pointed to by arg: */ 
     strncpy(pl_name, UTF8_buf, HIGH_SCORE_NAME_LENGTH * 3);
@@ -722,8 +744,29 @@ int read_high_scores_fp(FILE* fp)
         score_read = atoi(token);
         /* Note that name can contain spaces - \t is only delimiter: */
         name_read = strtok(NULL, delimiters);
+        /* The terminating "\t\n" of each line still leaves a \n at the end
+         * of the name token; strip it so T4K_BlackOutline's multiline path
+         * isn't triggered. */
+        if (name_read) {
+            char* nl = strchr(name_read, '\n');
+            if (nl) *nl = '\0';
+            /* Drop any non-UTF-8 garbage so a corrupt byte sequence
+             * doesn't truncate the rendered score row. */
+            for (unsigned char* p = (unsigned char*)name_read; *p; ) {
+                int n = 0;
+                if (*p < 0x80)              n = 1;
+                else if ((*p & 0xe0) == 0xc0) n = 2;
+                else if ((*p & 0xf0) == 0xe0) n = 3;
+                else if ((*p & 0xf8) == 0xf0) n = 4;
+                if (!n) { *name_read = '\0'; break; }
+                for (int i = 1; i < n; i++)
+                    if ((p[i] & 0xc0) != 0x80) { *name_read = '\0'; break; }
+                if (!*name_read) break;
+                p += n;
+            }
+        }
         /* Now insert entry: */
-        insert_score(name_read, diff_level, score_read); 
+        insert_score(name_read, diff_level, score_read);
     }
     return 1;
 }

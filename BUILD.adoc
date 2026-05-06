@@ -1,0 +1,120 @@
+= Building tux4kids
+
+The super-project uses CMake with presets. Three configurations:
+`Debug`, `Release`, `RelWithDebInfo` (preset names match
+`CMAKE_BUILD_TYPE` exactly). Build trees go to `_build/<preset>/`,
+installs go wherever `--prefix` points (typically `_stage/`).
+
+== Prerequisites
+
+=== macOS (Homebrew)
+
+[source,sh]
+----
+brew install cmake sdl3 sdl3_image sdl3_ttf sdl3_mixer \
+             libxml2 libpng jpeg-turbo gettext pkgconf
+----
+
+That's it — Homebrew's SDL3_ttf already links libharfbuzz +
+libfreetype, which the port relies on for international text shaping.
+
+=== Debian 13 (trixie)
+
+trixie ships SDL3 / SDL3_image / SDL3_ttf, but *not* SDL3_mixer
+(still pre-release as of writing). Install the rest via apt and
+build SDL3_mixer from source:
+
+[source,sh]
+----
+sudo apt install libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev \
+                 libxml2-dev libpng-dev libjpeg-dev libfreetype-dev \
+                 libharfbuzz-dev libogg-dev libvorbis-dev libflac-dev \
+                 libopusfile-dev libmpg123-dev gettext pkg-config \
+                 cmake build-essential
+mkdir -p ~/src/sdl3 && cd ~/src/sdl3
+git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
+cmake -S SDL_mixer -B SDL_mixer/build -DCMAKE_BUILD_TYPE=Release
+cmake --build SDL_mixer/build -j$(nproc)
+sudo cmake --install SDL_mixer/build
+sudo ldconfig
+----
+
+If you want non-default fonts to render correctly, generate the
+locales you'll be using:
+
+[source,sh]
+----
+sudo dpkg-reconfigure locales      # tick de_DE.UTF-8, hi_IN, etc.
+----
+
+== Configure, build, install
+
+[source,sh]
+----
+cmake --preset Debug                                    # or Release / RelWithDebInfo
+cmake --build _build/Debug -j$(nproc)                   # -j$(sysctl -n hw.ncpu) on macOS
+cmake --install _build/Debug --prefix _stage
+----
+
+The install target is *relocatable* — the binary uses `SDL_GetBasePath`
+to find its data directory, so you can `cmake --install` to any prefix
+and run `<prefix>/bin/tuxtype` directly.
+
+== Running
+
+[source,sh]
+----
+./_stage/bin/tuxtype          # normal launch
+./_stage/bin/tuxtype -d       # verbose debug log to stderr
+./_stage/bin/tuxtype -w       # windowed mode (default)
+./_stage/bin/tuxtype -f       # fullscreen
+
+./_stage/bin/tuxmath          # the math game
+./_stage/bin/tuxmath -d       # verbose debug log
+----
+
+Per-user settings:
+
+* tuxtype:  `~/.config/tuxtype/settings.txt`; word lists in
+            `~/.config/tuxtype/words/*.txt`.
+* tuxmath:  `~/.tuxmath/options`; high scores in `~/.tuxmath/highscores`.
+
+=== Useful in-game keys
+
+[cols="1,3"]
+|===
+| `F10`             | Toggle fullscreen (Linux only — on macOS use the
+                      green traffic-light button instead)
+| `ESC` (in game)   | Pause; press 'Q' from pause to quit to menu
+| `SPACE`           | Resume from pause
+| Arrow keys / mouse| Menu navigation
+|===
+
+== Development tips
+
+* `_build/Debug/compile_commands.json` is generated automatically
+  (`CMAKE_EXPORT_COMPILE_COMMANDS=ON` in the preset) — point clangd
+  at the super-project root.
+* Submodule branches: `git submodule foreach 'git checkout a2x/sdl3_port'`.
+* Force-rebuilding the dylib only:
+  `cmake --build _build/Debug --target t4k_common`.
+
+== Troubleshooting
+
+[cols="2,3"]
+|===
+| _Tofu boxes (□) for Hindi/Bengali/etc._
+| Theme font (`lohit_*.ttf`) didn't load. Check
+  `<theme>/settings.txt` has `theme_font_name=…`. Default Latin font
+  is the primary; theme font is added as a fallback chain.
+
+| _Cascade fish leave a trail behind them in non-Latin themes_
+| Indic conjuncts can render wider than `fish_sprite.w`; the trailing
+  pixel column is erased one slot past the word in `MoveFishies()`.
+  If you see vertical strips, the erase loop bound regressed.
+
+| _Menu items show in English even after picking a language_
+| `ENABLE_NLS` must be defined in *both* `tuxtype/CMakeLists.txt` and
+  `t4kcommon/CMakeLists.txt`. Without it the `_()` macro in
+  `gettext.h` is the identity function.
+|===

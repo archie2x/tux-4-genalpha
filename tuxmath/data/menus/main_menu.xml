@@ -1,4 +1,4 @@
-<menu title="Main Menu" entries="7">
+<menu title="Main Menu" entries="8">
     <menu title="Play Alone" sprite="alone" entries="5" desc="Play and learn on your own">
         <item title="Math Command Training Academy" sprite="lesson" run="RUN_ACADEMY" desc="Earn Gold Stars as you build your math skills with each mission" />
         <item title="Math Command Fleet Missions" sprite="fleet" run="RUN_CAMPAIGN" desc="Complete missions for the Math Command Fleet" />
@@ -40,6 +40,7 @@
         <item title="Main Menu" sprite="main" run="RUN_MAIN_MENU" desc="Return to the main menu" />
     </menu>
     <item title="Factoroids" sprite="factors" run="RUN_FACTORS" desc="Factorize numbers with your laser beam!"/>
+    <item title="Fractoids" sprite="factors" run="RUN_FRACTIONS" desc="Simplify fractions with your laser beam!"/>
     <item title="Help" sprite="help" run="RUN_HELP" desc="See how to play the game" />
     <menu title="More Options" sprite="tux_config" entries="4" desc="Additional options">
         <item title="Demo" sprite="comet" run="RUN_DEMO" desc="Run a demo of the game" />

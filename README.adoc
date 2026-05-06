@@ -1,0 +1,67 @@
+= tux4kids — SDL3 port
+
+This super-project bundles two legacy
+https://github.com/tux4kids[Tux4Kids] educational games and their shared
+support library, ported from SDL 1.2 / SDL 2 to *SDL 3*:
+
+[cols="1,3"]
+|===
+| `t4kcommon` | Shared library — menu engine, audio, image/font loaders,
+                line wrap, etc. (consumed via CMake `add_subdirectory`)
+| `tuxtype`   | Tux Typing — fish cascade, comet zap, lessons, phrase
+                practice, theme + word-list editor
+| `tuxmath`   | Tux of Math Command — comet zap with arithmetic, fleet
+                missions, training academy, factoroids/fractoids
+|===
+
+All three submodules live on the `a2x/sdl3_port` branch of their
+respective forks (`archie2x/t4kcommon`, `archie2x/tuxtype`,
+`archie2x/tuxmath`).
+
+== Status
+
+* macOS (Apple Silicon, Homebrew SDL3 stack) — runs and is the primary
+  development target.
+* Debian 13 (trixie) — builds and runs; SDL3_mixer is built from source
+  because it has not landed in apt repositories yet.
+* Linux/Win32 with older SDL2/SDL1 toolchains — *not supported*; this
+  port deliberately drops them.
+
+== Quick start
+
+[source,sh]
+----
+git clone --recursive git@github.com:archie2x/tux4kids.git
+cd tux4kids
+cmake --preset Debug
+cmake --build _build/Debug -j
+cmake --install _build/Debug --prefix _stage
+./_stage/bin/tuxtype     # or _stage/bin/tuxmath
+----
+
+See link:BUILD.adoc[BUILD.adoc] for prerequisites and per-platform
+notes.
+
+== Layout
+
+[source]
+----
+tux4kids/                 super-project, this repo
+  CMakeLists.txt          orchestrates t4kcommon + tuxtype + tuxmath
+  CMakePresets.json       Debug / Release / RelWithDebInfo
+  t4kcommon/              git submodule (archie2x/t4kcommon @ a2x/sdl3_port)
+  tuxtype/                git submodule (archie2x/tuxtype   @ a2x/sdl3_port)
+  tuxmath/                git submodule (archie2x/tuxmath   @ a2x/sdl3_port)
+  _build/<preset>/        out-of-tree build directory (gitignored)
+  _stage/                 install staging dir (gitignored, --prefix target)
+----
+
+== Known issues
+
+See link:KNOWN-ISSUES.adoc[KNOWN-ISSUES.adoc] for current rough edges
+and intentionally-out-of-scope items (LAN multiplayer, etc.).
+
+== Licensing
+
+Original GPL-3.0+. See `tuxtype/COPYING`, `tuxmath/COPYING`, and
+`t4kcommon/COPYING`.
