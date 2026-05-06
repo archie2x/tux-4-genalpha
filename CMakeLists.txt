@@ -6,8 +6,10 @@ if(POLICY CMP0140)
     cmake_policy(SET CMP0140 NEW)
 endif()
 
-project(tux4kids
-    DESCRIPTION "Tux4Kids super-project: t4kcommon + tuxtype + tuxmath (SDL3 port)"
+project(
+    tux4kids
+    DESCRIPTION
+        "Tux4Kids super-project: t4kcommon + tuxtype + tuxmath (SDL3 port)"
     LANGUAGES C
 )
 
