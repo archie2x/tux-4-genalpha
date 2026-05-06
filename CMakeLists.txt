@@ -13,6 +13,17 @@ project(
     LANGUAGES C
 )
 
+# Auto-detect ccache. Skips silently if not installed, and yields if the
+# launcher's already been pinned by a parent build / explicit override.
+get_property(_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
+if(NOT _launch)
+    find_program(CCACHE_PROGRAM ccache)
+    if(CCACHE_PROGRAM)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+        message(STATUS "ccache enabled: ${CCACHE_PROGRAM}")
+    endif()
+endif()
+
 # Subprojects are submodules pinned at known-compatible revisions
 # (a2x/sdl3_port branch). Build in dependency order.
 add_subdirectory(t4kcommon)

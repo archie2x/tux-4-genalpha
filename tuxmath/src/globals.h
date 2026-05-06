@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif
 #endif
 #endif
-#include "gettext.h"
+#include <t4k/gettext.h>
 #include <locale.h>
 #define _(String) gettext (String)
 #define gettext_noop(String) String

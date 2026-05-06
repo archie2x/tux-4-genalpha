@@ -17,6 +17,10 @@ include(CMakePackageConfigHelpers)
 
 option(ENABLE_I18N "Build with gettext/i18n support" ON)
 option(BUILD_TESTING "Build t4k_test smoke-test program" ON)
+# Pulls librsvg + libpng (libpng is the rendered-surface cache backing
+# the SVG loader). HAVE_RSVG branches in t4k_loaders.c haven't been
+# audited against SDL3 — turning this on may need a port pass first.
+option(ENABLE_SVG "Render theme art from SVG via librsvg" OFF)
 
 # ---------------------------------------------------------------------------
 # Dependencies
@@ -28,7 +32,11 @@ find_package(SDL3_ttf REQUIRED CONFIG)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBXML2 REQUIRED IMPORTED_TARGET libxml-2.0)
-pkg_check_modules(LIBPNG REQUIRED IMPORTED_TARGET libpng)
+
+if(ENABLE_SVG)
+    pkg_check_modules(LIBRSVG REQUIRED IMPORTED_TARGET librsvg-2.0)
+    pkg_check_modules(LIBPNG REQUIRED IMPORTED_TARGET libpng)
+endif()
 
 # gettext/libintl: standalone on macOS (Homebrew), part of glibc on Linux
 find_package(Intl REQUIRED)
@@ -89,6 +97,7 @@ target_include_directories(
     t4k_common
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR} # for generated config.h
@@ -109,7 +118,6 @@ target_compile_definitions(
         HAVE_LIBSDL_IMAGE=1
         HAVE_LIBSDL_MIXER=1
         HAVE_LIBSDL_TTF=1
-        HAVE_LIBPNG=1
         HAVE_LIBXML2=1
         HAVE_SCANDIR=1
         HAVE_ALPHASORT=1
@@ -127,17 +135,20 @@ target_compile_definitions(
 )
 
 # SDL3, SDL3_image, SDL3_mixer are exposed by t4k_common.h → PUBLIC
-# SDL3_ttf, libxml2, libpng, intl, iconv are implementation only → PRIVATE
+# SDL3_ttf, libxml2, intl, iconv are implementation only → PRIVATE
 target_link_libraries(
     t4k_common
     PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer
-    PRIVATE
-        SDL3_ttf::SDL3_ttf
-        PkgConfig::LIBXML2
-        PkgConfig::LIBPNG
-        Intl::Intl
-        Iconv::Iconv
+    PRIVATE SDL3_ttf::SDL3_ttf PkgConfig::LIBXML2 Intl::Intl Iconv::Iconv
 )
+
+if(ENABLE_SVG)
+    target_compile_definitions(t4k_common PRIVATE HAVE_RSVG=1 HAVE_LIBPNG=1)
+    target_link_libraries(
+        t4k_common
+        PRIVATE PkgConfig::LIBRSVG PkgConfig::LIBPNG
+    )
+endif()
 
 set_target_properties(
     t4k_common
@@ -148,10 +159,7 @@ set_target_properties(
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(
-        t4k_common
-        PRIVATE -Wall -Werror
-    )
+    target_compile_options(t4k_common PRIVATE -Wall -Werror)
 endif()
 
 # ---------------------------------------------------------------------------

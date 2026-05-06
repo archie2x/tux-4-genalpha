@@ -53,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* NOTE only SDL_extras.c/.h now knows about SDL_ttf or SDL_Pango. */
 
 // Translation stuff:
-#include "gettext.h"
+#include <t4k/gettext.h>
 #include <locale.h>
 #include <iconv.h>
 #include <libintl.h>
