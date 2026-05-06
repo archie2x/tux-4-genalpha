@@ -4,7 +4,6 @@
  * works even when the global locale lacks a .UTF-8 suffix.
  */
 
-#include "t4k_globals.h"
 #include "t4k_common.h"
 
 #include <stdio.h>

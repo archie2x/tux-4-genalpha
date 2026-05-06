@@ -83,9 +83,7 @@ void ChooseTheme(void)
 
     /* we ignore any hidden file and CVS */
     if (themesFile->d_name[0] == '.')
-    {
         continue;
-    }
     if (strcmp("CVS", themesFile->d_name)==0)
       continue;
 
@@ -165,39 +163,68 @@ void ChooseTheme(void)
 
           case SDL_EVENT_MOUSE_MOTION:
               for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
+              {
                   if (inRect(titleRects[i], event.motion.x, event.motion.y))
                   {
                       loc = loc - (loc % 8) + i;
                       break;
                   }
-          }
+              }
 
-          break;
+              break;
 
-      case SDL_EVENT_MOUSE_BUTTON_DOWN:
-          if (inRect(leftRect, event.button.x, event.button.y))
-          {
-              if (loc - (loc % 8) - 8 >= 0)
+          case SDL_EVENT_MOUSE_BUTTON_DOWN:
+              if (inRect(leftRect, event.button.x, event.button.y))
               {
-                  loc = loc - (loc % 8) - 8;
+                  if (loc - (loc % 8) - 8 >= 0)
+                  {
+                      loc = loc - (loc % 8) - 8;
+                      break;
+                  }
+              }
+
+              if (inRect(rightRect, event.button.x, event.button.y))
+              {
+                  if (loc - (loc % 8) + 8 < themes)
+                  {
+                      loc = loc - (loc % 8) + 8;
+                      break;
+                  }
+              }
+
+              for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
+              {
+                  if (inRect(titleRects[i], event.button.x, event.button.y))
+                  {
+                      loc = loc - (loc % 8) + i;
+                      if (loc)
+                      {
+                          /* --- set theme --- */
+                          SetupPaths(themePaths[loc]);
+                      }
+                      else
+                      {
+                          /* --- english --- */
+                          SetupPaths(NULL);
+                      }
+
+                      stop = 1;
+                      break;
+                  }
+              }
+              break;
+
+          case SDL_EVENT_KEY_DOWN:
+              if (event.key.key == SDLK_ESCAPE)
+              {
+                  settings.use_english = old_use_english;
+                  strncpy(settings.theme_data_path, old_theme_path, FNLEN - 1);
+                  stop = 1;
                   break;
               }
-          }
 
-          if (inRect(rightRect, event.button.x, event.button.y))
-          {
-              if (loc - (loc % 8) + 8 < themes)
+              if (event.key.key == SDLK_RETURN)
               {
-                  loc = loc - (loc % 8) + 8;
-                  break;
-              }
-          }
-
-          for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
-          {
-              if (inRect(titleRects[i], event.button.x, event.button.y))
-              {
-                  loc = loc - (loc % 8) + i;
                   if (loc)
                   {
                       /* --- set theme --- */
@@ -205,66 +232,41 @@ void ChooseTheme(void)
                   }
                   else
                   {
-                      /* --- english --- */
+                      /* --- English --- */
                       SetupPaths(NULL);
                   }
 
                   stop = 1;
                   break;
               }
-          }
-          break;
 
-      case SDL_EVENT_KEY_DOWN:
-          if (event.key.key == SDLK_ESCAPE)
-          {
-            settings.use_english = old_use_english;
-            strncpy(settings.theme_data_path, old_theme_path, FNLEN - 1);
-            stop = 1;
-            break;
-          }
-
-          if (event.key.key == SDLK_RETURN)
-          {
-              if (loc)
+              if ((event.key.key == SDLK_LEFT) ||
+                  (event.key.key == SDLK_PAGEUP))
               {
-                  /* --- set theme --- */
-                  SetupPaths(themePaths[loc]);
-              }
-              else
-              {
-                  /* --- English --- */
-                  SetupPaths(NULL);
+                  if (loc - (loc % 8) - 8 >= 0)
+                  {
+                      loc = loc - (loc % 8) - 8;
+                  }
               }
 
-              stop = 1;
-              break;
-          }
-
-          if ((event.key.key == SDLK_LEFT) || (event.key.key == SDLK_PAGEUP))
-          {
-              if (loc - (loc % 8) - 8 >= 0)
+              if ((event.key.key == SDLK_RIGHT) ||
+                  (event.key.key == SDLK_PAGEDOWN))
               {
-                  loc = loc - (loc % 8) - 8;
+                  if (loc - (loc % 8) + 8 < themes)
+                      loc = (loc - (loc % 8) + 8);
               }
-          }
 
-          if ((event.key.key == SDLK_RIGHT) || (event.key.key == SDLK_PAGEDOWN))
-          {
-            if (loc-(loc%8)+8 < themes)
-              loc=(loc-(loc%8)+8);
-          }
+              if ((event.key.key == SDLK_UP) || (event.key.key == SDLK_K))
+              {
+                  if (loc > 0)
+                      loc--;
+              }
 
-          if ((event.key.key == SDLK_UP) || (event.key.key == SDLK_K))
-          {
-            if (loc > 0)
-              loc--;
-          }
-
-          if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
-          {
-            if (loc+1<themes)
-              loc++;
+              if ((event.key.key == SDLK_DOWN) || (event.key.key == SDLK_J))
+              {
+                  if (loc + 1 < themes)
+                      loc++;
+              }
           }
       }
 

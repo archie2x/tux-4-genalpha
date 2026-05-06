@@ -44,15 +44,11 @@ extern SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
 
 #include "factoroids.h"
 #include "factoroids_graphics.h"
-#include "credits.h"
 #include "game.h"
 #include "fileops.h"
-#include "setup.h"
-#include "mathcards.h"
 #include "titlescreen.h"
 #include "options.h"
 #include "frame_counter.h"
-#include "draw_utils.h"
 
 #define BASE_RES_X 1280
 

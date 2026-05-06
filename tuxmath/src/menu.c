@@ -33,7 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "multiplayer.h"
 #include "mathcards.h"
 #include "campaign.h"
-#include "game.h"
 #include "options.h"
 #include "fileops.h"
 #include "setup.h"

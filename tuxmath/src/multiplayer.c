@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "tuxmath.h"
 #include "multiplayer.h"
 #include "game.h"
-#include "options.h"
 #include "fileops.h"
 #include "highscore.h"
 #include "credits.h"

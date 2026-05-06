@@ -28,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.h"
 #include "funcs.h"
 #include "mysetenv.h"
-#include "SDL_extras.h"
 
 SDL_Surface* screen;
 SDL_Event  event;

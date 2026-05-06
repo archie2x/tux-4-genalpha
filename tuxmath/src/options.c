@@ -29,12 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 //#include "SDL.h"
 
-#include "mathcards.h"
-
 #include "options.h"
-#include "fileops.h"
-#include "setup.h"
-#include "game.h"
 #include "globals.h"
 //#include "tuxmath.h"
 

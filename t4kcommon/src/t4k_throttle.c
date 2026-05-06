@@ -25,8 +25,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include "t4k_globals.h"
 #include <SDL3/SDL.h>
 
 /* NOTE now store the time elsewhere to make function thread-safe                          */

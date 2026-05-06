@@ -13,7 +13,6 @@
    David Bruce, Brendan Luchen. GPL v3 or later. */
 
 #include "t4k_common.h"
-#include "t4k_globals.h"
 #include <stdio.h>
 #include <stdlib.h>
 

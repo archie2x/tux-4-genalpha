@@ -32,9 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <SDL3/SDL.h>
 
 #include "tuxmath.h"
-#include "options.h"
 #include "fileops.h"
-#include "setup.h"
 #include "credits.h"
 
 const char credit_text[MAX_LINES][MAX_LINEWIDTH] = {

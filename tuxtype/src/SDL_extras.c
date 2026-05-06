@@ -7,7 +7,6 @@
 
    GPLv3 or later. */
 
-#include <math.h>
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"

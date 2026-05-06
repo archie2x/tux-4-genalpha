@@ -32,9 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "mathcards.h"
 #include "setup.h"
 #include "fileops.h"
-#include "game.h"
-#include "menu.h"
-#include "titlescreen.h"
 #include "highscore.h"
 #include "mysetenv.h"
 
