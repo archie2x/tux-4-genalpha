@@ -108,11 +108,6 @@ Per-user settings:
   `<theme>/settings.txt` has `theme_font_name=…`. Default Latin font
   is the primary; theme font is added as a fallback chain.
 
-| _Cascade fish leave a trail behind them in non-Latin themes_
-| Indic conjuncts can render wider than `fish_sprite.w`; the trailing
-  pixel column is erased one slot past the word in `MoveFishies()`.
-  If you see vertical strips, the erase loop bound regressed.
-
 | _Menu items show in English even after picking a language_
 | `ENABLE_NLS` must be defined in *both* `tuxtype/CMakeLists.txt` and
   `t4kcommon/CMakeLists.txt`. Without it the `_()` macro in

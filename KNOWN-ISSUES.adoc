@@ -71,14 +71,9 @@ Things that are not bugs; the port deliberately drops them.
 
 [cols="2,3"]
 |===
-| _Cascade fish trail in Indic scripts_
-| Indic conjuncts can render wider than the fish sprite; the trailing
-  pixel column is erased one slot past the word in `MoveFishies`. If
-  you see vertical strips, the erase loop bound regressed.
-
 | _Pause overlay polish_
-| The translucent dim layer behind the pause/volume overlay was hand-
-  tuned; it might look a hair too dark on some themes.
+| Translucent dim layer behind the pause/volume overlay was hand-tuned;
+  may look a hair too dark on some themes.
 
 | _Theme switching mid-session_
 | Changing the active theme via Options doesn't relayout some already-
