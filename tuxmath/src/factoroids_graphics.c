@@ -633,8 +633,7 @@ void factoroids_draw_button(int img_id, enum BUTTON_TYPE type, int x, int y)
     }
 }
 
-
-void factoroids_show_message(char* str)
+void factoroids_show_message(const char* str)
 {
     SDL_Surface* s1 = NULL;
     SDL_Rect loc;
@@ -656,8 +655,8 @@ void factoroids_show_message(char* str)
     }
 }
 
-
-void factoroids_level_objs_hints(char *label, char *contents, int x, int y )
+void factoroids_level_objs_hints(const char* label, const char* contents, int x,
+                                 int y)
 {
     SDL_Surface *s1 = NULL, *s2 = NULL;
     SDL_Rect loc;

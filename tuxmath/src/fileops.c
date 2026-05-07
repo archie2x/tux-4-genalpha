@@ -97,9 +97,11 @@ static char* get_file_name(char *fullpath);
 /* (this replacement is Windows-specific, so also check for Win32) */
 #ifndef HAVE_LOCALTIME_R
 #ifdef WIN32
-#define localtime_r( _clock, _result ) \
-    ( *(_result) = *localtime( (_clock) ), \
-      (_result) )
+static inline struct tm* localtime_r(const time_t* clock, struct tm* result)
+{
+    *result = *localtime(clock);
+    return result;
+}
 #endif
 #endif
 
@@ -2366,10 +2368,11 @@ static void dirname_up(char *dirname)
 }
 
 /* Identify user by the directory name. We don't want to use the */
-/* whole path, just the name of the last subdirectory. */
+/* whole path, just the name of the last subdirectory.            */
+/* static buffer so the returned pointer outlives this frame.     */
 static char* get_user_name(void)
 {
-    char filepath2[PATH_MAX];
+    static char filepath2[PATH_MAX];
 
     get_user_data_dir_with_subdir(filepath2);
     return get_file_name(filepath2);

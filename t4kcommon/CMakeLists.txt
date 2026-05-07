@@ -16,6 +16,17 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CMakeDependentOption)
 
+# Bake $ORIGIN into the installed libt4k_common.so so it can find its
+# private SDL3_ttf NEEDED dep co-located in lib/. Without this, RUNPATH
+# from a downstream binary (tuxtype) doesn't propagate to indirectly
+# loaded libs and ldd reports libSDL3_ttf.so.0 => not found.
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+if(APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path")
+else()
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
 # I18N pulls libintl + libiconv. Force off when cross-compiling — mingw
 # cross prefix doesn't ship either; building them from source for a
 # Windows .exe nobody's translated isn't worth the yak-shaving.
@@ -173,14 +184,20 @@ set_target_properties(
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(t4k_common PRIVATE -Wall)
-    # gcc-mingw enforces stricter warnings than clang-on-macOS (stringop-
-    # truncation, format-truncation, discarded-qualifiers); skip -Werror
-    # there until the cross build is properly audited.
-    if(NOT CMAKE_CROSSCOMPILING)
-        target_compile_options(t4k_common PRIVATE -Werror)
-    endif()
+    target_compile_options(t4k_common PRIVATE -Wall -Werror)
 endif()
+# Suppress paranoia warnings (gcc emits these aggressively; some flag any
+# snprintf / strncpy whose output *could* truncate even when the caller
+# handles it). glibc / openssl / libssh do the same. Detect each flag at
+# configure time so we silently no-op on compilers that don't have it.
+include(CheckCCompilerFlag)
+foreach(_w format-truncation format-overflow stringop-truncation)
+    string(MAKE_C_IDENTIFIER "_HAS_NO_${_w}" _var)
+    check_c_compiler_flag("-Wno-${_w}" ${_var})
+    if(${_var})
+        target_compile_options(t4k_common PRIVATE "-Wno-${_w}")
+    endif()
+endforeach()
 
 # ---------------------------------------------------------------------------
 # i18n (vendored framework from cmake/Modules/Internationalization.cmake)
@@ -227,10 +244,22 @@ install(
 )
 
 # Cmake config-package emission — for downstream find_package(t4k_common)
-# consumers. Skip when cross-compiling: SDL3 is then CPM-fetched in-tree
-# (SDL3-shared etc. aren't in any export set), and the Windows .exe build
-# doesn't ship a development-package layout anyway.
-if(NOT CMAKE_CROSSCOMPILING)
+# consumers. Skip when any of our PUBLIC deps came from CPM (in-tree
+# add_subdirectory targets like SDL3-shared aren't in any export set,
+# so the install(EXPORT) chokes on them). The Windows cross-compile
+# build also doesn't ship a development-package layout.
+set(_t4k_inhibit_export FALSE)
+foreach(
+    _t
+    IN
+    ITEMS SDL3-shared SDL3_image-shared SDL3_ttf-shared SDL3_mixer-shared
+)
+    if(TARGET ${_t})
+        set(_t4k_inhibit_export TRUE)
+        break()
+    endif()
+endforeach()
+if(NOT CMAKE_CROSSCOMPILING AND NOT _t4k_inhibit_export)
     install(
         EXPORT t4k_common-targets
         FILE t4k_common-targets.cmake

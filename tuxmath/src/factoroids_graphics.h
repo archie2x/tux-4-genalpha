@@ -35,11 +35,12 @@ void factoroids_init_buttons(void);
 
 void factoroids_draw_button(int img_id, enum BUTTON_TYPE type, int x, int y);
 
-void factoroids_show_message(char *str);
+void factoroids_show_message(const char* str);
 
 void factoroids_level_message(int wave);
 
-void factoroids_level_objs_hints(char *label, char *contents, int x, int y );
+void factoroids_level_objs_hints(const char* label, const char* contents, int x,
+                                 int y);
 
 int tuxship_img_h(int deg);
 int tuxship_img_w(int deg);

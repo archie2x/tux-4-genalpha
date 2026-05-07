@@ -633,23 +633,24 @@ int PlayLaserGame(int diff_level)
 
         for (i = 0; i < MAX_COMETS; i++)
         {
-            if (comets[i].alive) {
-
-				/* Decide which image to display: */
-				if (comets[i].expl == 0)
+            if (comets[i].alive)
+            {
+                /* Decide which image to display: */
+                if (comets[i].expl == 0)
+                {
                     img = IMG_COMET1 + ((frame + i) % 3);
-            }
+                }
                 else
-					img = (IMG_COMETEX2 - (comets[i].expl / (COMET_EXPL_START / 2)));
+                    img = IMG_COMETEX2 -
+                          (comets[i].expl / (COMET_EXPL_START / 2));
 
                 /* Draw it! */
-
-				dest.x = comets[i].x - (images[img]->w / 2);
-				dest.y = comets[i].y - images[img]->h;
-				dest.w = images[img]->w;
-				dest.h = images[img]->h;
-
+                dest.x = comets[i].x - (images[img]->w / 2);
+                dest.y = comets[i].y - images[img]->h;
+                dest.w = images[img]->w;
+                dest.h = images[img]->h;
                 SDL_BlitSurface(images[img], NULL, screen, &dest);
+            }
         }
 
         /* Draw letters: */

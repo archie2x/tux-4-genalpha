@@ -435,7 +435,7 @@ int credits(void)
     return quit;
 }
 
-int scroll_text(char text[MAX_LINES][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
+int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
 {
     int done = 0, quit = 0, scroll = 0, clearing = 0, line_height = 0;
     SDL_Event event;

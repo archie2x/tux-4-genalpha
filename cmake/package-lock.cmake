@@ -39,6 +39,9 @@ CPMDeclarePackage(
     release-3.2.0
     OPTIONS
     "SDLMIXER_VENDORED ON" # bring our own ogg + vorbis + flac
+    # libmpg123's CMake config has a fixed-point / decoder collision on
+    # aarch64; drmp3 covers MP3 without that mess.
+    "SDLMIXER_MP3_MPG123 OFF"
 )
 CPMDeclarePackage(
     LibXml2

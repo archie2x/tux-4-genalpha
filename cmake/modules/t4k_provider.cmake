@@ -21,13 +21,22 @@ function(t4k_dependency_provider method package_name)
         return()
     endif()
 
-    # 1. Already a target in our build? (super-project add_subdirectory case)
+    # 1. Already a target in our build? (super-project add_subdirectory)
     if(TARGET ${package_name}::${package_name} OR TARGET ${package_name})
         set(${package_name}_FOUND TRUE PARENT_SCOPE)
         return()
     endif()
 
-    # 2. Try the system. BYPASS_PROVIDER avoids re-entering this function.
+    # 2. Only intercept packages we've declared in package-lock.cmake.
+    #    Returning here lets CMake fall through to its default find_package
+    #    flow — which is critical for "infrastructure" packages like
+    #    PkgConfig and Threads: their internal state (PKG_CONFIG_VERSION,
+    #    etc.) has to land in the *caller's* scope, not in this function's.
+    if(NOT DEFINED CPM_DECLARATION_${package_name})
+        return()
+    endif()
+
+    # 3. Try the system. BYPASS_PROVIDER avoids re-entering us.
     #    Strip REQUIRED — failure here is fine, we'll fall back to CPM.
     set(_args ${ARGN})
     list(REMOVE_ITEM _args REQUIRED)
@@ -37,19 +46,12 @@ function(t4k_dependency_provider method package_name)
         return()
     endif()
 
-    # 3. Fall back to CPM if package-lock.cmake declared this package.
-    #    Silently bail when no declaration — SDL3 et al do optional
-    #    find_package(LibUSB)/ZLIB/PNG/etc. internally; our provider
-    #    intercepts those too, and we don't want to error if they're
-    #    missing from the lockfile. The original find_package() will
-    #    handle "not found, not REQUIRED" gracefully on its own.
-    if(NOT DEFINED CPM_DECLARATION_${package_name})
-        return()
-    endif()
+    # 4. CPM fallback. After CPMGetPackage, the package's CMakeLists has
+    #    been processed (or it would have errored). Whatever target name
+    #    upstream creates is now in our build graph — consumers find it
+    #    via the alias they target_link_libraries against.
     CPMGetPackage(${package_name})
-    if(TARGET ${package_name}::${package_name} OR TARGET ${package_name})
-        set(${package_name}_FOUND TRUE PARENT_SCOPE)
-    endif()
+    set(${package_name}_FOUND TRUE PARENT_SCOPE)
 endfunction()
 
 cmake_language(

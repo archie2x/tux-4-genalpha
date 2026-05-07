@@ -1023,7 +1023,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
             // Set and render new description text
             {
-                char* desc =
+                const char* desc =
                     ((menu->submenu[loc + menu->first_entry]->desc &&
                       menu->submenu[loc + menu->first_entry]->desc[0])
                          ? ({
@@ -1163,7 +1163,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			/* Set and render new description text when menu is scrolled - Nalin */
 			if(action == PAGEUP || action == PAGEDOWN)
 			{
-                char* desc =
+                const char* desc =
                     ((menu->submenu[loc + menu->first_entry]->desc &&
                       menu->submenu[loc + menu->first_entry]->desc[0])
                          ? ({

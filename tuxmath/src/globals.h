@@ -79,7 +79,9 @@ extern const int debug_multiplayer;
 //#define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
 
 /* Maximum length of file path: */
+#ifndef PATH_MAX
 #define PATH_MAX 4096
+#endif
 
 /* Error code if game_options not valid: */
 #define GAME_OPTS_INVALID 9999

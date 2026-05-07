@@ -166,22 +166,22 @@ int main(int argc, char *argv[])
   //This is done after reading settings just so we can print
   //if the "-d" debug flag is set.
   {
-    char *s1, *s2, *s3, *s4;
+      const char *s1, *s2, *s3, *s4;
 
-    /* GNU gettext caches the message catalog the first time it is consulted.
+      /* GNU gettext caches the message catalog the first time it is consulted.
      * Setting LANG / LANGUAGE later doesn't dislodge the cache, so propagate
      * the chosen theme's locale into the environment *before* the first
      * setlocale/bindtextdomain — otherwise the user always sees English
      * even after picking another language. */
-    if (settings.theme_locale_name[0])
-    {
-        char short_lang[6];
-        snprintf(short_lang, sizeof(short_lang), "%s",
-                 settings.theme_locale_name);
-        short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
-        my_setenv("LANG", settings.theme_locale_name);
-        my_setenv("LANGUAGE", short_lang);
-    }
+      if (settings.theme_locale_name[0])
+      {
+          char short_lang[6];
+          snprintf(short_lang, sizeof(short_lang), "%s",
+                   settings.theme_locale_name);
+          short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
+          my_setenv("LANG", settings.theme_locale_name);
+          my_setenv("LANGUAGE", short_lang);
+      }
 
     s1 = setlocale(LC_ALL, "");
     s2 = bindtextdomain(PACKAGE, tt_locale_dir());

@@ -24,14 +24,14 @@ project(
 
 # Auto-detect ccache. Skips silently if not installed, and yields if the
 # launcher's already been pinned by a parent build / explicit override.
-get_property(_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
-if(NOT _launch)
-    find_program(CCACHE_PROGRAM ccache)
-    if(CCACHE_PROGRAM)
-        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-        message(STATUS "ccache enabled: ${CCACHE_PROGRAM}")
-    endif()
-endif()
+# get_property(_launch GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
+# if(NOT _launch)
+#     find_program(CCACHE_PROGRAM ccache)
+#     if(CCACHE_PROGRAM)
+#         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+#         message(STATUS "ccache enabled: ${CCACHE_PROGRAM}")
+#     endif()
+# endif()
 
 # Subprojects are submodules pinned at known-compatible revisions
 # (a2x/sdl3_port branch). Build in dependency order.
@@ -46,17 +46,39 @@ endif()
 # plus libwinpthread-1.dll (mingw's pthread shim, dynamically linked
 # by SDL3_ttf — the rest of mingw's runtime is static via
 # -static-libgcc in the toolchain file).
-if(CMAKE_CROSSCOMPILING)
-    include(GNUInstallDirs)
-    foreach(_lib SDL3 SDL3_image SDL3_ttf SDL3_mixer)
-        if(TARGET ${_lib}-shared)
+include(GNUInstallDirs)
+
+# When SDL3 family is CPM-fetched (vs. found via system find_package), each
+# upstream's own install rules are gated on its <PROJECT>_INSTALL option,
+# which defaults to PROJECT_IS_TOP_LEVEL — i.e. off when added via
+# add_subdirectory. Force-enabling those triggers a chain of broken
+# config-package exports (SDL3_ttf-shared depending on SDL3-shared which
+# isn't in any export set, etc.). Just install the .so / .dylib / .dll
+# files directly — that's all our binaries need at runtime.
+foreach(_lib SDL3 SDL3_image SDL3_ttf SDL3_mixer)
+    if(TARGET ${_lib}-shared)
+        if(CMAKE_CROSSCOMPILING)
+            # Windows: shared libs go in bin/ alongside .exe.
             install(
                 FILES $<TARGET_FILE:${_lib}-shared>
                 DESTINATION ${CMAKE_INSTALL_BINDIR}
             )
+        else()
+            # Linux/macOS: shared libs in lib/, with the SOVERSION
+            # symlink chain. install(TARGETS) on a non-imported target
+            # from another directory works since CMake 3.13.
+            install(
+                TARGETS ${_lib}-shared
+                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            )
         endif()
-    endforeach()
+    endif()
+endforeach()
 
+# libwinpthread-1.dll: mingw's pthread shim, dynamically linked by
+# SDL3_ttf. The rest of mingw's runtime is static via -static-libgcc
+# in the toolchain file, so this is the only stray .dll we need.
+if(CMAKE_CROSSCOMPILING)
     get_filename_component(_mingw_bin "${CMAKE_C_COMPILER}" REALPATH)
     get_filename_component(_mingw_bin "${_mingw_bin}" DIRECTORY)
     find_file(

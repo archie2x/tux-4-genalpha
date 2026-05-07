@@ -106,11 +106,17 @@ target_compile_definitions(
 target_link_libraries(tuxmath PRIVATE t4k_common::t4k_common m)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(tuxmath PRIVATE -Wall)
-    if(NOT CMAKE_CROSSCOMPILING)
-        target_compile_options(tuxmath PRIVATE -Werror)
-    endif()
+    target_compile_options(tuxmath PRIVATE -Wall -Werror)
 endif()
+# Suppress paranoia warnings — see t4kcommon/CMakeLists.txt for the why.
+include(CheckCCompilerFlag)
+foreach(_w format-truncation format-overflow stringop-truncation)
+    string(MAKE_C_IDENTIFIER "_HAS_NO_${_w}" _var)
+    check_c_compiler_flag("-Wno-${_w}" ${_var})
+    if(${_var})
+        target_compile_options(tuxmath PRIVATE "-Wno-${_w}")
+    endif()
+endforeach()
 
 # ---------------------------------------------------------------------------
 # i18n

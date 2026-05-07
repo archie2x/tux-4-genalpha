@@ -149,22 +149,21 @@ int Phrases(wchar_t* pphrase )
   char cpm_str[20];
   char wpm_str[20];
   char errors_str[20];
-  char accuracy_str[20];
-  wchar_t      tts_temp[1000];
+  char         accuracy_str[20];
   SDL_Surface* tmpsurf = NULL;
 
   //Braille Variables
   wchar_t pressed_letters[1000];
-  int braille_iter;
+  int     braille_iter    = 0;
   int braille_capital = 0;
   int braille_numbers = 0;
   braille_letter_pos = 0;
 
 	//Moved by N.x.L
-	int key;
-	wchar_t tmp;
-	int shift_pressed;
-	int check_key;
+  int     key           = 0;
+  wchar_t tmp           = 0;
+  int     shift_pressed = 0;
+  int     check_key     = 0;
 
   /* Load all needed graphics, strings, sounds.... */
   if (!practice_load_media())
@@ -942,9 +941,6 @@ int Phrases(wchar_t* pphrase )
                 correct_chars++;
 
                 /* --------- Announcing the next word to Type --------------------------*/
-                wchar_t next_word[1000];
-                next_word[0] = L'\0';
-                tts_temp[0]  = L'\0';
                 if (phrases[cur_phrase][cursor - 1] == L' ')
                 {
                     if (pphrase == NULL)

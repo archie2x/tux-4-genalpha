@@ -65,10 +65,4 @@ enum {
   NUM_MUSICS
 };
 
-static char * music_filenames[NUM_MUSICS] = {
-  "game.mod",
-  "game2.mod",
-  "game3.mod"
-};
-
 #endif

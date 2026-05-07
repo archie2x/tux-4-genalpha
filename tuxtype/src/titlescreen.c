@@ -573,10 +573,12 @@ void ShowMessageWrap( int font_size, const char* str )
         nline = T4K_LineWrap(str, strings, 70, MAX_LINES, MAX_LINEWIDTH);
     }
     else
-        nline = T4K_LineWrap( str, strings, 35, MAX_LINES, MAX_LINEWIDTH );
+    {
+        nline = T4K_LineWrap(str, strings, 35, MAX_LINES, MAX_LINEWIDTH);
+    }
 
-	/* Announcing the message */
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",str);
+    /* Announcing the message */
+    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s", str);
 
     while(inprogress)
     {
