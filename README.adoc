@@ -1,31 +1,19 @@
-= tux4kids — SDL3 port
+= tux4kids
 
-This super-project bundles two legacy
-https://github.com/tux4kids[Tux4Kids] educational games and their shared
-support library, ported from SDL 1.2 / SDL 2 to *SDL 3*:
+Two educational SDL3 games and their shared support library.
 
 [cols="1,3"]
 |===
-| `t4kcommon` | Shared library — menu engine, audio, image/font loaders,
-                line wrap, etc. (consumed via CMake `add_subdirectory`)
+| `t4kcommon` | Shared library: menu engine, audio, image / font loaders,
+                line wrap, theme machinery.
 | `tuxtype`   | Tux Typing — fish cascade, comet zap, lessons, phrase
-                practice, theme + word-list editor
+                practice, theme + word-list editor.
 | `tuxmath`   | Tux of Math Command — comet zap with arithmetic, fleet
-                missions, training academy, factoroids/fractoids
+                missions, training academy, factoroids / fractoids.
 |===
 
-All three submodules live on the `a2x/sdl3_port` branch of their
-respective forks (`archie2x/t4kcommon`, `archie2x/tuxtype`,
-`archie2x/tuxmath`).
-
-== Status
-
-* macOS (Apple Silicon, Homebrew SDL3 stack) — runs and is the primary
-  development target.
-* Debian 13 (trixie) — builds and runs; SDL3_mixer is built from source
-  because it has not landed in apt repositories yet.
-* Linux/Win32 with older SDL2/SDL1 toolchains — *not supported*; this
-  port deliberately drops them.
+Submodules live on `a2x/sdl3_port` of `archie2x/t4kcommon`,
+`archie2x/tuxtype`, `archie2x/tuxmath`.
 
 == Quick start
 
@@ -35,12 +23,31 @@ git clone --recursive git@github.com:archie2x/tux4kids.git
 cd tux4kids
 cmake --preset Debug
 cmake --build _build/Debug -j
-cmake --install _build/Debug --prefix _stage
-./_stage/bin/tuxtype     # or _stage/bin/tuxmath
+cmake --install _build/Debug --prefix _build/Debug/stage
+./_build/Debug/stage/bin/tuxtype     # or .../bin/tuxmath
 ----
 
 See link:BUILD.adoc[BUILD.adoc] for prerequisites and per-platform
 notes.
+
+== Platforms
+
+* macOS (Apple Silicon, Intel)
+* Linux (Debian 12+, Ubuntu, RHEL family)
+* Windows (cross-compiled via mingw-w64)
+
+== Dependencies
+
+CMake's `find_package` is intercepted by a provider in
+`cmake/modules/t4k_provider.cmake` that resolves each dep in order:
+
+. In-tree target already in the build graph.
+. System install (`brew`, `apt`, etc.).
+. CPM fallback — fetches and builds at the version pinned in
+  `cmake/package-lock.cmake`.
+
+A missing system package therefore isn't fatal: the provider builds
+the dep into `_build/<preset>/_deps/` on first configure.
 
 == Layout
 
@@ -48,20 +55,19 @@ notes.
 ----
 tux4kids/                 super-project, this repo
   CMakeLists.txt          orchestrates t4kcommon + tuxtype + tuxmath
-  CMakePresets.json       Debug / Release / RelWithDebInfo
-  t4kcommon/              git submodule (archie2x/t4kcommon @ a2x/sdl3_port)
-  tuxtype/                git submodule (archie2x/tuxtype   @ a2x/sdl3_port)
-  tuxmath/                git submodule (archie2x/tuxmath   @ a2x/sdl3_port)
+  CMakePresets.json       Debug / Release / RelWithDebInfo / MinGW-Win64
+  cmake/                  dep-provider, package-lock, toolchain files
+  t4kcommon/              submodule (archie2x/t4kcommon @ a2x/sdl3_port)
+  tuxtype/                submodule (archie2x/tuxtype   @ a2x/sdl3_port)
+  tuxmath/                submodule (archie2x/tuxmath   @ a2x/sdl3_port)
   _build/<preset>/        out-of-tree build directory (gitignored)
-  _stage/                 install staging dir (gitignored, --prefix target)
+  _build/<preset>/stage/  install destination for `cmake --install`
 ----
 
 == Known issues
 
-See link:KNOWN-ISSUES.adoc[KNOWN-ISSUES.adoc] for current rough edges
-and intentionally-out-of-scope items (LAN multiplayer, etc.).
+See link:KNOWN-ISSUES.adoc[KNOWN-ISSUES.adoc].
 
 == Licensing
 
-Original GPL-3.0+. See `tuxtype/COPYING`, `tuxmath/COPYING`, and
-`t4kcommon/COPYING`.
+GPL-3.0+. See `tuxtype/COPYING`, `tuxmath/COPYING`, `t4kcommon/COPYING`.

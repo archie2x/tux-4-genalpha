@@ -1,106 +1,51 @@
 = Known issues
 
-Snapshot of the current rough edges. The SDL3 port is functional —
-every menu item launches and the major game modes are playable — but
-this is a one-developer hobby port of a 15-year-old codebase, so polish
-is uneven and corners are cut.
-
-== Intentionally out of scope
-
-Things that are not bugs; the port deliberately drops them.
+== Out of scope
 
 [cols="2,3"]
 |===
 | _LAN multiplayer (tuxmath)_
-| SDL_net has no SDL3 release. The networking subsystem is stubbed
-  (`tuxmath/src/sdl3_compat.c`); selecting "Run Server" / "Join Game"
-  / "Stop Server" from the Network Game menu is a no-op. Single-player
-  and local turn-based multiplayer work normally.
+| SDL_net is not part of SDL3. The networking subsystem is stubbed in
+  `tuxmath/src/sdl3_compat.c`; "Run Server" / "Join Game" / "Stop
+  Server" entries are no-ops. Single-player and local turn-based
+  multiplayer work normally.
 
 | _tuxmathadmin tool_
-| The CLI helper for managing per-student progress was dropped from
-  the build. The school-deployment workflow it served is not the
-  target audience for this port.
+| The CLI helper for managing per-student progress isn't part of the
+  build.
 
-| _SDL2 / SDL1 fallback_
-| The codebase no longer compiles against SDL2 or SDL1.2. There is
-  no `#ifdef SDL_VERSION_ATLEAST` matrix maintained.
+| _SDL2 / SDL1 builds_
+| Source compiles only against SDL3.
 |===
 
-== tuxmath rough edges
+== tuxmath
 
 [cols="2,3"]
 |===
-| _Factoroids ship rotation is nearest-neighbour_
-| The original used SDL_gfx's bilinear rotozoom; we ship a software
-  shim in `sdl3_compat.c`. Setting `smooth=1` in the call (which the
-  game does) selects the bilinear path, but visually the edges still
-  look slightly hard at small zoom levels. Pre-rendering or moving to
-  SDL_Renderer would fix it.
+| _Factoroids ship rotation looks slightly hard at small zoom levels_
+| Bilinear rotozoom shim in `sdl3_compat.c`. Pre-rendering, or moving
+  to SDL_Renderer with a transform, would smooth it.
 
-| _F10 fullscreen toggle on macOS_
-| Re-enabled after a stint where it was a no-op (it fought with the
-  Cocoa Spaces traffic-light button). SDL3's Spaces fullscreen path
-  is well-behaved now, but if you alternate between F10 and the green
-  button rapidly, expect the menu bar to stop auto-hiding until the
-  next windowed→fullscreen cycle.
+| _F10 fullscreen + macOS Spaces interaction_
+| Alternating between F10 and the green traffic-light button rapidly
+  may leave the menu bar non-auto-hiding until the next windowed →
+  fullscreen cycle.
 
-| _High-score file may contain corrupt UTF-8 from earlier runs_
-| Pre-fix versions of the name-entry dialog could persist garbage
-  bytes (e.g. lone `0xd0`). The reader now strips invalid UTF-8 on
-  load, so corrupted rows render with an empty name rather than
-  truncating the row mid-render. To clean fully:
-  `rm ~/.tuxmath/highscores`.
-
-| _TTS announcer threading_
-| The text-to-speech announcer is started but most paths are stubs
-  (`T4K_Tts_say` etc. are mostly no-ops). It will not crash, but it
-  also won't speak. Real TTS hooks are deferred.
-
-| _Lessons / Fleet Missions content not exhaustively tested_
-| Each lesson/mission file is a separate `.cfg` config that drives
-  question generation. We've smoke-tested several but not all of
-  them; expect the occasional edge case in odd parameter combos.
-
-| _Networked Hall of Fame entries_
-| Score ranks 2–10 may show empty names if your highscore file pre-
-  dates the UTF-8 sanitization. Fresh entries work correctly.
+| _TTS announcer is mostly no-op_
+| The text-to-speech path is stubbed (`T4K_Tts_say` etc.). No crash;
+  no speech.
 |===
 
-== tuxtype rough edges
+== tuxtype
 
 [cols="2,3"]
 |===
-| _Pause overlay polish_
-| Translucent dim layer behind the pause/volume overlay was hand-tuned;
-  may look a hair too dark on some themes.
-
 | _Theme switching mid-session_
-| Changing the active theme via Options doesn't relayout some already-
+| Changing the active theme via Options doesn't relay out already-
   rendered panels until you bounce back to the title screen.
-|===
-
-== Cross-cutting
-
-[cols="2,3"]
-|===
-| _macOS is the primary platform_
-| Apple Silicon + Homebrew SDL3 is the path that gets exercised every
-  build. Debian 13 builds fine but is tested less often; Windows is
-  not supported (the build files were stripped during the port).
-
-| _Submodule pinning is by SHA, not tag_
-| Each release of the super-project pins specific submodule SHAs.
-  There are no semver tags on the `archie2x/*` forks yet — pin by SHA
-  if you need reproducible builds.
-
-| _`-Wno-unused`, `-Wno-deprecated-declarations` suppress real warnings_
-| The CMake files turn off these warnings to keep the legacy code
-  building. Useful warnings about new code may be hidden as a result.
 |===
 
 == Reporting
 
-This port lives at https://github.com/archie2x/tux4kids — file issues
-there. Please include OS, SDL3 version, and any output from running
-with `-d` (debug logging).
+File issues at https://github.com/archie2x/tux4kids. Include OS,
+SDL3 version, and `-d` debug output.

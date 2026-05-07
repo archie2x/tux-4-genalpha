@@ -1,115 +1,130 @@
 = Building tux4kids
 
-The super-project uses CMake with presets. Three configurations:
-`Debug`, `Release`, `RelWithDebInfo` (preset names match
-`CMAKE_BUILD_TYPE` exactly). Build trees go to `_build/<preset>/`,
-installs go wherever `--prefix` points (typically `_stage/`).
+CMake with presets. Configurations: `Debug`, `Release`, `RelWithDebInfo`,
+`MinGW-Win64`. Build trees go to `_build/<preset>/`; the install
+destination is typically `_build/<preset>/stage/`.
 
 == Prerequisites
+
+The dep-provider falls back to CPM for any missing package, so you can
+let it fetch the SDL3 family + LibXml2 from source. That adds a few
+minutes to the first configure.
 
 === macOS (Homebrew)
 
 [source,sh]
 ----
-brew install cmake sdl3 sdl3_image sdl3_ttf sdl3_mixer \
-             libxml2 libpng jpeg-turbo gettext pkgconf
+brew install cmake ninja sdl3 sdl3_image sdl3_ttf sdl3_mixer \
+             libxml2 gettext pkgconf
 ----
 
-That's it — Homebrew's SDL3_ttf already links libharfbuzz +
-libfreetype, which the port relies on for international text shaping.
-
-=== Debian 13 (trixie)
-
-trixie ships SDL3 / SDL3_image / SDL3_ttf, but *not* SDL3_mixer
-(still pre-release as of writing). Install the rest via apt and
-build SDL3_mixer from source:
+=== Debian / Ubuntu
 
 [source,sh]
 ----
-sudo apt install libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev \
-                 libxml2-dev libpng-dev libjpeg-dev libfreetype-dev \
-                 libharfbuzz-dev libogg-dev libvorbis-dev libflac-dev \
-                 libopusfile-dev libmpg123-dev gettext pkg-config \
-                 cmake build-essential
-mkdir -p ~/src/sdl3 && cd ~/src/sdl3
-git clone --depth 1 https://github.com/libsdl-org/SDL_mixer.git
-cmake -S SDL_mixer -B SDL_mixer/build -DCMAKE_BUILD_TYPE=Release
-cmake --build SDL_mixer/build -j$(nproc)
-sudo cmake --install SDL_mixer/build
-sudo ldconfig
+sudo apt install cmake ninja-build build-essential pkg-config gettext \
+                 libsdl3-dev libsdl3-image-dev libsdl3-ttf-dev \
+                 libsdl3-mixer-dev libxml2-dev
 ----
 
-If you want non-default fonts to render correctly, generate the
-locales you'll be using:
+If a `libsdl3-*-dev` isn't packaged on your distro, omit it — the
+provider builds it from source.
+
+For non-Latin font rendering, generate the locales you'll be using:
 
 [source,sh]
 ----
 sudo dpkg-reconfigure locales      # tick de_DE.UTF-8, hi_IN, etc.
 ----
 
+=== Windows cross-compile (mingw-w64)
+
+On a Linux or macOS host:
+
+[source,sh]
+----
+# Debian / Ubuntu host:
+sudo apt install mingw-w64 cmake ninja-build
+# macOS host:
+brew install mingw-w64 cmake ninja
+----
+
+Use the `MinGW-Win64` preset. The toolchain file is
+`cmake/toolchain/MinGW-Win64.cmake`. The SDL3 family and LibXml2 are
+fetched and built from source via CPM — no Windows SDL3 prefix
+required on the host.
+
 == Configure, build, install
 
 [source,sh]
 ----
-cmake --preset Debug                                    # or Release / RelWithDebInfo
-cmake --build _build/Debug -j$(nproc)                   # -j$(sysctl -n hw.ncpu) on macOS
-cmake --install _build/Debug --prefix _stage
+cmake --preset Debug
+cmake --build _build/Debug -j
+cmake --install _build/Debug --prefix _build/Debug/stage
 ----
 
-The install target is *relocatable* — the binary uses `SDL_GetBasePath`
-to find its data directory, so you can `cmake --install` to any prefix
-and run `<prefix>/bin/tuxtype` directly.
+Substitute `Release`, `RelWithDebInfo`, or `MinGW-Win64` for `Debug`.
+
+The install tree is *relocatable*. Binaries use `SDL_GetBasePath` to
+locate their data directory, so any `--prefix` works.
+
+For `MinGW-Win64`: the install copies the SDL3 family `.dll`s plus
+`libwinpthread-1.dll` next to the `.exe`s in `bin/`.
 
 == Running
 
 [source,sh]
 ----
-./_stage/bin/tuxtype          # normal launch
-./_stage/bin/tuxtype -d       # verbose debug log to stderr
-./_stage/bin/tuxtype -w       # windowed mode (default)
-./_stage/bin/tuxtype -f       # fullscreen
+./_build/Debug/stage/bin/tuxtype          # normal launch
+./_build/Debug/stage/bin/tuxtype -d       # verbose debug log to stderr
+./_build/Debug/stage/bin/tuxtype -w       # windowed
+./_build/Debug/stage/bin/tuxtype -f       # fullscreen
 
-./_stage/bin/tuxmath          # the math game
-./_stage/bin/tuxmath -d       # verbose debug log
+./_build/Debug/stage/bin/tuxmath
+./_build/Debug/stage/bin/tuxmath -d
 ----
 
-Per-user settings:
+Per-user state:
 
 * tuxtype:  `~/.config/tuxtype/settings.txt`; word lists in
             `~/.config/tuxtype/words/*.txt`.
 * tuxmath:  `~/.tuxmath/options`; high scores in `~/.tuxmath/highscores`.
 
-=== Useful in-game keys
+=== In-game keys
 
 [cols="1,3"]
 |===
-| `F10`             | Toggle fullscreen (Linux only — on macOS use the
-                      green traffic-light button instead)
-| `ESC` (in game)   | Pause; press 'Q' from pause to quit to menu
-| `SPACE`           | Resume from pause
-| Arrow keys / mouse| Menu navigation
+| `F10`             | Toggle fullscreen (Linux). On macOS use the green
+                      traffic-light button instead.
+| `ESC` (in game)   | Pause; press `Q` from pause to quit to menu.
+| `SPACE`           | Resume from pause.
+| Arrow keys / mouse| Menu navigation.
 |===
 
-== Development tips
+== Development
 
-* `_build/Debug/compile_commands.json` is generated automatically
-  (`CMAKE_EXPORT_COMPILE_COMMANDS=ON` in the preset) — point clangd
-  at the super-project root.
-* Submodule branches: `git submodule foreach 'git checkout a2x/sdl3_port'`.
-* Force-rebuilding the dylib only:
+* `_build/<preset>/compile_commands.json` is generated automatically
+  (`CMAKE_EXPORT_COMPILE_COMMANDS=ON` is in the `base` preset). Point
+  clangd at the super-project root.
+* Sync all submodules to `a2x/sdl3_port`:
+  `git submodule foreach 'git checkout a2x/sdl3_port'`.
+* Rebuild only the support library:
   `cmake --build _build/Debug --target t4k_common`.
 
 == Troubleshooting
 
 [cols="2,3"]
 |===
-| _Tofu boxes (□) for Hindi/Bengali/etc._
-| Theme font (`lohit_*.ttf`) didn't load. Check
-  `<theme>/settings.txt` has `theme_font_name=…`. Default Latin font
-  is the primary; theme font is added as a fallback chain.
+| _Tofu boxes (□) for Hindi / Bengali / etc._
+| Theme font (`lohit_*.ttf`) didn't load. Check `<theme>/settings.txt`
+  has `theme_font_name=…`. The default Latin font is the primary; the
+  theme font is a fallback in the chain.
 
 | _Menu items show in English even after picking a language_
-| `ENABLE_NLS` must be defined in *both* `tuxtype/CMakeLists.txt` and
+| `ENABLE_NLS` must be defined in both `tuxtype/CMakeLists.txt` and
   `t4kcommon/CMakeLists.txt`. Without it the `_()` macro in
   `gettext.h` is the identity function.
+
+| _`libSDL3_ttf.so.0 => not found` in `ldd`_
+| Stale install. `rm -rf _build/<preset>/stage && cmake --install _build/<preset> --prefix _build/<preset>/stage`.
 |===
