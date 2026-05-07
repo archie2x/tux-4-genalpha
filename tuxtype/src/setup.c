@@ -597,21 +597,17 @@ int SetupPaths(const char* theme_dir)
   else
   {
     fprintf(stderr, "Error - User Settings Path = '%s' not found, I will attempt to create it.\n", fn);
-  #ifdef WIN32
-     _mkdir( fn );
-  #else
-     mkdir( fn, 0755 );
-  #endif
-     if (T4K_CheckFile(fn))
-     {
-         strncpy(settings.user_settings_path, fn, FNLEN - 1);
-         DEBUGCODE
-         {
-             fprintf(stderr,
-                     "path '%s' successfully created, copy to "
-                     "settings.user_settings_path\n",
-                     fn);
-         }
+    SDL_CreateDirectory(fn);
+    if (T4K_CheckFile(fn))
+    {
+        strncpy(settings.user_settings_path, fn, FNLEN - 1);
+        DEBUGCODE
+        {
+            fprintf(stderr,
+                    "path '%s' successfully created, copy to "
+                    "settings.user_settings_path\n",
+                    fn);
+        }
     }
     else
     {

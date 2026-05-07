@@ -2274,11 +2274,7 @@ static int find_tuxmath_dir(void)
 
         //status = mkdir(opt_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-#ifndef BUILD_MINGW32
-        status = mkdir(opt_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-#else
-        status = mkdir(opt_path);
-#endif
+        status = SDL_CreateDirectory(opt_path) ? 0 : -1;
 
         DEBUGMSG(debug_fileops, "In find_tuxmath_dir() - mkdir returned: %d\n", status);
 

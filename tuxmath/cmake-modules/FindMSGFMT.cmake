@@ -11,39 +11,43 @@
 # This requires that the variable LOCALE_INSTALL_DIR be set to the place you
 # want to install the .mo files.
 
+if(MSGFMT_EXECUTABLE)
+    set(MSGFMT_FOUND TRUE)
+else(MSGFMT_EXECUTABLE)
+    find_program(
+        MSGFMT_EXECUTABLE
+        NAMES msgfmt gmsgfmt
+        PATHS /bin /usr/bin /usr/local/bin /opt/local/bin
+    )
+    if(MSGFMT_EXECUTABLE)
+        set(MSGFMT_FOUND TRUE)
+    else(MSGFMT_EXECUTABLE)
+        if(NOT MSGFMT_FIND_QUIETLY)
+            if(MSGFMT_FIND_REQUIRED)
+                message(FATAL_ERROR "msgfmt program couldn't be found")
+            endif(MSGFMT_FIND_REQUIRED)
+        endif(NOT MSGFMT_FIND_QUIETLY)
+    endif(MSGFMT_EXECUTABLE)
+    mark_as_advanced(MSGFMT_EXECUTABLE)
+endif(MSGFMT_EXECUTABLE)
 
-IF(MSGFMT_EXECUTABLE)
-    SET(MSGFMT_FOUND TRUE)
-ELSE(MSGFMT_EXECUTABLE)
-    FIND_PROGRAM(MSGFMT_EXECUTABLE
-	NAMES msgfmt gmsgfmt
-	PATHS /bin /usr/bin /usr/local/bin /opt/local/bin)
-    IF(MSGFMT_EXECUTABLE)
-        SET(MSGFMT_FOUND TRUE)
-    ELSE(MSGFMT_EXECUTABLE)
-	IF(NOT MSGFMT_FIND_QUIETLY)
-	    IF(MSGFMT_FIND_REQUIRED)
-                MESSAGE(FATAL_ERROR "msgfmt program couldn't be found")
-	    ENDIF(MSGFMT_FIND_REQUIRED)
-	ENDIF(NOT MSGFMT_FIND_QUIETLY)
-    ENDIF(MSGFMT_EXECUTABLE)
-    MARK_AS_ADVANCED(MSGFMT_EXECUTABLE)
-ENDIF (MSGFMT_EXECUTABLE)
-
-MACRO(ADD_TRANSLATIONS _baseName)
-    SET(_outputs)
-    FOREACH(_file ${ARGN})
-	GET_FILENAME_COMPONENT(_file_we ${_file} NAME_WE)
-	SET(_out "${CMAKE_CURRENT_BINARY_DIR}/${_file_we}.gmo")
-	SET(_in  "${CMAKE_CURRENT_SOURCE_DIR}/${_file_we}.po")
-	ADD_CUSTOM_COMMAND(
-	    OUTPUT ${_out}
-	    COMMAND ${MSGFMT_EXECUTABLE} -o ${_out} ${_in}
-	    DEPENDS ${_in} )
-	INSTALL(FILES ${_out}
-	    DESTINATION ${LOCALE_INSTALL_DIR}/${_file_we}/LC_MESSAGES/
-	    RENAME ${_baseName}.mo )
-	SET(_outputs ${_outputs} ${_out})
-    ENDFOREACH(_file)
-    ADD_CUSTOM_TARGET(translations ALL DEPENDS ${_outputs})
-ENDMACRO(ADD_TRANSLATIONS)
+macro(ADD_TRANSLATIONS _baseName)
+    set(_outputs)
+    foreach(_file ${ARGN})
+        get_filename_component(_file_we ${_file} NAME_WE)
+        set(_out "${CMAKE_CURRENT_BINARY_DIR}/${_file_we}.gmo")
+        set(_in "${CMAKE_CURRENT_SOURCE_DIR}/${_file_we}.po")
+        add_custom_command(
+            OUTPUT ${_out}
+            COMMAND ${MSGFMT_EXECUTABLE} -o ${_out} ${_in}
+            DEPENDS ${_in}
+        )
+        install(
+            FILES ${_out}
+            DESTINATION ${LOCALE_INSTALL_DIR}/${_file_we}/LC_MESSAGES/
+            RENAME ${_baseName}.mo
+        )
+        set(_outputs ${_outputs} ${_out})
+    endforeach(_file)
+    add_custom_target(translations ALL DEPENDS ${_outputs})
+endmacro(ADD_TRANSLATIONS)

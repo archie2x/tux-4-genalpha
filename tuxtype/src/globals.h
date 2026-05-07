@@ -55,8 +55,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Translation stuff:
 #include <t4k/gettext.h>
 #include <locale.h>
+#if ENABLE_NLS
 #include <iconv.h>
 #include <libintl.h>
+#endif
 #define _(String) gettext (String)
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)

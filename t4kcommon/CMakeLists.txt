@@ -14,8 +14,18 @@ project(
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CMakeDependentOption)
 
-option(ENABLE_I18N "Build with gettext/i18n support" ON)
+# I18N pulls libintl + libiconv. Force off when cross-compiling — mingw
+# cross prefix doesn't ship either; building them from source for a
+# Windows .exe nobody's translated isn't worth the yak-shaving.
+cmake_dependent_option(
+    ENABLE_I18N
+    "Build with gettext/i18n support"
+    ON
+    "NOT CMAKE_CROSSCOMPILING"
+    OFF
+)
 option(BUILD_TESTING "Build t4k_test smoke-test program" ON)
 # Pulls librsvg + libpng (libpng is the rendered-surface cache backing
 # the SVG loader). HAVE_RSVG branches in t4k_loaders.c haven't been
@@ -23,26 +33,27 @@ option(BUILD_TESTING "Build t4k_test smoke-test program" ON)
 option(ENABLE_SVG "Render theme art from SVG via librsvg" OFF)
 
 # ---------------------------------------------------------------------------
-# Dependencies
+# Dependencies — super-project's t4k_provider hooks find_package() so
+# system / CPM / in-tree-target are all the same callsite.
 # ---------------------------------------------------------------------------
-find_package(SDL3 REQUIRED CONFIG)
-find_package(SDL3_image REQUIRED CONFIG)
-find_package(SDL3_mixer REQUIRED CONFIG)
-find_package(SDL3_ttf REQUIRED CONFIG)
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LIBXML2 REQUIRED IMPORTED_TARGET libxml-2.0)
+find_package(SDL3 REQUIRED)
+find_package(SDL3_image REQUIRED)
+find_package(SDL3_mixer REQUIRED)
+find_package(SDL3_ttf REQUIRED)
+find_package(LibXml2 REQUIRED)
 
 if(ENABLE_SVG)
+    find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBRSVG REQUIRED IMPORTED_TARGET librsvg-2.0)
     pkg_check_modules(LIBPNG REQUIRED IMPORTED_TARGET libpng)
 endif()
 
-# gettext/libintl: standalone on macOS (Homebrew), part of glibc on Linux
-find_package(Intl REQUIRED)
-
-# iconv: on macOS use libSystem's; CMake's FindIconv handles platform-specific bits
-find_package(Iconv REQUIRED)
+if(ENABLE_I18N)
+    # gettext/libintl: standalone on macOS (Homebrew), part of glibc on Linux
+    find_package(Intl REQUIRED)
+    # iconv: on macOS use libSystem's; CMake's FindIconv handles platform-specific bits
+    find_package(Iconv REQUIRED)
+endif()
 
 # ---------------------------------------------------------------------------
 # Library
@@ -113,7 +124,7 @@ target_compile_definitions(
         # where the _() macro is the identity function, so menu titles
         # rendered inside t4k_common never get translated even though the
         # consumer (tuxtype) bound the textdomain. Use real libintl here too.
-        ENABLE_NLS=1
+        $<$<BOOL:${ENABLE_I18N}>:ENABLE_NLS=1>
         HAVE_LIBSDL_IMAGE=1
         HAVE_LIBSDL_MIXER=1
         HAVE_LIBSDL_TTF=1
@@ -131,13 +142,19 @@ target_compile_definitions(
         GNULIB_UNISTR_U8_UCTOMB=1
 )
 
-# SDL3, SDL3_image, SDL3_mixer are exposed by t4k_common.h → PUBLIC
-# SDL3_ttf, libxml2, intl, iconv are implementation only → PRIVATE
+# PUBLIC: consumers (tuxtype, tuxmath) inherit these transitively, so
+# their own CMakeLists doesn't need to re-find SDL3 / Intl / Iconv.
+# PRIVATE: pure implementation detail; symbols swallowed inside
+# libt4k_common, no link-time exposure to consumers.
 target_link_libraries(
     t4k_common
     PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer
-    PRIVATE SDL3_ttf::SDL3_ttf PkgConfig::LIBXML2 Intl::Intl Iconv::Iconv
+    PRIVATE SDL3_ttf::SDL3_ttf LibXml2::LibXml2
 )
+
+if(ENABLE_I18N)
+    target_link_libraries(t4k_common PUBLIC Intl::Intl Iconv::Iconv)
+endif()
 
 if(ENABLE_SVG)
     target_compile_definitions(t4k_common PRIVATE HAVE_RSVG=1 HAVE_LIBPNG=1)
@@ -156,7 +173,13 @@ set_target_properties(
 )
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(t4k_common PRIVATE -Wall -Werror)
+    target_compile_options(t4k_common PRIVATE -Wall)
+    # gcc-mingw enforces stricter warnings than clang-on-macOS (stringop-
+    # truncation, format-truncation, discarded-qualifiers); skip -Werror
+    # there until the cross build is properly audited.
+    if(NOT CMAKE_CROSSCOMPILING)
+        target_compile_options(t4k_common PRIVATE -Werror)
+    endif()
 endif()
 
 # ---------------------------------------------------------------------------
@@ -203,26 +226,32 @@ install(
     PATTERN "*.svg"
 )
 
-install(
-    EXPORT t4k_common-targets
-    FILE t4k_common-targets.cmake
-    NAMESPACE t4k_common::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
-)
+# Cmake config-package emission — for downstream find_package(t4k_common)
+# consumers. Skip when cross-compiling: SDL3 is then CPM-fetched in-tree
+# (SDL3-shared etc. aren't in any export set), and the Windows .exe build
+# doesn't ship a development-package layout anyway.
+if(NOT CMAKE_CROSSCOMPILING)
+    install(
+        EXPORT t4k_common-targets
+        FILE t4k_common-targets.cmake
+        NAMESPACE t4k_common::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
+    )
 
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/t4k_commonConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfig.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
-)
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY SameMajorVersion
-)
-install(
-    FILES
+    configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/t4k_commonConfig.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfig.cmake"
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
+    )
+    write_basic_package_version_file(
         "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
-)
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+    )
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfig.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
+    )
+endif()

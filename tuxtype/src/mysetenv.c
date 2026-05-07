@@ -40,11 +40,14 @@ int my_setenv (const char * name, const char * value)
    }
 #endif
 
-   /* The HAVE_PUTENV / HAVE_SETENV autoconf macros aren't defined under our
-   * CMake build. setenv(3) is POSIX and present on every supported target,
-   * so call it directly. (mysetenv.c was originally a Windows shim from the
-   * gettext FAQ; on Windows we additionally update the OS-side env above.) */
+   /* setenv(3) is POSIX (macOS, glibc) but absent from mingw — when on
+    * WIN32 the SetEnvironmentVariableA above already updated the OS-side
+    * env; the libc env doesn't matter on a static-libgcc build. */
    (void)namelen;
    (void)valuelen;
+#ifdef WIN32
+   return 0;
+#else
    return setenv(name, value, 1);
+#endif
 }

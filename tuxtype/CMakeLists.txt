@@ -15,6 +15,7 @@ project(
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 include(GNUInstallDirs)
+include(CMakeDependentOption)
 
 # Bake the link-time library locations into the installed binary's rpath so
 # `tuxtype` can find libt4k_common.dylib without DYLD_LIBRARY_PATH.
@@ -26,27 +27,19 @@ else()
     set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
 endif()
 
-option(ENABLE_I18N "Build with gettext/i18n support" ON)
+# Force off when cross-compiling — mingw cross prefix has no libintl/libiconv.
+cmake_dependent_option(
+    ENABLE_I18N
+    "Build with gettext/i18n support"
+    ON
+    "NOT CMAKE_CROSSCOMPILING"
+    OFF
+)
 
 # ---------------------------------------------------------------------------
-# Dependencies
+# Dependencies — SDL3 / Intl / Iconv inherit transitively from t4k_common.
 # ---------------------------------------------------------------------------
-find_package(SDL3 REQUIRED CONFIG)
-find_package(SDL3_image REQUIRED CONFIG)
-find_package(SDL3_ttf REQUIRED CONFIG)
-# SDL3_mixer is intentionally not used — audio is stubbed in t4k_common too.
-# See task #13 for the real port.
-
-# Either built as part of a parent super-project (add_subdirectory(t4kcommon)
-# above us → target already defined) or against an installed t4kcommon
-# (find_package looks up the CMake config-package).
-if(NOT TARGET t4k_common::t4k_common)
-    find_package(t4k_common REQUIRED CONFIG)
-endif()
-
-# Intl (gettext libintl) — Homebrew on macOS, glibc on Linux
-find_package(Intl REQUIRED)
-find_package(Iconv REQUIRED)
+find_package(t4k_common REQUIRED)
 
 # ---------------------------------------------------------------------------
 # Runtime path-prefix definitions baked into the binary
@@ -115,23 +108,16 @@ target_compile_definitions(
         PACKAGE="${PROJECT_NAME}"
         VERSION="${PROJECT_VERSION}"
         NO_RAND_THEME=1
-        ENABLE_NLS=1
+        $<$<BOOL:${ENABLE_I18N}>:ENABLE_NLS=1>
 )
 
-target_link_libraries(
-    tuxtype
-    PRIVATE
-        t4k_common::t4k_common
-        SDL3::SDL3
-        SDL3_image::SDL3_image
-        SDL3_ttf::SDL3_ttf
-        Intl::Intl
-        Iconv::Iconv
-        m
-)
+target_link_libraries(tuxtype PRIVATE t4k_common::t4k_common m)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(tuxtype PRIVATE -Wall -Werror)
+    target_compile_options(tuxtype PRIVATE -Wall)
+    if(NOT CMAKE_CROSSCOMPILING)
+        target_compile_options(tuxtype PRIVATE -Werror)
+    endif()
 endif()
 
 # ---------------------------------------------------------------------------
@@ -139,9 +125,7 @@ endif()
 # ---------------------------------------------------------------------------
 if(ENABLE_I18N)
     include(Internationalization)
-    i18n_targets(tuxtype DOMAIN tuxtype
-        PO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/po"
-    )
+    i18n_targets(tuxtype DOMAIN tuxtype PO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/po")
 endif()
 
 # ---------------------------------------------------------------------------

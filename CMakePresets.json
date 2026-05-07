@@ -26,11 +26,21 @@
             "name": "RelWithDebInfo",
             "displayName": "Release with debug info",
             "inherits": "base"
+        },
+        {
+            "name": "MinGW-Win64",
+            "displayName": "Cross-compile to Windows x86_64 (mingw-w64)",
+            "inherits": "base",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/MinGW-Win64.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         }
     ],
     "buildPresets": [
         { "name": "Debug",          "configurePreset": "Debug" },
         { "name": "Release",        "configurePreset": "Release" },
-        { "name": "RelWithDebInfo", "configurePreset": "RelWithDebInfo" }
+        { "name": "RelWithDebInfo", "configurePreset": "RelWithDebInfo" },
+        { "name": "MinGW-Win64",    "configurePreset": "MinGW-Win64" }
     ]
 }
