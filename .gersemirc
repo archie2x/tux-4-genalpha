@@ -1,3 +1,4 @@
 definitions: [
     cmake/modules,
+    cmake/cpm-stubs.cmake,
 ]

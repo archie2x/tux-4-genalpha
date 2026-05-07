@@ -12,7 +12,7 @@ set(CPM_SOURCE_CACHE "${SYS_CACHE_DIR}/CPM")
 include(CPM)
 
 # Declare pinned versions for everything CPM might fetch.
-cpmusepackagelock("${CMAKE_CURRENT_LIST_DIR}/package-lock.cmake")
+CPMUsePackageLock("${CMAKE_CURRENT_LIST_DIR}/package-lock.cmake")
 
 # Hook find_package() — see cmake/modules/t4k_provider.cmake.
 include(t4k_provider)
