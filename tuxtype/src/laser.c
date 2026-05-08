@@ -31,7 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include "laser.h"
 #include "braille.h"
-#include "game_keyboard.h"
+#include "keyboard_display.h"
+#include "keyboard_input.h"
 #include <ctype.h>
 
 #define FPS (1000 / 15)   /* 15 fps max */
@@ -66,7 +67,7 @@ static laser_type laser;
 static int tts_announcer_switch = 1;
 static int braille_letter_pos = 0;
 
-static GameKeyboard laser_keyboard;
+static KbdDisplay laser_keyboard;
 
 /* Local function prototypes: */
 static void laser_add_comet(int diff_level);
@@ -95,58 +96,51 @@ int PlayLaserGame(int diff_level)
         tux_pressing, tux_anim, tux_anim_frame, tux_same_counter,
         level_start_wait, num_comets_alive, paused, gameover;
 
-    //Braille Variables
-    wchar_t pressed_letters[1000];
-	int braille_iter;
+    SDL_Event   event;
+    Uint32      last_time = 0;
+    Uint32      now_time  = 0;
+    SDL_Keycode key;
+    SDL_Rect    src, dest;
+    /* str[] is a buffer to draw the scores, waves, etc. (don't need wchar_t) */
+    char str[64];
 
-	Uint16 key_unicode;
+    LOG("starting Comet Zap game\n");
+    DOUT(diff_level);
 
-	SDL_Event event;
-	Uint32 last_time = 0;
-        Uint32 now_time = 0;
-        SDL_Keycode key;
-        SDL_Rect    src, dest;
-        /* str[] is a buffer to draw the scores, waves, etc. (don't need wchar_t) */
-        char str[64];
-
-        LOG("starting Comet Zap game\n");
-        DOUT(diff_level);
-
-        /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
+    /* Enable text input so dead-key composition (e.g. macOS Option+U U → ü)
 	 * reaches us as SDL_EVENT_TEXT_INPUT — KEY_DOWN can't see composed glyphs. */
-        SDL_StartTextInput(tt_window);
+    SDL_StartTextInput(tt_window);
 
-        SDL_HideCursor();
-        laser_load_data();
+    SDL_HideCursor();
+    laser_load_data();
 
-        /* Clear window: */
+    /* Clear window: */
 
-        SDL_FillSurfaceRect(
-            screen, NULL,
-            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
-                       0));
-        T4K_UpdateRect(screen, NULL);
+    SDL_FillSurfaceRect(
+        screen, NULL,
+        SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
+    T4K_UpdateRect(screen, NULL);
 
-        /* --- MAIN GAME LOOP: --- */
+    /* --- MAIN GAME LOOP: --- */
 
-        done  = 0;
-        quit  = 0;
-        src.w = src.h = 0;
+    done  = 0;
+    quit  = 0;
+    src.w = src.h = 0;
 
-        /* Prepare to start the game: */
+    /* Prepare to start the game: */
 
-        wave             = 1;
-        score            = 0;
-        gameover         = 0;
-        level_start_wait = LEVEL_START_WAIT_START;
+    wave             = 1;
+    score            = 0;
+    gameover         = 0;
+    level_start_wait = LEVEL_START_WAIT_START;
 
-        /* (Create and position cities) */
-        for (i = 0; i < NUM_CITIES; i++)
-        {
-            cities[i].alive   = 1;
-            cities[i].expl    = 0;
-            cities[i].shields = 1;
-        }
+    /* (Create and position cities) */
+    for (i = 0; i < NUM_CITIES; i++)
+    {
+        cities[i].alive   = 1;
+        cities[i].expl    = 0;
+        cities[i].shields = 1;
+    }
 
   /* figure out x placement: */
   calc_city_pos();
@@ -181,14 +175,14 @@ int PlayLaserGame(int diff_level)
         tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
     }
 
-    //Inetialising braille variables
-    braille_iter                  = 0;
-    pressed_letters[braille_iter] = L'\0';
+    /* Reset the shared input decoder for this game session. */
+    Kbd_Input_Reset();
 
-	do {
+    do
+    {
 
-		frame++;
-		last_time = SDL_GetTicks();
+        frame++;
+        last_time = SDL_GetTicks();
 
 		old_tux_img = tux_img;
 		tux_pressing = 0;
@@ -238,73 +232,34 @@ int PlayLaserGame(int diff_level)
                     key = SDLK_UNKNOWN;
                 }
 
-                /* Braille mode tracks raw KEY_DOWN. Everything else routes
-				 * typed characters through SDL_EVENT_TEXT_INPUT below — that
-				 * is the only path that sees composed glyphs (ü/ö/é). */
-                if (settings.braille)
-                {
-                    pressed_letters[braille_iter] = event.key.key;
-                    braille_iter++;
-                    pressed_letters[braille_iter] = L'\0';
-                }
+                /* Braille KEY_DOWN accumulation + TEXT_INPUT + braille
+                 * KEY_UP decode are all handled by the shared decoder
+                 * below. KEY_DOWN here just runs the control-key switch. */
             }
-            else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille &&
-                     level_start_wait <= 0)
-            {
-                wchar_t   typed = 0;
-                mbstate_t mbs   = {0};
-                if (mbrtowc(&typed, event.text.text, strlen(event.text.text),
-                            &mbs) > 0)
-                {
-                    key_unicode = typed;
-                    if (key_unicode >= 97 && key_unicode <= 122)
-                    {
-                        key_unicode -= 32;
-                    }
-                    if (key_unicode >= 224 && key_unicode <= 255)
-                    {
-                        key_unicode -= 32;
-                    }
-                    if ((key_unicode >= 256) && (key_unicode <= 382))
-                    {
-                        key_unicode -= 1;
-                    }
-                    ans[ans_num++] = key_unicode;
-                }
-            }
-            else if (event.type == SDL_EVENT_KEY_UP)
-            {
-                /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-                if (settings.braille)
-                {
-                    arrange_in_order(pressed_letters);
-				    if (wcscmp(pressed_letters,L"") != 0)
-				    {
-					   for(i=0;i<100;i++)
-					   {
-						   if (wcscmp(pressed_letters,braille_key_value_map[i].key) == 0)
-						   {
-							   if (settings.use_english)
-							   {
-								   /* English have no such rules */
-							   	   ans[ans_num++] = toupper(braille_key_value_map[i].value_begin[0]);
-							   }
-							   else
-							   {
-							   		if (braille_letter_pos == 0)
-								   	   ans[ans_num++] = braille_key_value_map[i].value_begin[0];
-								    else if (braille_letter_pos == 1)
-									   ans[ans_num++] = braille_key_value_map[i].value_middle[0];
-								    else
-									   ans[ans_num++] = braille_key_value_map[i].value_end[0];
-                               }
-                           }
-                       }
-                   }
 
-                   braille_iter = 0;
-				   pressed_letters[braille_iter] = L'\0';
+            /* Run the same event through the shared input decoder. */
+            KbdTyped typed = {0};
+            Kbd_Input_HandleEvent(&event, braille_letter_pos, &typed);
+
+            if (typed.ready && level_start_wait <= 0)
+            {
+                /* Comet Zap matches comet letters uppercase. Apply the
+                 * same range-shift as cascade (a-z, à-ÿ, plus a 256-382
+                 * Hungarian-letter-O fix). */
+                wchar_t key_unicode = typed.ch;
+                if (key_unicode >= 97 && key_unicode <= 122)
+                {
+                    key_unicode -= 32;
                 }
+                if (key_unicode >= 224 && key_unicode <= 255)
+                {
+                    key_unicode -= 32;
+                }
+                if (key_unicode >= 256 && key_unicode <= 382)
+                {
+                    key_unicode -= 1;
+                }
+                ans[ans_num++] = key_unicode;
             }
         }
 
@@ -778,8 +733,7 @@ int PlayLaserGame(int diff_level)
         now_time = SDL_GetTicks();
 		if (now_time < last_time + FPS)
 			SDL_Delay(last_time + FPS - now_time);
-	}
-	while (!done && !quit);
+    } while (!done && !quit);
 
   /* Free backgrounds: */
   FreeBothBkgds();
@@ -866,7 +820,7 @@ static void laser_load_data(void)
 
 	shield = LoadSprite( "cities/shield", IMG_ALPHA );
 
-    GameKeyboard_Load(&laser_keyboard, 96, screen->w * 9 / 10);
+    Kbd_Display_Load(&laser_keyboard, 96, screen->w * 9 / 10);
 
     //	PauseLoadMedia();
 }
@@ -879,7 +833,7 @@ static void laser_unload_data(void)
     FreeSprite(shield);
         shield = NULL;
 
-        GameKeyboard_Free(&laser_keyboard);
+        Kbd_Display_Free(&laser_keyboard);
 }
 
 /* Draw keyboard guide + the green next-letter-to-type highlight for each
@@ -896,7 +850,7 @@ static void laser_draw_keyboard_highlights(void)
         return;
     }
 
-    GameKeyboard_DrawBase(&laser_keyboard, screen);
+    Kbd_Display_DrawBase(&laser_keyboard, screen);
 
     for (i = 0; i < MAX_COMETS; i++)
     {
@@ -921,7 +875,7 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
-        if (GameKeyboard_BlitGreenKey(&laser_keyboard, key, screen))
+        if (Kbd_Display_BlitGreenKey(&laser_keyboard, key, screen))
         {
             drawn[key] = 1;
         }
@@ -976,8 +930,8 @@ static void laser_reset_level(int diff_level)
        * drawn per-frame in laser_draw_keyboard_highlights (gated on
        * settings.show_keyboard) so the toggle takes effect immediately. */
       int cities_top_y = screen->h - images[IMG_CITY_BLUE]->h;
-      GameKeyboard_SetPositionAbove(&laser_keyboard, screen->w, cities_top_y,
-                                    screen->h);
+      Kbd_Display_SetPositionAbove(&laser_keyboard, screen->w, cities_top_y,
+                                   screen->h);
   }
 
   /* Record score before this wave: */

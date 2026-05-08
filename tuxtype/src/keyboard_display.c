@@ -1,10 +1,12 @@
 /*
-   game_keyboard.c:
+   keyboard_display.c:
 
-   Shared keyboard overlay/widget used by typing activities.
+   Keyboard overlay widget — load + scale keyboard.png + per-key green/red
+   overlays, position above a target row, bake into a background, draw
+   green/red key highlights.
 */
 
-#include "game_keyboard.h"
+#include "keyboard_display.h"
 
 #include "funcs.h"
 #include <string.h>
@@ -52,7 +54,7 @@ static SDL_Surface* load_key_surface(SDL_Surface** cache, int         key_index,
     return cache[key_index];
 }
 
-void GameKeyboard_Init(GameKeyboard* keyboard)
+void Kbd_Display_Init(KbdDisplay* keyboard)
 {
     if (!keyboard)
     {
@@ -62,14 +64,14 @@ void GameKeyboard_Init(GameKeyboard* keyboard)
     memset(keyboard, 0, sizeof(*keyboard));
 }
 
-int GameKeyboard_Load(GameKeyboard* keyboard, int alpha, int target_w)
+int Kbd_Display_Load(KbdDisplay* keyboard, int alpha, int target_w)
 {
     if (!keyboard)
     {
         return 0;
     }
 
-    GameKeyboard_Free(keyboard);
+    Kbd_Display_Free(keyboard);
     keyboard->base = LoadImage("keyboard/keyboard.png", IMG_ALPHA);
     if (!keyboard->base)
     {
@@ -95,7 +97,7 @@ int GameKeyboard_Load(GameKeyboard* keyboard, int alpha, int target_w)
     return 1;
 }
 
-void GameKeyboard_Free(GameKeyboard* keyboard)
+void Kbd_Display_Free(KbdDisplay* keyboard)
 {
     int i;
 
@@ -137,7 +139,7 @@ void GameKeyboard_Free(GameKeyboard* keyboard)
     keyboard->alpha = 0;
 }
 
-void GameKeyboard_SetPosition(GameKeyboard* keyboard, int x, int y)
+void Kbd_Display_SetPosition(KbdDisplay* keyboard, int x, int y)
 {
     if (!keyboard)
     {
@@ -153,8 +155,8 @@ void GameKeyboard_SetPosition(GameKeyboard* keyboard, int x, int y)
     }
 }
 
-void GameKeyboard_SetPositionAbove(GameKeyboard* keyboard, int center_width,
-                                   int top_y, int screen_height)
+void Kbd_Display_SetPositionAbove(KbdDisplay* keyboard, int center_width,
+                                  int top_y, int screen_height)
 {
     int x, y;
 
@@ -171,11 +173,11 @@ void GameKeyboard_SetPositionAbove(GameKeyboard* keyboard, int center_width,
         y = screen_height - keyboard->base->h - 8;
     }
 
-    GameKeyboard_SetPosition(keyboard, x, y);
+    Kbd_Display_SetPosition(keyboard, x, y);
 }
 
-void GameKeyboard_BakeIntoBackground(GameKeyboard* keyboard,
-                                     SDL_Surface*  background)
+void Kbd_Display_BakeIntoBackground(KbdDisplay*  keyboard,
+                                    SDL_Surface* background)
 {
     if (!keyboard || !keyboard->base || !background)
     {
@@ -185,7 +187,7 @@ void GameKeyboard_BakeIntoBackground(GameKeyboard* keyboard,
     SDL_BlitSurface(keyboard->base, NULL, background, &keyboard->rect);
 }
 
-void GameKeyboard_DrawBase(GameKeyboard* keyboard, SDL_Surface* target)
+void Kbd_Display_DrawBase(KbdDisplay* keyboard, SDL_Surface* target)
 {
     if (!keyboard || !keyboard->base || !target)
     {
@@ -195,7 +197,7 @@ void GameKeyboard_DrawBase(GameKeyboard* keyboard, SDL_Surface* target)
     SDL_BlitSurface(keyboard->base, NULL, target, &keyboard->rect);
 }
 
-void GameKeyboard_QueueErase(GameKeyboard* keyboard)
+void Kbd_Display_QueueErase(KbdDisplay* keyboard)
 {
     if (!keyboard || !keyboard->base)
     {
@@ -205,7 +207,7 @@ void GameKeyboard_QueueErase(GameKeyboard* keyboard)
     EraseObject(keyboard->base, keyboard->rect.x, keyboard->rect.y);
 }
 
-int GameKeyboard_DrawGreenKey(GameKeyboard* keyboard, int key_index)
+int Kbd_Display_DrawGreenKey(KbdDisplay* keyboard, int key_index)
 {
     SDL_Surface* key;
 
@@ -224,13 +226,13 @@ int GameKeyboard_DrawGreenKey(GameKeyboard* keyboard, int key_index)
     return DrawObject(key, keyboard->rect.x, keyboard->rect.y);
 }
 
-int GameKeyboard_DrawGreenChar(GameKeyboard* keyboard, wchar_t ch)
+int Kbd_Display_DrawGreenChar(KbdDisplay* keyboard, wchar_t ch)
 {
-    return GameKeyboard_DrawGreenKey(keyboard, GetIndex(ch));
+    return Kbd_Display_DrawGreenKey(keyboard, GetIndex(ch));
 }
 
-int GameKeyboard_BlitGreenKey(GameKeyboard* keyboard, int key_index,
-                              SDL_Surface* target)
+int Kbd_Display_BlitGreenKey(KbdDisplay* keyboard, int key_index,
+                             SDL_Surface* target)
 {
     SDL_Surface* key;
 
@@ -250,8 +252,8 @@ int GameKeyboard_BlitGreenKey(GameKeyboard* keyboard, int key_index,
     return 1;
 }
 
-int GameKeyboard_DrawRedKey(GameKeyboard* keyboard, int key_index,
-                            SDL_Surface* target)
+int Kbd_Display_DrawRedKey(KbdDisplay* keyboard, int key_index,
+                           SDL_Surface* target)
 {
     SDL_Surface* key;
 
@@ -271,8 +273,8 @@ int GameKeyboard_DrawRedKey(GameKeyboard* keyboard, int key_index,
     return 1;
 }
 
-int GameKeyboard_DrawShiftForKey(GameKeyboard* keyboard, int key_index,
-                                 SDL_Surface* target)
+int Kbd_Display_DrawShiftForKey(KbdDisplay* keyboard, int key_index,
+                                SDL_Surface* target)
 {
     char         fn[FNLEN];
     int          shift;

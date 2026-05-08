@@ -59,12 +59,6 @@ set(TUXTYPE_CONF_PREFIX
     CACHE PATH
     "Runtime config dir"
 )
-set(TUXTYPE_IM_PREFIX
-    "${TUXTYPE_DATA_PREFIX}/input_methods"
-    CACHE PATH
-    "Input methods dir"
-)
-
 # ---------------------------------------------------------------------------
 # tuxtype executable
 # ---------------------------------------------------------------------------
@@ -75,8 +69,8 @@ add_executable(
     src/braille.c
     src/editor.c
     src/globals.c
-    src/game_keyboard.c
-    src/input_methods.c
+    src/keyboard_display.c
+    src/keyboard_input.c
     src/laser.c
     src/loaders.c
     src/main.c
@@ -101,11 +95,9 @@ target_compile_definitions(
         DATA_PREFIX="${TUXTYPE_DATA_PREFIX}"
         VAR_PREFIX="${TUXTYPE_VAR_PREFIX}"
         CONF_PREFIX="${TUXTYPE_CONF_PREFIX}"
-        IM_PREFIX="${TUXTYPE_IM_PREFIX}"
         LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
         LOCALSTATEDIR="${TUXTYPE_VAR_PREFIX}"
         SYSCONFDIRDIR="${TUXTYPE_CONF_PREFIX}"
-        IMDIR="${TUXTYPE_IM_PREFIX}"
         PACKAGE="${PROJECT_NAME}"
         VERSION="${PROJECT_VERSION}"
         NO_RAND_THEME=1

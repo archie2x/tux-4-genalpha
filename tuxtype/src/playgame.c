@@ -31,9 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "snow.h"
 #include "SDL_extras.h"
 #include <ctype.h>
-#include "input_methods.h"
 #include "braille.h"
-#include "game_keyboard.h"
+#include "keyboard_display.h"
+#include "keyboard_input.h"
 
 /* Should these be constants? */
 static int tux_max_width = 0;                // the max width of the images of tux
@@ -47,7 +47,7 @@ static SDL_Surface* number[NUM_NUMS] = {NULL};
 static SDL_Surface* curlev = NULL;
 static SDL_Surface* lives = NULL;
 static SDL_Surface* fish = NULL;
-static GameKeyboard cascade_keyboard;
+static KbdDisplay   cascade_keyboard;
 /* The bkg filename in use for the current level — cached so the keyboard-
  * guide toggle in the pause overlay can re-bake without re-randomizing. */
 static char         cascade_current_bkg[FNLEN];
@@ -57,10 +57,6 @@ static Mix_Chunk* sound[NUM_WAVES];
 
 static sprite* fish_sprite = NULL;
 static sprite* splat_sprite = NULL;
-
-/* For input_methods.c processing of Asian text input: */
-static IM_DATA im_data;
-
 
 /* Local function prototypes: */
 static void AddSplat(int* splats, struct fishypoo* f, int* curlives, int* frame);
@@ -142,12 +138,7 @@ int PlayCascade(int diflevel)
     int          y_not;
     int          temp_text_frames;
     int          temp_text_count;
-    Uint16       key_unicode;
     Uint32       last_time, now_time;
-
-    //Braille Variables
-    wchar_t pressed_letters[1000];
-    int     braille_iter;
 
     //Structure which contain the address of above struct
     //Why ? : Only one argument can be passed through thread
@@ -185,10 +176,6 @@ int PlayCascade(int diflevel)
 
   LoadFishies();
   LoadOthers();
-
-  /* Initialize input_methods system: */
-//  im_init(&im_data, get_current_language());
-  im_init(&im_data, 0); //will need function to put in correct language code:
 
   /* Make sure everything in the word list is "typable" according to the current */
   /* theme's keyboard.lst:                                                       */
@@ -295,9 +282,8 @@ int PlayCascade(int diflevel)
 
     /*  --------- Begin main game loop (cycles once per frame): ------------- */
 
-    //Inetialising braille variables
-	braille_iter = 0;
-    pressed_letters[braille_iter] = L'\0';
+    /* Reset the shared input decoder for this game session. */
+    Kbd_Input_Reset();
 
     while (playing_level)
     {
@@ -423,72 +409,38 @@ int PlayCascade(int diflevel)
                     break;
 
                 default:
-                    /*----------------------------------------------------*/
-                    /* Some other key - player is actually typing!!!!!!!! */
-                    /*----------------------------------------------------*/
+                    /* Player typed something. Shared decoder handles it
+                     * below; nothing to do here. */
+                    break;
+                }
+            }
 
-                    /* Braille mode still works off raw KEY_DOWN. For everything
-				 * else, typed glyphs come via SDL_EVENT_TEXT_INPUT below —
-				 * SDL3 only delivers composed chars (e.g. ü) that way. */
-                    if (settings.braille)
-                    {
-                        pressed_letters[braille_iter] = event.key.key;
-                        braille_iter++;
-                        pressed_letters[braille_iter] = L'\0';
-                    }
-                }
-            }
-            else if (event.type == SDL_EVENT_TEXT_INPUT && !settings.braille)
+            /* Run the same event through the shared input decoder. Returns
+             * typed.ready=1 with a wchar_t when normal-mode TEXT_INPUT or
+             * braille-mode KEY_UP produces a character. */
+            KbdTyped typed = {0};
+            Kbd_Input_HandleEvent(&event, braille_letter_pos, &typed);
+
+            if (typed.ready)
             {
-                wchar_t   typed = 0;
-                mbstate_t mbs   = {0};
-                if (mbrtowc(&typed, event.text.text, strlen(event.text.text),
-                            &mbs) > 0)
+                /* Cascade matches fish words case-insensitively by
+                 * uppercasing typed input. Range-shift handles ASCII
+                 * (a-z), Latin-1 Supplement (à-ÿ), and a Hungarian
+                 * O-double-acute (256-382) special case. */
+                wchar_t key_unicode = typed.ch;
+                if (key_unicode >= 97 && key_unicode <= 122)
                 {
-                    key_unicode = typed;
-                    if (key_unicode >= 97 && key_unicode <= 122)
-                    {
-                        key_unicode -= 32; //convert lowercase to uppercase
-                    }
-                    if (key_unicode >= 224 && key_unicode <= 255)
-                    {
-                        key_unicode -=
-                            32; //same for non-US Western European chars
-                    }
-                    if ((key_unicode >= 256) && (key_unicode <= 382))
-                    {
-                        key_unicode -= 1;
-                    }
-                    UpdateTux(key_unicode, fishies, frame);
+                    key_unicode -= 32;
                 }
-            }
-            else if (event.type == SDL_EVENT_KEY_UP)
-            {
-                /* ----- SDL_EVENT_KEY_UP is Only for Braille Mode -------------*/
-                if (settings.braille)
+                if (key_unicode >= 224 && key_unicode <= 255)
                 {
-                    arrange_in_order(pressed_letters);
-				    if (wcscmp(pressed_letters,L"") != 0)
-				    {
-					   for(i=0;i<100;i++)
-					   {
-						   if (wcscmp(pressed_letters,braille_key_value_map[i].key) == 0)
-						   {
-							   if (braille_letter_pos == 0)
-									UpdateTux(toupper(braille_key_value_map[i].value_begin[0]), fishies, frame);
-							   else if (braille_letter_pos == 1)
-									UpdateTux(toupper(braille_key_value_map[i].value_middle[0]), fishies, frame);
-							   else
-                                   UpdateTux(toupper(braille_key_value_map[i]
-                                                         .value_end[0]),
-                                             fishies, frame);
-                           }
-                       }
-                   }
-                   /* --- Clearing the pressed_letters  ---- */
-                   braille_iter = 0;
-				   pressed_letters[braille_iter] = L'\0';
+                    key_unicode -= 32;
                 }
+                if (key_unicode >= 256 && key_unicode <= 382)
+                {
+                    key_unicode -= 1;
+                }
+                UpdateTux(key_unicode, fishies, frame);
             }
         }
       }   /* ------ End of 'while' loop for handling user input ------- */
@@ -855,7 +807,7 @@ static void LoadOthers(void)
 		ohno[i] = BlackOutline(gettext("Oh No!"), LABEL_FONT_SIZE, &white);
 	}
 
-    GameKeyboard_Load(&cascade_keyboard, 96, screen->w * 9 / 10);
+    Kbd_Display_Load(&cascade_keyboard, 96, screen->w * 9 / 10);
 
     if (settings.sys_sound) {
 		LOG( "=Loading Sound FX\n" );
@@ -1069,7 +1021,7 @@ static void FreeGame(void)
   if (lives)
       SDL_DestroySurface(lives);
   curlev = fish = lives = NULL;
-  GameKeyboard_Free(&cascade_keyboard);
+  Kbd_Display_Free(&cascade_keyboard);
 
   for (i = 0; i < NUM_LEVELS; i++)
   {
@@ -1148,11 +1100,11 @@ re-bake without re-positioning).
 ****************************/
 static void AddKeyboardToBackground(void)
 {
-    GameKeyboard_SetPositionAbove(&cascade_keyboard, screen->w, tux_object.y,
-                                  screen->h);
+    Kbd_Display_SetPositionAbove(&cascade_keyboard, screen->w, tux_object.y,
+                                 screen->h);
     if (settings.show_keyboard)
     {
-        GameKeyboard_BakeIntoBackground(&cascade_keyboard, CurrentBkgd());
+        Kbd_Display_BakeIntoBackground(&cascade_keyboard, CurrentBkgd());
     }
 }
 
@@ -1169,7 +1121,7 @@ static void DrawActiveKeyboardHighlights(int fishies)
         return;
     }
 
-    GameKeyboard_QueueErase(&cascade_keyboard);
+    Kbd_Display_QueueErase(&cascade_keyboard);
 
     for (i = 0; i < fishies; i++)
     {
@@ -1219,7 +1171,7 @@ static void DrawActiveKeyboardHighlights(int fishies)
             continue;
         }
 
-        if (GameKeyboard_DrawGreenKey(&cascade_keyboard, key))
+        if (Kbd_Display_DrawGreenKey(&cascade_keyboard, key))
         {
             drawn[key] = 1;
         }
