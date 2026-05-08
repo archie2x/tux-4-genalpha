@@ -1276,8 +1276,8 @@ void T4K_UpdateScreen(int* frame)
 	    //               blits[i].dstrect->x, blits[i].dstrect->y, blits[i].dstrect->w, blits[i].dstrect->h);
 	    //       }
 
-        SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen,
-                                 blits[i].dstrect);
+        SDL_BlitSurface(blits[i].src, blits[i].srcrect, screen,
+                        blits[i].dstrect);
     }
     }
 

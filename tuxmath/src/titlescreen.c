@@ -97,10 +97,9 @@ SDL_Rect bkg_rect,
 /* This syntax is full of fluffy kittens! (note: kittens sold separately) */
 SDL_Surface* current_bkg()
 {
-    if (T4K_GetScreen()->flags & SDL_WINDOW_FULLSCREEN)
-    {
-        return fs_bkg;
-    }
+    /* SDL3 renders into a fixed 640x480 backing surface and presents that to
+     * the window/fullscreen surface, so drawing code must use the logical
+     * background regardless of window mode. */
     return win_bkg;
 }
 
@@ -109,18 +108,11 @@ SDL_Surface* current_bkg()
 /* the "other" one.                                              */
 void set_current_bkg(SDL_Surface* new_bkg)
 {
-    if (screen->flags & SDL_WINDOW_FULLSCREEN)
+    if (win_bkg != NULL)
     {
-        if(fs_bkg != NULL)
-            SDL_DestroySurface(fs_bkg);
-        fs_bkg = new_bkg;
+        SDL_DestroySurface(win_bkg);
     }
-    else
-    {
-        if(win_bkg != NULL)
-            SDL_DestroySurface(win_bkg);
-        win_bkg = new_bkg;
-    }
+    win_bkg = new_bkg;
 }
 
 /* Local function prototypes: */

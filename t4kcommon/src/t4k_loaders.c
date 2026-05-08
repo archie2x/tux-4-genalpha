@@ -65,6 +65,8 @@ void            get_svg_dimensions(const char* file_name, int* width, int* heigh
 #endif
 
 SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool proportional);
+SDL_Surface* load_svg_image(const char* file_name, int w, int h,
+                            bool proportional);
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
@@ -521,9 +523,11 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     SDL_Surface* loaded_pic = NULL;
     SDL_Surface* final_pic = NULL;
     char fn[T4K_PATH_MAX];
+    char         svg_fn[T4K_PATH_MAX];
     int fn_len;
     int width = -1, height = -1;
-    bool is_svg = true;
+    bool         is_svg = false;
+    char*        ext;
 
     if(NULL == file_name)
     {
@@ -538,56 +542,62 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     fn_len = strlen(fn);
     assert(fn_len >= 4); /* "images/" prefix guarantees this */
 
-    if (0 != strcmp(fn + fn_len - 4, ".svg"))
+    ext = strrchr(fn, '.');
+
+    if (ext && 0 == strcmp(ext, ".svg"))
     {
-	DEBUGMSG(debug_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
-	loaded_pic = IMG_Load_Cache(find_file(fn));
-	is_svg = false;
-	if (NULL == loaded_pic)
-	{
-	    is_svg = true;
-	    DEBUGMSG(debug_loaders, "load_image(): Trying to load SVG equivalent of %s\n", fn);
-	    sprintf(strrchr(fn, '.'), ".svg");
-	}
+        DEBUGMSG(debug_loaders, "load_image(): trying to load %s as SVG.\n",
+                 fn);
+        loaded_pic = load_svg_image(find_file(fn), w, h, proportional);
+        is_svg     = loaded_pic != NULL;
     }
-    if (is_svg)
+    else if (ext)
     {
-#ifdef HAVE_RSVG
-	DEBUGMSG(debug_loaders, "load_image(): trying to load %s as SVG.\n", fn);
-	if(proportional)
-	{
-	    get_svg_dimensions(find_file(fn), &width, &height);
-	    if(width > 0 && height > 0)
-		fit_in_rectangle(&width, &height, w, h);
-	}
-	else
-	{
-	    width = w;
-	    height = h;
-	}
-	loaded_pic = load_svg(find_file(fn), width, height, NULL);
-#endif
+        strncpy(svg_fn, fn, T4K_PATH_MAX);
+        svg_fn[T4K_PATH_MAX - 1] = '\0';
+        sprintf(strrchr(svg_fn, '.'), ".svg");
 
-	if(loaded_pic == NULL)
-	{
-#ifdef HAVE_RSVG
-	    DEBUGMSG(debug_loaders, "load_image(): failed to load %s as SVG.\n", fn);
-#else
-	    DEBUGMSG(debug_loaders, "load_image(): SVG support not available.\n");
-#endif
-	    if(mode & IMG_NO_PNG_FALLBACK)
-	    {
-		DEBUGMSG(debug_loaders, "load_image(): %s : IMG_NO_PNG_FALLBACK is set.\n", fn);
-	    }
-	    else
-	    {
-		DEBUGMSG(debug_loaders, "load_image(): Trying to load PNG equivalent of %s\n", fn);
-		strcpy(fn + fn_len - 3, "png");
+        DEBUGMSG(debug_loaders,
+                 "load_image(): trying to load SVG equivalent %s.\n", svg_fn);
+        loaded_pic = load_svg_image(find_file(svg_fn), w, h, proportional);
+        is_svg     = loaded_pic != NULL;
 
-		loaded_pic = IMG_Load_Cache(find_file(fn));
-		is_svg = false;
-	    }
-	}
+        if (NULL == loaded_pic)
+        {
+            DEBUGMSG(debug_loaders,
+                     "load_image(): %s is not available as SVG, loading using "
+                     "IMG_Load()\n",
+                     fn);
+            loaded_pic = IMG_Load_Cache(find_file(fn));
+            is_svg     = false;
+        }
+    }
+    else
+    {
+        DEBUGMSG(
+            debug_loaders,
+            "load_image(): %s has no extension, loading using IMG_Load()\n",
+            fn);
+        loaded_pic = IMG_Load_Cache(find_file(fn));
+        is_svg     = false;
+    }
+
+    if (loaded_pic == NULL && ext && 0 == strcmp(ext, ".svg"))
+    {
+        if (mode & IMG_NO_PNG_FALLBACK)
+        {
+            DEBUGMSG(debug_loaders,
+                     "load_image(): %s : IMG_NO_PNG_FALLBACK is set.\n", fn);
+        }
+        else
+        {
+            DEBUGMSG(debug_loaders,
+                     "load_image(): Trying to load PNG equivalent of %s\n", fn);
+            strcpy(fn + fn_len - 3, "png");
+
+            loaded_pic = IMG_Load_Cache(find_file(fn));
+            is_svg     = false;
+        }
     }
 
     if (NULL == loaded_pic) /* Could not load image: */
@@ -630,6 +640,57 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     DEBUGMSG(debug_loaders, "Leaving load_image()\n\n");
 
     return final_pic;
+}
+
+SDL_Surface* load_svg_image(const char* file_name, int w, int h,
+                            bool proportional)
+{
+    SDL_Surface* loaded = NULL;
+    int          width  = w;
+    int          height = h;
+
+    if (!file_name || !*file_name || T4K_CheckFile(file_name) != 1)
+    {
+        return NULL;
+    }
+
+    if (proportional && w > 0 && h > 0)
+    {
+        SDL_IOStream* probe = SDL_IOFromFile(file_name, "rb");
+        if (!probe)
+        {
+            return NULL;
+        }
+        loaded = IMG_LoadSVG_IO(probe);
+        SDL_CloseIO(probe);
+        if (!loaded)
+        {
+            return NULL;
+        }
+        width  = loaded->w;
+        height = loaded->h;
+        SDL_DestroySurface(loaded);
+        loaded = NULL;
+        fit_in_rectangle(&width, &height, w, h);
+    }
+
+    SDL_IOStream* src = SDL_IOFromFile(file_name, "rb");
+    if (!src)
+    {
+        return NULL;
+    }
+
+    if (width > 0 && height > 0)
+    {
+        loaded = IMG_LoadSizedSVG_IO(src, width, height);
+    }
+    else
+    {
+        loaded = IMG_LoadSVG_IO(src);
+    }
+    SDL_CloseIO(src);
+
+    return loaded;
 }
 
 /* adjust width and height to fit in max_width x max_height rectangle
