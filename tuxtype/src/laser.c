@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include "laser.h"
 #include "braille.h"
+#include "game_keyboard.h"
 #include <ctype.h>
 
 #define FPS (1000 / 15)   /* 15 fps max */
@@ -65,6 +66,8 @@ static laser_type laser;
 static int tts_announcer_switch = 1;
 static int braille_letter_pos = 0;
 
+static GameKeyboard laser_keyboard;
+
 /* Local function prototypes: */
 static void laser_add_comet(int diff_level);
 static void laser_add_score(int inc);
@@ -80,8 +83,7 @@ static void calc_city_pos(void);
 static void recalc_comet_pos(void);
 static void stop_tts_announcer();
 static int tts_announcer(void *unused);
-
-
+static void laser_draw_keyboard_highlights(void);
 
 /* --- MAIN GAME FUNCTION!!! --- */
 
@@ -604,7 +606,9 @@ int PlayLaserGame(int diff_level)
 
         SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
-		/* Draw wave: */
+        laser_draw_keyboard_highlights();
+
+        /* Draw wave: */
 
 		dest.x = 0;
 		dest.y = 0;
@@ -862,7 +866,9 @@ static void laser_load_data(void)
 
 	shield = LoadSprite( "cities/shield", IMG_ALPHA );
 
-//	PauseLoadMedia();
+    GameKeyboard_Load(&laser_keyboard, 96, screen->w * 9 / 10);
+
+    //	PauseLoadMedia();
 }
 
 /* --- unload all media --- */
@@ -872,6 +878,53 @@ static void laser_unload_data(void)
 
     FreeSprite(shield);
         shield = NULL;
+
+        GameKeyboard_Free(&laser_keyboard);
+}
+
+/* For each alive shootable comet, paint the next-letter-to-type green on
+ * the keyboard guide. laser.c re-blits CurrentBkgd() each frame (which
+ * has the keyboard baked in), so the previous-frame highlights are
+ * already cleared — just blit fresh green keys directly to `screen`.
+ * Dedupe by key index so duplicate next-letters don't over-blend. */
+static void laser_draw_keyboard_highlights(void)
+{
+    int drawn[MAX_UNICODES] = {0};
+    int i;
+
+    if (!laser_keyboard.base)
+    {
+        return;
+    }
+
+    for (i = 0; i < MAX_COMETS; i++)
+    {
+        int key;
+
+        /* In word mode, multiple comets are chained via .next and only
+         * the chain head has .shootable=1 (i.e. the next letter to type
+         * for that word). In single-letter mode every alive comet is
+         * shootable. Either way, .shootable is the right filter. */
+        if (!comets[i].alive || comets[i].expl != 0 || !comets[i].shootable)
+        {
+            continue;
+        }
+        if (comets[i].ch == L'\0')
+        {
+            continue;
+        }
+
+        key = GetIndex(comets[i].ch);
+        if (key < 0 || key >= MAX_UNICODES || drawn[key])
+        {
+            continue;
+        }
+
+        if (GameKeyboard_BlitGreenKey(&laser_keyboard, key, screen))
+        {
+            drawn[key] = 1;
+        }
+    }
 }
 
 /* Reset stuff for the next level! */
@@ -915,6 +968,16 @@ static void laser_reset_level(int diff_level)
      "%s\n"
      "The Simple DirectMedia error that ocurred was: %s\n",
      fname, SDL_GetError());
+  }
+  else
+  {
+      /* Bake the keyboard guide into the freshly-loaded background, above
+     * the cities row. Each frame just blits CurrentBkgd() so the
+     * keyboard layer rides along. */
+      int cities_top_y = screen->h - images[IMG_CITY_BLUE]->h;
+      GameKeyboard_SetPositionAbove(&laser_keyboard, screen->w, cities_top_y,
+                                    screen->h);
+      GameKeyboard_BakeIntoBackground(&laser_keyboard, CurrentBkgd());
   }
 
   /* Record score before this wave: */

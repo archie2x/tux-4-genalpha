@@ -24,6 +24,7 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
+#include "game_keyboard.h"
 #include "braille.h"
 #include <ctype.h>
 #include <wctype.h>
@@ -41,9 +42,7 @@ static int bigfontsize = 0;
 /* Surfaces for things we want to pre-render: */
 static SDL_Surface* hands = NULL;
 static SDL_Surface* hand_shift[3] = {NULL};
-static SDL_Surface* keyboard = NULL;
-static SDL_Surface* keypress1 = NULL;
-static SDL_Surface* keypress2 = NULL;
+static GameKeyboard practice_keyboard;
 static SDL_Surface* hand[11] = {NULL};
 static SDL_Surface* braille_hand[65] = {NULL};
 static sprite* tux_stand = NULL;
@@ -109,9 +108,6 @@ static void display_next_letter(const wchar_t* str, Uint16 index);
 static int practice_load_media(void);
 static void practice_unload_media(void);
 //static void show(char t);
-SDL_Surface* GetKeypress1(int index);
-SDL_Surface* GetKeypress2(int index);
-SDL_Surface* GetWrongKeypress(int index);
 static void print_load_results(void);
 static void set_hand(int cursor,int cur_phrase);
 wchar_t *get_next_word_letters(int cur_phrase,int cursor,int till_next_space);
@@ -360,7 +356,7 @@ int Phrases(wchar_t* pphrase )
         start = SDL_GetTicks();
         SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
         SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-        SDL_BlitSurface(keyboard, NULL, screen, &keyboard_loc);
+        GameKeyboard_DrawBase(&practice_keyboard, screen);
         /* Update entire screen */
         T4K_UpdateRect(screen, NULL);
 
@@ -388,7 +384,7 @@ int Phrases(wchar_t* pphrase )
       case 5:
         SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
         SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-        SDL_BlitSurface(keyboard, NULL, screen, &keyboard_loc);
+        GameKeyboard_DrawBase(&practice_keyboard, screen);
         state = 14;
         break;
 
@@ -1213,13 +1209,7 @@ int Phrases(wchar_t* pphrase )
                 // int key = GetIndex((wchar_t)event.key.key);
                 if (-1 != key)
                 {
-                    keypress1 = GetWrongKeypress(key);
-
-                    if (keypress1) // avoid segfault if NULL
-                    {
-                        SDL_BlitSurface(keypress1, NULL, screen, &keyboard_loc);
-                        SDL_DestroySurface(keypress1);
-                    }
+                    GameKeyboard_DrawRedKey(&practice_keyboard, key, screen);
                 }
                 state = 2;
 
@@ -1369,7 +1359,6 @@ static int practice_load_media(void)
   hand_shift[0] = LoadImage("hands/none.png", IMG_ALPHA);
   hand_shift[1] = LoadImage("hands/lshift.png", IMG_ALPHA);
   hand_shift[2] = LoadImage("hands/rshift.png", IMG_ALPHA);
-  keyboard = LoadImage("keyboard/keyboard.png", IMG_ALPHA);
 
   for (i = 0; i < 10; i++)
   {
@@ -1397,31 +1386,21 @@ static int practice_load_media(void)
 
   /* load needed fonts: */
   calc_font_sizes();
+  RenderLetters(fontsize);
+  GameKeyboard_Load(&practice_keyboard, 255, 0);
 
   /* create labels: */
   labels_ok = create_labels();
 
   /* Get out if anything failed to load (except sounds): */
-  if (load_failed
-    ||!hands
-    ||!CurrentBkgd()
-    ||!tux_win
-    ||!tux_stand
-    ||!keyboard
-    ||!hand_shift[0]
-    ||!hand_shift[1]
-    ||!hand_shift[2]
-    ||!labels_ok)
+  if (load_failed || !hands || !CurrentBkgd() || !tux_win || !tux_stand ||
+      !practice_keyboard.base || !hand_shift[0] || !hand_shift[1] ||
+      !hand_shift[2] || !labels_ok)
   {
     fprintf(stderr, "practice_load_media() - failed to load needed media \n");
     print_load_results();
     return 0;
   }
-
-  /* Now render letters for glyphs in alphabet: */
-  /* This is used for keyboard graphic */
-  RenderLetters(fontsize);
-  GenerateKeyboard(keyboard);
 
   LOG("DONE - Loading practice media\n");
   DEBUGCODE { printf("Leaving practice_load_media\n"); }
@@ -1442,7 +1421,7 @@ static void print_load_results(void)
     { LOG("tux_win did not load\n");}
   if (!tux_stand)
     { LOG("tux_stand did not load\n");}
-  if (!keyboard)
+    if (!practice_keyboard.base)
     { LOG("keyboard did not load\n");}
   if (!hand_shift[0])
     { LOG("hand_shift[0] did not load\n");}
@@ -1480,10 +1459,7 @@ static void recalc_positions(void)
               screen->w, screen->h);
   }
 
-  if (!keyboard
-    ||!tux_win
-    ||!tux_win->frame[0]
-    ||!hand[0])
+  if (!practice_keyboard.base || !tux_win || !tux_win->frame[0] || !hand[0])
   {
     fprintf(stderr, "recalc_positions() - needed ptr invalid - returning\n");
   }
@@ -1600,10 +1576,12 @@ static void recalc_positions(void)
   user_text_rect.h = medfontsize * 1.5;
 
   /* Set up all the locations within the bottom pane: */
-  keyboard_loc.x = bottom_pane.x + bottom_pane.w/4 - keyboard->w/4;
+  keyboard_loc.x =
+      bottom_pane.x + bottom_pane.w / 4 - practice_keyboard.base->w / 4;
   keyboard_loc.y = bottom_pane.y + 5;
-  keyboard_loc.w = keyboard->w;
-  keyboard_loc.h = keyboard->h;
+  keyboard_loc.w = practice_keyboard.base->w;
+  keyboard_loc.h = practice_keyboard.base->h;
+  GameKeyboard_SetPosition(&practice_keyboard, keyboard_loc.x, keyboard_loc.y);
 
   hand_loc.x = keyboard_loc.x;
   hand_loc.y = keyboard_loc.y + keyboard_loc.h + 20;
@@ -1661,9 +1639,7 @@ static void practice_unload_media(void)
     hand_shift[i] = NULL;
   }
 
-  if (keyboard)
-      SDL_DestroySurface(keyboard);
-  keyboard = NULL;
+  GameKeyboard_Free(&practice_keyboard);
 
   for (i = 0; i < 10; i++)
   {
@@ -1922,31 +1898,6 @@ static void display_next_letter(const wchar_t *str, Uint16 index)
   }
 }
 
-
-SDL_Surface* GetKeypress1(int index)
-{
-	char buf[50];
-	GetKeyPos(index,buf);
-	return (LoadImage(buf, IMG_ALPHA));
-}
-
-
-SDL_Surface* GetWrongKeypress(int index)
-{
-	char buf[50];
-	GetWrongKeyPos(index,buf);
-	return (LoadImage(buf, IMG_ALPHA));
-}
-
-
-SDL_Surface* GetKeypress2(int index)
-{
-
-    char buf[50];
-	GetKeyShift(index, buf);
-	return (LoadImage(buf, IMG_ALPHA));
-}
-
 static int create_labels(void)
 {
   if (time_label_srfc)
@@ -1996,10 +1947,7 @@ void set_hand(int cursor,int cur_phrase)
 
             int key = GetIndex(phrases[cur_phrase][cursor]);
 			int fing = GetFinger(key);
-			int shift = GetShift(key);
-			keypress1 = GetKeypress1(key);
-			keypress2 = GetKeypress2(key);
-
+            int shift = GetShift(key);
             SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
 			SDL_BlitSurface(hands, NULL, screen, &hand_loc);
 
@@ -2010,19 +1958,8 @@ void set_hand(int cursor,int cur_phrase)
 
             SDL_BlitSurface(hand_shift[shift], NULL, screen, &hand_loc);
 
-			if (keypress1)
-			{
-				SDL_BlitSurface(keypress1, NULL, screen, &keyboard_loc);
-                SDL_DestroySurface(keypress1);
-                keypress1 = NULL;
-            }
-
-            if (keypress2)
-			{
-				SDL_BlitSurface(keypress2, NULL, screen, &keyboard_loc);
-                SDL_DestroySurface(keypress2);
-                keypress2 = NULL;
-            }
+            GameKeyboard_BlitGreenKey(&practice_keyboard, key, screen);
+            GameKeyboard_DrawShiftForKey(&practice_keyboard, key, screen);
         }
 	    else
 		{

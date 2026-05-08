@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctype.h>
 #include "input_methods.h"
 #include "braille.h"
+#include "game_keyboard.h"
 
 /* Should these be constants? */
 static int tux_max_width = 0;                // the max width of the images of tux
@@ -46,10 +47,7 @@ static SDL_Surface* number[NUM_NUMS] = {NULL};
 static SDL_Surface* curlev = NULL;
 static SDL_Surface* lives = NULL;
 static SDL_Surface* fish = NULL;
-static SDL_Surface* keyboard_overlay             = NULL;
-static SDL_Surface* key_highlights[MAX_UNICODES] = {NULL};
-static int          keyboard_overlay_x           = 0;
-static int          keyboard_overlay_y           = 0;
+static GameKeyboard cascade_keyboard;
 static SDL_Surface* congrats[CONGRATS_FRAMES] = {NULL};
 static SDL_Surface* ohno[OH_NO_FRAMES] = {NULL};
 static Mix_Chunk* sound[NUM_WAVES];
@@ -67,7 +65,7 @@ static void CheckCollision(int fishies, int* fish_left, int frame );
 static void CheckFishies(int* fishies, int* splats);
 static int  check_word(int f);
 static void DrawBackground(void);
-static void AddKeyboardOverlayToBackground(void);
+static void AddKeyboardToBackground(void);
 static void DrawActiveKeyboardHighlights(int fishies);
 static void draw_bar(int curlevel, int diflevel, int curlives,
                      int oldlives, int fish_left, int oldfish_left);
@@ -269,7 +267,7 @@ int PlayCascade(int diflevel)
 //			SNOW_setBkg( background );
 
       ResetObjects();
-      AddKeyboardOverlayToBackground();
+      AddKeyboardToBackground();
       DrawBackground();
 
       if (settings.sys_sound)
@@ -841,12 +839,7 @@ static void LoadOthers(void)
 		ohno[i] = BlackOutline(gettext("Oh No!"), LABEL_FONT_SIZE, &white);
 	}
 
-    keyboard_overlay = LoadImage("keyboard/keyboard.png", IMG_ALPHA);
-    if (keyboard_overlay)
-    {
-        GenerateKeyboard(keyboard_overlay);
-        SDL_SetSurfaceAlphaMod(keyboard_overlay, 96);
-    }
+    GameKeyboard_Load(&cascade_keyboard, 96, screen->w * 9 / 10);
 
     if (settings.sys_sound) {
 		LOG( "=Loading Sound FX\n" );
@@ -1057,13 +1050,10 @@ static void FreeGame(void)
       SDL_DestroySurface(curlev);
   if (fish)
       SDL_DestroySurface(fish);
-  if (keyboard_overlay)
-  {
-      SDL_DestroySurface(keyboard_overlay);
-  }
   if (lives)
       SDL_DestroySurface(lives);
-  curlev = fish = keyboard_overlay = lives = NULL;
+  curlev = fish = lives = NULL;
+  GameKeyboard_Free(&cascade_keyboard);
 
   for (i = 0; i < NUM_LEVELS; i++)
   {
@@ -1076,14 +1066,6 @@ static void FreeGame(void)
     if (number[i])
         SDL_DestroySurface(number[i]);
     number[i] = NULL;
-  }
-  for (i = 0; i < MAX_UNICODES; i++)
-  {
-      if (key_highlights[i])
-      {
-          SDL_DestroySurface(key_highlights[i]);
-      }
-      key_highlights[i] = NULL;
   }
   for (i = 0; i < CONGRATS_FRAMES; i++)
   {
@@ -1143,26 +1125,14 @@ static void DrawBackground(void)
 }
 
 /***************************
-AddKeyboardOverlayToBackground : Composite a faint keyboard guide into Cascade's
+AddKeyboardToBackground : Composite a faint keyboard guide into Cascade's
 background so sprite erases restore the keyboard layer cleanly.
 ****************************/
-static void AddKeyboardOverlayToBackground(void)
+static void AddKeyboardToBackground(void)
 {
-    SDL_Rect dst;
-
-    if (!keyboard_overlay || !CurrentBkgd())
-    {
-        return;
-    }
-
-    keyboard_overlay_x = (screen->w - keyboard_overlay->w) / 2;
-    keyboard_overlay_y = tux_object.y - keyboard_overlay->h - 8;
-    keyboard_overlay_y = int_restrict(48, keyboard_overlay_y,
-                                      screen->h - keyboard_overlay->h - 8);
-
-    dst = (SDL_Rect){keyboard_overlay_x, keyboard_overlay_y,
-                     keyboard_overlay->w, keyboard_overlay->h};
-    SDL_BlitSurface(keyboard_overlay, NULL, CurrentBkgd(), &dst);
+    GameKeyboard_SetPositionAbove(&cascade_keyboard, screen->w, tux_object.y,
+                                  screen->h);
+    GameKeyboard_BakeIntoBackground(&cascade_keyboard, CurrentBkgd());
 }
 
 /***************************
@@ -1173,12 +1143,12 @@ static void DrawActiveKeyboardHighlights(int fishies)
     int drawn[MAX_UNICODES] = {0};
     int i, j;
 
-    if (!keyboard_overlay)
+    if (!cascade_keyboard.base)
     {
         return;
     }
 
-    EraseObject(keyboard_overlay, keyboard_overlay_x, keyboard_overlay_y);
+    GameKeyboard_QueueErase(&cascade_keyboard);
 
     for (i = 0; i < fishies; i++)
     {
@@ -1228,17 +1198,8 @@ static void DrawActiveKeyboardHighlights(int fishies)
             continue;
         }
 
-        if (!key_highlights[key])
+        if (GameKeyboard_DrawGreenKey(&cascade_keyboard, key))
         {
-            char fn[FNLEN];
-            GetKeyPos(key, fn);
-            key_highlights[key] = LoadImage(fn, IMG_ALPHA);
-        }
-
-        if (key_highlights[key])
-        {
-            DrawObject(key_highlights[key], keyboard_overlay_x,
-                       keyboard_overlay_y);
             drawn[key] = 1;
         }
     }

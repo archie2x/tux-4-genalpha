@@ -1223,16 +1223,31 @@ void GenerateKeyboard(SDL_Surface* keyboard)
     sscanf(keyboard_list[i].keyname,"%c%d",&row,&col);
 
     /* NOTE these values have been tweaked to better center the */
-    /* characters on the key images - DSB.                      */
+    /* characters on the key images - DSB (+A2X 2026).          */
     switch(row)
     {
-      case 'A': new.y += 6;   new.x += 12; break;
-      case 'B': new.y += 39;  new.x += 23; break;
-      case 'C': new.y += 69;  new.x += 33; break;
-      case 'D': new.y += 100;  new.x += 21; break;
-//      case 'D': new.y += 99;  new.x += 54; break;
-      case 'E': new.y += 129; break;
-      default: render = 0; break;
+    case 'A':
+        new.y += 2;
+        new.x += 12;
+        break;
+    case 'B':
+        new.y += 35;
+        new.x += 23;
+        break;
+    case 'C':
+        new.y += 65;
+        new.x += 33;
+        break;
+    case 'D':
+        new.y += 96;
+        new.x += 21;
+        break;
+    case 'E':
+        new.y += 125;
+        break;
+    default:
+        render = 0;
+        break;
     }
 
     if(!render)

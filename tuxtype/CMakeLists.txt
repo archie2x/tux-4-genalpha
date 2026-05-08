@@ -75,6 +75,7 @@ add_executable(
     src/braille.c
     src/editor.c
     src/globals.c
+    src/game_keyboard.c
     src/input_methods.c
     src/laser.c
     src/loaders.c
