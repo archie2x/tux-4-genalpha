@@ -28,20 +28,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.h"
 #include "funcs.h"
-#include "SDL_extras.h"
 
-static Mix_Chunk *pause_sfx = NULL;
-static SDL_Surface *up = NULL, *down = NULL, *left = NULL, *right = NULL;
-static SDL_Rect rectUp, rectDown, rectLeft, rectRight;
+#include <t4k/volume.h>
+
+static T4K_VolumeWidget* pause_volume = NULL;
 static SDL_Rect     rectKbdToggle; /* fixed area used for the toggle label */
-static SDL_Surface* pause_kbd_bkg =
-    NULL; /* snapshot of pixels under that rect */
-const int pause_font_size1 = 24;
-const int pause_font_size2 = 36;
-
+static SDL_Surface* pause_kbd_bkg    = NULL; /* snapshot pixels under rect */
+const int           pause_font_size1 = 24;
+const int           pause_font_size2 = 36;
 
 /* Local function prototypes: */
-static void draw_vols(int sfx, int mus);
 static void pause_draw(void);
 static void draw_kbd_toggle(void);
 static void pause_load_media(void);
@@ -59,221 +55,94 @@ Pause : Pause the game
 static int g_pause_in_game = 1;
 int        Pause(int in_game)
 {
-    g_pause_in_game     = in_game;
-    int       paused     = 1;
-    int       sfx_volume = 0;
-    int old_sfx_volume;
-	int mus_volume=0;
-	int old_mus_volume;
-	int mousePressed = 0;
-	int quit=0;
-	int tocks=0;  // used for keeping track of when a tock has happened
-    /* Pre-scaled (640x480 backing) coords of the most recent mouse-down /
-	 * motion event. SDL_GetMouseState would return window-units which
-	 * don't match the rects when the window is scaled (fullscreen). */
-    int       last_mx = 0, last_my = 0;
+    g_pause_in_game = in_game;
+    int       quit  = 0;
     SDL_Event event;
 
-	LOG( "Entering Pause()\n" );
+    LOG("Entering Pause()\n");
 
-	pause_load_media();
-	/* --- stop all sounds, play pause noise --- */
-
-	if (settings.sys_sound) {
-        /* Audio pause + volume queries stubbed for SDL3 port (task #13). */
-        sfx_volume = settings.sfx_volume;
-        mus_volume = settings.mus_volume;
-    }
-
-    /* --- show the pause screen --- */
+    pause_load_media();
 
     SDL_ShowCursor();
 
-    // Darken the screen — bits=2 (quarter brightness) keeps the volume
-    // sliders and labels readable; bits=1 (half) was too pale.
+    /* Darken the screen — bits=2 (quarter brightness) keeps the volume
+     * sliders and labels readable; bits=1 (half) was too pale. */
     DarkenScreen(2);
 
     pause_draw();
 
-    if (settings.sys_sound)
+    if (pause_volume)
     {
-        draw_vols(sfx_volume, mus_volume);
+        T4K_Volume_Draw(pause_volume, screen);
     }
 
     T4K_UpdateRect(screen, NULL);
 
-    /* SDL_EnableKeyRepeat removed in SDL3. */
-
-    /* --- wait for space, click, or exit --- */
-
+    int paused = 1;
     while (paused)
     {
-        old_sfx_volume = sfx_volume;
-		old_mus_volume = mus_volume;
+        bool dirty = false;
+
         while (SDL_PollEvent(&event))
         {
-            switch (event.type) {
-            case SDL_EVENT_QUIT:
+            if (event.type == SDL_EVENT_QUIT)
+            {
                 exit(0);
-                break;
-            case SDL_EVENT_KEY_UP:
-                if (settings.sys_sound && ((event.key.key == SDLK_RIGHT) ||
-                                           (event.key.key == SDLK_LEFT)))
-                {
-                    tocks = 0;
-                }
-                break;
-            case SDL_EVENT_KEY_DOWN:
-                /* SPACE or ESC always returns to caller (game or
-					 * options menu). 'Q' quits to menu, but only when
-					 * we're paused from a game — from options it's a
-					 * no-op so the user can't accidentally drop their
-					 * place in the menu. */
+            }
+
+            /* SPACE / ESC return to caller (game or options menu). 'Q'
+             * quits to menu, but only from a game — from options it's a
+             * no-op so the user can't drop their place in the menu. */
+            if (event.type == SDL_EVENT_KEY_DOWN)
+            {
                 if (event.key.key == SDLK_SPACE || event.key.key == SDLK_ESCAPE)
                 {
                     paused = 0;
                 }
-                if (event.key.key == SDLK_Q && in_game)
+                else if (event.key.key == SDLK_Q && in_game)
                 {
                     paused = 0;
                     quit   = 1;
                 }
-                if (event.key.key == SDLK_K && in_game)
+                else if (event.key.key == SDLK_K && in_game)
                 {
                     settings.show_keyboard = !settings.show_keyboard;
                     draw_kbd_toggle();
                     T4K_UpdateRect(screen, &rectKbdToggle);
                 }
-                if (settings.sys_sound)
-                {
-                    if (event.key.key == SDLK_RIGHT)
-                    {
-                        sfx_volume += 4;
-                    }
-                    if (event.key.key == SDLK_LEFT)
-                    {
-                        sfx_volume -= 4;
-                    }
-                    if (event.key.key == SDLK_UP)
-                    {
-                        mus_volume += 4;
-                    }
-                    if (event.key.key == SDLK_DOWN)
-                    {
-                        mus_volume -= 4;
-                    }
-                }
-                break;
-            case SDL_EVENT_MOUSE_MOTION:
-                last_mx = (int)event.motion.x;
-                last_my = (int)event.motion.y;
-                break;
-            case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                mousePressed = 1;
-                tocks        = 0;
-                last_mx      = (int)event.button.x;
-                last_my      = (int)event.button.y;
-                if (in_game && rectKbdToggle.w > 0)
-                {
-                    /* event coords come pre-scaled to 640x480 backing-surface
-                     * units via t4kcommon's event filter; SDL_GetMouseState
-                     * returns window units instead, which won't match. */
-                    if (inRect(rectKbdToggle, last_mx, last_my))
-                    {
-                        settings.show_keyboard = !settings.show_keyboard;
-                        draw_kbd_toggle();
-                        T4K_UpdateRect(screen, &rectKbdToggle);
-                        mousePressed = 0; /* don't also trigger volume */
-                    }
-                }
-                break;
-            case SDL_EVENT_MOUSE_BUTTON_UP:
-                mousePressed = 0;
-                break;
-
-                break;
             }
-        }
-        if (settings.sys_sound && mousePressed) {
-            int x = last_mx, y = last_my;
-            /* check to see if they clicked on a button */
 
-            if (inRect(rectUp, x, y))
+            /* event coords come pre-scaled to 640x480 backing-surface units
+             * via t4kcommon's event filter; SDL_GetMouseState would return
+             * window units instead. Intercept clicks on the keyboard
+             * toggle before letting the volume widget see the event. */
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && in_game &&
+                rectKbdToggle.w > 0 &&
+                inRect(rectKbdToggle, (int)event.button.x, (int)event.button.y))
             {
-                mus_volume += 4;
+                settings.show_keyboard = !settings.show_keyboard;
+                draw_kbd_toggle();
+                T4K_UpdateRect(screen, &rectKbdToggle);
+                continue;
             }
-            else if (inRect(rectDown, x, y))
-            {
-                mus_volume -= 4;
-            }
-            else if (inRect(rectRight, x, y))
-            {
-                sfx_volume += 4;
-            }
-            else if (inRect(rectLeft, x, y))
-            {
-                sfx_volume -= 4;
-            }
-            else
-            {
 
-                /* check to see if they clicked a bar */
-
-				if ((x > rectLeft.x + rectLeft.w) && (x < rectRight.x)) {
-					if ((y >= rectLeft.y) && (y <= rectLeft.y + rectLeft.h)) {
-						sfx_volume = 4+(int)(128.0 * ((x - rectLeft.x - rectLeft.w - 1.0) / (rectRight.x - rectLeft.x - rectLeft.w - 2.0)));
-					}
-					if ((y >= rectDown.y) && (y <= rectDown.y + rectDown.h)) {
-						mus_volume = 4+(int)(128.0 * ((x - rectLeft.x - rectLeft.w - 1.0) / (rectRight.x - rectLeft.x - rectLeft.w - 2.0)));
-					}
-
-				}
+            if (pause_volume && T4K_Volume_HandleEvent(pause_volume, &event))
+            {
+                dirty = true;
             }
         }
 
-		if (settings.sys_sound) {
-            const int MIX_MAX_VOLUME = 128;
-            if (sfx_volume > MIX_MAX_VOLUME)
-            {
-                sfx_volume = MIX_MAX_VOLUME;
-            }
-            if (sfx_volume < 0)
-            {
-                sfx_volume = 0;
-            }
-            if (mus_volume > MIX_MAX_VOLUME)
-            {
-                mus_volume = MIX_MAX_VOLUME;
-            }
-            if (mus_volume < 0)
-            {
-                mus_volume = 0;
-            }
+        if (pause_volume && T4K_Volume_Tick(pause_volume))
+        {
+            dirty = true;
+        }
 
-            if ((mus_volume != old_mus_volume) ||
-                (sfx_volume != old_sfx_volume))
-            {
-                /* Apply to the mixer immediately so the user hears the
-				 * change while dragging the slider. */
-                if (mus_volume != old_mus_volume)
-                {
-                    T4K_SetMusicVolume(mus_volume);
-                }
-                if (sfx_volume != old_sfx_volume)
-                {
-                    T4K_SetSfxVolume(sfx_volume);
-                    /* Play a tick sound as feedback (capped to avoid spam). */
-                    if (pause_sfx && tocks % 4 == 0)
-                    {
-                        T4K_PlaySound(pause_sfx);
-                    }
-                    tocks++;
-                }
-                draw_vols(sfx_volume, mus_volume);
-                settings.mus_volume = mus_volume;
-                settings.sfx_volume = sfx_volume;
-                T4K_UpdateRect(screen, NULL);
-            }
+        if (dirty)
+        {
+            T4K_Volume_Draw(pause_volume, screen);
+            settings.sfx_volume = T4K_Volume_Sfx(pause_volume);
+            settings.mus_volume = T4K_Volume_Mus(pause_volume);
+            T4K_UpdateRect(screen, NULL);
         }
 
         SDL_Delay(33);
@@ -294,48 +163,33 @@ int        Pause(int in_game)
     return (quit);
 }
 
-
-static void pause_load_media(void) {
-    if (settings.sys_sound)
+static void pause_load_media(void)
+{
+    if (!settings.sys_sound)
     {
-        pause_sfx = LoadSound("tock.wav");
+        return;
     }
-
-    up = LoadImage("up.png", IMG_ALPHA);
-	rectUp.w = up->w; rectUp.h = up->h;
-
-	down = LoadImage("down.png", IMG_ALPHA);
-	rectDown.w = down->w; rectDown.h = down->h;
-
-	left = LoadImage("left.png", IMG_ALPHA);
-	rectLeft.w = left->w; rectLeft.h = left->h;
-
-	right = LoadImage("right.png", IMG_ALPHA);
-	rectRight.w = right->w; rectRight.h = right->h;
-
-//	f1 = LoadFont(settings.theme_font_name, 24);
-//	f2 = LoadFont(settings.theme_font_name, 36);
+    pause_volume = T4K_Volume_Create(settings.sfx_volume, settings.mus_volume);
+    if (pause_volume)
+    {
+        T4K_Volume_SetLayout(pause_volume, screen->w / 2, screen->h / 2 - 40,
+                             screen->h / 2 + 60);
+    }
 }
 
-static void pause_unload_media(void) {
-	if (settings.sys_sound)
-        {
-            /* Mix_FreeChunk stubbed for SDL3 port (task #13). */
-            pause_sfx = NULL;
-        }
-        SDL_DestroySurface(up);
-        SDL_DestroySurface(down);
-        SDL_DestroySurface(left);
-        SDL_DestroySurface(right);
-        up = down = left = right = NULL;
-        if (pause_kbd_bkg)
-        {
-            SDL_DestroySurface(pause_kbd_bkg);
-            pause_kbd_bkg = NULL;
-        }
+static void pause_unload_media(void)
+{
+    if (pause_volume)
+    {
+        T4K_Volume_Destroy(pause_volume);
+        pause_volume = NULL;
+    }
+    if (pause_kbd_bkg)
+    {
+        SDL_DestroySurface(pause_kbd_bkg);
+        pause_kbd_bkg = NULL;
+    }
 }
-
-
 
 /******************************************/
 /*                                        */
@@ -351,22 +205,6 @@ static void pause_draw(void)
   SDL_Surface* t = NULL;
 
   LOG("Entering pause_draw()\n");
-
-  rectLeft.y = rectRight.y = screen->h/2 - 40;
-  rectDown.y = rectUp.y = screen->h/2 + 60;
-
-  rectLeft.x = rectDown.x = screen->w/2 - (7*16) - rectLeft.w - 4;
-  rectRight.x = rectUp.x  = screen->w/2 + (7*16) + 4;
-
-  /* Avoid segfault if any needed SDL_Surfaces missing: */
-  if (settings.sys_sound
-    && left && right && down && up)
-  {
-    SDL_BlitSurface(left, NULL, screen, &rectLeft);
-    SDL_BlitSurface(right, NULL, screen, &rectRight);
-    SDL_BlitSurface(down, NULL, screen, &rectDown);
-    SDL_BlitSurface(up, NULL, screen, &rectUp);
-  }
 
   if (settings.sys_sound)
   {
@@ -493,46 +331,3 @@ static void draw_kbd_toggle(void)
         SDL_DestroySurface(t);
     }
 }
-
-/* FIXME what if rectLeft and rectDown not initialized? - should be args */
-static void draw_vols(int sfx, int mus)
-{
-  SDL_Rect s,m;
-  int i;
-
-  s.y = rectLeft.y;
-  m.y = rectDown.y;
-  m.w = s.w = 5;
-  s.x = rectLeft.x + rectLeft.w + 5;
-  m.x = rectDown.x + rectDown.w + 5;
-  m.h = s.h = 40;
-
-  for (i = 1; i<=32; i++)
-  {
-    if (sfx >= i * 4)
-        SDL_FillSurfaceRect(
-            screen, &s,
-            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
-                       127 + sfx));
-    else
-        SDL_FillSurfaceRect(
-            screen, &s,
-            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
-                       0));
-
-    if (mus >= i * 4)
-        SDL_FillSurfaceRect(
-            screen, &m,
-            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
-                       127 + mus));
-    else
-        SDL_FillSurfaceRect(
-            screen, &m,
-            SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0,
-                       0));
-
-    m.x = s.x += 7;
-  }
-}
-
-
