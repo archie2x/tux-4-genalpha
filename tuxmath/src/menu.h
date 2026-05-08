@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPRITE_FRAME_DELAY         6
 
 #ifdef HAVE_LIBT4K_COMMON
-# include <t4k_common.h>
+#include <t4k/common.h>
 #else
 # define RUN_MAIN_MENU -3
 # define QUIT -2

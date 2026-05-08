@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <libxml/tree.h>
 
 #include "t4k_globals.h"
-#include "t4k_common.h"
+#include <t4k/common.h>
 
 #define MENU_DIR "menus"
 

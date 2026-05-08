@@ -40,14 +40,14 @@
 //!
 //!     http://www.tux4kids.com/
 //!
-//!     Please look through t4k_common.h for detailed documentation.
+//!     Please look through t4k/common.h for detailed documentation.
 //!
 //! \section copyright_sec Copyright
 //!
 //!     See COPYING file that comes with this distribution.
 //!
 
-#include "t4k_common.h"
+#include <t4k/common.h>
 #include <stdlib.h>
 #include <string.h>
 

@@ -56,7 +56,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "titlescreen.h"
 #include "options.h"
 #include "draw_utils.h"
-#include "t4k_common.h"
+#include <t4k/common.h>
 
 #define CITY_EXPL_START (3 * 5)  /* Must be mult. of 5 (number of expl frames) */
 #define ANIM_FRAME_START (4 * 2) /* Must be mult. of 2 (number of tux frames) */

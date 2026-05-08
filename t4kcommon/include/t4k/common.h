@@ -1,13 +1,13 @@
 //==============================================================================
 //
-//   t4k_common.h: Contains public headers for the t4k_common library
+//   t4k/common.h: Contains public headers for the t4k_common library
 //
 //   Copyright 2009, 2010, 2011.
 //   Authors: Brendan Luchen, David Bruce.
 //   Project email: <tuxmath-devel@lists.sourceforge.net>
 //   Project website: http://tux4kids.alioth.debian.org
 //
-//   t4k_common.h is part of the t4k_common library.
+//   t4k/common.h is part of the t4k_common library.
 //
 //   t4k_common is free software: you can redistribute it and/or modify
 //   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 //==============================================================================
 //
 //! \file
-//!     t4k_common.h
+//!     t4k/common.h
 //!
 //! \mainpage
 //!     Tux4Kids_common
@@ -42,7 +42,7 @@
 //!
 //!     http://www.tux4kids.com/
 //!
-//!     Please look through t4k_common.h for detailed documentation.
+//!     Please look through t4k/common.h for detailed documentation.
 //!
 //! \section copyright_sec Copyright
 //!
@@ -87,38 +87,42 @@ typedef MIX_Audio Mix_Music;
 #ifndef DEBUGMSG
 
 //! DEBUGVAR prints out the name and value of a string variable
-#define DEBUGVAR(mask, Expr) \
-    if((mask) & (debug_status)) \
-{ \
-    fprintf(stderr, #Expr ": %s\n", (Expr)); fflush(stderr); \
-}
+#define DEBUGVAR(mask, Expr)                                                   \
+    if ((mask) & (debug_status))                                               \
+    {                                                                          \
+        fprintf(stderr, #Expr ": %s\n", (Expr));                               \
+        fflush(stderr);                                                        \
+    }
 
 //! DEBUGVARX prints out the name and hex value of an integral variable
-#define DEBUGVARX(mask, Expr) \
-    if((mask) & (debug_status)) \
-{ \
-    fprintf(stderr, #Expr ": %x\n", (Expr)); fflush(stderr); \
-}
+#define DEBUGVARX(mask, Expr)                                                  \
+    if ((mask) & (debug_status))                                               \
+    {                                                                          \
+        fprintf(stderr, #Expr ": %x\n", (Expr));                               \
+        fflush(stderr);                                                        \
+    }
 
 //! DEBUGVARF prints out the name and decimal value of a floating point variable
-#define DEBUGVARF(mask, Expr) \
-    if((mask) & (debug_status)) \
-{ \
-    fprintf(stderr, #Expr ": %f\n", (Expr)); fflush(stderr); \
-}
+#define DEBUGVARF(mask, Expr)                                                  \
+    if ((mask) & (debug_status))                                               \
+    {                                                                          \
+        fprintf(stderr, #Expr ": %f\n", (Expr));                               \
+        fflush(stderr);                                                        \
+    }
 
 //! DEBUGCODE is a conditional and should be followed by a code block.
 //! Guarded so callers that define their own (parameterless) DEBUGCODE win.
 #ifndef DEBUGCODE
-#define DEBUGCODE(mask) if((mask) & debug_status)
+#define DEBUGCODE(mask) if ((mask) & debug_status)
 #endif
 
 //! DEBUGMSG prints out a specific message, which can be formatted like printf
-#define DEBUGMSG(mask, ...) \
-    if((mask) & debug_status) \
-{ \
-    fprintf(stderr, __VA_ARGS__); fflush(stderr); \
-}
+#define DEBUGMSG(mask, ...)                                                    \
+    if ((mask) & debug_status)                                                 \
+    {                                                                          \
+        fprintf(stderr, __VA_ARGS__);                                          \
+        fflush(stderr);                                                        \
+    }
 #endif
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -144,13 +148,13 @@ typedef enum
 #endif
 
 // These values have to match those used in games.
-static const int debug_loaders       = 1 << 0; //!< Debug image loading code
-static const int debug_menu          = 1 << 1; //!< Debug menu code
-static const int debug_menu_parser   = 1 << 2; //!< Debug XML parsing for menus
+static const int debug_loaders     = 1 << 0; //!< Debug image loading code
+static const int debug_menu        = 1 << 1; //!< Debug menu code
+static const int debug_menu_parser = 1 << 2; //!< Debug XML parsing for menus
 static const int debug_sdl = 1 << 3; //!< Debug image txf and other support code
-static const int debug_linewrap      = 1 << 4; //!< Debug for linewrap functions
-static const int debug_i18n          = 1 << 5; //!< Debug for gettext and UTF conversions
-static const int debug_all           = ~0;     //!< Enable all debugging output (messy!)
+static const int debug_linewrap = 1 << 4; //!< Debug for linewrap functions
+static const int debug_i18n = 1 << 5; //!< Debug for gettext and UTF conversions
+static const int debug_all  = ~0;     //!< Enable all debugging output (messy!)
 
 extern int debug_status;
 
@@ -178,11 +182,12 @@ static const SDL_Color bright_green = {0x60, 0xff, 0x00, 0xff};
 // FIXME: global vars such as screen should be hidden when all games
 // are using only getters (such as GetScreen() )
 extern SDL_Surface* screen;
-extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
-extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
+extern SDL_Rect     menu_rect, stop_rect, prev_rect, next_rect;
+extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray,
+    *next_gray;
 
-
-#define MAX_SPRITE_FRAMES 15 /**< The max number of images a single sprite can use */
+#define MAX_SPRITE_FRAMES                                                      \
+    15 /**< The max number of images a single sprite can use */
 
 //==============================================================================
 //!
@@ -194,12 +199,11 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 //!
 typedef struct
 {
-    SDL_Surface *frame[MAX_SPRITE_FRAMES];
-    SDL_Surface *default_img;
-    int num_frames;
-    int cur;
-}
-sprite;
+    SDL_Surface* frame[MAX_SPRITE_FRAMES];
+    SDL_Surface* default_img;
+    int          num_frames;
+    int          cur;
+} sprite;
 
 //==============================================================================
 //!
@@ -216,8 +220,7 @@ typedef enum
     WIPE_BLINDS_BOX,
     RANDOM_WIPE,
     NUM_WIPES
-}
-WipeStyle;
+} WipeStyle;
 
 //==============================================================================
 //!
@@ -225,9 +228,10 @@ WipeStyle;
 //!
 enum
 {
-    RUN_MAIN_MENU = -3,  //!< can be used in .xml menu structures but should not be declared in activities' lists.
-    QUIT          = -2,  //!< user decided to quit application
-    STOP          = -1   //!< user pressed the stop button
+    RUN_MAIN_MENU =
+        -3, //!< can be used in .xml menu structures but should not be declared in activities' lists.
+    QUIT = -2, //!< user decided to quit application
+    STOP = -1  //!< user pressed the stop button
 };
 
 //==============================================================================
@@ -239,47 +243,45 @@ enum
 //!
 typedef enum
 {
-    MF_UNIFORM,   //!< All menus are searched and the largest size that will fit on all menus is used.
-    MF_BESTFIT,   //!< Menus are searched separately for the largest fonts they can accommodate.
-    MF_EXACTLY    //!< The font size given is used directly; text may run off the screen.
-}
-MFStrategy;
+    MF_UNIFORM, //!< All menus are searched and the largest size that will fit on all menus is used.
+    MF_BESTFIT, //!< Menus are searched separately for the largest fonts they can accommodate.
+    MF_EXACTLY //!< The font size given is used directly; text may run off the screen.
+} MFStrategy;
 
 // from tk4_loaders.c
-#define IMG_REGULAR         0x01
-#define IMG_COLORKEY        0x02
-#define IMG_ALPHA           0x04
-#define IMG_MODES           0x07
+#define IMG_REGULAR 0x01
+#define IMG_COLORKEY 0x02
+#define IMG_ALPHA 0x04
+#define IMG_MODES 0x07
 
-#define IMG_NOT_REQUIRED    0x10
+#define IMG_NOT_REQUIRED 0x10
 #define IMG_NO_PNG_FALLBACK 0x20
 
-#define MAX_LINES           128 //!< Maximum lines to wrap.
-#define MAX_LINEWIDTH       256 //!< Maximum characters of each line.
+#define MAX_LINES 128     //!< Maximum lines to wrap.
+#define MAX_LINEWIDTH 256 //!< Maximum characters of each line.
 
-extern char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
+extern char wrapped_lines[MAX_LINES]
+                         [MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
 //TODO separate headers for different areas a la SDL?
-
 
 //==============================================================================
 // Structure used to pass arguments for T4K_Tts_say()
 typedef struct
 {
-	int mode;
-	wchar_t text[10000];
-}tts_argument;
-
+    int     mode;
+    wchar_t text[10000];
+} tts_argument;
 
 //==============================================================================
 //                  Public Definitions in t4k_tts.c
 //==============================================================================
-int T4K_Tts_init();
-int T4K_Tts_set_voice(char voice_name[]);
+int  T4K_Tts_init();
+int  T4K_Tts_set_voice(char voice_name[]);
 void T4K_Tts_set_volume(int volume);
 void T4K_Tts_set_rate(int rate);
 void T4K_Tts_set_pitch(int pitch);
-void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
+void T4K_Tts_say(int rate, int pitch, int mode, const char* text, ...);
 void T4K_Tts_wait(void);
 void T4K_Tts_cancel(void);
 void T4K_Tts_stop(void);
@@ -309,7 +311,7 @@ void T4K_Tts_stop(void);
 //! \return
 //!     1 if successful, 0 otherwise
 //!
-int InitT4KCommon( int debug_flags );
+int InitT4KCommon(int debug_flags);
 
 //==============================================================================
 //
@@ -324,7 +326,7 @@ int InitT4KCommon( int debug_flags );
 //! \return
 //!     None
 //!
-void CleanupT4KCommon( void );
+void CleanupT4KCommon(void);
 
 //==============================================================================
 //
@@ -342,7 +344,7 @@ void CleanupT4KCommon( void );
 //! \return
 //!     1          - if the screen should be redrawn
 //!
-int T4K_HandleStdEvents( const SDL_Event* event );
+int T4K_HandleStdEvents(const SDL_Event* event);
 
 //==============================================================================
 //                     Public Definitions in t4k_menu.c
@@ -397,7 +399,7 @@ void T4K_SetMenuSounds(char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
 //! \return
 //!     None
 //!
-void T4K_SetMenuSpritePrefix( char* pref );
+void T4K_SetMenuSpritePrefix(char* pref);
 
 //==============================================================================
 //
@@ -415,9 +417,7 @@ void T4K_SetMenuSpritePrefix( char* pref );
 //! \return
 //!     None
 //!
-void T4K_SetMenuFontSize( MFStrategy strategy,
-                          int        size
-                        );
+void T4K_SetMenuFontSize(MFStrategy strategy, int size);
 
 //==============================================================================
 //
@@ -490,7 +490,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(),
 //! \return
 //!    None
 //!
-void T4K_PrerenderMenu( int index );
+void T4K_PrerenderMenu(int index);
 
 //==============================================================================
 //
@@ -506,7 +506,7 @@ void T4K_PrerenderMenu( int index );
 //! \return
 //!     None
 //!
-void T4K_PrerenderAll( void );
+void T4K_PrerenderAll(void);
 
 //==============================================================================
 //
@@ -524,9 +524,7 @@ void T4K_PrerenderAll( void );
 //! \return
 //!     None
 //!
-void T4K_LoadMenu( int         index,
-                   const char* file_name
-                 );
+void T4K_LoadMenu(int index, const char* file_name);
 
 //==============================================================================
 //
@@ -541,8 +539,7 @@ void T4K_LoadMenu( int         index,
 //! \return
 //!     None
 //!
-void T4K_UnloadMenus( void );
-
+void T4K_UnloadMenus(void);
 
 //==============================================================================
 //                     Public Definitions in tk4_sdl.c
@@ -562,7 +559,7 @@ void T4K_UnloadMenus( void );
 //! \return
 //!     The surface of the screen.
 //!
-SDL_Surface* T4K_GetScreen( void );
+SDL_Surface* T4K_GetScreen(void);
 
 //==============================================================================
 //
@@ -586,11 +583,7 @@ SDL_Surface* T4K_GetScreen( void );
 //! \return
 //!     0            - Failed operation.
 //!
-int T4K_GetResolutions( int* win_x,
-                        int* win_y,
-                        int* full_x,
-                        int* full_y
-                      );
+int T4K_GetResolutions(int* win_x, int* win_y, int* full_x, int* full_y);
 
 //==============================================================================
 //
@@ -618,13 +611,8 @@ int T4K_GetResolutions( int* win_x,
 //! \return
 //!     None
 //!
-void T4K_DrawButton( SDL_Rect* target_rect,
-                     int       radius,
-                     Uint8     r,
-                     Uint8     g,
-                     Uint8     b,
-                     Uint8     a
-                   );
+void T4K_DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g,
+                    Uint8 b, Uint8 a);
 
 //==============================================================================
 //
@@ -707,9 +695,7 @@ SDL_Surface* T4K_CreateButton(int w, int h, int radius, Uint8 r, Uint8 g,
 //! \return
 //!    None
 //!
-void T4K_RoundCorners( SDL_Surface* s,
-                       Uint16       radius
-                     );
+void T4K_RoundCorners(SDL_Surface* s, Uint16 radius);
 
 //==============================================================================
 //
@@ -728,10 +714,7 @@ void T4K_RoundCorners( SDL_Surface* s,
 //! \return
 //!     Returns flipped surface.
 //!
-SDL_Surface* T4K_Flip( SDL_Surface* in,
-                       int          x,
-                       int          y
-                     );
+SDL_Surface* T4K_Flip(SDL_Surface* in, int x, int y);
 
 //==============================================================================
 //
@@ -758,10 +741,7 @@ SDL_Surface* T4K_Flip( SDL_Surface* in,
 //!    If successfull, it will returns the new blended surface
 //!    otherwise it will return a NULL value.
 //!
-SDL_Surface* T4K_Blend( SDL_Surface* S1,
-                        SDL_Surface* S2,
-                        float        gamma
-                      );
+SDL_Surface* T4K_Blend(SDL_Surface* S1, SDL_Surface* S2, float gamma);
 
 //==============================================================================
 //
@@ -799,10 +779,7 @@ void T4K_FreeSurfaceArray(SDL_Surface** surfs, int length);
 //! \return
 //!     0        - The x and y are outside of the SDL_Rect r.
 //!
-int T4K_inRect( SDL_Rect r,
-                int      x,
-                int      y
-              );
+int T4K_inRect(SDL_Rect r, int x, int y);
 
 //==============================================================================
 //
@@ -822,9 +799,7 @@ int T4K_inRect( SDL_Rect r,
 //! \return
 //!     None
 //!
-void T4K_SetRect( SDL_Rect*    rect,
-                  const float* pos
-                );
+void T4K_SetRect(SDL_Rect* rect, const float* pos);
 
 //==============================================================================
 //
@@ -841,9 +816,7 @@ void T4K_SetRect( SDL_Rect*    rect,
 //! \return
 //!     None
 //!
-void T4K_UpdateRect( SDL_Surface* surf,
-                     SDL_Rect*    rect
-                   );
+void T4K_UpdateRect(SDL_Surface* surf, SDL_Rect* rect);
 
 //==============================================================================
 //
@@ -859,7 +832,7 @@ void T4K_UpdateRect( SDL_Surface* surf,
 //! \return
 //!     None
 //!
-void T4K_DarkenScreen( Uint8 bits );
+void T4K_DarkenScreen(Uint8 bits);
 
 //==============================================================================
 //
@@ -877,9 +850,7 @@ void T4K_DarkenScreen( Uint8 bits );
 //! \return
 //!     None
 //!
-void T4K_ChangeWindowSize( int new_res_x,
-                           int new_res_y
-                         );
+void T4K_ChangeWindowSize(int new_res_x, int new_res_y);
 
 //==============================================================================
 //
@@ -895,7 +866,7 @@ void T4K_ChangeWindowSize( int new_res_x,
 //! \return
 //!     None
 //!
-void T4K_SwitchScreenMode( void );
+void T4K_SwitchScreenMode(void);
 
 //==============================================================================
 //
@@ -918,7 +889,7 @@ typedef void (*ResSwitchCallback)(int resx, int resy);
 //! \return
 //!     None
 //!
-void T4K_OnResolutionSwitch( ResSwitchCallback callback );
+void T4K_OnResolutionSwitch(ResSwitchCallback callback);
 
 //==============================================================================
 //
@@ -962,10 +933,7 @@ SDL_Window* T4K_GetWindow(void);
 //! \return
 //!     Will return a newly allocated SDL_Surface.
 //!
-SDL_Surface* T4K_zoom( SDL_Surface* src,
-                       int          new_w,
-                       int          new_h
-                     );
+SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h);
 
 //==============================================================================
 //
@@ -987,11 +955,8 @@ SDL_Surface* T4K_zoom( SDL_Surface* src,
 //!     Return 0 if newbkg is NULL and new background surface width and height
 //!     is not equal to screen width and height otherwise returns 1.
 //!
-int T4K_TransWipe( const SDL_Surface* newbkg,
-                   WipeStyle          type,
-                   int                segments,
-                   int                duration
-                 );
+int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments,
+                  int duration);
 
 //==============================================================================
 //
@@ -1013,7 +978,7 @@ int T4K_TransWipe( const SDL_Surface* newbkg,
 //! \return
 //!     None
 //!
-void T4K_InitBlitQueue( void );
+void T4K_InitBlitQueue(void);
 
 //==============================================================================
 //
@@ -1028,7 +993,7 @@ void T4K_InitBlitQueue( void );
 //! \return
 //!     None
 //!
-void T4K_ResetBlitQueue( void );
+void T4K_ResetBlitQueue(void);
 
 //==============================================================================
 //
@@ -1048,9 +1013,7 @@ void T4K_ResetBlitQueue( void );
 //! \return
 //!    0          - If invalid parameter and add SDL_Rect failed.
 //!
-int T4K_AddRect( SDL_Rect* src,
-                 SDL_Rect* dst
-               );
+int T4K_AddRect(SDL_Rect* src, SDL_Rect* dst);
 
 //==============================================================================
 //
@@ -1070,10 +1033,7 @@ int T4K_AddRect( SDL_Rect* src,
 //! \return
 //!     0          - Failed to draw the sprite.
 //!
-int T4K_DrawSprite( sprite* gfx,
-                    int     x,
-                    int     y
-                  );
+int T4K_DrawSprite(sprite* gfx, int x, int y);
 
 //==============================================================================
 //
@@ -1094,10 +1054,7 @@ int T4K_DrawSprite( sprite* gfx,
 //! \return
 //!     0           - Failed to draw the object.
 //!
-int T4K_DrawObject( SDL_Surface* surf,
-                    int          x,
-                    int          y
-                  );
+int T4K_DrawObject(SDL_Surface* surf, int x, int y);
 
 //==============================================================================
 //
@@ -1112,7 +1069,7 @@ int T4K_DrawObject( SDL_Surface* surf,
 //! \return
 //!     None
 //!
-void T4K_UpdateScreen( int* frame );
+void T4K_UpdateScreen(int* frame);
 
 //==============================================================================
 //
@@ -1136,11 +1093,7 @@ void T4K_UpdateScreen( int* frame );
 //! \return
 //!     0          - Failed to erase the sprite.
 //!
-int T4K_EraseSprite( sprite*      img,
-                     SDL_Surface* curr_bkgd,
-                     int          x,
-                     int          y
-                   );
+int T4K_EraseSprite(sprite* img, SDL_Surface* curr_bkgd, int x, int y);
 
 //==============================================================================
 //
@@ -1163,11 +1116,7 @@ int T4K_EraseSprite( sprite*      img,
 //! \return
 //!     0           - Failed operation
 //!
-int T4K_EraseObject( SDL_Surface* surf,
-                     SDL_Surface* curr_bkgd,
-                     int          x,
-                     int          y
-                   );
+int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
 //==============================================================================
 //
@@ -1182,7 +1131,7 @@ int T4K_EraseObject( SDL_Surface* surf,
 //! \return
 //!     None
 //!
-void T4K_SetFontName( const char* name );
+void T4K_SetFontName(const char* name);
 
 //==============================================================================
 //
@@ -1197,7 +1146,7 @@ void T4K_SetFontName( const char* name );
 //! \return
 //!     Returns the "global" font name.
 //!
-const char* T4K_AskFontName( void );
+const char* T4K_AskFontName(void);
 
 //==============================================================================
 //
@@ -1214,7 +1163,7 @@ const char* T4K_AskFontName( void );
 //! \return
 //!     0        - Failed initialization.
 //!
-int T4K_Setup_SDL_Text( void );
+int T4K_Setup_SDL_Text(void);
 
 //==============================================================================
 //
@@ -1229,7 +1178,7 @@ int T4K_Setup_SDL_Text( void );
 //! \return
 //!     None
 //!
-void T4K_Cleanup_SDL_Text( void );
+void T4K_Cleanup_SDL_Text(void);
 
 //==============================================================================
 //
@@ -1252,10 +1201,7 @@ void T4K_Cleanup_SDL_Text( void );
 //! \return
 //!     Returns newly created surface.
 //!
-SDL_Surface* T4K_BlackOutline( const char* t,
-                               int         size,
-                               const SDL_Color*  c
-                             );
+SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c);
 
 //==============================================================================
 //
@@ -1274,10 +1220,7 @@ SDL_Surface* T4K_BlackOutline( const char* t,
 //! \return
 //!     A non-outlined surface using either SDL_Pango or SDL_ttf.
 //!
-SDL_Surface* T4K_SimpleText( const char*      t,
-                             int              size,
-                             const SDL_Color* col
-                           );
+SDL_Surface* T4K_SimpleText(const char* t, int size, const SDL_Color* col);
 
 //==============================================================================
 //
@@ -1298,11 +1241,8 @@ SDL_Surface* T4K_SimpleText( const char*      t,
 //! \return
 //!     A non-outlined surface using either SDL_Pango or SDL_ttf.
 //!
-SDL_Surface* T4K_SimpleTextWithOffset( const char*       t,
-                                       int               size,
-                                       const SDL_Color*  col,
-                                       int*              glyph_offset
-                                     );
+SDL_Surface* T4K_SimpleTextWithOffset(const char* t, int size,
+                                      const SDL_Color* col, int* glyph_offset);
 
 //==============================================================================
 //  T4K_CharsForWidth
@@ -1318,9 +1258,7 @@ SDL_Surface* T4K_SimpleTextWithOffset( const char*       t,
 //! \return
 //!     strlen() of the longest string of 'x' that fits
 //!
-int T4K_CharsForWidth( int fontsize,
-                       int pixel_width
-                     );
+int T4K_CharsForWidth(int fontsize, int pixel_width);
 
 //==============================================================================
 //                  Public Definitions in t4k_loaders.c
@@ -1339,7 +1277,7 @@ int T4K_CharsForWidth( int fontsize,
 //! \return
 //!     None
 //!
-void T4K_AddDataPrefix( const char* path );
+void T4K_AddDataPrefix(const char* path);
 
 //==============================================================================
 //
@@ -1391,7 +1329,7 @@ void T4K_SetSfxVolume(int volume);
 //! \return
 //!    0           - Not present (or any other path type).
 //!
-int T4K_CheckFile( const char* file );
+int T4K_CheckFile(const char* file);
 
 //==============================================================================
 //
@@ -1406,7 +1344,7 @@ int T4K_CheckFile( const char* file );
 //! \return
 //!     A path that does not end in a slash.
 //!
-char* T4K_RemoveSlash( char *path );
+char* T4K_RemoveSlash(char* path);
 
 //==============================================================================
 //
@@ -1424,9 +1362,7 @@ char* T4K_RemoveSlash( char *path );
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
 //!
-SDL_Surface* T4K_LoadImage( const char* file_name,
-                            int         mode
-                          );
+SDL_Surface* T4K_LoadImage(const char* file_name, int mode);
 
 //==============================================================================
 //
@@ -1453,11 +1389,8 @@ SDL_Surface* T4K_LoadImage( const char* file_name,
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
 //!
-SDL_Surface* T4K_LoadScaledImage( const char* file_name,
-                                  int         mode,
-                                  int         width,
-                                  int         height
-                                );
+SDL_Surface* T4K_LoadScaledImage(const char* file_name, int mode, int width,
+                                 int height);
 
 //==============================================================================
 //
@@ -1482,11 +1415,8 @@ SDL_Surface* T4K_LoadScaledImage( const char* file_name,
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
 //!
-SDL_Surface* T4K_LoadImageOfBoundingBox( const char* file_name,
-                                         int         mode,
-                                         int         max_width,
-                                         int         max_height
-                                       );
+SDL_Surface* T4K_LoadImageOfBoundingBox(const char* file_name, int mode,
+                                        int max_width, int max_height);
 
 //=============================================================================
 //
@@ -1507,10 +1437,7 @@ SDL_Surface* T4K_LoadImageOfBoundingBox( const char* file_name,
 //!     If successful it will return the newly created surface
 //!     otherwise it will return a NULL value.
 //!
-SDL_Surface* T4K_LoadBkgd( const char* file_name,
-	int         width,
-	int         height
-	);
+SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height);
 
 //=============================================================================
 //
@@ -1531,10 +1458,8 @@ SDL_Surface* T4K_LoadBkgd( const char* file_name,
 //! \return
 //!     0                - Failed loading of background.
 //!
-int T4K_LoadBothBkgds( const char*   file_name,
-                       SDL_Surface** fs_bkgd,
-                       SDL_Surface** win_bkgd
-                     );
+int T4K_LoadBothBkgds(const char* file_name, SDL_Surface** fs_bkgd,
+                      SDL_Surface** win_bkgd);
 
 //==============================================================================
 //
@@ -1554,9 +1479,7 @@ int T4K_LoadBothBkgds( const char*   file_name,
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
 //!
-sprite* T4K_LoadSprite( const char* name,
-                        int         mode
-                      );
+sprite* T4K_LoadSprite(const char* name, int mode);
 
 //==============================================================================
 //
@@ -1581,11 +1504,7 @@ sprite* T4K_LoadSprite( const char* name,
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
 //!
-sprite* T4K_LoadScaledSprite( const char* name,
-                              int         mode,
-                              int         width,
-                              int         height
-                            );
+sprite* T4K_LoadScaledSprite(const char* name, int mode, int width, int height);
 
 //==============================================================================
 //
@@ -1610,11 +1529,8 @@ sprite* T4K_LoadScaledSprite( const char* name,
 //!     If successful it will return the loaded sprite, otherwise it will
 //!     return a NULL value.
 //!
-sprite* T4K_LoadSpriteOfBoundingBox( const char* name,
-                                     int         mode,
-                                     int         max_width,
-                                     int max_height
-                                   );
+sprite* T4K_LoadSpriteOfBoundingBox(const char* name, int mode, int max_width,
+                                    int max_height);
 
 //==============================================================================
 //
@@ -1651,7 +1567,7 @@ sprite* T4K_FlipSprite(sprite* in, int X, int Y);
 //! \return
 //!     None
 //!
-void T4K_FreeSprite( sprite* gfx );
+void T4K_FreeSprite(sprite* gfx);
 
 //==============================================================================
 //
@@ -1666,7 +1582,7 @@ void T4K_FreeSprite( sprite* gfx );
 //! \return
 //!     None
 //!
-void T4K_NextFrame( sprite* s );
+void T4K_NextFrame(sprite* s);
 
 //==============================================================================
 //
@@ -1681,7 +1597,7 @@ void T4K_NextFrame( sprite* s );
 //! \return
 //!     Returns new created sound effect.
 //!
-Mix_Chunk* T4K_LoadSound( char* datafile );
+Mix_Chunk* T4K_LoadSound(char* datafile);
 
 //==============================================================================
 //
@@ -1696,14 +1612,13 @@ Mix_Chunk* T4K_LoadSound( char* datafile );
 //! \return
 //!     Returns new created music.
 //!
-Mix_Music* T4K_LoadMusic( char *datafile );
-
+Mix_Music* T4K_LoadMusic(char* datafile);
 
 //==============================================================================
 //                  Public Definitions from t4k_audio.c
 //==============================================================================
 
-const static int T4K_AUDIO_PLAY_ONCE    =  0;
+const static int T4K_AUDIO_PLAY_ONCE    = 0;
 const static int T4K_AUDIO_LOOP_FOREVER = -1;
 
 //==============================================================================
@@ -1719,7 +1634,7 @@ const static int T4K_AUDIO_LOOP_FOREVER = -1;
 //! \return
 //!     None
 //!
-void T4K_PlaySound( Mix_Chunk* sound );
+void T4K_PlaySound(Mix_Chunk* sound);
 
 //==============================================================================
 //
@@ -1736,9 +1651,7 @@ void T4K_PlaySound( Mix_Chunk* sound );
 //! \return
 //!     None
 //!
-void T4K_PlaySoundLoop( Mix_Chunk* sound,
-                        int        loops
-                      );
+void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops);
 
 /* True iff the given Mix_Chunk is currently playing on any SFX track. */
 bool T4K_IsPlayingSound(Mix_Chunk* sound);
@@ -1760,7 +1673,7 @@ void T4K_StopSound(Mix_Chunk* sound);
 //! \return
 //!     None
 //!
-void T4K_AudioHaltChannel( int channel );
+void T4K_AudioHaltChannel(int channel);
 
 //==============================================================================
 //
@@ -1777,9 +1690,7 @@ void T4K_AudioHaltChannel( int channel );
 //! \return
 //!     None
 //!
-void T4K_AudioMusicLoad( char* music_path,
-                         int   loops
-                       );
+void T4K_AudioMusicLoad(char* music_path, int loops);
 
 //==============================================================================
 //
@@ -1795,7 +1706,7 @@ void T4K_AudioMusicLoad( char* music_path,
 //! \return
 //!     None
 //!
-void T4K_AudioMusicUnload( void );
+void T4K_AudioMusicUnload(void);
 
 //==============================================================================
 //
@@ -1812,7 +1723,7 @@ void T4K_AudioMusicUnload( void );
 //! \return
 //!     false      - If a music is not playing.
 //!
-bool T4K_IsPlayingMusic( void );
+bool T4K_IsPlayingMusic(void);
 
 //==============================================================================
 //
@@ -1830,9 +1741,7 @@ bool T4K_IsPlayingMusic( void );
 //! \return
 //!     None
 //!
-void T4K_AudioMusicPlay( Mix_Music* musicData,
-                         int        loops
-                       );
+void T4K_AudioMusicPlay(Mix_Music* musicData, int loops);
 
 //==============================================================================
 //
@@ -1848,7 +1757,7 @@ void T4K_AudioMusicPlay( Mix_Music* musicData,
 //! \return
 //!     None
 //!
-void T4K_AudioEnable( bool enabled );
+void T4K_AudioEnable(bool enabled);
 
 //==============================================================================
 //
@@ -1863,8 +1772,7 @@ void T4K_AudioEnable( bool enabled );
 //! \return
 //!     None
 //!
-void T4K_AudioToggle( void );
-
+void T4K_AudioToggle(void);
 
 //=============================================================================
 //                      Public Definitions for t4k_linewrap.c
@@ -1897,12 +1805,8 @@ void T4K_AudioToggle( void );
 //! \return
 //!     Linewrap returns the number of lines used to format the strings.
 //!
-int T4K_LineWrap( const char* input,
-                  char        str_list[MAX_LINES][MAX_LINEWIDTH],
-                  int         width,
-                  int         max_lines,
-                  int         max_width
-                );
+int T4K_LineWrap(const char* input, char str_list[MAX_LINES][MAX_LINEWIDTH],
+                 int width, int max_lines, int max_width);
 
 //=============================================================================
 //
@@ -1930,12 +1834,8 @@ int T4K_LineWrap( const char* input,
 //! \return
 //!     Linewrap returns the number of lines used to format the strings.
 //!
-int T4K_LineWrapInsBreaks( const char* input,
-                           char*       output,
-                           int         width,
-                           int         max_lines,
-                           int         max_width
-                         );
+int T4K_LineWrapInsBreaks(const char* input, char* output, int width,
+                          int max_lines, int max_width);
 
 //=============================================================================
 //
@@ -1972,7 +1872,6 @@ void T4K_LineWrapList(const char input[][MAX_LINEWIDTH],
 //                      Public Definitions for t4k_throttle.c
 //=============================================================================
 
-
 //=============================================================================
 //
 //  T4K_Throttle
@@ -1992,15 +1891,11 @@ void T4K_LineWrapList(const char input[][MAX_LINEWIDTH],
 //! /return
 //!     None
 //!
-void T4K_Throttle( int     loop_msec,
-                   Uint32* last_t
-                 );
-
+void T4K_Throttle(int loop_msec, Uint32* last_t);
 
 //=============================================================================
 //                      Public Definitions for t4k_convert_utf.c
 //=============================================================================
-
 
 //=============================================================================
 //
@@ -2074,9 +1969,7 @@ int T4K_ConvertToUTF8(const wchar_t* wide_word, char* UTF8_word,
 //!     is considered to be  respectively  less than, equal to, or greater than
 //!     the second."
 //!
-int T4K_alphasort( const struct dirent** d1,
-                   const struct dirent** d2
-                 );
+int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
 
 //==============================================================================
 //
@@ -2114,11 +2007,8 @@ int T4K_alphasort( const struct dirent** d1,
 //!     The scandir() function returns the number of directory entries selected
 //!     or -1 if an error occurs.
 //!
-int T4K_scandir( const char*      dirname,
-                 struct dirent*** namelist,
-                 int (*sdfilter)(struct dirent *),
-                 int (*dcomp)(const void *, const void *)
-               );
+int T4K_scandir(const char* dirname, struct dirent*** namelist,
+                int (*sdfilter)(struct dirent*),
+                int (*dcomp)(const void*, const void*));
 
 #endif /* TUX4KIDS_COMMON_H */
-

@@ -4,7 +4,7 @@
    SDL3_mixer is a complete API rewrite (MIX_Mixer/MIX_Audio/MIX_Track).
    Tuxtype/tuxmath still use the SDL2-era T4K_* names (PlaySound, MusicPlay,
    etc.) and the Mix_Chunk / Mix_Music pointer types — those are aliased to
-   MIX_Audio* in t4k_common.h so call sites compile unchanged.
+   MIX_Audio* in t4k/common.h so call sites compile unchanged.
 
    Internally we keep a single mixer, one track for music, and a small
    round-robin pool for short SFX so multiple sounds can overlap.
@@ -12,7 +12,7 @@
    Original copyright 2003, 2006, 2009, 2010 Sam Hart, Jesse Andrews,
    David Bruce, Brendan Luchen. GPL v3 or later. */
 
-#include "t4k_common.h"
+#include <t4k/common.h>
 #include <stdio.h>
 #include <stdlib.h>
 

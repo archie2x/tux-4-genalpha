@@ -1,5 +1,5 @@
 #include <math.h>
-#include <t4k_common.h>
+#include <t4k/common.h>
 
 #include "draw_utils.h"
 #include "tuxmath.h"

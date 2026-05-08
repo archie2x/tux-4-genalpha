@@ -81,7 +81,7 @@ extern SDL_Event  event;
 
 #define MUSIC_FADE_OUT_MS               80
 
-#include <t4k_common.h>
+#include <t4k/common.h>
 
 // End of code from tuxtype's globals.h
 

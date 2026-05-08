@@ -41,8 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SDL3_mixer/SDL_mixer.h>
 #endif
 
-
-#include <t4k_common.h>
+#include <t4k/common.h>
 #include "mathcards.h"
 
 /* Global data gets 'externed' here: */

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "CUnit/Basic.h"
-#include "t4k_common.h"
+#include <t4k/common.h>
 #include "test_public_functions.h"
 
 

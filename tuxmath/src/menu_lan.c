@@ -227,7 +227,8 @@ int Pregame(void)
     Uint32 timer = 0;
     const int loop_msec = 20;
     SDL_Event event;
-    SDL_Rect title_rect, ready_rect;  //NOTE stop_rect is a global from t4k_common.h (good idea???)
+    SDL_Rect  title_rect,
+        ready_rect; //NOTE stop_rect is a global from t4k/common.h (good idea???)
     SDL_Surface* play_surf = NULL;
     SDL_Surface* pause_surf = NULL;
     SDL_Surface* ready_title = NULL;

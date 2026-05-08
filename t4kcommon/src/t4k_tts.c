@@ -8,7 +8,7 @@
 
    Copyright 2013, Nalin.x.Linux. GPL v3 or later. */
 
-#include "t4k_common.h"
+#include <t4k/common.h>
 #include "t4k_globals.h"
 
 #include <SDL3/SDL_thread.h>

@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* NOTE - there is no reason to declare functions using "extern", as all */
 /* non-local functions are visible throughout the program.               */
 
-#include <t4k_common.h>
-/* t4k_common.h redefines DEBUGCODE/DOUT/LOG with a different (mask-taking)
+#include <t4k/common.h>
+/* t4k/common.h redefines DEBUGCODE/DOUT/LOG with a different (mask-taking)
  * signature than tuxtype's globals.h uses. Restore tuxtype's versions: */
 #undef DEBUGCODE
 #undef DOUT
@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     if (settings.debug_on)                                                     \
         fprintf(stderr, "%s = %d\n", #x, x);
 
-/* TTS functions tuxtype calls but t4k_common.h doesn't declare publicly. */
+/* TTS functions tuxtype calls but t4k/common.h doesn't declare publicly. */
 
 #include "SDL_extras.h"
 
