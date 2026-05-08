@@ -120,6 +120,7 @@ typedef struct game_option_type{
   int debug_on;
   int o_lives;
   int sound_vol;
+  int  show_keyboard;
   int hidden; // Read the README file in the image directory for info on this ;)
 } game_option_type;
 
@@ -159,6 +160,7 @@ extern struct braille_dict braille_key_value_map[100];
 #define DEFAULT_DEBUG_ON 0
 #define DEFAULT_O_LIVES 0
 #define DEFAULT_SOUND_VOL 100
+#define DEFAULT_SHOW_KEYBOARD 0
 #define DEFAULT_HIDDEN 0
 
 

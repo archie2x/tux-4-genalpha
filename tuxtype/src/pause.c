@@ -33,6 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 static Mix_Chunk *pause_sfx = NULL;
 static SDL_Surface *up = NULL, *down = NULL, *left = NULL, *right = NULL;
 static SDL_Rect rectUp, rectDown, rectLeft, rectRight;
+static SDL_Rect     rectKbdToggle; /* fixed area used for the toggle label */
+static SDL_Surface* pause_kbd_bkg =
+    NULL; /* snapshot of pixels under that rect */
 const int pause_font_size1 = 24;
 const int pause_font_size2 = 36;
 
@@ -40,6 +43,7 @@ const int pause_font_size2 = 36;
 /* Local function prototypes: */
 static void draw_vols(int sfx, int mus);
 static void pause_draw(void);
+static void draw_kbd_toggle(void);
 static void pause_load_media(void);
 static void pause_unload_media(void);
 
@@ -64,7 +68,11 @@ int        Pause(int in_game)
 	int mousePressed = 0;
 	int quit=0;
 	int tocks=0;  // used for keeping track of when a tock has happened
-	SDL_Event event;
+    /* Pre-scaled (640x480 backing) coords of the most recent mouse-down /
+	 * motion event. SDL_GetMouseState would return window-units which
+	 * don't match the rects when the window is scaled (fullscreen). */
+    int       last_mx = 0, last_my = 0;
+    SDL_Event event;
 
 	LOG( "Entering Pause()\n" );
 
@@ -130,6 +138,12 @@ int        Pause(int in_game)
                     paused = 0;
                     quit   = 1;
                 }
+                if (event.key.key == SDLK_K && in_game)
+                {
+                    settings.show_keyboard = !settings.show_keyboard;
+                    draw_kbd_toggle();
+                    T4K_UpdateRect(screen, &rectKbdToggle);
+                }
                 if (settings.sys_sound)
                 {
                     if (event.key.key == SDLK_RIGHT)
@@ -150,9 +164,28 @@ int        Pause(int in_game)
                     }
                 }
                 break;
+            case SDL_EVENT_MOUSE_MOTION:
+                last_mx = (int)event.motion.x;
+                last_my = (int)event.motion.y;
+                break;
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
                 mousePressed = 1;
                 tocks        = 0;
+                last_mx      = (int)event.button.x;
+                last_my      = (int)event.button.y;
+                if (in_game && rectKbdToggle.w > 0)
+                {
+                    /* event coords come pre-scaled to 640x480 backing-surface
+                     * units via t4kcommon's event filter; SDL_GetMouseState
+                     * returns window units instead, which won't match. */
+                    if (inRect(rectKbdToggle, last_mx, last_my))
+                    {
+                        settings.show_keyboard = !settings.show_keyboard;
+                        draw_kbd_toggle();
+                        T4K_UpdateRect(screen, &rectKbdToggle);
+                        mousePressed = 0; /* don't also trigger volume */
+                    }
+                }
                 break;
             case SDL_EVENT_MOUSE_BUTTON_UP:
                 mousePressed = 0;
@@ -162,9 +195,7 @@ int        Pause(int in_game)
             }
         }
         if (settings.sys_sound && mousePressed) {
-            float fx, fy;
-            SDL_GetMouseState(&fx, &fy);
-            int x = (int)fx, y = (int)fy;
+            int x = last_mx, y = last_my;
             /* check to see if they clicked on a button */
 
             if (inRect(rectUp, x, y))
@@ -297,6 +328,11 @@ static void pause_unload_media(void) {
         SDL_DestroySurface(left);
         SDL_DestroySurface(right);
         up = down = left = right = NULL;
+        if (pause_kbd_bkg)
+        {
+            SDL_DestroySurface(pause_kbd_bkg);
+            pause_kbd_bkg = NULL;
+        }
 }
 
 
@@ -396,11 +432,67 @@ static void pause_draw(void)
           SDL_BlitSurface(t, NULL, screen, &s);
           SDL_DestroySurface(t);
       }
+
+      draw_kbd_toggle();
+  }
+  else
+  {
+      rectKbdToggle = (SDL_Rect){0, 0, 0, 0};
   }
 
   LOG("Leaving pause_draw()\n");
 }
 
+/* Draw (or redraw) the "'K' Show keyboard: ON/OFF" label centered in
+ * rectKbdToggle. First call captures the underlying pixels so subsequent
+ * calls (after a toggle) can restore-then-redraw and avoid old-glyph
+ * artifacts at the edges where ON and OFF differ in width. */
+static void draw_kbd_toggle(void)
+{
+    SDL_Surface* t;
+    SDL_Rect     dst;
+    /* Use the wider of the two strings to size the snapshot rect once. */
+    const char* sample_str = gettext("'K' Show keyboard: OFF");
+    const char* label =
+        settings.show_keyboard ? gettext("'K' Show keyboard: ON") : sample_str;
+
+    if (!pause_kbd_bkg)
+    {
+        SDL_Surface* sample =
+            BlackOutline(sample_str, pause_font_size1, &white);
+        if (!sample)
+        {
+            return;
+        }
+        rectKbdToggle.x = screen->w / 2 - sample->w / 2;
+        rectKbdToggle.y = screen->h / 2 + 130;
+        rectKbdToggle.w = sample->w;
+        rectKbdToggle.h = sample->h;
+        SDL_DestroySurface(sample);
+
+        pause_kbd_bkg =
+            SDL_CreateSurface(rectKbdToggle.w, rectKbdToggle.h, screen->format);
+        if (pause_kbd_bkg)
+        {
+            SDL_BlitSurface(screen, &rectKbdToggle, pause_kbd_bkg, NULL);
+        }
+    }
+    else if (pause_kbd_bkg)
+    {
+        SDL_BlitSurface(pause_kbd_bkg, NULL, screen, &rectKbdToggle);
+    }
+
+    t = BlackOutline(label, pause_font_size1, &white);
+    if (t)
+    {
+        dst.x = screen->w / 2 - t->w / 2;
+        dst.y = rectKbdToggle.y;
+        dst.w = t->w;
+        dst.h = t->h;
+        SDL_BlitSurface(t, NULL, screen, &dst);
+        SDL_DestroySurface(t);
+    }
+}
 
 /* FIXME what if rectLeft and rectDown not initialized? - should be args */
 static void draw_vols(int sfx, int mus)

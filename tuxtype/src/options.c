@@ -54,5 +54,6 @@ void Opts_Initialize(void)
   settings.debug_on = DEFAULT_DEBUG_ON;
   settings.o_lives = DEFAULT_O_LIVES;
   settings.sound_vol = DEFAULT_SOUND_VOL;
+  settings.show_keyboard = DEFAULT_SHOW_KEYBOARD;
   settings.hidden        = DEFAULT_HIDDEN;
 }

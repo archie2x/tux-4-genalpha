@@ -48,6 +48,9 @@ static SDL_Surface* curlev = NULL;
 static SDL_Surface* lives = NULL;
 static SDL_Surface* fish = NULL;
 static GameKeyboard cascade_keyboard;
+/* The bkg filename in use for the current level — cached so the keyboard-
+ * guide toggle in the pause overlay can re-bake without re-randomizing. */
+static char         cascade_current_bkg[FNLEN];
 static SDL_Surface* congrats[CONGRATS_FRAMES] = {NULL};
 static SDL_Surface* ohno[OH_NO_FRAMES] = {NULL};
 static Mix_Chunk* sound[NUM_WAVES];
@@ -264,23 +267,25 @@ int PlayCascade(int diflevel)
         fprintf(stderr, "->>Loading background: %s\n", filename);
       }
         LoadBothBkgds(filename);
-//			SNOW_setBkg( background );
+        strncpy(cascade_current_bkg, filename, FNLEN);
+        cascade_current_bkg[FNLEN - 1] = '\0';
+        //			SNOW_setBkg( background );
 
-      ResetObjects();
-      AddKeyboardToBackground();
-      DrawBackground();
+        ResetObjects();
+        AddKeyboardToBackground();
+        DrawBackground();
 
-      if (settings.sys_sound)
-      {
-        //TODO make use of more music files
-        if (rand() % 2)
+        if (settings.sys_sound)
         {
-            sprintf(filename, "amidst_the_raindrops.ogg");
+            //TODO make use of more music files
+            if (rand() % 2)
+            {
+                sprintf(filename, "amidst_the_raindrops.ogg");
+            }
+            else
+                sprintf(filename, "chiptune2.ogg");
+            MusicLoad(filename, -1);
         }
-        else
-          sprintf(filename, "chiptune2.ogg");
-        MusicLoad( filename, -1 );
-      }
 
       setup_new_level = 0;
 
@@ -372,6 +377,7 @@ int PlayCascade(int diflevel)
 
                     /* Pause(1) returns 1 if quitting, */
                     /* 0 if returning to game:        */
+                    int prev_show_kbd = settings.show_keyboard;
                     if (Pause(1) == 1)
                     {
                         playing_level = 0;
@@ -380,6 +386,16 @@ int PlayCascade(int diflevel)
                     }
                     else /* Returning to game */
                     {
+                        if (settings.show_keyboard != prev_show_kbd &&
+                            cascade_current_bkg[0])
+                        {
+                            /* Re-bake the background so the toggle takes
+                             * effect immediately mid-game. */
+                            FreeBothBkgds();
+                            LoadBothBkgds(cascade_current_bkg);
+                            AddKeyboardToBackground();
+                            DrawBackground();
+                        }
                         T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
                                     gettext("Pause Released!"));
                         //Call announcer function in thread which annonces the word to type
@@ -1126,13 +1142,18 @@ static void DrawBackground(void)
 
 /***************************
 AddKeyboardToBackground : Composite a faint keyboard guide into Cascade's
-background so sprite erases restore the keyboard layer cleanly.
+background so sprite erases restore the keyboard layer cleanly. Gated on
+settings.show_keyboard — when off, just position (so a later toggle can
+re-bake without re-positioning).
 ****************************/
 static void AddKeyboardToBackground(void)
 {
     GameKeyboard_SetPositionAbove(&cascade_keyboard, screen->w, tux_object.y,
                                   screen->h);
-    GameKeyboard_BakeIntoBackground(&cascade_keyboard, CurrentBkgd());
+    if (settings.show_keyboard)
+    {
+        GameKeyboard_BakeIntoBackground(&cascade_keyboard, CurrentBkgd());
+    }
 }
 
 /***************************
@@ -1143,7 +1164,7 @@ static void DrawActiveKeyboardHighlights(int fishies)
     int drawn[MAX_UNICODES] = {0};
     int i, j;
 
-    if (!cascade_keyboard.base)
+    if (!cascade_keyboard.base || !settings.show_keyboard)
     {
         return;
     }

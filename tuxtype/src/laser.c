@@ -882,20 +882,21 @@ static void laser_unload_data(void)
         GameKeyboard_Free(&laser_keyboard);
 }
 
-/* For each alive shootable comet, paint the next-letter-to-type green on
- * the keyboard guide. laser.c re-blits CurrentBkgd() each frame (which
- * has the keyboard baked in), so the previous-frame highlights are
- * already cleared — just blit fresh green keys directly to `screen`.
- * Dedupe by key index so duplicate next-letters don't over-blend. */
+/* Draw keyboard guide + the green next-letter-to-type highlight for each
+ * alive shootable comet, directly onto `screen`. Toggling
+ * settings.show_keyboard takes effect immediately because nothing is
+ * baked into the background. */
 static void laser_draw_keyboard_highlights(void)
 {
     int drawn[MAX_UNICODES] = {0};
     int i;
 
-    if (!laser_keyboard.base)
+    if (!laser_keyboard.base || !settings.show_keyboard)
     {
         return;
     }
+
+    GameKeyboard_DrawBase(&laser_keyboard, screen);
 
     for (i = 0; i < MAX_COMETS; i++)
     {
@@ -971,13 +972,12 @@ static void laser_reset_level(int diff_level)
   }
   else
   {
-      /* Bake the keyboard guide into the freshly-loaded background, above
-     * the cities row. Each frame just blits CurrentBkgd() so the
-     * keyboard layer rides along. */
+      /* Position the keyboard guide above the cities row. The base is
+       * drawn per-frame in laser_draw_keyboard_highlights (gated on
+       * settings.show_keyboard) so the toggle takes effect immediately. */
       int cities_top_y = screen->h - images[IMG_CITY_BLUE]->h;
       GameKeyboard_SetPositionAbove(&laser_keyboard, screen->w, cities_top_y,
                                     screen->h);
-      GameKeyboard_BakeIntoBackground(&laser_keyboard, CurrentBkgd());
   }
 
   /* Record score before this wave: */
