@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "pixels.h"
-#include "compiler.h"
+#include <t4k/compiler.h>
 //#include "debug.h"
 
 /* Draw a single pixel into the surface: */

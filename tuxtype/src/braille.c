@@ -27,33 +27,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.h"
 
-/* Arrange the given disordered keycombination
- * to assigned combination (fdsjkl) */
-void arrange_in_order(wchar_t *disorder)
+/* Reorder the given chord into canonical fdsjkl (dots 1,2,3,4,5,6) order
+ * so the lookup against braille_key_value_map[].key works regardless of
+ * which keys the user pressed first. */
+void braille_reorder(wchar_t* disorder)
 {
-	int iter=0,i,j,len;
-	wchar_t *order = malloc(sizeof(char)*100);
-	wchar_t *temp = malloc(sizeof(char)*100);
+    static const wchar_t dots[] = L"fdsjkl";
+    wchar_t              in[8]  = {0};
+    int                  out    = 0;
 
-    wcscpy(order, L"fdsjkl");
-    wcscpy(temp,disorder);
-
-	len = wcslen(disorder);
-	disorder[iter] = L'\0';
-
-    for(i=0;i<6;i++)
-	{
-
-        for(j=0;j<len;j++)
-		{
-			if (order[i] == temp[j])
-            {
-                disorder[iter] = order[i];
-				iter++;
-            }
+    wcsncpy(in, disorder, 7);
+    for (int i = 0; dots[i]; i++)
+    {
+        if (wcschr(in, dots[i]))
+        {
+            disorder[out++] = dots[i];
         }
-	}
-	disorder[iter] = L'\0';
+    }
+    disorder[out] = L'\0';
 }
 
 /* Braille map loading function

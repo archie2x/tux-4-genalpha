@@ -1,11 +1,7 @@
-/*
-   keyboard_display.h:
-
-   Keyboard overlay widget — load keyboard.png, scale it to a target
-   width, position above a row, render base + per-key green/red
-   highlights. Used by Cascade, Comet Zap, and Practice as a visual
-   typing guide.
-*/
+/* Keyboard overlay widget — load keyboard.png, scale it to a target
+ * width, position above a row, render base + per-key green/red
+ * highlights. Used by Cascade, Comet Zap, and Practice as a visual
+ * typing guide. */
 
 #ifndef TUXTYPE_KEYBOARD_DISPLAY_H
 #define TUXTYPE_KEYBOARD_DISPLAY_H

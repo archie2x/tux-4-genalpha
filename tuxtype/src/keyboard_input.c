@@ -1,11 +1,9 @@
 /*
-   keyboard_input.c:
-
-   Shared typing-input decoder used by Cascade, Comet Zap, and Practice.
-   Handles SDL_EVENT_TEXT_INPUT in normal mode and KEY_DOWN-accumulate /
-   KEY_UP-decode (chord + capital/number prefix) in braille mode. State is
-   file-static; only one game runs at a time so no per-instance struct.
-*/
+ * Shared typing-input decoder. Handles SDL_EVENT_TEXT_INPUT in normal mode and
+ * KEY_DOWN-accumulate / KEY_UP-decode (chord + capital/number prefix) in
+ * braille mode. State is file-static; only one game runs at a time so no
+ * per-instance struct.
+ */
 
 #include "keyboard_input.h"
 
@@ -14,9 +12,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <wchar.h>
-
-/* ---------------------------------------------------------------------- */
-/* Shared typing-input decoder used by Cascade, Comet Zap, and Practice. */
 
 static wchar_t kbd_pressed[1000];
 static int     kbd_iter            = 0;
@@ -101,7 +96,7 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
         /* Letter chord — sort dot keys into canonical order, then look up. */
         if (kbd_iter > 0)
         {
-            arrange_in_order(kbd_pressed);
+            braille_reorder(kbd_pressed);
             for (int i = 0; i < 100; i++)
             {
                 if (wcscmp(kbd_pressed, braille_key_value_map[i].key) != 0)

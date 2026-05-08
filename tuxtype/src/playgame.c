@@ -450,7 +450,6 @@ int PlayCascade(int diflevel)
       /* --- fishy updates --- */
       if ((frame % 3) == 0)
       {
-          //      if ((frame % 10) == 0)
           NEXT_FRAME(fish_sprite);
       }
 

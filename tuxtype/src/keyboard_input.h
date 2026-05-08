@@ -1,13 +1,9 @@
-/*
-   keyboard_input.h:
-
-   Shared typing-input decoder. Each game still handles its own
-   control-key events (ESC, F-keys, arrows). For typing, pass every
-   SDL_Event through Kbd_Input_HandleEvent — it returns a decoded
-   wchar_t when one is ready (TEXT_INPUT in normal mode, KEY_UP
-   chord-decode in braille mode). All three games share the same
-   braille chord state via file-static storage in keyboard_input.c.
-*/
+/* Shared typing-input decoder. Each game still handles its own
+ * control-key events (ESC, F-keys, arrows). For typing, pass every
+ * SDL_Event through Kbd_Input_HandleEvent — it returns a decoded
+ * wchar_t when one is ready (TEXT_INPUT in normal mode, KEY_UP
+ * chord-decode in braille mode). All three games share the same
+ * braille chord state via file-static storage in keyboard_input.c. */
 
 #ifndef TUXTYPE_KEYBOARD_INPUT_H
 #define TUXTYPE_KEYBOARD_INPUT_H

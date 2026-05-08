@@ -30,7 +30,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "t4k_globals.h"
-#include "t4k_compiler.h"
+#include <t4k/compiler.h>
 
 /* Draw a single pixel into the surface: */
 void putpixel8(SDL_Surface * surface, int x, int y, Uint32 pixel)

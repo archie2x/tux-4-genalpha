@@ -1,10 +1,6 @@
-/*
-   keyboard_display.c:
-
-   Keyboard overlay widget — load + scale keyboard.png + per-key green/red
-   overlays, position above a target row, bake into a background, draw
-   green/red key highlights.
-*/
+/* Keyboard overlay widget — load + scale keyboard.png + per-key green/red
+ * overlays, position above a target row, bake into a background, draw
+ * green/red key highlights. */
 
 #include "keyboard_display.h"
 
