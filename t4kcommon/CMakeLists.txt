@@ -88,6 +88,7 @@ add_library(
     src/t4k_sdl.c
     src/t4k_throttle.c
     src/t4k_tts.c
+    src/t4k_visible_bell.c
     src/t4k_volume.c
     # bundled linebreak (was a separate convenience archive in autotools):
     src/linebreak/linebreak.c

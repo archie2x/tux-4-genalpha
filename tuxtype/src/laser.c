@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "keyboard_input.h"
 #include <ctype.h>
 
+#include <t4k/visible_bell.h>
+
 #define FPS (1000 / 15) /* 15 fps max */
 #define CITY_EXPL_START                                                        \
     (3 * 5) /* Must be mult. of 5 (number of expl frames)                      \
@@ -71,6 +73,8 @@ static laser_type laser;
 
 static int tts_announcer_switch = 1;
 static int braille_letter_pos   = 0;
+
+static T4K_VisibleBell s_wrong_bell;
 
 static KbdDisplay laser_keyboard;
 
@@ -120,6 +124,7 @@ int PlayLaserGame(int diff_level)
 
     SDL_HideCursor();
     laser_load_data();
+    T4K_VisibleBell_Init(&s_wrong_bell, 0, 0); /* defaults: 200ms, alpha 110 */
 
     /* Clear window: */
 
@@ -417,7 +422,8 @@ int PlayLaserGame(int diff_level)
 
                 /* Didn't hit anything! */
 
-                PlaySound(sounds[SND_BUZZ]);
+                /* PlaySound(sounds[SND_BUZZ]); */
+                T4K_VisibleBell_Trigger(&s_wrong_bell);
 
                 if (0 == (rand() % 2))
                 {
@@ -821,6 +827,8 @@ int PlayLaserGame(int diff_level)
             SDL_BlitSurface(images[IMG_GAMEOVER], NULL, screen, &dest);
         }
 
+        T4K_VisibleBell_Render(&s_wrong_bell, screen);
+
         /* Swap buffers: */
 
         T4K_UpdateRect(screen, NULL);
@@ -970,6 +978,7 @@ static void laser_unload_data(void)
     shield = NULL;
 
     Kbd_Display_Free(&laser_keyboard);
+    T4K_VisibleBell_Free(&s_wrong_bell);
 }
 
 /* Draw keyboard guide + the green next-letter-to-type highlight for each
