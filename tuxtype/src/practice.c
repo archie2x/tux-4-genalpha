@@ -349,7 +349,10 @@ int Phrases(wchar_t* pphrase )
         start = SDL_GetTicks();
         SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
         SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-        Kbd_Display_DrawBase(&practice_keyboard, screen);
+        if (settings.show_keyboard)
+        {
+            Kbd_Display_DrawBase(&practice_keyboard, screen);
+        }
         /* Update entire screen */
         T4K_UpdateRect(screen, NULL);
 
@@ -377,7 +380,10 @@ int Phrases(wchar_t* pphrase )
       case 5:
         SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
         SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-        Kbd_Display_DrawBase(&practice_keyboard, screen);
+        if (settings.show_keyboard)
+        {
+            Kbd_Display_DrawBase(&practice_keyboard, screen);
+        }
         state = 14;
         break;
 
@@ -762,7 +768,7 @@ int Phrases(wchar_t* pphrase )
             else
             {
                 // int key = GetIndex((wchar_t)event.key.key);
-                if (-1 != key)
+                if (-1 != key && settings.show_keyboard)
                 {
                     Kbd_Display_DrawRedKey(&practice_keyboard, key, screen);
                 }
@@ -1513,8 +1519,11 @@ void set_hand(int cursor,int cur_phrase)
 
             SDL_BlitSurface(hand_shift[shift], NULL, screen, &hand_loc);
 
-            Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
-            Kbd_Display_DrawShiftForKey(&practice_keyboard, key, screen);
+            if (settings.show_keyboard)
+            {
+                Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
+                Kbd_Display_DrawShiftForKey(&practice_keyboard, key, screen);
+            }
         }
 	    else
 		{

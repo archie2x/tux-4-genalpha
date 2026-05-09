@@ -12,3 +12,4 @@
 *.elc
 auto-save-list/
 flycheck_*.el
+.claude
