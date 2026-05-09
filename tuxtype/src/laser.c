@@ -843,6 +843,7 @@ static void laser_unload_data(void)
 static void laser_draw_keyboard_highlights(void)
 {
     int drawn[MAX_UNICODES] = {0};
+    int lowest              = -1;
     int i;
 
     if (!laser_keyboard.base || !settings.show_keyboard)
@@ -852,14 +853,19 @@ static void laser_draw_keyboard_highlights(void)
 
     Kbd_Display_DrawBase(&laser_keyboard, screen);
 
+    /* In word mode, multiple comets are chained via .next and only the
+     * chain head has .shootable=1 (i.e. the next letter to type for that
+     * word). In single-letter mode every alive comet is shootable.
+     *
+     * Normal mode highlights every alive shootable comet's next letter
+     * (dedup'd via drawn[]). Braille mode tracks the lowest-on-screen
+     * comet (largest .y, since SDL y grows downward) — its chord is the
+     * single highlight, since every chord shares the fdsjkl keys and
+     * showing multiple at once is unreadable. */
     for (i = 0; i < MAX_COMETS; i++)
     {
         int key;
 
-        /* In word mode, multiple comets are chained via .next and only
-         * the chain head has .shootable=1 (i.e. the next letter to type
-         * for that word). In single-letter mode every alive comet is
-         * shootable. Either way, .shootable is the right filter. */
         if (!comets[i].alive || comets[i].expl != 0 || !comets[i].shootable)
         {
             continue;
@@ -869,15 +875,37 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
+        if (settings.braille)
+        {
+            if (lowest < 0 || comets[i].y > comets[lowest].y)
+            {
+                lowest = i;
+            }
+            continue;
+        }
+
         key = GetIndex(comets[i].ch);
         if (key < 0 || key >= MAX_UNICODES || drawn[key])
         {
             continue;
         }
-
         if (Kbd_Display_BlitGreenKey(&laser_keyboard, key, screen))
         {
             drawn[key] = 1;
+        }
+    }
+
+    if (settings.braille && lowest >= 0)
+    {
+        wchar_t dots[6];
+        int     n = Braille_DotsForChar(comets[lowest].ch, dots);
+        for (int d = 0; d < n; d++)
+        {
+            int key = GetIndex(dots[d]);
+            if (key >= 0 && key < MAX_UNICODES)
+            {
+                Kbd_Display_BlitGreenKey(&laser_keyboard, key, screen);
+            }
         }
     }
 }

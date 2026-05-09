@@ -88,12 +88,14 @@ void LoadLang(void)
 	  }
 
       //If map not found then disable braille mode
-	  if (braille_language_loader(file_name) == 0){
-		  T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,APPEND
-				,gettext("Braille mode is not available for this language. Braille disabled!"));
-		  DEBUGCODE{  fprintf(stderr,"Braille disabled!"); }
+      if (Braille_LoadLanguage(file_name) == 0)
+      {
+          T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+                      gettext("Braille mode is not available for this "
+                              "language. Braille disabled!"));
+          DEBUGCODE{  fprintf(stderr,"Braille disabled!"); }
 		  settings.braille = 0;
-	  }
+      }
   }
 
   /* Setting TTS language

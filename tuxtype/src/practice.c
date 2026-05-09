@@ -796,52 +796,31 @@ int Phrases(wchar_t* pphrase )
                         else
                         {
 
-                            int     j, len;
-                            wchar_t tts_temp[255];
-                            tts_temp[0] = L'\0';
-                            len         = 0;
-
-                            /* hear we check for the keycombination of the next letter to be typed */
-                            for (i = 0; i < 100; i++)
+                            wchar_t dots[6];
+                            int     n = Braille_DotsForChar(
+                                phrases[cur_phrase][cursor], dots);
+                            if (n > 0)
                             {
-                                /* We have to check each case because braille combination is same for
-							   * begining,middle and end of the word in which letters are not same */
-                                if (braille_key_value_map[i].value_begin[0] ==
-                                        phrases[cur_phrase][cursor] ||
-                                    braille_key_value_map[i].value_middle[0] ==
-                                        phrases[cur_phrase][cursor] ||
-                                    braille_key_value_map[i].value_end[0] ==
-                                        phrases[cur_phrase][cursor] ||
-                                    (settings.use_english == 1 &&
-                                     braille_key_value_map[i].value_begin[0] ==
-                                         tolower(phrases[cur_phrase][cursor])))
+                                /* Speak the chord as "dot 1 , 2 , 3 , ..." */
+                                static const wchar_t dot_to_num[128] = {
+                                    [L'f'] = L'1', [L'd'] = L'2',
+                                    [L's'] = L'3', [L'j'] = L'4',
+                                    [L'k'] = L'5', [L'l'] = L'6'};
+                                wchar_t tts_temp[64];
+                                int     len = 0;
+                                for (int j = 0; j < n; j++)
                                 {
-									/* This is working with a six bit binary system */
-
-                                    for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
-									{
-										if (braille_key_value_map[i].key[j] == 'f')
-											tts_temp[len] = L'1';
-										if (braille_key_value_map[i].key[j] == 'd')
-                                            tts_temp[len] = L'2';
-                                        if (braille_key_value_map[i].key[j] == 's')
-											tts_temp[len] = L'3';
-										if (braille_key_value_map[i].key[j] == 'j')
-                                            tts_temp[len] = L'4';
-                                        if (braille_key_value_map[i].key[j] == 'k')
-                                            tts_temp[len] = L'5';
-                                        if (braille_key_value_map[i].key[j] == 'l')
-											tts_temp[len] = L'6';
-										len++;
-										tts_temp[len] = L' ';
-										len++;
-										tts_temp[len] = L',';
-										len++;
-									}
-									tts_temp[len] = L'\0';
-									T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"Type %S with dot %S",get_next_word_letters(cur_phrase,cursor,0),tts_temp);
-									tts_temp[0] = L'\0';
+                                    tts_temp[len++] =
+                                        dot_to_num[dots[j] & 0x7f];
+                                    tts_temp[len++] = L' ';
+                                    tts_temp[len++] = L',';
                                 }
+                                tts_temp[len] = L'\0';
+                                T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
+                                            INTERRUPT, "Type %S with dot %S",
+                                            get_next_word_letters(cur_phrase,
+                                                                  cursor, 0),
+                                            tts_temp);
                             }
                         }
                     }
@@ -1502,7 +1481,7 @@ static int create_labels(void)
  * **************************************************************/
 void set_hand(int cursor,int cur_phrase)
 {
-    int fing, j, i;
+    int fing;
     if (!settings.braille)
     {
 
@@ -1538,54 +1517,35 @@ void set_hand(int cursor,int cur_phrase)
 			}
 			else
 			{
-				/* hear we check for the keycombination of the next letter to be typed */
-				for (i=0;i<100;i++)
-				{
-					/* We have to check each case because braille combination is same for
-					 * begining,middle and end of the word in which letters are not same */
-                    if (braille_key_value_map[i].value_begin[0] ==
-                            phrases[cur_phrase][cursor] ||
-                        braille_key_value_map[i].value_middle[0] ==
-                            phrases[cur_phrase][cursor] ||
-                        braille_key_value_map[i].value_end[0] ==
-                            phrases[cur_phrase][cursor] ||
-                        (settings.use_english == 1 &&
-                         braille_key_value_map[i].value_begin[0] ==
-                             tolower(phrases[cur_phrase][cursor])))
+                /* Pick the braille_hand[] sprite for the chord and update
+				 * braille_letter_pos to match this letter's position
+				 * (begin/middle/end), so the decoder produces the right char
+				 * on KEY_UP. */
+                wchar_t dots[6];
+                int n = Braille_DotsForChar(phrases[cur_phrase][cursor], dots);
+                if (n > 0)
+                {
+                    /* fing is a 6-bit bitmask: dot1=f→1, dot2=d→2, dot3=s→4,
+					 * dot4=j→8, dot5=k→16, dot6=l→32. Indexes braille_hand[0..63]. */
+                    static const int dot_to_bit[128] = {
+                        [L'f'] = 1, [L'd'] = 2,  [L's'] = 4,
+                        [L'j'] = 8, [L'k'] = 16, [L'l'] = 32};
+                    fing = 0;
+                    for (int j = 0; j < n; j++)
                     {
-						/* This is working with a six bit binary system */
-						fing = 0;
-						for(j=0;j<wcslen(braille_key_value_map[i].key);j++)
-						{
-							if (braille_key_value_map[i].key[j] == 'f')
-								fing += 1;
-							if (braille_key_value_map[i].key[j] == 'd')
-                                fing += 2;
-                            if (braille_key_value_map[i].key[j] == 's')
-								fing += 4;
-							if (braille_key_value_map[i].key[j] == 'j')
-                                fing += 8;
-                            if (braille_key_value_map[i].key[j] == 'k')
-                                fing += 16;
-                            if (braille_key_value_map[i].key[j] == 'l')
-								fing += 32;
-						}
-						SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-						SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-						SDL_BlitSurface(braille_hand[fing], NULL, screen, &hand_loc);
-
-                        /* Setting the letter pos for braille acording to next letter to be typed
-						 * For some specific language's which have same braille code for
-						 * alphabets and signs at begining, middle and end position.*/
-                        if (braille_key_value_map[i].value_end[0] == phrases[cur_phrase][cursor] )
-							braille_letter_pos = 2;
-						else if (braille_key_value_map[i].value_middle[0] == phrases[cur_phrase][cursor] )
-							braille_letter_pos = 1;
-						else
-                            braille_letter_pos = 0;
+                        fing |= dot_to_bit[dots[j] & 0x7f];
                     }
-				}
-			}
+                    SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen,
+                                    &hand_loc);
+                    SDL_BlitSurface(hands, NULL, screen, &hand_loc);
+                    SDL_BlitSurface(braille_hand[fing], NULL, screen,
+                                    &hand_loc);
+
+                    int pos =
+                        Braille_PositionForChar(phrases[cur_phrase][cursor]);
+                    braille_letter_pos = (pos >= 0) ? pos : 0;
+                }
+            }
         }
 }
 

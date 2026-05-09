@@ -26,11 +26,98 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "globals.h"
+#include <wctype.h>
+#include <string.h>
+
+/* Single-entry cache for Braille_DotsForChar. Cascade and Comet Zap call
+ * the function every frame the highlight redraws, but the lowest target
+ * stays the same for many frames — so this catches ~99% of calls.
+ * Invalidated by Braille_LoadLanguage when the map changes. */
+static wchar_t s_cache_ch = 0;
+static wchar_t s_cache_dots[6];
+static int     s_cache_n = -1;
+
+/* Match ch against an entry's value_{begin,middle,end}[0]. Tries
+ * towlower(ch) too — most braille maps are lowercase, so an uppercase
+ * target should still find its chord. */
+static int chord_matches(int idx, wchar_t ch)
+{
+    wchar_t lo = (wchar_t)towlower((wint_t)ch);
+    return braille_key_value_map[idx].value_begin[0] == ch ||
+           braille_key_value_map[idx].value_middle[0] == ch ||
+           braille_key_value_map[idx].value_end[0] == ch ||
+           braille_key_value_map[idx].value_begin[0] == lo ||
+           braille_key_value_map[idx].value_middle[0] == lo ||
+           braille_key_value_map[idx].value_end[0] == lo;
+}
+
+/* For a target character, fill `dots` with the chord keys to press.
+ * Returns dot count, 0 if no chord produces ch. */
+int Braille_DotsForChar(wchar_t ch, wchar_t dots[6])
+{
+    if (ch != 0 && ch == s_cache_ch && s_cache_n >= 0)
+    {
+        memcpy(dots, s_cache_dots, sizeof(s_cache_dots));
+        return s_cache_n;
+    }
+
+    int n = 0;
+    for (int i = 0; i < 100; i++)
+    {
+        wchar_t* k = braille_key_value_map[i].key;
+        if (!k[0])
+        {
+            continue;
+        }
+        if (!chord_matches(i, ch))
+        {
+            continue;
+        }
+        for (int j = 0; k[j] && n < 6; j++)
+        {
+            dots[n++] = k[j];
+        }
+        break;
+    }
+
+    s_cache_ch = ch;
+    s_cache_n  = n;
+    memcpy(s_cache_dots, dots, sizeof(s_cache_dots));
+    return n;
+}
+
+int Braille_PositionForChar(wchar_t ch)
+{
+    wchar_t lo = (wchar_t)towlower((wint_t)ch);
+    for (int i = 0; i < 100; i++)
+    {
+        if (!braille_key_value_map[i].key[0])
+        {
+            continue;
+        }
+        if (braille_key_value_map[i].value_end[0] == ch ||
+            braille_key_value_map[i].value_end[0] == lo)
+        {
+            return 2;
+        }
+        if (braille_key_value_map[i].value_middle[0] == ch ||
+            braille_key_value_map[i].value_middle[0] == lo)
+        {
+            return 1;
+        }
+        if (braille_key_value_map[i].value_begin[0] == ch ||
+            braille_key_value_map[i].value_begin[0] == lo)
+        {
+            return 0;
+        }
+    }
+    return -1;
+}
 
 /* Reorder the given chord into canonical fdsjkl (dots 1,2,3,4,5,6) order
  * so the lookup against braille_key_value_map[].key works regardless of
  * which keys the user pressed first. */
-void braille_reorder(wchar_t* disorder)
+void Braille_Reorder(wchar_t* disorder)
 {
     static const wchar_t dots[] = L"fdsjkl";
     wchar_t              in[8]  = {0};
@@ -57,11 +144,14 @@ void braille_reorder(wchar_t* disorder)
  *
  * The keyvombination should be writen in the order fdsjkl.
  * means first f second d so on. */
-int braille_language_loader(char* language)
+int Braille_LoadLanguage(char* language)
 {
 	int iter = 0;
 	FILE *fp;
 	char file[100];
+
+    /* New map → drop the DotsForChar cache. */
+    s_cache_n = -1;
 
     sprintf(file,"%s/braille/%s",settings.default_data_path,language);
 	fp = fopen(file,"r");

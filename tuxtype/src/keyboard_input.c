@@ -77,7 +77,7 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
         }
         if (wcscmp(kbd_pressed, L";") == 0)
         {
-            braille_language_loader("numerical.txt");
+            Braille_LoadLanguage("numerical.txt");
             kbd_numbers_pending = 1;
             kbd_clear_chord();
             return;
@@ -96,7 +96,7 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
         /* Letter chord — sort dot keys into canonical order, then look up. */
         if (kbd_iter > 0)
         {
-            braille_reorder(kbd_pressed);
+            Braille_Reorder(kbd_pressed);
             for (int i = 0; i < 100; i++)
             {
                 if (wcscmp(kbd_pressed, braille_key_value_map[i].key) != 0)
@@ -135,7 +135,7 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
                     {
                         sprintf(fn, "%s.txt", settings.theme_name);
                     }
-                    braille_language_loader(fn);
+                    Braille_LoadLanguage(fn);
                     kbd_numbers_pending = 0;
                 }
 

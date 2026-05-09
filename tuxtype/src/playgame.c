@@ -1113,6 +1113,8 @@ DrawActiveKeyboardHighlights : Highlight keys that can advance a live fish.
 static void DrawActiveKeyboardHighlights(int fishies)
 {
     int drawn[MAX_UNICODES] = {0};
+    int lowest              = -1;
+    int lowest_target       = 0;
     int i, j;
 
     if (!cascade_keyboard.base || !settings.show_keyboard)
@@ -1122,6 +1124,11 @@ static void DrawActiveKeyboardHighlights(int fishies)
 
     Kbd_Display_QueueErase(&cascade_keyboard);
 
+    /* Walk every alive shootable fish. Normal mode highlights each one's
+     * next-char-to-type (dedup'd via drawn[]). Braille mode tracks the
+     * lowest-on-screen fish (largest .y, since SDL y grows downward) —
+     * its chord is the single highlight, since every chord shares the
+     * fdsjkl keys and showing multiple at once is unreadable. */
     for (i = 0; i < fishies; i++)
     {
         int fish_len;
@@ -1144,7 +1151,6 @@ static void DrawActiveKeyboardHighlights(int fishies)
             {
                 continue;
             }
-
             for (k = 0; k < candidate; k++)
             {
                 if (fish_object[i].word[k] != tux_object.word[j + k])
@@ -1164,15 +1170,39 @@ static void DrawActiveKeyboardHighlights(int fishies)
             continue;
         }
 
+        if (settings.braille)
+        {
+            if (lowest < 0 || fish_object[i].y > fish_object[lowest].y)
+            {
+                lowest        = i;
+                lowest_target = match_len;
+            }
+            continue;
+        }
+
         key = GetIndex(fish_object[i].word[match_len]);
         if (key < 0 || key >= MAX_UNICODES || drawn[key])
         {
             continue;
         }
-
         if (Kbd_Display_DrawGreenKey(&cascade_keyboard, key))
         {
             drawn[key] = 1;
+        }
+    }
+
+    if (settings.braille && lowest >= 0)
+    {
+        wchar_t dots[6];
+        int     n =
+            Braille_DotsForChar(fish_object[lowest].word[lowest_target], dots);
+        for (int d = 0; d < n; d++)
+        {
+            int key = GetIndex(dots[d]);
+            if (key >= 0 && key < MAX_UNICODES)
+            {
+                Kbd_Display_DrawGreenKey(&cascade_keyboard, key);
+            }
         }
     }
 }
