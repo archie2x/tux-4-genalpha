@@ -84,6 +84,7 @@ add_executable(
     src/scripting.c
     src/SDL_extras.c
     src/setup.c
+    src/settings_volume.c
     src/snow.c
     src/theme.c
     src/titlescreen.c

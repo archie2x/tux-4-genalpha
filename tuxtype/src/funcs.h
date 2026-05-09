@@ -99,7 +99,10 @@ sprite* LoadSprite(const char* name, int MODE);
 void Opts_Initialize(void);
 
 /* In pause.c: */
-int Pause(int in_game);
+int Pause(void);
+
+/* In settings_volume.c: */
+void SettingsVolume(void);
 
 /* In playgame.c: */
 int PlayCascade(int level);

@@ -404,7 +404,7 @@ int Phrases(wchar_t* pphrase )
             switch (event.key.key)
             {
             case SDLK_ESCAPE:
-                if (Pause(1) == 1)
+                if (Pause() == 1)
                 {
                     quit = 1;
                 }

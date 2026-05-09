@@ -361,10 +361,10 @@ int PlayCascade(int diflevel)
                     T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
                                 gettext("Game Paused."));
 
-                    /* Pause(1) returns 1 if quitting, */
+                    /* Pause() returns 1 if quitting, */
                     /* 0 if returning to game:        */
                     int prev_show_kbd = settings.show_keyboard;
-                    if (Pause(1) == 1)
+                    if (Pause() == 1)
                     {
                         playing_level = 0;
                         still_playing = 0;

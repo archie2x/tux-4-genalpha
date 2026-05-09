@@ -32,32 +32,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <t4k/volume.h>
 
 static T4K_VolumeWidget* pause_volume = NULL;
-static SDL_Rect     rectKbdToggle; /* fixed area used for the toggle label */
-static SDL_Surface* pause_kbd_bkg    = NULL; /* snapshot pixels under rect */
-const int           pause_font_size1 = 24;
-const int           pause_font_size2 = 36;
+static SDL_Rect          rectKbdToggle;
+static SDL_Surface*      pause_kbd_bkg    = NULL; /* snapshot under toggle */
+static const int         pause_font_size1 = 24;
+static const int         pause_font_size2 = 36;
 
-/* Local function prototypes: */
 static void pause_draw(void);
 static void draw_kbd_toggle(void);
 static void pause_load_media(void);
 static void pause_unload_media(void);
 
-// QUESTION: For usability sake, should escape return to the game
-//           and the user have to choose to quit the game, or ???
-/**********************
-Pause : Pause the game
-***********************/
-/* in_game = 1 when called from gameplay (text mentions returning to game,
- *               return value 1 = quit-to-menu).
- * in_game = 0 when called from a menu (Volume Settings) — text mentions
- *               returning to menu, return value is ignored. */
-static int g_pause_in_game = 1;
-int        Pause(int in_game)
+/* Pause(): in-game pause overlay. SPACE/ESC resumes; 'Q' quits to menu
+ * (returns 1); 'K' toggles the keyboard guide. Use VolumeSettings()
+ * for the menu-driven volume screen. */
+int Pause(void)
 {
-    g_pause_in_game = in_game;
-    int       quit  = 0;
     SDL_Event event;
+    int       quit   = 0;
+    int       paused = 1;
 
     LOG("Entering Pause()\n");
 
@@ -70,15 +62,12 @@ int        Pause(int in_game)
     DarkenScreen(2);
 
     pause_draw();
-
     if (pause_volume)
     {
         T4K_Volume_Draw(pause_volume, screen);
     }
-
     T4K_UpdateRect(screen, NULL);
 
-    int paused = 1;
     while (paused)
     {
         bool dirty = false;
@@ -90,21 +79,18 @@ int        Pause(int in_game)
                 exit(0);
             }
 
-            /* SPACE / ESC return to caller (game or options menu). 'Q'
-             * quits to menu, but only from a game — from options it's a
-             * no-op so the user can't drop their place in the menu. */
             if (event.type == SDL_EVENT_KEY_DOWN)
             {
                 if (event.key.key == SDLK_SPACE || event.key.key == SDLK_ESCAPE)
                 {
                     paused = 0;
                 }
-                else if (event.key.key == SDLK_Q && in_game)
+                else if (event.key.key == SDLK_Q)
                 {
                     paused = 0;
                     quit   = 1;
                 }
-                else if (event.key.key == SDLK_K && in_game)
+                else if (event.key.key == SDLK_K)
                 {
                     settings.show_keyboard = !settings.show_keyboard;
                     draw_kbd_toggle();
@@ -116,7 +102,7 @@ int        Pause(int in_game)
              * via t4kcommon's event filter; SDL_GetMouseState would return
              * window units instead. Intercept clicks on the keyboard
              * toggle before letting the volume widget see the event. */
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && in_game &&
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
                 rectKbdToggle.w > 0 &&
                 inRect(rectKbdToggle, (int)event.button.x, (int)event.button.y))
             {
@@ -148,19 +134,12 @@ int        Pause(int in_game)
         SDL_Delay(33);
     }
 
-    /* --- Return to previous state --- */
-
-    /* SDL_EnableKeyRepeat removed in SDL3 (no equivalent needed). */
-
     SDL_HideCursor();
-
-    /* Audio resume stubbed (task #13). */
-
     pause_unload_media();
 
     LOG("Leaving Pause()\n");
 
-    return (quit);
+    return quit;
 }
 
 static void pause_load_media(void)
@@ -191,108 +170,84 @@ static void pause_unload_media(void)
     }
 }
 
-/******************************************/
-/*                                        */
-/*       Local ("private") functions      */
-/*                                        */
-/******************************************/
-
-
-
 static void pause_draw(void)
 {
-  SDL_Rect s;
-  SDL_Surface* t = NULL;
+    SDL_Surface* t;
+    SDL_Rect     s;
 
-  LOG("Entering pause_draw()\n");
+    if (settings.sys_sound)
+    {
+        t = BlackOutline(_("Sound Effects Volume"), pause_font_size1, &white);
+        if (t)
+        {
+            s.y = screen->h / 2 - 80;
+            s.x = screen->w / 2 - t->w / 2;
+            SDL_BlitSurface(t, NULL, screen, &s);
+            SDL_DestroySurface(t);
+        }
+        t = BlackOutline(_("Music Volume"), pause_font_size1, &white);
+        if (t)
+        {
+            s.y = screen->h / 2 + 20;
+            s.x = screen->w / 2 - t->w / 2;
+            SDL_BlitSurface(t, NULL, screen, &s);
+            SDL_DestroySurface(t);
+        }
+    }
+    else
+    {
+        t = BlackOutline(_("Sound & Music Disabled"), pause_font_size1, &white);
+        if (t)
+        {
+            s.y = screen->h / 2 - 80;
+            s.x = screen->w / 2 - t->w / 2;
+            SDL_BlitSurface(t, NULL, screen, &s);
+            SDL_DestroySurface(t);
+        }
+    }
 
-  if (settings.sys_sound)
-  {
-    t = BlackOutline(_("Sound Effects Volume"), pause_font_size1, &white);
+    t = BlackOutline(_("Paused!"), pause_font_size2, &white);
     if (t)
     {
-        s.y = screen->h / 2 - 80;
+        s.y = screen->h / 2 - 180;
         s.x = screen->w / 2 - t->w / 2;
         SDL_BlitSurface(t, NULL, screen, &s);
         SDL_DestroySurface(t);
     }
 
-    t = BlackOutline(gettext("Music Volume"), pause_font_size1, &white);
+    t = BlackOutline(_("'SPACE' or 'ESC' to return."), pause_font_size1,
+                     &white);
     if (t)
     {
-      s.y = screen->h/2 + 20;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
+        s.y = screen->h / 2 + 160;
+        s.x = screen->w / 2 - t->w / 2;
+        SDL_BlitSurface(t, NULL, screen, &s);
+        SDL_DestroySurface(t);
     }
-  }
-  else  /* No sound: */
-  {
-    t = BlackOutline(gettext("Sound & Music Disabled"), pause_font_size1, &white);
+
+    t = BlackOutline(_("'Q' to quit."), pause_font_size1, &white);
     if (t)
     {
-      s.y = screen->h/2 - 80;
-      s.x = screen->w/2 - t->w/2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
+        s.y = screen->h / 2 + 200;
+        s.x = screen->w / 2 - t->w / 2;
+        SDL_BlitSurface(t, NULL, screen, &s);
+        SDL_DestroySurface(t);
     }
-  }
 
-  if (g_pause_in_game)
-  {
-      t = BlackOutline(gettext("Paused!"), pause_font_size2, &white);
-      if (t)
-      {
-          s.y = screen->h / 2 - 180; //60;
-          s.x = screen->w / 2 - t->w / 2;
-          SDL_BlitSurface(t, NULL, screen, &s);
-          SDL_DestroySurface(t);
-      }
-  }
-
-  t = BlackOutline(gettext("'SPACE' or 'ESC' to return."), pause_font_size1,
-                   &white);
-  if (t)
-  {
-      s.y = screen->h / 2 + (g_pause_in_game ? 160 : 180);
-      s.x = screen->w / 2 - t->w / 2;
-      SDL_BlitSurface(t, NULL, screen, &s);
-      SDL_DestroySurface(t);
-  }
-
-  if (g_pause_in_game)
-  {
-      t = BlackOutline(gettext("'Q' to quit."), pause_font_size1, &white);
-      if (t)
-      {
-          s.y = screen->h / 2 + 200;
-          s.x = screen->w / 2 - t->w / 2;
-          SDL_BlitSurface(t, NULL, screen, &s);
-          SDL_DestroySurface(t);
-      }
-
-      draw_kbd_toggle();
-  }
-  else
-  {
-      rectKbdToggle = (SDL_Rect){0, 0, 0, 0};
-  }
-
-  LOG("Leaving pause_draw()\n");
+    draw_kbd_toggle();
 }
 
 /* Draw (or redraw) the "'K' Show keyboard: ON/OFF" label centered in
  * rectKbdToggle. First call captures the underlying pixels so subsequent
- * calls (after a toggle) can restore-then-redraw and avoid old-glyph
+ * calls (after a toggle) restore-then-redraw and avoid old-glyph
  * artifacts at the edges where ON and OFF differ in width. */
 static void draw_kbd_toggle(void)
 {
     SDL_Surface* t;
     SDL_Rect     dst;
-    /* Use the wider of the two strings to size the snapshot rect once. */
-    const char* sample_str = gettext("'K' Show keyboard: OFF");
-    const char* label =
-        settings.show_keyboard ? gettext("'K' Show keyboard: ON") : sample_str;
+    const char*  sample_str = _("'K' Show keyboard: OFF");
+    const char*  label =
+        settings.show_keyboard ? _("'K' Show keyboard: ON") : sample_str;
 
     if (!pause_kbd_bkg)
     {
@@ -315,7 +270,7 @@ static void draw_kbd_toggle(void)
             SDL_BlitSurface(screen, &rectKbdToggle, pause_kbd_bkg, NULL);
         }
     }
-    else if (pause_kbd_bkg)
+    else
     {
         SDL_BlitSurface(pause_kbd_bkg, NULL, screen, &rectKbdToggle);
     }

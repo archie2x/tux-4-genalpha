@@ -180,9 +180,7 @@ int handle_activity(int act, int param)
 
         case RUN_SET_VOLUME:
             DEBUGMSG(debug_menu, "activity: RUN_SET_VOLUME\n");
-            /* Reuse Pause()'s volume-slider UI. in_game=0 swaps the
-             * "return to game" prompt for "return to menu". */
-            Pause(0);
+            SettingsVolume();
             break;
 
         case RUN_PROJECT_INFO:
