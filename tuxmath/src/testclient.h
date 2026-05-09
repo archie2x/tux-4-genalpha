@@ -26,15 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#pragma once
+// FIXME do we even need this header? Not sure anything in here actually used
 
-
-
-#ifndef TESTCLIENT_H
-#define TESTCLIENT_H
-
-//FIXME do we even need this header? Not sure anything in here actually used
-
-enum {
+enum
+{
     GAME_NOT_STARTED,
     GAME_IN_PROGRESS,
     GAME_OVER_WON,
@@ -46,9 +42,7 @@ enum {
     GAME_OVER_ERROR
 };
 
-
-enum {
+enum
+{
     SEND_QUESTION
 };
-
-#endif

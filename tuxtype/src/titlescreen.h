@@ -26,16 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef TITLESCREEN_H
-#define TITLESCREEN_H
-
+#pragma once
 /* to_upper / COL2RGB live in globals.h. */
 
-//#define FNLEN        200
-
+// #define FNLEN        200
 
 #include <string.h>
 #include <math.h>
@@ -50,73 +44,65 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.h"
 
-
 #ifndef MACOSX
 
 #endif
 
+#define MAX_LESSONS 100
+#define MAX_NUM_WORDS 500
 
+// MAX_UPDATES needed for TransWipe() and friends:
+#define MAX_UPDATES 180
 
-#define MAX_LESSONS                     100
-#define MAX_NUM_WORDS                   500
-
-//MAX_UPDATES needed for TransWipe() and friends:
-#define MAX_UPDATES                     180
-
-#define WAIT_MS                         2500
+#define WAIT_MS 2500
 /* FRAMES_PER_SEC also defined (with a different value) in globals.h —
  * keep this one since playgame.c was written against it. */
 #undef FRAMES_PER_SEC
-#define FRAMES_PER_SEC                  50
-#define FULL_CIRCLE                     140
-
+#define FRAMES_PER_SEC 50
+#define FULL_CIRCLE 140
 
 /* trans_wipe() animation constants */
-#define ANIM_FRAMES                     30 /* frames to be displayed */
-#define ANIM_FPS                        25 /* max fps */
+#define ANIM_FRAMES 30 /* frames to be displayed */
+#define ANIM_FPS 25    /* max fps */
 
+extern SDL_Event event;
 
-extern SDL_Event  event;
-
-
-#define MUSIC_FADE_OUT_MS               80
+#define MUSIC_FADE_OUT_MS 80
 
 #include <t4k/common.h>
 
 // End of code from tuxtype's globals.h
 
 /* --- timings for tux blinking --- */
-#define TUX1                            115
-#define TUX2                            118
-#define TUX3                            121
-#define TUX4                            124
-#define TUX5                            127
-#define TUX6                            130
+#define TUX1 115
+#define TUX2 118
+#define TUX3 121
+#define TUX4 124
+#define TUX5 127
+#define TUX6 130
 
-#define EASTER_EGG_MS                   5000 //length of time to replace cursor
-#define GOBBLE_ANIM_MS                  1000 //duration of the gobbling animation
+#define EASTER_EGG_MS 5000  // length of time to replace cursor
+#define GOBBLE_ANIM_MS 1000 // duration of the gobbling animation
 
 /********************************/
 /* "Global" Function Prototypes */
 /********************************/
 
 /*In titlescreen.c */
-void          TitleScreen(void);
-int           RenderTitleScreen(void);
-void          DrawTitleScreen(void);
-int           HandleTitleScreenEvents(SDL_Event* evt);
-void          HandleTitleScreenResSwitch(int new_w, int new_h);
-void          HandleTitleScreenAnimations();
-void          HandleTitleScreenAnimations_Reset(bool reset);
-void          ShowMessage(int font_size, const char* str1, const char* str2, const char* str3, const char* str4);
-void          ShowMessageWrap( int font_size, const char* str );
-SDL_Surface*  current_bkg(); //appropriate background for current video mode
-
+void         TitleScreen(void);
+int          RenderTitleScreen(void);
+void         DrawTitleScreen(void);
+int          HandleTitleScreenEvents(SDL_Event* evt);
+void         HandleTitleScreenResSwitch(int new_w, int new_h);
+void         HandleTitleScreenAnimations();
+void         HandleTitleScreenAnimations_Reset(bool reset);
+void         ShowMessage(int font_size, const char* str1, const char* str2,
+                         const char* str3, const char* str4);
+void         ShowMessageWrap(int font_size, const char* str);
+SDL_Surface* current_bkg(); // appropriate background for current video mode
 
 /* in audio.c  (from tuxtype): */
-void          playsound(int snd);
-void          audioMusicLoad(char* musicFilename, int repeatQty);
-void          audioMusicUnload(void);
-void          audioMusicPlay(Mix_Music* musicData, int repeatQty);
-
-#endif //TITLESCREEN_H
+void playsound(int snd);
+void audioMusicLoad(char* musicFilename, int repeatQty);
+void audioMusicUnload(void);
+void audioMusicPlay(Mix_Music* musicData, int repeatQty);

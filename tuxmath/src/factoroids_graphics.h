@@ -1,9 +1,7 @@
-#ifndef FACTOROIDS_GRAPHICS_H
-#define FACTOROIDS_GRAPHICS_H
+#pragma once
 #include <SDL3/SDL.h>
 
 #include "factoroids.h"
-
 
 /* Enumerations for Button Types in Cockpit */
 enum BUTTON_TYPE
@@ -14,7 +12,6 @@ enum BUTTON_TYPE
     DISABLED
 };
 
-
 SDL_Surface* current_bkgd(void);
 
 int factoroids_init_graphics(void);
@@ -23,9 +20,10 @@ void factoroids_cleanup_graphics(void);
 
 void factoroids_intro(void);
 
-void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_type *laser,
-        int bonus, int bonus_time, int *digits, int wave, int score, int num,
-        int tux_img, int button_pressed);
+void factoroids_draw(asteroid_type* asteroid, tuxship_type* tuxship,
+                     FF_laser_type* laser, int bonus, int bonus_time,
+                     int* digits, int wave, int score, int num, int tux_img,
+                     int button_pressed);
 
 void factoroids_draw_bkgr(void);
 
@@ -45,6 +43,4 @@ void factoroids_level_objs_hints(const char* label, const char* contents, int x,
 int tuxship_img_h(int deg);
 int tuxship_img_w(int deg);
 
-SDL_Surface* get_asteroid_image(int size,int angle);
-
-#endif
+SDL_Surface* get_asteroid_image(int size, int angle);

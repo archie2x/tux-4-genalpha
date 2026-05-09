@@ -42,10 +42,8 @@
 #define LVL_HINT_X_OFFSET 20
 #define LVL_HINT_Y_OFFSET 130
 
-//the prime set keeps increasing till its size reaches this value
+// the prime set keeps increasing till its size reaches this value
 #define PRIME_MAX_LIMIT 6
-
-
 
 /* Structures for Buttons on Cockpit */
 struct ButtonType
@@ -56,33 +54,31 @@ struct ButtonType
     int prime;
 };
 
-
 static struct ButtonType buttons[NUMBUTTONS];
 
 static int laser_coeffs[][3] = {
-    {0, 0, 0},  // 0
-    {0, 0, 0},  // 1
-    {18, 0, 0}, // 2
-    {0, 18, 0}, // 3
-    {0, 0, 0},  // 4
-    {0, 0, 18}, // 5
-    {0, 0, 0},  // 6
-    {18, 18, 0},// 7
-    {0, 0, 0},  // 8
-    {0, 0, 0},  // 9
-    {0, 0, 0},  // 10
-    {0, 18, 18},// 11
-    {0, 0, 0},  // 12
-    {18, 0, 18} // 13
+    {0, 0, 0},   // 0
+    {0, 0, 0},   // 1
+    {18, 0, 0},  // 2
+    {0, 18, 0},  // 3
+    {0, 0, 0},   // 4
+    {0, 0, 18},  // 5
+    {0, 0, 0},   // 6
+    {18, 18, 0}, // 7
+    {0, 0, 0},   // 8
+    {0, 0, 0},   // 9
+    {0, 0, 0},   // 10
+    {0, 18, 18}, // 11
+    {0, 0, 0},   // 12
+    {18, 0, 18}  // 13
 };
 
-int bonus_img_ids[] = {
-    IMG_BONUS_CLOAKING, IMG_BONUS_FORCEFIELD, IMG_BONUS_POWERBOMB
-};
+int bonus_img_ids[] = {IMG_BONUS_CLOAKING, IMG_BONUS_FORCEFIELD,
+                       IMG_BONUS_POWERBOMB};
 
 static float zoom;
 
-//SDL_Surfaces:
+// SDL_Surfaces:
 static SDL_Surface* IMG_lives_ship = NULL;
 static SDL_Surface* IMG_tuxship[NUM_OF_ROTO_IMGS];
 static SDL_Surface* IMG_tuxship_cloaked[NUM_OF_ROTO_IMGS];
@@ -91,90 +87,105 @@ static SDL_Surface* IMG_tuxship_thrust_cloaked[NUM_OF_ROTO_IMGS];
 static SDL_Surface* IMG_asteroids1[NUM_OF_ROTO_IMGS];
 static SDL_Surface* IMG_asteroids2[NUM_OF_ROTO_IMGS];
 
-SDL_Surface* bkgd = NULL; //640x480 background (windowed)
-SDL_Surface* scaled_bkgd = NULL; //native resolution (fullscreen)
+SDL_Surface* bkgd        = NULL; // 640x480 background (windowed)
+SDL_Surface* scaled_bkgd = NULL; // native resolution (fullscreen)
 
 extern int FF_game;
-
 
 SDL_Surface* current_bkgd(void)
 {
     return screen->flags & SDL_WINDOW_FULLSCREEN ? scaled_bkgd : bkgd;
 }
 
-
 int factoroids_init_graphics(void)
 {
     int i;
 
-    if(screen->h < 600 && screen->w < 800)
+    if (screen->h < 600 && screen->w < 800)
+    {
         zoom = 0.65;
+    }
     else
-        zoom=(float)screen->w/(float)BASE_RES_X;
+    {
+        zoom = (float)screen->w / (float)BASE_RES_X;
+    }
 
     DEBUGCODE(debug_factoroids)
-        fprintf(stderr, "The zoom factor is: %f\n", zoom);
+    fprintf(stderr, "The zoom factor is: %f\n", zoom);
 
-    /********   Set up properly scaled and optimized background surfaces: *********/
-    /* NOTE - optimization code moved into LoadBothBkgds() so rest of program     */
-    /* can take advantage of it - DSB                                             */
+    /********   Set up properly scaled and optimized background surfaces:
+     * *********/
+    /* NOTE - optimization code moved into LoadBothBkgds() so rest of program */
+    /* can take advantage of it - DSB */
 
     T4K_LoadBothBkgds("factoroids/gbstars.png", &scaled_bkgd, &bkgd);
 
     if (bkgd == NULL || scaled_bkgd == NULL)
     {
-        fprintf(stderr,
-                "\nError: could not scale background\n");
+        fprintf(stderr, "\nError: could not scale background\n");
         return 0;
     }
 
     /*************** Precalculating software rotation ***************/
 
-    for(i = 0; i < NUM_OF_ROTO_IMGS; i++)
+    for (i = 0; i < NUM_OF_ROTO_IMGS; i++)
     {
-        //rotozoomSurface (SDL_Surface *src, double angle, double zoom, int smooth);
-        IMG_tuxship[i] = rotozoomSurface(images[IMG_SHIP01], i * DEG_PER_ROTATION, zoom, 1);
-        IMG_tuxship_cloaked[i] = rotozoomSurface(images[IMG_SHIP_CLOAKED], i * DEG_PER_ROTATION, zoom, 1);
-        IMG_tuxship_thrust[i] = rotozoomSurface(images[IMG_SHIP_THRUST], i * DEG_PER_ROTATION, zoom, 1);
-        IMG_tuxship_thrust_cloaked[i] = rotozoomSurface(images[IMG_SHIP_THRUST_CLOAKED], i * DEG_PER_ROTATION, zoom, 1);
+        // rotozoomSurface (SDL_Surface *src, double angle, double zoom, int
+        // smooth);
+        IMG_tuxship[i] =
+            rotozoomSurface(images[IMG_SHIP01], i * DEG_PER_ROTATION, zoom, 1);
+        IMG_tuxship_cloaked[i] = rotozoomSurface(images[IMG_SHIP_CLOAKED],
+                                                 i * DEG_PER_ROTATION, zoom, 1);
+        IMG_tuxship_thrust[i]  = rotozoomSurface(images[IMG_SHIP_THRUST],
+                                                 i * DEG_PER_ROTATION, zoom, 1);
+        IMG_tuxship_thrust_cloaked[i] = rotozoomSurface(
+            images[IMG_SHIP_THRUST_CLOAKED], i * DEG_PER_ROTATION, zoom, 1);
 
         if (IMG_tuxship[i] == NULL)
         {
             fprintf(stderr,
-                    "\nError: rotozoomSurface() of images[IMG_SHIP01] for i = %d returned NULL\n", i);
+                    "\nError: rotozoomSurface() of images[IMG_SHIP01] for i = "
+                    "%d returned NULL\n",
+                    i);
             return 0;
         }
 
-        IMG_asteroids1[i] = rotozoomSurface(images[IMG_ASTEROID1], i * DEG_PER_ROTATION, zoom, 1);
+        IMG_asteroids1[i] = rotozoomSurface(images[IMG_ASTEROID1],
+                                            i * DEG_PER_ROTATION, zoom, 1);
 
         if (IMG_asteroids1[i] == NULL)
         {
             fprintf(stderr,
-                    "\nError: rotozoomSurface() of images[IMG_ASTEROID1] for i = %d returned NULL\n", i);
+                    "\nError: rotozoomSurface() of images[IMG_ASTEROID1] for i "
+                    "= %d returned NULL\n",
+                    i);
             return 0;
         }
 
-        IMG_asteroids2[i] = rotozoomSurface(images[IMG_ASTEROID2], i*DEG_PER_ROTATION, zoom, 1);
+        IMG_asteroids2[i] = rotozoomSurface(images[IMG_ASTEROID2],
+                                            i * DEG_PER_ROTATION, zoom, 1);
 
         if (IMG_asteroids2[i] == NULL)
         {
             fprintf(stderr,
-                    "\nError: rotozoomSurface() of images[IMG_ASTEROID2] for i = %d returned NULL\n", i);
+                    "\nError: rotozoomSurface() of images[IMG_ASTEROID2] for i "
+                    "= %d returned NULL\n",
+                    i);
             return 0;
         }
     }
 
     /* Create zoomed and scaled ship image for "lives" counter */
-    IMG_lives_ship = rotozoomSurface(images[IMG_SHIP_CLOAKED], 90, zoom * 0.7, 1);
+    IMG_lives_ship =
+        rotozoomSurface(images[IMG_SHIP_CLOAKED], 90, zoom * 0.7, 1);
     return 1;
 }
-
 
 void factoroids_cleanup_graphics(void)
 {
     int i;
 
-    for(i = 0; i < NUM_OF_ROTO_IMGS; i++)
+    for (i = 0; i < NUM_OF_ROTO_IMGS; i++)
     {
         if (IMG_tuxship[i])
         {
@@ -226,7 +237,6 @@ void factoroids_cleanup_graphics(void)
     }
 }
 
-
 void factoroids_intro(void)
 {
     static SDL_Surface* IMG_factors;
@@ -238,47 +248,52 @@ void factoroids_intro(void)
     IMG_fractions = rotozoomSurface(images[IMG_FACTORS], 0, zoom, 1);
 
     factoroids_draw_bkgr();
-    if(FF_game == FACTOROIDS_GAME)
+    if (FF_game == FACTOROIDS_GAME)
     {
 
-        rect.x = (screen->w/2) - (IMG_factors->w/2);
-        rect.y = (screen->h)/7;
+        rect.x = (screen->w / 2) - (IMG_factors->w / 2);
+        rect.y = (screen->h) / 7;
         SDL_BlitSurface(IMG_factors, NULL, screen, &rect);
-        factoroids_show_message(_("To win, you must destroy all the asteroids.\n"
-                    "Turn: arrow keys or mouse movement.\n"
-                    "Thrust: up arrow or right mouse button.\n"
-                    "Shoot: [Enter], [Space], or left mouse button.\n"
-                    "Switch Prime Number Gun: [D], [F], or mouse scroll wheel.\n"
-                    "Activate Powerup: [Shift].\n"
-                    "Shoot the rocks with their prime factors until they are all destroyed."));
-        SDL_BlitSurface(IMG_asteroids1[3],NULL,screen,&rect);
+        factoroids_show_message(
+            _("To win, you must destroy all the asteroids.\n"
+              "Turn: arrow keys or mouse movement.\n"
+              "Thrust: up arrow or right mouse button.\n"
+              "Shoot: [Enter], [Space], or left mouse button.\n"
+              "Switch Prime Number Gun: [D], [F], or mouse scroll wheel.\n"
+              "Activate Powerup: [Shift].\n"
+              "Shoot the rocks with their prime factors until they are all "
+              "destroyed."));
+        SDL_BlitSurface(IMG_asteroids1[3], NULL, screen, &rect);
     }
     else if (FF_game == FRACTIONS_GAME)
     {
-        rect.x = (screen->w/2)-(IMG_fractions->w/2);
-        rect.y = (screen->h)/7;
-        SDL_BlitSurface(IMG_fractions,NULL,screen,&rect);
-        factoroids_show_message(_("FRACTIONS: to win, you need destroy all the asteroids. "
-                    "Use the arrow keys to turn or go forward.  Aim at an asteroid, "
-                    "type a number that can simplify the fraction, and press space or return "
-                    "to split it.  Destroy fractions that can not be further simplified in a single shot!"));
+        rect.x = (screen->w / 2) - (IMG_fractions->w / 2);
+        rect.y = (screen->h) / 7;
+        SDL_BlitSurface(IMG_fractions, NULL, screen, &rect);
+        factoroids_show_message(
+            _("FRACTIONS: to win, you need destroy all the asteroids. "
+              "Use the arrow keys to turn or go forward.  Aim at an asteroid, "
+              "type a number that can simplify the fraction, and press space "
+              "or return "
+              "to split it.  Destroy fractions that can not be further "
+              "simplified in a single shot!"));
     }
 
     SDL_DestroySurface(IMG_factors);
     SDL_DestroySurface(IMG_fractions);
 }
 
-
-void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_type *laser,
-        int bonus, int bonus_time, int *digits, int wave, int score, int num,
-        int tux_img, int button_pressed)
+void factoroids_draw(asteroid_type* asteroid, tuxship_type* tuxship,
+                     FF_laser_type* laser, int bonus, int bonus_time,
+                     int* digits, int wave, int score, int num, int tux_img,
+                     int button_pressed)
 {
 
-    int i, offset;
-    int xnum, ynum;
-    char str[64];
+    int          i, offset;
+    int          xnum, ynum;
+    char         str[64];
     SDL_Surface* surf;
-    SDL_Rect dest;
+    SDL_Rect     dest;
 
     SDL_FillSurfaceRect(
         screen, NULL,
@@ -289,44 +304,55 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
     factoroids_draw_bkgr();
 
     /******************* Draw laser *************************/
-    for (i=0;i<MAX_LASER;i++){
-        if(laser[i].alive)
+    for (i = 0; i < MAX_LASER; i++)
+    {
+        if (laser[i].alive)
         {
-            if(laser[i].count>0)
+            if (laser[i].count > 0)
             {
-                laser[i].x += tuxship->xspeed*FC_time_elapsed;
-                laser[i].y += tuxship->yspeed*FC_time_elapsed;
-                laser[i].destx += tuxship->xspeed*FC_time_elapsed;
-                laser[i].desty += tuxship->yspeed*FC_time_elapsed;
+                laser[i].x += tuxship->xspeed * FC_time_elapsed;
+                laser[i].y += tuxship->yspeed * FC_time_elapsed;
+                laser[i].destx += tuxship->xspeed * FC_time_elapsed;
+                laser[i].desty += tuxship->yspeed * FC_time_elapsed;
 
-                draw_line(screen, laser[i].x, laser[i].y, laser[i].destx, laser[i].desty,
-                        laser[i].count*laser_coeffs[laser[i].n][0], laser[i].count*laser_coeffs[laser[i].n][1], laser[i].count*laser_coeffs[laser[i].n][2]);
+                draw_line(screen, laser[i].x, laser[i].y, laser[i].destx,
+                          laser[i].desty,
+                          laser[i].count * laser_coeffs[laser[i].n][0],
+                          laser[i].count * laser_coeffs[laser[i].n][1],
+                          laser[i].count * laser_coeffs[laser[i].n][2]);
 
-                laser[i].count -= 15*FC_time_elapsed;
-            } else if (laser[i].count <= 0)
+                laser[i].count -= 15 * FC_time_elapsed;
+            }
+            else if (laser[i].count <= 0)
             {
-                laser[i].alive=0;
+                laser[i].alive = 0;
             }
         }
     }
     /*************** Draw Ship ******************/
 
-    if(!tuxship->hurt || (tuxship->hurt && tuxship->hurt_count%2==0)){
-        dest.x = (tuxship->x - (IMG_tuxship[tuxship->angle/DEG_PER_ROTATION]->w/2));
-        dest.y = (tuxship->y - (IMG_tuxship[tuxship->angle/DEG_PER_ROTATION]->h/2));
-        dest.w = IMG_tuxship[tuxship->angle/DEG_PER_ROTATION]->w;
-        dest.h = IMG_tuxship[tuxship->angle/DEG_PER_ROTATION]->h;
+    if (!tuxship->hurt || (tuxship->hurt && tuxship->hurt_count % 2 == 0))
+    {
+        dest.x = (tuxship->x -
+                  (IMG_tuxship[tuxship->angle / DEG_PER_ROTATION]->w / 2));
+        dest.y = (tuxship->y -
+                  (IMG_tuxship[tuxship->angle / DEG_PER_ROTATION]->h / 2));
+        dest.w = IMG_tuxship[tuxship->angle / DEG_PER_ROTATION]->w;
+        dest.h = IMG_tuxship[tuxship->angle / DEG_PER_ROTATION]->h;
 
-        //Change the image based on if the rocket is thrusting
-        //Google code in task
+        // Change the image based on if the rocket is thrusting
+        // Google code in task
 
-        if(!tuxship->thrust) {
+        if (!tuxship->thrust)
+        {
             SDL_Surface** img_ship = bonus == TB_CLOAKING && bonus_time > 0
                                          ? IMG_tuxship_cloaked
                                          : IMG_tuxship;
             SDL_BlitSurface(img_ship[tuxship->angle / DEG_PER_ROTATION], NULL,
                             screen, &dest);
-        } else {
+        }
+        else
+        {
             SDL_Surface** img_ship = bonus == TB_CLOAKING && bonus_time > 0
                                          ? IMG_tuxship_thrust_cloaked
                                          : IMG_tuxship_thrust;
@@ -334,25 +360,27 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
                             screen, &dest);
         }
 
-
-
-        if(bonus == TB_FORCEFIELD && bonus_time > 0) {
-            SDL_Rect tmp = {tuxship->x - images[IMG_FORCEFIELD]->w/2, tuxship->y - images[IMG_FORCEFIELD]->h/2};
+        if (bonus == TB_FORCEFIELD && bonus_time > 0)
+        {
+            SDL_Rect tmp = {tuxship->x - images[IMG_FORCEFIELD]->w / 2,
+                            tuxship->y - images[IMG_FORCEFIELD]->h / 2};
             SDL_BlitSurface(images[IMG_FORCEFIELD], NULL, screen, &tmp);
         }
     }
 
     /************* Draw Asteroids ***************/
-    for(i=0; i<MAX_ASTEROIDS; i++){
-        if(asteroid[i].alive>0){
+    for (i = 0; i < MAX_ASTEROIDS; i++)
+    {
+        if (asteroid[i].alive > 0)
+        {
 
-            xnum=0;
-            ynum=0;
+            xnum = 0;
+            ynum = 0;
 
             dest.x = asteroid[i].x;
             dest.y = asteroid[i].y;
 
-            surf=get_asteroid_image(asteroid[i].size,asteroid[i].angle);
+            surf = get_asteroid_image(asteroid[i].size, asteroid[i].angle);
 
             dest.w = surf->w;
             dest.h = surf->h;
@@ -360,83 +388,99 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
             SDL_BlitSurface(surf, NULL, screen, &dest);
 
             // Wrap the numbers of the asteroids
-            if((asteroid[i].centery)>23 && (asteroid[i].centery)<screen->h)
+            if ((asteroid[i].centery) > 23 && (asteroid[i].centery) < screen->h)
             {
-                if((asteroid[i].centerx)>0 && (asteroid[i].centerx)<screen->w)
+                if ((asteroid[i].centerx) > 0 &&
+                    (asteroid[i].centerx) < screen->w)
                 {
-                    xnum=asteroid[i].centerx-3;
-                    ynum=asteroid[i].centery;
+                    xnum = asteroid[i].centerx - 3;
+                    ynum = asteroid[i].centery;
                 }
-                else if((asteroid[i].centerx)<=0){
-                    xnum=20;
-                    ynum=asteroid[i].centery;
+                else if ((asteroid[i].centerx) <= 0)
+                {
+                    xnum = 20;
+                    ynum = asteroid[i].centery;
                 }
-                else if((asteroid[i].centerx)<=screen->w){
-                    xnum=screen->w-20;
-                    ynum=asteroid[i].centery;
+                else if ((asteroid[i].centerx) <= screen->w)
+                {
+                    xnum = screen->w - 20;
+                    ynum = asteroid[i].centery;
                 }
             }
-            else if((asteroid[i].centery)<=23)
+            else if ((asteroid[i].centery) <= 23)
             {
-                xnum=asteroid[i].centerx;
-                ynum=23;
+                xnum = asteroid[i].centerx;
+                ynum = 23;
             }
-            else if((asteroid[i].centery)>=screen->h)
+            else if ((asteroid[i].centery) >= screen->h)
             {
-                xnum=asteroid[i].centerx;
-                ynum=screen->h-7;
+                xnum = asteroid[i].centerx;
+                ynum = screen->h - 7;
             }
 
-            //Draw Numbers
-            if(FF_game==FACTOROIDS_GAME)
+            // Draw Numbers
+            if (FF_game == FACTOROIDS_GAME)
             {
                 sprintf(str, "%.1d", asteroid[i].fact_number);
                 draw_nums(zoom, str, xnum, ynum, &white);
             }
-            else if (FF_game==FRACTIONS_GAME)
+            else if (FF_game == FRACTIONS_GAME)
             {
                 sprintf(str, "%d", asteroid[i].a);
                 draw_nums(zoom, str, xnum, ynum, &white);
-                draw_line(screen, xnum, ynum + 4, xnum + 30, ynum + 4,
-                        255, 255, 255);
+                draw_line(screen, xnum, ynum + 4, xnum + 30, ynum + 4, 255, 255,
+                          255);
                 sprintf(str, "%d", asteroid[i].b);
                 draw_nums(zoom, str, xnum, ynum + 35, &white);
             }
         }
     }
     /*************** Draw Steam ***************/
-    for(i=0; i<MAX_ASTEROIDS; i++)
+    for (i = 0; i < MAX_ASTEROIDS; i++)
     {
-        if(asteroid[i].isdead) {
+        if (asteroid[i].isdead)
+        {
             dest.x = asteroid[i].xdead;
             dest.y = asteroid[i].ydead;
-            SDL_BlitSurface(images[IMG_STEAM1+asteroid[i].countdead], NULL, screen, &dest);
-            if(bonus == TB_POWERBOMB && bonus_time > 0)
-                draw_line(screen, asteroid[i].x, asteroid[i].y, tuxship->x, tuxship->y,
-                        (5 - asteroid[i].countdead)*4*laser_coeffs[digits[1]*10+digits[2]][0],
-                        (5 - asteroid[i].countdead)*4*laser_coeffs[digits[1]*10+digits[2]][1],
-                        (5 - asteroid[i].countdead)*4*laser_coeffs[digits[1]*10+digits[2]][2]);
+            SDL_BlitSurface(images[IMG_STEAM1 + asteroid[i].countdead], NULL,
+                            screen, &dest);
+            if (bonus == TB_POWERBOMB && bonus_time > 0)
+            {
+                draw_line(screen, asteroid[i].x, asteroid[i].y, tuxship->x,
+                          tuxship->y,
+                          (5 - asteroid[i].countdead) * 4 *
+                              laser_coeffs[digits[1] * 10 + digits[2]][0],
+                          (5 - asteroid[i].countdead) * 4 *
+                              laser_coeffs[digits[1] * 10 + digits[2]][1],
+                          (5 - asteroid[i].countdead) * 4 *
+                              laser_coeffs[digits[1] * 10 + digits[2]][2]);
+            }
         }
 
-
-        if(asteroid[i].isdead) {
+        if (asteroid[i].isdead)
+        {
             dest.x = asteroid[i].xdead;
             dest.y = asteroid[i].ydead;
-            SDL_BlitSurface(images[IMG_STEAM1+asteroid[i].countdead], NULL, screen, &dest);
+            SDL_BlitSurface(images[IMG_STEAM1 + asteroid[i].countdead], NULL,
+                            screen, &dest);
             asteroid[i].countdead++;
-            if(asteroid[i].countdead > 5)
+            if (asteroid[i].countdead > 5)
             {
-                asteroid[i].isdead = 0;
+                asteroid[i].isdead    = 0;
                 asteroid[i].countdead = 0;
             }
         }
     }
 
     /* Draw wave: */
-    if (1)//Opts_BonusCometInterval())
+    if (1) // Opts_BonusCometInterval())
+    {
         offset = images[IMG_EXTRA_LIFE]->w + 5;
+    }
     else
+    {
         offset = 0;
+    }
 
     dest.x = offset;
 
@@ -447,12 +491,13 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
     SDL_BlitSurface(images[IMG_WAVE], NULL, screen, &dest);
 
     sprintf(str, "%d", wave);
-    draw_numbers(screen, str, offset+images[IMG_WAVE]->w + (images[IMG_NUMBERS]->w / 10), 0);
+    draw_numbers(screen, str,
+                 offset + images[IMG_WAVE]->w + (images[IMG_NUMBERS]->w / 10),
+                 0);
 
     /* Draw "score" label: */
-    dest.x = (screen->w - ((images[IMG_NUMBERS]->w/10) * 7) -
-            images[IMG_SCORE]->w -
-            images[IMG_STOP]->w - 5);
+    dest.x = (screen->w - ((images[IMG_NUMBERS]->w / 10) * 7) -
+              images[IMG_SCORE]->w - images[IMG_STOP]->w - 5);
     dest.y = 0;
     dest.w = images[IMG_SCORE]->w;
     dest.h = images[IMG_SCORE]->h;
@@ -461,8 +506,9 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
 
     sprintf(str, "%.6d", score);
     draw_numbers(screen, str,
-            screen->w - ((images[IMG_NUMBERS]->w / 10) * 6) - images[IMG_STOP]->w - 5,
-            0);
+                 screen->w - ((images[IMG_NUMBERS]->w / 10) * 6) -
+                     images[IMG_STOP]->w - 5,
+                 0);
 
     /* Draw stop button: */
     //  if (!help_controls.x_is_blinking || (frame % 10 < 5)) {
@@ -476,11 +522,10 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
 
     /************* Draw pre answer ************/
 
-
-    if(screen->w < 800 && screen->h < 600)
+    if (screen->w < 800 && screen->h < 600)
     {
         sprintf(str, "%.3d", num);
-        draw_numbers(screen, str, ((screen->w)/2) - 50, (screen->h) - 30);
+        draw_numbers(screen, str, ((screen->w) / 2) - 50, (screen->h) - 30);
     }
     else
     {
@@ -492,14 +537,14 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
     dest.y = screen->h;
     dest.x = 0;
 
-    for(i = 1; i <= tuxship->lives; i++)
+    for (i = 1; i <= tuxship->lives; i++)
     {
-        if(tuxship->lives <= 5)
+        if (tuxship->lives <= 5)
         {
             dest.y = dest.y - (IMG_lives_ship->h);
             SDL_BlitSurface(IMG_lives_ship, NULL, screen, &dest);
         }
-        else if(tuxship->lives > 4)
+        else if (tuxship->lives > 4)
         {
             dest.y = screen->h - (IMG_lives_ship->h);
             SDL_BlitSurface(IMG_lives_ship, NULL, screen, &dest);
@@ -510,39 +555,45 @@ void factoroids_draw(asteroid_type *asteroid, tuxship_type *tuxship, FF_laser_ty
 
     /*** Draw Bonus Indicator ***/
     static int blink = 0;
-    if(bonus_time == 0)
+    if (bonus_time == 0)
+    {
         blink = 0;
-    else if(bonus_time - SDL_GetTicks() > 3000)
+    }
+    else if (bonus_time - SDL_GetTicks() > 3000)
+    {
         blink = 5;
+    }
     else
+    {
         blink = (blink + 1) % 10;
-    if(bonus != -1 && blink>4) {
-        SDL_Surface *indicator = images[bonus_img_ids[bonus]];
-        SDL_Rect pos = {screen->w - indicator->w, screen->h - indicator->h};
+    }
+    if (bonus != -1 && blink > 4)
+    {
+        SDL_Surface* indicator = images[bonus_img_ids[bonus]];
+        SDL_Rect     pos = {screen->w - indicator->w, screen->h - indicator->h};
         SDL_BlitSurface(indicator, NULL, screen, &pos);
     }
 }
 
-
 void factoroids_draw_led_console(int wave, int num, int button_pressed)
 {
-    int i;
+    int              i;
     enum BUTTON_TYPE type;
 
     draw_console_image(IMG_COCKPIT);
     factoroids_init_buttons();
 
-    for(i=0; i<6; i++)
+    for (i = 0; i < 6; i++)
     {
-        if(i < wave)
+        if (i < wave)
         {
-            if(button_pressed && num==buttons[i].prime)
+            if (button_pressed && num == buttons[i].prime)
             {
-                type=PRESSED;
+                type = PRESSED;
             }
-            else if(num==buttons[i].prime)
+            else if (num == buttons[i].prime)
             {
-                type=SELECTED;
+                type = SELECTED;
             }
             else
             {
@@ -553,53 +604,50 @@ void factoroids_draw_led_console(int wave, int num, int button_pressed)
         {
             type = DISABLED;
         }
-        factoroids_draw_button(buttons[i].img_id,type,buttons[i].x,buttons[i].y);
+        factoroids_draw_button(buttons[i].img_id, type, buttons[i].x,
+                               buttons[i].y);
     }
 }
-
 
 void factoroids_init_buttons(void)
 {
 
     buttons[0].img_id = IMG_BUTTON2;
-    buttons[0].x = screen->w/2 - BUTTON2_X;
-    buttons[0].y = screen->h - BUTTON2_Y;
-    buttons[0].prime = 2;
+    buttons[0].x      = screen->w / 2 - BUTTON2_X;
+    buttons[0].y      = screen->h - BUTTON2_Y;
+    buttons[0].prime  = 2;
 
     buttons[1].img_id = IMG_BUTTON3;
-    buttons[1].x = screen->w/2 - BUTTON3_X;
-    buttons[1].y = screen->h - BUTTON3_Y;
-    buttons[1].prime = 3;
+    buttons[1].x      = screen->w / 2 - BUTTON3_X;
+    buttons[1].y      = screen->h - BUTTON3_Y;
+    buttons[1].prime  = 3;
 
     buttons[2].img_id = IMG_BUTTON5;
-    buttons[2].x = screen->w/2 - BUTTON5_X;
-    buttons[2].y = screen->h - BUTTON5_Y;
-    buttons[2].prime = 5;
+    buttons[2].x      = screen->w / 2 - BUTTON5_X;
+    buttons[2].y      = screen->h - BUTTON5_Y;
+    buttons[2].prime  = 5;
 
     buttons[3].img_id = IMG_BUTTON7;
-    buttons[3].x = screen->w/2 + BUTTON7_X;
-    buttons[3].y = screen->h - BUTTON7_Y;
-    buttons[3].prime = 7;
+    buttons[3].x      = screen->w / 2 + BUTTON7_X;
+    buttons[3].y      = screen->h - BUTTON7_Y;
+    buttons[3].prime  = 7;
 
     buttons[4].img_id = IMG_BUTTON11;
-    buttons[4].x = screen->w/2 + BUTTON11_X;
-    buttons[4].y = screen->h - BUTTON11_Y;
-    buttons[4].prime = 11;
+    buttons[4].x      = screen->w / 2 + BUTTON11_X;
+    buttons[4].y      = screen->h - BUTTON11_Y;
+    buttons[4].prime  = 11;
 
     buttons[5].img_id = IMG_BUTTON13;
-    buttons[5].x = screen->w/2 + BUTTON13_X;
-    buttons[5].y = screen->h - BUTTON13_Y;
-    buttons[5].prime = 13;
-
+    buttons[5].x      = screen->w / 2 + BUTTON13_X;
+    buttons[5].y      = screen->h - BUTTON13_Y;
+    buttons[5].prime  = 13;
 }
-
 
 void factoroids_draw_bkgr(void)
 {
 
     SDL_BlitSurface(current_bkgd(), NULL, screen, NULL);
 }
-
 
 void factoroids_draw_button(int img_id, enum BUTTON_TYPE type, int x, int y)
 {
@@ -611,22 +659,22 @@ void factoroids_draw_button(int img_id, enum BUTTON_TYPE type, int x, int y)
     scr.x = x;
     scr.y = y;
 
-    if(type == ACTIVE)
+    if (type == ACTIVE)
     {
         rect.x = 0;
         SDL_BlitSurface(images[img_id], &rect, screen, &scr);
     }
-    else if(type == SELECTED)
+    else if (type == SELECTED)
     {
         rect.x = BUTTONW;
         SDL_BlitSurface(images[img_id], &rect, screen, &scr);
     }
-    else if(type == PRESSED)
+    else if (type == PRESSED)
     {
         rect.x = BUTTONW * 2;
         SDL_BlitSurface(images[img_id], &rect, screen, &scr);
     }
-    else if(type == DISABLED)
+    else if (type == DISABLED)
     {
         rect.x = BUTTONW * 3;
         SDL_BlitSurface(images[img_id], &rect, screen, &scr);
@@ -636,20 +684,22 @@ void factoroids_draw_button(int img_id, enum BUTTON_TYPE type, int x, int y)
 void factoroids_show_message(const char* str)
 {
     SDL_Surface* s1 = NULL;
-    SDL_Rect loc;
-    char wrapped_str[1024];
-    int char_width;
+    SDL_Rect     loc;
+    char         wrapped_str[1024];
+    int          char_width;
 
-    if(str == NULL)
+    if (str == NULL)
+    {
         return;
+    }
 
     char_width = T4K_CharsForWidth(DEFAULT_MENU_FONT_SIZE, screen->w * 0.75);
     T4K_LineWrapInsBreaks(str, wrapped_str, char_width, 64, 64);
     s1 = T4K_BlackOutline(wrapped_str, DEFAULT_MENU_FONT_SIZE, &yellow);
     if (s1)
     {
-        loc.x = screen->w/2 - s1->w/2;
-        loc.y = screen->h/4;
+        loc.x = screen->w / 2 - s1->w / 2;
+        loc.y = screen->h / 4;
         SDL_BlitSurface(s1, NULL, screen, &loc);
         SDL_DestroySurface(s1);
     }
@@ -659,13 +709,15 @@ void factoroids_level_objs_hints(const char* label, const char* contents, int x,
                                  int y)
 {
     SDL_Surface *s1 = NULL, *s2 = NULL;
-    SDL_Rect loc;
-    char wrapped_label[256];
-    char wrapped_contents[256];
-    int char_width;
+    SDL_Rect     loc;
+    char         wrapped_label[256];
+    char         wrapped_contents[256];
+    int          char_width;
 
-    if(label == NULL || contents == NULL)
+    if (label == NULL || contents == NULL)
+    {
         return;
+    }
 
     char_width = T4K_CharsForWidth(DEFAULT_MENU_FONT_SIZE, LVL_WIDTH_MSG);
     T4K_LineWrapInsBreaks(label, wrapped_label, char_width, 64, 64);
@@ -674,16 +726,16 @@ void factoroids_level_objs_hints(const char* label, const char* contents, int x,
     s1 = T4K_BlackOutline(wrapped_label, DEFAULT_MENU_FONT_SIZE, &white);
     s2 = T4K_BlackOutline(wrapped_contents, DEFAULT_MENU_FONT_SIZE, &white);
 
-    if(s1)
+    if (s1)
     {
         loc.x = x;
         loc.y = y;
         SDL_BlitSurface(s1, NULL, screen, &loc);
     }
-    if(s2)
+    if (s2)
     {
         loc.x = x;
-        loc.y = s1->h + loc.y ;
+        loc.y = s1->h + loc.y;
         SDL_BlitSurface(s2, NULL, screen, &loc);
     }
 
@@ -691,25 +743,21 @@ void factoroids_level_objs_hints(const char* label, const char* contents, int x,
     SDL_DestroySurface(s2);
 }
 
-
 void factoroids_level_message(int wave)
 {
-    SDL_Rect rect;
-    SDL_Surface *bgsurf=NULL;
-    int nwave;
+    SDL_Rect     rect;
+    SDL_Surface* bgsurf = NULL;
+    int          nwave;
 
-    char objs_str[PRIME_MAX_LIMIT][MAX_CHAR_MSG] =
-    {
+    char objs_str[PRIME_MAX_LIMIT][MAX_CHAR_MSG] = {
         N_("Powers of 2"),
         N_("Products of 2 and 3"),
         N_("Products of 2, 3 and 5"),
         N_("Products of 2, 3, 5 and 7"),
         N_("Products of 2, 3, 5, 7, and 11"),
-        N_("Products of 2, 3, 5, 7, 11 and 13")
-    };
+        N_("Products of 2, 3, 5, 7, 11 and 13")};
 
-    char hints_str[PRIME_MAX_LIMIT][MAX_CHAR_MSG] =
-    {
+    char hints_str[PRIME_MAX_LIMIT][MAX_CHAR_MSG] = {
         N_("All multiples of 2 end in 2, 4, 6, 8, or 0"),
         N_("The digits of a multiple of 3 add up to a multiple of 3"),
         N_("All multiples of 5 end in 0 or 5"),
@@ -718,44 +766,50 @@ void factoroids_level_message(int wave)
         N_("Sorry - there is no simple rule to identify multiples of 13."),
     };
 
-    rect.x = (screen->w/2)-(LVL_WIDTH_MSG/2);
-    rect.y = (screen->h/2)-(LVL_HEIGHT_MSG/2);
+    rect.x = (screen->w / 2) - (LVL_WIDTH_MSG / 2);
+    rect.y = (screen->h / 2) - (LVL_HEIGHT_MSG / 2);
 
-    bgsurf = T4K_CreateButton(LVL_WIDTH_MSG,LVL_HEIGHT_MSG,12,19,19,96,96);
+    bgsurf =
+        T4K_CreateButton(LVL_WIDTH_MSG, LVL_HEIGHT_MSG, 12, 19, 19, 96, 96);
 
-    if(bgsurf)
+    if (bgsurf)
     {
-        SDL_BlitSurface(bgsurf, NULL, screen, &rect );
+        SDL_BlitSurface(bgsurf, NULL, screen, &rect);
         SDL_DestroySurface(bgsurf);
     }
 
     nwave = (wave > PRIME_MAX_LIMIT) ? PRIME_MAX_LIMIT : wave;
 
-    factoroids_level_objs_hints(_("Objectives:"), _(objs_str[nwave-1]), rect.x+LVL_OBJ_X_OFFSET, rect.y+LVL_OBJ_Y_OFFSET);
-    factoroids_level_objs_hints(_("Hints:"), _(hints_str[nwave-1]), rect.x+LVL_HINT_X_OFFSET, rect.y+LVL_HINT_Y_OFFSET-10);
+    factoroids_level_objs_hints(_("Objectives:"), _(objs_str[nwave - 1]),
+                                rect.x + LVL_OBJ_X_OFFSET,
+                                rect.y + LVL_OBJ_Y_OFFSET);
+    factoroids_level_objs_hints(_("Hints:"), _(hints_str[nwave - 1]),
+                                rect.x + LVL_HINT_X_OFFSET,
+                                rect.y + LVL_HINT_Y_OFFSET - 10);
 
     T4K_UpdateRect(screen, NULL);
 
     wait_for_input();
 }
 
-
 int tuxship_img_h(int deg)
 {
     return IMG_tuxship[deg]->h;
 }
-
 
 int tuxship_img_w(int deg)
 {
     return IMG_tuxship[deg]->w;
 }
 
-
-SDL_Surface* get_asteroid_image(int size,int angle)
+SDL_Surface* get_asteroid_image(int size, int angle)
 {
     if (size == 0)
-        return IMG_asteroids1[angle/DEG_PER_ROTATION];
+    {
+        return IMG_asteroids1[angle / DEG_PER_ROTATION];
+    }
     else
-        return IMG_asteroids2[angle/DEG_PER_ROTATION];
+    {
+        return IMG_asteroids2[angle / DEG_PER_ROTATION];
+    }
 }

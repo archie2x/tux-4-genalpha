@@ -36,24 +36,24 @@ game_option_type settings;
 /* Simply stick all the default values into the settings struct: */
 void Opts_Initialize(void)
 {
-  strncpy(settings.theme_font_name, DEFAULT_FONT_NAME, FNLEN);
-  strncpy(settings.theme_locale_name, DEFAULT_LOCALE, FNLEN);
-  settings.use_english = DEFAULT_USE_ENGLISH;
-  settings.fullscreen = DEFAULT_FULLSCREEN;
-  settings.sys_sound = DEFAULT_SYS_SOUND;
-  settings.braille       = DEFAULT_BRAILLE;
-  settings.tts = DEFAULT_TTS;
-  text_to_speech_status = DEFAULT_TTS;
-  settings.tts_volume = DEFAULT_TTS_VOLUME;
-  settings.sfx_volume = DEFAULT_SFX_VOLUME;
-  settings.mus_volume = DEFAULT_MUS_VOLUME;
-  settings.menu_music = DEFAULT_MENU_MUSIC;
-  settings.menu_sound = DEFAULT_MENU_SOUND;
-  settings.speed_up = DEFAULT_SPEED_UP;
-  settings.show_tux4kids = DEFAULT_SHOW_TUX4KIDS;
-  settings.debug_on = DEFAULT_DEBUG_ON;
-  settings.o_lives = DEFAULT_O_LIVES;
-  settings.sound_vol = DEFAULT_SOUND_VOL;
-  settings.show_keyboard = DEFAULT_SHOW_KEYBOARD;
-  settings.hidden        = DEFAULT_HIDDEN;
+    strncpy(settings.theme_font_name, DEFAULT_FONT_NAME, FNLEN);
+    strncpy(settings.theme_locale_name, DEFAULT_LOCALE, FNLEN);
+    settings.use_english   = DEFAULT_USE_ENGLISH;
+    settings.fullscreen    = DEFAULT_FULLSCREEN;
+    settings.sys_sound     = DEFAULT_SYS_SOUND;
+    settings.braille       = DEFAULT_BRAILLE;
+    settings.tts           = DEFAULT_TTS;
+    text_to_speech_status  = DEFAULT_TTS;
+    settings.tts_volume    = DEFAULT_TTS_VOLUME;
+    settings.sfx_volume    = DEFAULT_SFX_VOLUME;
+    settings.mus_volume    = DEFAULT_MUS_VOLUME;
+    settings.menu_music    = DEFAULT_MENU_MUSIC;
+    settings.menu_sound    = DEFAULT_MENU_SOUND;
+    settings.speed_up      = DEFAULT_SPEED_UP;
+    settings.show_tux4kids = DEFAULT_SHOW_TUX4KIDS;
+    settings.debug_on      = DEFAULT_DEBUG_ON;
+    settings.o_lives       = DEFAULT_O_LIVES;
+    settings.sound_vol     = DEFAULT_SOUND_VOL;
+    settings.show_keyboard = DEFAULT_SHOW_KEYBOARD;
+    settings.hidden        = DEFAULT_HIDDEN;
 }

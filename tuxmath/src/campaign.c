@@ -32,8 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "mathcards.h"
 #include "options.h"
 
-
-void briefPlayer(int stage); //show text introducing the given stage
+void briefPlayer(int stage); // show text introducing the given stage
 void readStageSettings(int stage);
 void readRoundSettings(int stage, int round);
 void showGameOver();
@@ -43,12 +42,11 @@ char* stagenames[NUM_STAGES] = {"cadet", "scout", "ranger", "ace", "commando"};
 
 int start_campaign()
 {
-    int i, j;
-    int gameresult = 0, endcampaign = 0;
+    int  i, j;
+    int  gameresult = 0, endcampaign = 0;
     char roundmessage[10];
     char endtext[2][MAX_LINEWIDTH] = {N_("Congratulations! You win!"), " "};
     fprintf(stderr, "Entering start_campaign()\n");
-
 
     for (i = 0; i < NUM_STAGES; ++i)
     {
@@ -58,7 +56,7 @@ int start_campaign()
         {
             fprintf(stderr, "Round %d\n", j);
 
-            //read in settings
+            // read in settings
             read_named_config_file(local_game, "campaign/campaign");
             readStageSettings(i);
             readRoundSettings(i, j);
@@ -72,11 +70,11 @@ int start_campaign()
                 MC_PrintMathOptions(local_game, stdout, 0);
             }
 
-            //play!
+            // play!
             fprintf(stderr, "Starting game...\n");
             gameresult = comets_game(local_game);
 
-            //move on if we've won, game over if not
+            // move on if we've won, game over if not
             if (gameresult == GAME_OVER_WON)
                 ;
             else if (gameresult == GAME_OVER_LOST)
@@ -103,10 +101,13 @@ int start_campaign()
             }
 
             if (endcampaign)
+            {
                 return 0;
+            }
         }
 
-        //if we've beaten the last stage, there is no bonus, skip to win sequence
+        // if we've beaten the last stage, there is no bonus, skip to win
+        // sequence
         if (i == NUM_STAGES - 1)
         {
             showGameWon();
@@ -136,7 +137,7 @@ void briefPlayer(int stage)
        2009. */
 
     const char briefings[NUM_STAGES][MAX_LINES][MAX_LINEWIDTH] = {
-        //cadet
+        // cadet
         {{N_("-[Esc] to skip")},
          {N_("Mission One: Careful Cadet")},
          {"--------------------------"},
@@ -148,7 +149,7 @@ void briefPlayer(int stage)
          {" "},
          {N_("Do your best!")},
          {""}},
-        //scout
+        // scout
         {{N_("-[Esc] to skip")},
          {N_("Mission Two: Smart Scout")},
          {"------------------------"},
@@ -160,7 +161,7 @@ void briefPlayer(int stage)
              "they're sending new, trickier comets against the penguins!")},
          {N_("But you can save them!")},
          {""}},
-        //ranger
+        // ranger
         {{"-[Esc] to skip"},
          {N_("Mission Three: Royal Ranger")},
          {"---------------------------"},
@@ -173,7 +174,7 @@ void briefPlayer(int stage)
              "you need great skill. We think you can do it. Join the Rangers "
              "and help save the city!")},
          {""}},
-        //ace
+        // ace
         {{N_("-[Esc] to skip")},
          {N_("Mission Four: Imperial Ace")},
          {"--------------------------"},
@@ -185,7 +186,7 @@ void briefPlayer(int stage)
              "land of Division starts!")},
          {N_("Now is no time for resting; the city needs your help!")},
          {""}},
-        //commando
+        // commando
         {{N_("-[Esc] to skip")},
          {N_("Final Mission: Computing Commando")},
          {"---------------------------------"},
@@ -200,14 +201,11 @@ void briefPlayer(int stage)
          {""}},
     };
     char* sprites[] = {
-        "sprites/tux_helmet_yellow.svg",
-        "sprites/tux_helmet_green.svg",
-        "sprites/tux_helmet_blue.svg",
-        "sprites/tux_helmet_red.svg",
-        "sprites/tux_helmet_black.svg"
-    };
+        "sprites/tux_helmet_yellow.svg", "sprites/tux_helmet_green.svg",
+        "sprites/tux_helmet_blue.svg", "sprites/tux_helmet_red.svg",
+        "sprites/tux_helmet_black.svg"};
 
-    SDL_Surface* icon = NULL;
+    SDL_Surface* icon     = NULL;
     SDL_Rect     textarea = (SDL_Rect){
         0, 0, (screen)->w,
         (screen)->h} /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */;
@@ -215,48 +213,53 @@ void briefPlayer(int stage)
         T4K_LoadScaledImage(sprites[stage], IMG_REGULAR | IMG_NOT_REQUIRED,
                             screen->h / 4, screen->h / 4);
 
-    if (loadedsprite) //if using an image, make sure the text doesn't hit it
+    if (loadedsprite) // if using an image, make sure the text doesn't hit it
     {
-        icon = loadedsprite;
+        icon       = loadedsprite;
         textarea.x = icon->w;
         textarea.y = icon->h;
         textarea.w = screen->w - icon->w;
         textarea.h = screen->h - icon->h;
     }
 
-    char tts_text[1000];int i;
+    char tts_text[1000];
+    int  i;
     tts_text[0] = '\0';
-    for(i = 0;i < MAX_LINES;i++)
+    for (i = 0; i < MAX_LINES; i++)
     {
-		strcat(tts_text,briefings[stage][i]);
-	}
-	T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",tts_text);
+        strcat(tts_text, briefings[stage][i]);
+    }
+    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s", tts_text);
 
-    //background is dark blue with a black text area
+    // background is dark blue with a black text area
     SDL_FillSurfaceRect(
         screen, NULL,
         SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 32));
     SDL_FillSurfaceRect(screen, &textarea, 0);
 
-    //show this stage's text
+    // show this stage's text
     DEBUGMSG(debug_game, "Briefing\n");
 
     SDL_BlitSurface(icon, NULL, screen, NULL);
 
-    T4K_LineWrapList(briefings[stage], wrapped_lines, 40, MAX_LINES, MAX_LINEWIDTH);
+    T4K_LineWrapList(briefings[stage], wrapped_lines, 40, MAX_LINES,
+                     MAX_LINEWIDTH);
     scroll_text(wrapped_lines, textarea, 1);
 
     DEBUGMSG(debug_game, "Finished briefing\n");
 
     SDL_DestroySurface(loadedsprite);
     if (icon != loadedsprite)
+    {
         SDL_DestroySurface(icon);
+    }
 }
 
 void readStageSettings(int stage)
 {
     char fn[PATH_MAX];
-    snprintf(fn,PATH_MAX, "campaign/%s/%s", stagenames[stage], stagenames[stage]);
+    snprintf(fn, PATH_MAX, "campaign/%s/%s", stagenames[stage],
+             stagenames[stage]);
     read_named_config_file(local_game, fn);
 }
 
@@ -264,9 +267,13 @@ void readRoundSettings(int stage, int round)
 {
     char fn[PATH_MAX];
     if (round == -1)
+    {
         snprintf(fn, PATH_MAX, "campaign/%s/bonus", stagenames[stage]);
+    }
     else
-        snprintf(fn,PATH_MAX, "campaign/%s/round%d", stagenames[stage], round);
+    {
+        snprintf(fn, PATH_MAX, "campaign/%s/round%d", stagenames[stage], round);
+    }
     read_named_config_file(local_game, fn);
 }
 
@@ -284,7 +291,8 @@ void showGameOver()
 
 void showGameWon()
 {
-    const char text[2][MAX_LINEWIDTH] = {N_("Mission accomplished. The galaxy is safe!"), ""};
+    const char text[2][MAX_LINEWIDTH] = {
+        N_("Mission accomplished. The galaxy is safe!"), ""};
     T4K_LineWrapList(text, wrapped_lines, 40, MAX_LINES, MAX_LINEWIDTH);
     scroll_text(
         wrapped_lines,

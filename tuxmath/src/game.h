@@ -21,11 +21,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-#ifndef GAME_H
-#define GAME_H
-
-enum {
+#pragma once
+enum
+{
     GAME_IN_PROGRESS,
     GAME_OVER_WON,
     GAME_OVER_LOST,
@@ -42,6 +40,3 @@ enum {
 extern int user_quit_received;
 
 int pause_game(void);
-
-
-#endif

@@ -29,62 +29,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef MENU_H
-#define MENU_H
-
+#pragma once
 #include "globals.h"
 #include <SDL3/SDL.h>
 /* titlescreen & menu frame rate */
-#define MAX_FPS                    30
+#define MAX_FPS 30
 /* number of "real" frames per one sprite frame */
-#define SPRITE_FRAME_DELAY         6
+#define SPRITE_FRAME_DELAY 6
 
 #ifdef HAVE_LIBT4K_COMMON
-#include <t4k/common.h>
+# include <t4k/common.h>
 #else
 # define RUN_MAIN_MENU -3
 # define QUIT -2
 # define STOP -1
-#endif //HAVE_LIBT4K_COMMON
+#endif // HAVE_LIBT4K_COMMON
 
 /* these are all menu choices that are available in tuxmath.
    By using a define we can create both an enum and
    a string array without writing these names twice */
-#define ACTIVITIES \
-    X( RUN_QUIT ),\
-X( RUN_ACADEMY ),\
-X( RUN_CAMPAIGN ),\
-X( RUN_ARCADE ),\
-X( RUN_CUSTOM ),\
-X( RUN_LAN_HOST ),\
-X( STOP_LAN_HOST ),\
-X( RUN_LAN_JOIN ),\
-X( RUN_SCORE_SWEEP ),\
-X( RUN_ELIMINATION ),\
-X( RUN_FACTORS ),\
-X( RUN_FRACTIONS ),\
-X( RUN_HELP ),\
-X( RUN_DEMO ),\
-X( RUN_INFO ),\
-X( RUN_CREDITS ),\
-X( RUN_HALL_OF_FAME ),\
-X( RUN_SPACE_CADET ),\
-X( RUN_SCOUT ),\
-X( RUN_RANGER ),\
-X( RUN_ACE ),\
-X( RUN_COMMANDO ),\
-X( N_OF_ACTIVITIES )  /* this one has to be the last one */
+#define ACTIVITIES                                                             \
+    X(RUN_QUIT), X(RUN_ACADEMY), X(RUN_CAMPAIGN), X(RUN_ARCADE),               \
+        X(RUN_CUSTOM), X(RUN_LAN_HOST), X(STOP_LAN_HOST), X(RUN_LAN_JOIN),     \
+        X(RUN_SCORE_SWEEP), X(RUN_ELIMINATION), X(RUN_FACTORS),                \
+        X(RUN_FRACTIONS), X(RUN_HELP), X(RUN_DEMO), X(RUN_INFO),               \
+        X(RUN_CREDITS), X(RUN_HALL_OF_FAME), X(RUN_SPACE_CADET), X(RUN_SCOUT), \
+        X(RUN_RANGER), X(RUN_ACE), X(RUN_COMMANDO),                            \
+        X(N_OF_ACTIVITIES) /* this one has to be the last one */
 
 /* create enum */
 #define X(name) name
-enum { ACTIVITIES };
+enum
+{
+    ACTIVITIES
+};
 #undef X
 
 /* we may use a few separate menu trees */
-typedef enum {
+typedef enum
+{
     MENU_MAIN,
     MENU_DIFFICULTY, //(not used)
     MENU_LESSONS,
@@ -94,14 +77,11 @@ typedef enum {
 } MenuType;
 
 /* used also by highscore.c */
-extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
-extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
-
+extern SDL_Rect     menu_rect, stop_rect, prev_rect, next_rect;
+extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray,
+    *next_gray;
 
 /* global functions */
 void LoadMenus(void);
-int RunLoginMenu(void);
+int  RunLoginMenu(void);
 void RunMainMenu(void);
-
-#endif // MENU_H
-

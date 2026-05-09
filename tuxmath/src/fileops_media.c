@@ -177,19 +177,16 @@ int load_image_data()
         "factoroids/forcefield.png",
         "factoroids/ship-thrust.png",
         "factoroids/ship-thrust-cloaked.png",
-        "status/arrows.png"
-    };
+        "status/arrows.png"};
 
-    static char* sprite_filenames[NUM_SPRITES] = {
-        "comets/comet",
-        "comets/bonus_comet",
-        "comets/cometex",
-        "comets/bonus_cometex",
-        "comets/left_powerup_comet",
-        "comets/right_powerup_comet",
-        "comets/powerup_cometex",
-        "tux/bigtux"
-    };
+    static char* sprite_filenames[NUM_SPRITES] = {"comets/comet",
+                                                  "comets/bonus_comet",
+                                                  "comets/cometex",
+                                                  "comets/bonus_cometex",
+                                                  "comets/left_powerup_comet",
+                                                  "comets/right_powerup_comet",
+                                                  "comets/powerup_cometex",
+                                                  "tux/bigtux"};
 
     /* Load static images: */
     for (i = 0; i < NUM_IMAGES; i++)
@@ -202,7 +199,8 @@ int load_image_data()
                     "\nError: I couldn't load a graphics file:\n"
                     "%s\n"
                     "The Simple DirectMedia error that occured was:\n"
-                    "%s\n\n", image_filenames[i], SDL_GetError());
+                    "%s\n\n",
+                    image_filenames[i], SDL_GetError());
             return 0;
         }
     }
@@ -218,7 +216,8 @@ int load_image_data()
                     "\nError: I couldn't load a graphics file:\n"
                     "%s\n"
                     "The Simple DirectMedia error that occured was:\n"
-                    "%s\n\n", sprite_filenames[i], SDL_GetError());
+                    "%s\n\n",
+                    sprite_filenames[i], SDL_GetError());
             return 0;
         }
     }
@@ -228,19 +227,17 @@ int load_image_data()
 #ifdef REPLACE_WAVESCORE
     /* Replace the "WAVE" and "SCORE" with translate-able versions */
     SDL_DestroySurface(images[IMG_WAVE]);
-    images[IMG_WAVE] = T4K_SimpleTextWithOffset(_("WAVE"), 28, &white, &glyph_offset);
+    images[IMG_WAVE] =
+        T4K_SimpleTextWithOffset(_("WAVE"), 28, &white, &glyph_offset);
     SDL_DestroySurface(images[IMG_SCORE]);
-    images[IMG_SCORE] = T4K_SimpleTextWithOffset(_("SCORE"), 28, &white, &glyph_offset);
+    images[IMG_SCORE] =
+        T4K_SimpleTextWithOffset(_("SCORE"), 28, &white, &glyph_offset);
     glyph_offset++;
 #endif
 
     /* If we make it to here OK, return 1: */
     return 1;
 }
-
-
-
-
 
 #ifndef NOSOUND
 int load_sound_data(void)
@@ -266,13 +263,14 @@ int load_sound_data(void)
                         "\nError: I couldn't load a sound file:\n"
                         "%s\n"
                         "The Simple DirectMedia error that occured was:\n"
-                        "%s\n\n", sound_filenames[i], SDL_GetError());
+                        "%s\n\n",
+                        sound_filenames[i], SDL_GetError());
                 return 0;
             }
         }
     }
 
-    //NOTE - no longer load musics here - they are loaded as needed
+    // NOTE - no longer load musics here - they are loaded as needed
     return 1;
 }
 

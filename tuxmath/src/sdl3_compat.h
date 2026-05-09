@@ -1,9 +1,7 @@
 /* sdl3_compat.h — declarations for the SDL3 port shims (sdl3_compat.c).
  * Include from globals.h so every TU sees these. */
 
-#ifndef SDL3_COMPAT_H
-#define SDL3_COMPAT_H
-
+#pragma once
 #include <SDL3/SDL.h>
 
 /* SDL_gfx rotozoom replacement (no-op rotation, just duplicates). */
@@ -16,7 +14,7 @@ SDL_Surface* rotozoomSurface(SDL_Surface* src, double angle, double zoom,
 #include "transtruct.h"
 #include <stdbool.h>
 #ifndef LAN_PLAYER_TYPE_DEFINED
-#define LAN_PLAYER_TYPE_DEFINED
+# define LAN_PLAYER_TYPE_DEFINED
 typedef struct lan_player_type
 {
     bool connected;
@@ -37,5 +35,3 @@ int         LAN_RequestIndex(void);
 int  OurServerRunning(void);
 int  SrvrGameInProgress(void);
 void StopServer(void);
-
-#endif /* SDL3_COMPAT_H */

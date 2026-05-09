@@ -41,8 +41,8 @@ int main(int argc, char** argv)
 {
     int ret;
 #ifdef HAVE_LIBSDL_NET
-    //Initialize a copy of mathcards to hold settings:
-    lan_game_settings = (MC_MathGame*) malloc(sizeof(MC_MathGame));
+    // Initialize a copy of mathcards to hold settings:
+    lan_game_settings = (MC_MathGame*)malloc(sizeof(MC_MathGame));
     if (lan_game_settings == NULL)
     {
         fprintf(stderr, "\nUnable to allocate MC_MathGame\n");
@@ -54,11 +54,12 @@ int main(int argc, char** argv)
         fprintf(stderr, "\nUnable to initialize MathCards\n");
         exit(1);
     }
-    //Initialize SDL and SDL_net:
-    if(SDL_Init(0) == -1)
+    // Initialize SDL and SDL_net:
+    if (SDL_Init(0) == -1)
     {
         fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());
-        return 0;;
+        return 0;
+        ;
     }
     if (SDLNet_Init() < 0)
     {

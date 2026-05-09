@@ -27,27 +27,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TM_SERVER_H
-#define TM_SERVER_H
-
+#pragma once
 #include "config.h"
 
 #ifdef HAVE_LIBSDL_NET
 /* SDL_net dropped — networking disabled */
 
-#define NAME_SIZE 50
-#define DEFAULT_SERVER_NAME "TuxMath LAN Server"
-#define SERVER_NAME_TIMEOUT 30000
-#define DEFAULT_PORT 4779
+# define NAME_SIZE 50
+# define DEFAULT_SERVER_NAME "TuxMath LAN Server"
+# define SERVER_NAME_TIMEOUT 30000
+# define DEFAULT_PORT 4779
 
-typedef struct client_type {
-    int game_ready;   //game_ready = 1 means client has said OK to start
-    char name[NAME_SIZE];
-    int score;
+typedef struct client_type
+{
+    int       game_ready; // game_ready = 1 means client has said OK to start
+    char      name[NAME_SIZE];
+    int       score;
     TCPsocket sock;
-}client_type;
-
-
+} client_type;
 
 /* Ways to run the server - all accept command-line style arguments: */
 
@@ -55,20 +52,23 @@ typedef struct client_type {
 
 /* From within Tuxmath: */
 
-#ifdef HAVE_PTHREAD_H
-/* 2. Using POSIX threads library (RECOMMENDED if pthreads available on your system): */
+# ifdef HAVE_PTHREAD_H
+/* 2. Using POSIX threads library (RECOMMENDED if pthreads available on your
+ * system): */
 int RunServer_pthread(int argc, char* argv[]);
-#endif
+# endif
 
-/* 3. As a standalone program using system() - same as "tuxmathserver" at console:    */
+/* 3. As a standalone program using system() - same as "tuxmathserver" at
+ * console:    */
 int RunServer_prog(int argc, char* argv[]);
 
 /* TODO 4. Using old-school Unix fork() call: */
 int RunServer_fork(int argc, char* argv[]);
 
-/* 2, 3, and 4 all return immediately, with the server running in a separate thread or process.  But if you don't mind waiting... */
+/* 2, 3, and 4 all return immediately, with the server running in a separate
+ * thread or process.  But if you don't mind waiting... */
 /* 5. Plain "blocking" function call, leaving scheduling issues up to you: */
-int RunServer(int argc, char **argv);
+int RunServer(int argc, char** argv);
 
 /* Find out if server is already running within this program: */
 int OurServerRunning(void);
@@ -81,7 +81,5 @@ int SrvrGameInProgress(void);
 void StopServer(void);
 /* Stop currently running game: */
 void StopSrvrGame(int thread_id_no);
-
-#endif
 
 #endif

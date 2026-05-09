@@ -164,7 +164,8 @@ void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops)
         return;
     }
     /* Record which chunk is on this track so IsPlayingSound / StopSound
-     * can find it. Index match is guaranteed: g_sfx_tracks[i] / g_sfx_audio[i]. */
+     * can find it. Index match is guaranteed: g_sfx_tracks[i] / g_sfx_audio[i].
+     */
     for (int i = 0; i < SFX_TRACK_POOL; i++)
     {
         if (g_sfx_tracks[i] == track)

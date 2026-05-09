@@ -25,8 +25,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
 #include "titlescreen.h"
 
 #include "tuxmath.h"
@@ -38,20 +36,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* --- Data Structure for Dirty Blitting --- */
 SDL_Rect srcupdate[MAX_UPDATES];
 SDL_Rect dstupdate[MAX_UPDATES];
-int numupdates = 0; // tracks how many blits to be done
+int      numupdates = 0; // tracks how many blits to be done
 
 // Type needed for trans_wipe():
-struct blit {
-    SDL_Surface *src;
-    SDL_Rect *srcrect;
-    SDL_Rect *dstrect;
+struct blit
+{
+    SDL_Surface*  src;
+    SDL_Rect*     srcrect;
+    SDL_Rect*     dstrect;
     unsigned char type;
 } blits[MAX_UPDATES];
 
 // Lessons available for play
-char **lesson_list_titles = NULL;
-char **lesson_list_filenames = NULL;
-int num_lessons = 0;
+char** lesson_list_titles    = NULL;
+char** lesson_list_filenames = NULL;
+int    num_lessons           = 0;
 
 /*TODO: move these constants into a config file
   (together with menu.c constants ? ) */
@@ -63,7 +62,7 @@ const char* title_path   = "title/title1.svg";
 const char* egg_path     = "title/egg.svg";
 const char* tux_path     = "tux/bigtux";
 /* beak coordinates relative to tux rect */
-const float beak_pos[4]  = {0.36, 0.21, 0.27, 0.14};
+const float beak_pos[4] = {0.36, 0.21, 0.27, 0.14};
 
 /* How long we show startup logo while files load, etc.: */
 const int logo_msec = 2000;
@@ -76,23 +75,18 @@ int curr_res_y = -1;
 
 /* titlescreen items */
 SDL_Surface* win_bkg = NULL;
-SDL_Surface* fs_bkg = NULL;
+SDL_Surface* fs_bkg  = NULL;
 
-SDL_Surface* logo = NULL;
-sprite* Tux = NULL;
+SDL_Surface* logo  = NULL;
+sprite*      Tux   = NULL;
 SDL_Surface* title = NULL;
 
 /* "Easter Egg" cursor */
-SDL_Surface* egg = NULL;
-int egg_active = 0; //are we currently using the egg cursor?
+SDL_Surface* egg        = NULL;
+int          egg_active = 0; // are we currently using the egg cursor?
 
 /* locations we need */
-SDL_Rect bkg_rect,
-         logo_rect,
-         tux_rect,
-         title_rect,
-         cursor,
-         beak;
+SDL_Rect bkg_rect, logo_rect, tux_rect, title_rect, cursor, beak;
 
 /* This syntax is full of fluffy kittens! (note: kittens sold separately) */
 SDL_Surface* current_bkg()
@@ -127,22 +121,19 @@ void add_rect(SDL_Rect* src, SDL_Rect* dst);
 
 int handle_easter_egg(const SDL_Event* evt);
 
-
-
 /***********************************************************/
 /*                                                         */
 /*       "Public functions" (callable throughout program)  */
 /*                                                         */
 /***********************************************************/
 
-
 /* Display Tux4Kids logo, then animate title screen
    items onto the screen and run main menu */
 void TitleScreen(void)
 {
-    Uint32 start_time = 0;
+    Uint32   start_time = 0;
     SDL_Rect tux_anim, title_anim;
-    int i, tux_pix_skip, title_pix_skip;
+    int      i, tux_pix_skip, title_pix_skip;
 
     if (Opts_UsingSound())
     {
@@ -159,7 +150,7 @@ void TitleScreen(void)
         SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, 0, 0, 0));
 
     logo = T4K_LoadImage(standby_path, IMG_REGULAR);
-    if(logo)
+    if (logo)
     {
         /* Center horizontally and vertically */
         logo_rect.x = (screen->w - logo->w) / 2;
@@ -182,18 +173,22 @@ void TitleScreen(void)
     T4K_SetMenuSounds(NULL, sounds[SND_POP], sounds[SND_TOCK]);
     T4K_OnResolutionSwitch(&HandleTitleScreenResSwitch);
 
-    if(fs_bkg == NULL || win_bkg == NULL)
+    if (fs_bkg == NULL || win_bkg == NULL)
     {
         fprintf(stderr, "Backgrounds were not properly loaded, exiting");
-        if(fs_bkg)
+        if (fs_bkg)
+        {
             SDL_DestroySurface(fs_bkg);
-        if(win_bkg)
+        }
+        if (win_bkg)
+        {
             SDL_DestroySurface(win_bkg);
+        }
         return;
     }
 
     /* load titlescreen images */
-    if(RenderTitleScreen() == 0)
+    if (RenderTitleScreen() == 0)
     {
         fprintf(stderr, "Media was not properly loaded, exiting");
         return;
@@ -220,10 +215,11 @@ void TitleScreen(void)
     SDL_ShowCursor();
 
     /* Tux and Title animations */
-    DEBUGMSG(debug_titlescreen, "TitleScreen(): Now Animating Tux and Title onto the screen\n" );
+    DEBUGMSG(debug_titlescreen,
+             "TitleScreen(): Now Animating Tux and Title onto the screen\n");
 
     /* Draw background (center it if it's smaller than screen) */
-    if(current_bkg())
+    if (current_bkg())
     {
         /* FIXME not sure trans_wipe() works in Windows: */
         T4K_TransWipe(current_bkg(), RANDOM_WIPE, 5, 20);
@@ -237,27 +233,29 @@ void TitleScreen(void)
     }
 
     /* --- Pull tux & logo onscreen --- */
-    if(title && Tux && Tux->frame[0])
+    if (title && Tux && Tux->frame[0])
     {
         Uint32 timer = 0;
         /* final tux & title positioins are already calculated,
            start outside the screen */
-        tux_anim = tux_rect;
+        tux_anim   = tux_rect;
         tux_anim.y = screen->h;
 
-        title_anim = title_rect;
+        title_anim   = title_rect;
         title_anim.x = screen->w;
 
-        for(i = 0; i < ANIM_FRAMES; i++)
+        for (i = 0; i < ANIM_FRAMES; i++)
         {
             /* Draw the entire background, over a black screen if necessary */
-            if(current_bkg()->w != screen->w || current_bkg()->h != screen->h)
+            if (current_bkg()->w != screen->w || current_bkg()->h != screen->h)
+            {
                 SDL_FillSurfaceRect(
                     screen,
                     &(SDL_Rect){0, 0, (screen)->w, (screen)->h}
                     /* clip_rect: SDL3 uses SDL_GetSurfaceClipRect */
                     ,
                     0);
+            }
 
             SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect);
 
@@ -271,11 +269,12 @@ void TitleScreen(void)
             SDL_BlitSurface(Tux->frame[0], NULL, screen, &tux_anim);
             SDL_BlitSurface(title, NULL, screen, &title_anim);
 
-            T4K_Throttle(1000/ANIM_FPS, &timer);
+            T4K_Throttle(1000 / ANIM_FPS, &timer);
         }
     }
 
-    DEBUGMSG(debug_titlescreen, "TitleScreen(): Tux and Title are in place now\n");
+    DEBUGMSG(debug_titlescreen,
+             "TitleScreen(): Tux and Title are in place now\n");
     /* Start playing menu music if desired: */
     if (Opts_GetGlobalOpt(MENU_MUSIC))
     {
@@ -283,7 +282,8 @@ void TitleScreen(void)
     }
 
     /* If necessary, have the user log in */
-    if (RunLoginMenu() != -1) {
+    if (RunLoginMenu() != -1)
+    {
         /* Finish parsing user options */
         initialize_options_user();
         /* Start the main menu */
@@ -313,23 +313,28 @@ int RenderTitleScreen(void)
 {
     SDL_Surface* new_bkg = NULL;
 
-    if(curr_res_x != T4K_GetScreen()->w || curr_res_y != T4K_GetScreen()->h)
+    if (curr_res_x != T4K_GetScreen()->w || curr_res_y != T4K_GetScreen()->h)
     {
         /* we need to rerender titlescreen items */
         DEBUGMSG(debug_titlescreen, "Re-rendering titlescreen items.\n");
 
         /* we keep two backgrounds to make screen mode switch faster */
-        if(current_bkg()->w != T4K_GetScreen()->w || current_bkg()->h != T4K_GetScreen()->h)
+        if (current_bkg()->w != T4K_GetScreen()->w ||
+            current_bkg()->h != T4K_GetScreen()->h)
         {
-            new_bkg = T4K_LoadBkgd(bkg_path, T4K_GetScreen()->w, T4K_GetScreen()->h);
-            if(new_bkg == NULL)
+            new_bkg =
+                T4K_LoadBkgd(bkg_path, T4K_GetScreen()->w, T4K_GetScreen()->h);
+            if (new_bkg == NULL)
             {
-                DEBUGMSG(debug_titlescreen, "RenderTitleScreen(): Failed to load new background.\n");
+                DEBUGMSG(
+                    debug_titlescreen,
+                    "RenderTitleScreen(): Failed to load new background.\n");
                 return 0;
             }
             else
             {
-                DEBUGMSG(debug_titlescreen, "RenderTitleScreen(): New background loaded.\n");
+                DEBUGMSG(debug_titlescreen,
+                         "RenderTitleScreen(): New background loaded.\n");
                 set_current_bkg(new_bkg);
             }
         }
@@ -341,22 +346,25 @@ int RenderTitleScreen(void)
 
         /* Tux in lower left corner of the screen */
         T4K_SetRect(&tux_rect, tux_pos);
-        Tux = T4K_LoadSpriteOfBoundingBox(tux_path, IMG_ALPHA, tux_rect.w, tux_rect.h);
-        if(Tux && Tux->frame[0])
+        Tux = T4K_LoadSpriteOfBoundingBox(tux_path, IMG_ALPHA, tux_rect.w,
+                                          tux_rect.h);
+        if (Tux && Tux->frame[0])
         {
             tux_rect.w = Tux->frame[0]->w;
             tux_rect.h = Tux->frame[0]->h;
         }
         else
         {
-            DEBUGMSG(debug_titlescreen, "RenderTitleScreen(): Failed to load Tux image.\n");
+            DEBUGMSG(debug_titlescreen,
+                     "RenderTitleScreen(): Failed to load Tux image.\n");
             return 0;
         }
 
         /* "Tux, of math command" title in upper right corner */
         T4K_SetRect(&title_rect, title_pos);
-        title = T4K_LoadImageOfBoundingBox(title_path, IMG_ALPHA, title_rect.w, title_rect.h);
-        if(title)
+        title = T4K_LoadImageOfBoundingBox(title_path, IMG_ALPHA, title_rect.w,
+                                           title_rect.h);
+        if (title)
         {
             title_rect.w = (SDL_Rect){
                 0, 0, (title)->w,
@@ -367,7 +375,8 @@ int RenderTitleScreen(void)
         }
         else
         {
-            DEBUGMSG(debug_titlescreen, "RenderTitleScreen(): Failed to load title image.\n");
+            DEBUGMSG(debug_titlescreen,
+                     "RenderTitleScreen(): Failed to load title image.\n");
             return 0;
         }
 
@@ -390,7 +399,6 @@ int RenderTitleScreen(void)
     }
     return 1;
 }
-
 
 /* handle titlescreen events (easter egg)
    this function should be called from event loops
@@ -425,30 +433,45 @@ void HandleTitleScreenResSwitch(int new_w, int new_h)
 void HandleTitleScreenAnimations_Reset(bool reset)
 {
     static int frame_counter;
-    int tux_frame;
+    int        tux_frame;
 
     /* If 'reset' is true, we start the animation over so Tux
      * gets redrawn immediately:
      */
-    if(reset)
+    if (reset)
+    {
         frame_counter = 0;
+    }
 
     /* --- make Tux blink --- */
     switch (frame_counter % TUX6)
     {
-        case 0:    tux_frame = 1; break;
-        case TUX1: tux_frame = 2; break;
-        case TUX2: tux_frame = 3; break;
-        case TUX3: tux_frame = 4; break;
-        case TUX4: tux_frame = 3; break;
-        case TUX5: tux_frame = 2; break;
-        default: tux_frame = 0;
+    case 0:
+        tux_frame = 1;
+        break;
+    case TUX1:
+        tux_frame = 2;
+        break;
+    case TUX2:
+        tux_frame = 3;
+        break;
+    case TUX3:
+        tux_frame = 4;
+        break;
+    case TUX4:
+        tux_frame = 3;
+        break;
+    case TUX5:
+        tux_frame = 2;
+        break;
+    default:
+        tux_frame = 0;
     }
 
     if (Tux && tux_frame)
     {
         /* Redraw background to keep edges anti-aliased properly: */
-        SDL_BlitSurface(current_bkg(),&tux_rect, screen, &tux_rect);
+        SDL_BlitSurface(current_bkg(), &tux_rect, screen, &tux_rect);
         SDL_BlitSurface(Tux->frame[tux_frame - 1], NULL, screen, &tux_rect);
         T4K_UpdateRect(screen, &tux_rect);
     }
@@ -466,7 +489,6 @@ void HandleTitleScreenAnimations_Reset(bool reset)
     frame_counter++;
 }
 
-
 void HandleTitleScreenAnimations(void)
 {
     HandleTitleScreenAnimations_Reset(false);
@@ -478,7 +500,6 @@ void HandleTitleScreenAnimations(void)
 /*                                                         */
 /***********************************************************/
 
-
 void free_titlescreen(void)
 {
     DEBUGMSG(debug_titlescreen, "Entering free_titlescreen()\n");
@@ -486,64 +507,63 @@ void free_titlescreen(void)
     T4K_FreeSprite(Tux);
     Tux = NULL;
 
-    if(egg)
+    if (egg)
     {
         SDL_DestroySurface(egg);
         egg = NULL;
     }
 
-    if(title)
+    if (title)
     {
         SDL_DestroySurface(title);
         title = NULL;
     }
 
-    if(fs_bkg)
+    if (fs_bkg)
     {
         SDL_DestroySurface(fs_bkg);
         fs_bkg = NULL;
     }
 
-    if(win_bkg)
+    if (win_bkg)
     {
         SDL_DestroySurface(win_bkg);
         win_bkg = NULL;
     }
 }
 
-
-
 void NotImplemented(void)
 {
-    ShowMessageWrap(DEFAULT_MENU_FONT_SIZE, _("Work In Progress!\n"
-                "This feature is not ready yet\n"
-                "Discuss the future of TuxMath at\n"
-                "tuxmath-devel@lists.sourceforge.net"));
+    ShowMessageWrap(DEFAULT_MENU_FONT_SIZE,
+                    _("Work In Progress!\n"
+                      "This feature is not ready yet\n"
+                      "Discuss the future of TuxMath at\n"
+                      "tuxmath-devel@lists.sourceforge.net"));
 }
 
 /* FIXME this function segfaults if passed a string with
  * a leading '\n'
  */
-void ShowMessageWrap( int font_size, const char* str )
+void ShowMessageWrap(int font_size, const char* str)
 {
-    SDL_Surface *s1 = NULL;
-    SDL_Surface *arrow;
+    SDL_Surface* s1 = NULL;
+    SDL_Surface* arrow;
 
     SDL_Rect loc;
-    SDL_Rect srcleft,srcright;
-    SDL_Rect rleft,rright;
+    SDL_Rect srcleft, srcright;
+    SDL_Rect rleft, rright;
     SDL_Rect rtext;
 
     SDL_Event event;
 
     char strings[MAX_LINES][MAX_LINEWIDTH];
 
-    int i;
+    int    i;
     int    nline;
-    int finished = 0;
-    int inprogress = 1;
+    int    finished   = 0;
+    int    inprogress = 1;
     int    page       = 0;
-    int maxline;
+    int    maxline;
     Uint32 timer = 0;
 
     if (screen->flags & SDL_WINDOW_FULLSCREEN)
@@ -558,7 +578,7 @@ void ShowMessageWrap( int font_size, const char* str )
     /* Announcing the message */
     T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s", str);
 
-    while(inprogress)
+    while (inprogress)
     {
         loc.x = screen->w * 0.25;
         loc.y = screen->h * 0.1;
@@ -576,10 +596,10 @@ void ShowMessageWrap( int font_size, const char* str )
         {
             SDL_BlitSurface(stop_button, NULL, screen, &stop_rect);
         }
-        T4K_DrawButton( &loc, 50, SEL_RGBA );
+        T4K_DrawButton(&loc, 50, SEL_RGBA);
 
         /* more than one page */
-        if(nline > maxline)
+        if (nline > maxline)
         {
             arrow = images[IMG_ARROWS];
 
@@ -600,7 +620,7 @@ void ShowMessageWrap( int font_size, const char* str )
             srcright.h = 40;
 
             /* first page */
-            if(page == 0)
+            if (page == 0)
             {
                 srcleft.x = 0;
             }
@@ -610,7 +630,7 @@ void ShowMessageWrap( int font_size, const char* str )
             }
 
             /* last page */
-            if(page*maxline+maxline>nline)
+            if (page * maxline + maxline > nline)
             {
                 srcright.x = 80;
             }
@@ -624,29 +644,29 @@ void ShowMessageWrap( int font_size, const char* str )
             SDL_BlitSurface(arrow, &srcright, screen, &rright);
         }
 
-        //rtext.x = loc.x + 10;
+        // rtext.x = loc.x + 10;
         rtext.y = loc.y;
-        for(i = page * maxline; i < nline && i - page * maxline < maxline; i++)
+        for (i = page * maxline; i < nline && i - page * maxline < maxline; i++)
         {
             s1 = T4K_BlackOutline(strings[i], font_size, &white);
 
-            if( s1 )
+            if (s1)
             {
                 /* Center text horizontally: */
-                rtext.x = loc.x + loc.w/2 - s1->w/2;
+                rtext.x = loc.x + loc.w / 2 - s1->w / 2;
                 rtext.y += (s1->h + 15);
-                SDL_BlitSurface( s1, NULL, screen, &rtext );
+                SDL_BlitSurface(s1, NULL, screen, &rtext);
 
                 SDL_DestroySurface(s1);
                 s1 = NULL;
             }
         }
 
-        while(!finished)
+        while (!finished)
         {
-            while(SDL_PollEvent(&event))
+            while (SDL_PollEvent(&event))
             {
-                switch(event.type)
+                switch (event.type)
                 {
                 case SDL_EVENT_QUIT:
                 {
@@ -739,35 +759,45 @@ void ShowMessageWrap( int font_size, const char* str )
 }
 
 void ShowMessage(int font_size, const char* str1, const char* str2,
-        const char* str3, const char* str4)
+                 const char* str3, const char* str4)
 {
     SDL_Surface *s1, *s2, *s3, *s4;
-    SDL_Rect loc;
-    int finished = 0;
-    Uint32 timer = 0;
+    SDL_Rect     loc;
+    int          finished = 0;
+    Uint32       timer    = 0;
 
     /* To adjust font size: */
     float scale = screen->w / 640;
 
     s1 = s2 = s3 = s4 = NULL;
 
-    DEBUGMSG(debug_titlescreen, "ShowMessage() - creating text\n" );
+    DEBUGMSG(debug_titlescreen, "ShowMessage() - creating text\n");
 
     if (str1)
+    {
         s1 = T4K_BlackOutline(str1, font_size * scale, &white);
+    }
     if (str2)
+    {
         s2 = T4K_BlackOutline(str2, font_size * scale, &white);
+    }
     if (str3)
+    {
         s3 = T4K_BlackOutline(str3, font_size * scale, &white);
+    }
     if (str4)
+    {
         s4 = T4K_BlackOutline(str4, font_size * scale, &white);
+    }
 
-    DEBUGMSG(debug_titlescreen, "ShowMessage() - drawing screen\n" );
+    DEBUGMSG(debug_titlescreen, "ShowMessage() - drawing screen\n");
 
     DrawTitleScreen();
     /* Red "Stop" circle in upper right corner to go back to main menu: */
     if (stop_button)
+    {
         SDL_BlitSurface(stop_button, NULL, screen, &stop_rect);
+    }
 
     /* Draw shaded background for better legibility: */
     loc.x = screen->w * 0.25;
@@ -776,29 +806,32 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
     loc.h = screen->h * 0.8;
     T4K_DrawButton(&loc, 50, SEL_RGBA);
 
-
     /* Draw lines of text (do after drawing Tux so text is in front): */
     if (s1)
     {
-        loc.x = (screen->w / 2) - (s1->w/2); loc.y = screen->h * 0.2;
-        SDL_BlitSurface( s1, NULL, screen, &loc);
+        loc.x = (screen->w / 2) - (s1->w / 2);
+        loc.y = screen->h * 0.2;
+        SDL_BlitSurface(s1, NULL, screen, &loc);
     }
     if (s2)
     {
-        loc.x = (screen->w / 2) - (s2->w/2); loc.y = screen->h * 0.35;
-        SDL_BlitSurface( s2, NULL, screen, &loc);
+        loc.x = (screen->w / 2) - (s2->w / 2);
+        loc.y = screen->h * 0.35;
+        SDL_BlitSurface(s2, NULL, screen, &loc);
     }
     if (s3)
     {
-        //loc.x = 320 - (s3->w/2); loc.y = 300;
-        loc.x = (screen->w / 2) - (s3->w/2); loc.y = screen->h * 0.5;
-        SDL_BlitSurface( s3, NULL, screen, &loc);
+        // loc.x = 320 - (s3->w/2); loc.y = 300;
+        loc.x = (screen->w / 2) - (s3->w / 2);
+        loc.y = screen->h * 0.5;
+        SDL_BlitSurface(s3, NULL, screen, &loc);
     }
     if (s4)
     {
-        //loc.x = 320 - (s4->w/2); loc.y = 340;
-        loc.x = (screen->w / 2) - (s4->w/2); loc.y = screen->h * 0.65;
-        SDL_BlitSurface( s4, NULL, screen, &loc);
+        // loc.x = 320 - (s4->w/2); loc.y = 340;
+        loc.x = (screen->w / 2) - (s4->w / 2);
+        loc.y = screen->h * 0.65;
+        SDL_BlitSurface(s4, NULL, screen, &loc);
     }
 
     /* and update: */
@@ -836,7 +869,7 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
 
         /* Wait so we keep frame rate constant: */
         T4K_Throttle(20, &timer);
-    }  // End of while (!finished) loop
+    } // End of while (!finished) loop
 
     SDL_DestroySurface(s1);
     SDL_DestroySurface(s2);
@@ -852,9 +885,9 @@ void ShowMessage(int font_size, const char* str1, const char* str2,
    the current screen image to a new one. */
 void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
 {
-    int i, j, x1, x2, y1, y2;
-    int step1, step2, step3, step4;
-    int frame;
+    int      i, j, x1, x2, y1, y2;
+    int      step1, step2, step3, step4;
+    int      frame;
     SDL_Rect src;
     SDL_Rect dst;
 
@@ -873,153 +906,188 @@ void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
     init_blits();
 
     numupdates = 0;
-    frame = 0;
+    frame      = 0;
 
-    if(newbkg->w == screen->w && newbkg->h == screen->h) {
-        if( type == RANDOM_WIPE )
-            type = (RANDOM_WIPE * ((float) rand()) / (RAND_MAX+1.0));
+    if (newbkg->w == screen->w && newbkg->h == screen->h)
+    {
+        if (type == RANDOM_WIPE)
+        {
+            type = (RANDOM_WIPE * ((float)rand()) / (RAND_MAX + 1.0));
+        }
 
-        switch( type ) {
-            case WIPE_BLINDS_VERT: {
-                                       DEBUGMSG(debug_titlescreen, "trans_wipe(): Doing 'WIPE_BLINDS_VERT'\n");
-                                       /*var1 isnum ofdivisions
-                                         var2is howmany framesanimation shouldtake */
-                                       if(var1 <1 )var1 =1;
-                                       if( var2< 1) var2= 1;
-                                       step1= screen->w/ var1;
-                                       step2= step1/ var2;
+        switch (type)
+        {
+        case WIPE_BLINDS_VERT:
+        {
+            DEBUGMSG(debug_titlescreen,
+                     "trans_wipe(): Doing 'WIPE_BLINDS_VERT'\n");
+            /*var1 isnum ofdivisions
+                                         var2is howmany framesanimation
+               shouldtake */
+            if (var1 < 1)
+            {
+                var1 = 1;
+            }
+            if (var2 < 1)
+            {
+                var2 = 1;
+            }
+            step1 = screen->w / var1;
+            step2 = step1 / var2;
 
-                                       for(i= 0;i <=var2; i++)
-                                       {
-                                           for(j= 0;j <=var1; j++)
-                                           {
-                                               x1= step1* (j- 0.5)- i* step2+ 1;
-                                               x2= step1* (j- 0.5)+ i* step2+ 1;
-                                               src.x= x1;
-                                               src.y= 0;
-                                               src.w= step2;
-                                               src.h= screen->h;
-                                               dst.x= x2;
-                                               dst.y= 0;
-                                               dst.w= step2;
-                                               dst.h= screen->h;
+            for (i = 0; i <= var2; i++)
+            {
+                for (j = 0; j <= var1; j++)
+                {
+                    x1    = step1 * (j - 0.5) - i * step2 + 1;
+                    x2    = step1 * (j - 0.5) + i * step2 + 1;
+                    src.x = x1;
+                    src.y = 0;
+                    src.w = step2;
+                    src.h = screen->h;
+                    dst.x = x2;
+                    dst.y = 0;
+                    dst.w = step2;
+                    dst.h = screen->h;
 
-                                               SDL_BlitSurface(newbkg,&src, screen,&src);
-                                               SDL_BlitSurface(newbkg, &dst,screen, &dst);
+                    SDL_BlitSurface(newbkg, &src, screen, &src);
+                    SDL_BlitSurface(newbkg, &dst, screen, &dst);
 
-                                               add_rect(&src,&src);
-                                               add_rect(&dst, &dst);
-                                           }
-                                           update_screen(&frame);
-                                       }
+                    add_rect(&src, &src);
+                    add_rect(&dst, &dst);
+                }
+                update_screen(&frame);
+            }
 
-                                       src.x= 0;
-                                       src.y= 0;
-                                       src.w= screen->w;
-                                       src.h= screen->h;
-                                       SDL_BlitSurface(newbkg,NULL, screen,&src);
-                                       T4K_UpdateRect(screen, NULL);
+            src.x = 0;
+            src.y = 0;
+            src.w = screen->w;
+            src.h = screen->h;
+            SDL_BlitSurface(newbkg, NULL, screen, &src);
+            T4K_UpdateRect(screen, NULL);
 
-                                       break;
-                                   }
-            case WIPE_BLINDS_HORIZ:{
-                                       DEBUGMSG(debug_titlescreen, "trans_wipe(): Doing 'WIPE_BLINDS_HORIZ'\n");
-                                       /* var1is numof divisions
-                                          var2 ishow manyframes animationshould take*/
-                                       if( var1< 1) var1= 1;
-                                       if(var2 <1 )var2 =1;
-                                       step1 =screen->h /var1;
-                                       step2 =step1 /var2;
+            break;
+        }
+        case WIPE_BLINDS_HORIZ:
+        {
+            DEBUGMSG(debug_titlescreen,
+                     "trans_wipe(): Doing 'WIPE_BLINDS_HORIZ'\n");
+            /* var1is numof divisions
+                                          var2 ishow manyframes animationshould
+               take*/
+            if (var1 < 1)
+            {
+                var1 = 1;
+            }
+            if (var2 < 1)
+            {
+                var2 = 1;
+            }
+            step1 = screen->h / var1;
+            step2 = step1 / var2;
 
-                                       for(i =0; i<= var2;i++) {
-                                           for(j= 0;j <=var1; j++){
-                                               y1 =step1 *(j -0.5) -i *step2 +1;
-                                               y2 =step1 *(j -0.5) +i *step2 +1;
-                                               src.x =0;
-                                               src.y =y1;
-                                               src.w =screen->w;
-                                               src.h =step2;
-                                               dst.x =0;
-                                               dst.y =y2;
-                                               dst.w =screen->w;
-                                               dst.h =step2;
+            for (i = 0; i <= var2; i++)
+            {
+                for (j = 0; j <= var1; j++)
+                {
+                    y1    = step1 * (j - 0.5) - i * step2 + 1;
+                    y2    = step1 * (j - 0.5) + i * step2 + 1;
+                    src.x = 0;
+                    src.y = y1;
+                    src.w = screen->w;
+                    src.h = step2;
+                    dst.x = 0;
+                    dst.y = y2;
+                    dst.w = screen->w;
+                    dst.h = step2;
 
-                                               SDL_BlitSurface(newbkg, &src,screen, &src);
-                                               SDL_BlitSurface(newbkg,&dst, screen,&dst);
+                    SDL_BlitSurface(newbkg, &src, screen, &src);
+                    SDL_BlitSurface(newbkg, &dst, screen, &dst);
 
-                                               add_rect(&src, &src);
-                                               add_rect(&dst,&dst);
-                                           }
-                                           update_screen(&frame);
-                                       }
+                    add_rect(&src, &src);
+                    add_rect(&dst, &dst);
+                }
+                update_screen(&frame);
+            }
 
-                                       src.x =0;
-                                       src.y =0;
-                                       src.w =screen->w;
-                                       src.h =screen->h;
-                                       SDL_BlitSurface(newbkg, NULL,screen, &src);
-                                       T4K_UpdateRect(screen, NULL);
+            src.x = 0;
+            src.y = 0;
+            src.w = screen->w;
+            src.h = screen->h;
+            SDL_BlitSurface(newbkg, NULL, screen, &src);
+            T4K_UpdateRect(screen, NULL);
 
-                                       break;
-                                   }
-            case WIPE_BLINDS_BOX:{
-                                     DEBUGMSG(debug_titlescreen, "trans_wipe(): Doing 'WIPE_BLINDS_BOX'\n");
-                                     /* var1is numof divisions
-                                        var2 ishow manyframes animationshould take*/
-                                     if( var1< 1) var1= 1;
-                                     if(var2 <1 )var2 =1;
-                                     step1 =screen->w /var1;
-                                     step2 =step1 /var2;
-                                     step3 =screen->h /var1;
-                                     step4 =step1 /var2;
+            break;
+        }
+        case WIPE_BLINDS_BOX:
+        {
+            DEBUGMSG(debug_titlescreen,
+                     "trans_wipe(): Doing 'WIPE_BLINDS_BOX'\n");
+            /* var1is numof divisions
+                                        var2 ishow manyframes animationshould
+               take*/
+            if (var1 < 1)
+            {
+                var1 = 1;
+            }
+            if (var2 < 1)
+            {
+                var2 = 1;
+            }
+            step1 = screen->w / var1;
+            step2 = step1 / var2;
+            step3 = screen->h / var1;
+            step4 = step1 / var2;
 
-                                     for(i =0; i<= var2;i++) {
-                                         for(j= 0;j <=var1; j++){
-                                             x1 =step1 *(j -0.5) -i *step2 +1;
-                                             x2 =step1 *(j -0.5) +i *step2 +1;
-                                             src.x =x1;
-                                             src.y =0;
-                                             src.w =step2;
-                                             src.h =screen->h;
-                                             dst.x =x2;
-                                             dst.y =0;
-                                             dst.w =step2;
-                                             dst.h =screen->h;
+            for (i = 0; i <= var2; i++)
+            {
+                for (j = 0; j <= var1; j++)
+                {
+                    x1    = step1 * (j - 0.5) - i * step2 + 1;
+                    x2    = step1 * (j - 0.5) + i * step2 + 1;
+                    src.x = x1;
+                    src.y = 0;
+                    src.w = step2;
+                    src.h = screen->h;
+                    dst.x = x2;
+                    dst.y = 0;
+                    dst.w = step2;
+                    dst.h = screen->h;
 
-                                             SDL_BlitSurface(newbkg, &src,screen, &src);
-                                             SDL_BlitSurface(newbkg,&dst, screen,&dst);
+                    SDL_BlitSurface(newbkg, &src, screen, &src);
+                    SDL_BlitSurface(newbkg, &dst, screen, &dst);
 
-                                             add_rect(&src, &src);
-                                             add_rect(&dst,&dst);
-                                             y1 =step3 *(j -0.5) -i *step4 +1;
-                                             y2 =step3 *(j -0.5) +i *step4 +1;
-                                             src.x =0;
-                                             src.y =y1;
-                                             src.w =screen->w;
-                                             src.h =step4;
-                                             dst.x =0;
-                                             dst.y =y2;
-                                             dst.w =screen->w;
-                                             dst.h =step4;
-                                             SDL_BlitSurface(newbkg, &src,screen, &src);
-                                             SDL_BlitSurface(newbkg,&dst, screen,&dst);
-                                             add_rect(&src, &src);
-                                             add_rect(&dst,&dst);
-                                         }
-                                         update_screen(&frame);
-                                     }
+                    add_rect(&src, &src);
+                    add_rect(&dst, &dst);
+                    y1    = step3 * (j - 0.5) - i * step4 + 1;
+                    y2    = step3 * (j - 0.5) + i * step4 + 1;
+                    src.x = 0;
+                    src.y = y1;
+                    src.w = screen->w;
+                    src.h = step4;
+                    dst.x = 0;
+                    dst.y = y2;
+                    dst.w = screen->w;
+                    dst.h = step4;
+                    SDL_BlitSurface(newbkg, &src, screen, &src);
+                    SDL_BlitSurface(newbkg, &dst, screen, &dst);
+                    add_rect(&src, &src);
+                    add_rect(&dst, &dst);
+                }
+                update_screen(&frame);
+            }
 
-                                     src.x =0;
-                                     src.y =0;
-                                     src.w =screen->w;
-                                     src.h =screen->h;
-                                     SDL_BlitSurface(newbkg, NULL,screen, &src);
-                                     T4K_UpdateRect(screen, NULL);
+            src.x = 0;
+            src.y = 0;
+            src.w = screen->w;
+            src.h = screen->h;
+            SDL_BlitSurface(newbkg, NULL, screen, &src);
+            T4K_UpdateRect(screen, NULL);
 
-                                     break;
-                                 }
-            default:
-                                 break;
+            break;
+        }
+        default:
+            break;
         }
     }
     DEBUGMSG(debug_titlescreen, "trans_wipe(): FINISH\n");
@@ -1027,48 +1095,58 @@ void trans_wipe(SDL_Surface* newbkg, int type, int var1, int var2)
 
 /* InitEngine - Set up the update rectangle pointers
    (user by trans_wipe() ) */
-void init_blits(void) {
+void init_blits(void)
+{
     int i;
 
-    for (i = 0; i < MAX_UPDATES; ++i) {
+    for (i = 0; i < MAX_UPDATES; ++i)
+    {
         blits[i].srcrect = &srcupdate[i];
         blits[i].dstrect = &dstupdate[i];
     }
 }
 
-
 /* update_screen : Update the screen and increment the frame num
    (used by trans_wipe() ) */
-void update_screen(int *frame) {
+void update_screen(int* frame)
+{
     int i;
 
     /* -- First erase everything we need to -- */
     for (i = 0; i < numupdates; i++)
+    {
         if (blits[i].type == 'E')
+        {
             SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen,
                                      blits[i].dstrect);
+        }
+    }
 
     /* -- then draw -- */
     for (i = 0; i < numupdates; i++)
+    {
         if (blits[i].type == 'D')
+        {
             SDL_BlitSurface(blits[i].src, blits[i].srcrect, screen,
                             blits[i].dstrect);
+        }
+    }
 
     /* SDL3: present whole window surface; per-rect updates dropped. */
     T4K_UpdateRect(screen, NULL);
 
     numupdates = 0;
-    *frame = *frame + 1;
+    *frame     = *frame + 1;
 }
-
 
 /* add_rect: Don't actually blit a surface,
    but add a rect to be updated next update
    (used by trans_wipe() ) */
-void add_rect(SDL_Rect* src, SDL_Rect* dst) {
+void add_rect(SDL_Rect* src, SDL_Rect* dst)
+{
     /*borrowed from SL's alien (and modified)*/
 
-    struct blit *update;
+    struct blit* update;
 
     if (!src || !dst)
     {
@@ -1086,13 +1164,13 @@ void add_rect(SDL_Rect* src, SDL_Rect* dst) {
     update->dstrect->y = dst->y;
     update->dstrect->w = dst->w;
     update->dstrect->h = dst->h;
-    update->type = 'I';
+    update->type       = 'I';
 }
 
 int handle_easter_egg(const SDL_Event* evt)
 {
     static int eggtimer = 0;
-    int tuxframe;
+    int        tuxframe;
 
     // Avoid segfaults if needed images not available:
     if (!Tux || !egg)
@@ -1105,21 +1183,22 @@ int handle_easter_egg(const SDL_Event* evt)
 
     tuxframe = Tux->num_frames;
 
-    if (egg_active) //are we using the egg cursor?
+    if (egg_active) // are we using the egg cursor?
     {
 
-        if (eggtimer < SDL_GetTicks() ) //time's up
+        if (eggtimer < SDL_GetTicks()) // time's up
         {
             SDL_ShowCursor();
-            //SDL_FillSurfaceRect(screen, &cursor, 0);
-            SDL_BlitSurface(current_bkg(), NULL, screen, &bkg_rect); //cover egg up once more
+            // SDL_FillSurfaceRect(screen, &cursor, 0);
+            SDL_BlitSurface(current_bkg(), NULL, screen,
+                            &bkg_rect); // cover egg up once more
             SDL_WarpMouseInWindow(T4K_GetWindow(), cursor.x, cursor.y);
-            //egg->x, egg->y, egg->w, egg->h);
+            // egg->x, egg->y, egg->w, egg->h);
             egg_active = 0;
         }
         return 1;
     }
-    else //if not, see if the user clicked Tux's beak
+    else // if not, see if the user clicked Tux's beak
     {
         eggtimer = 0;
         if (evt->type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
@@ -1127,16 +1206,17 @@ int handle_easter_egg(const SDL_Event* evt)
         {
             SDL_HideCursor();
 
-            //animate
+            // animate
             while (tuxframe != 0)
             {
                 SDL_BlitSurface(current_bkg(), &tux_rect, screen, &tux_rect);
-                SDL_BlitSurface(Tux->frame[--tuxframe], NULL, screen, &tux_rect);
+                SDL_BlitSurface(Tux->frame[--tuxframe], NULL, screen,
+                                &tux_rect);
 
                 SDL_Delay(GOBBLE_ANIM_MS / Tux->num_frames);
             }
 
-            eggtimer = SDL_GetTicks() + EASTER_EGG_MS;
+            eggtimer   = SDL_GetTicks() + EASTER_EGG_MS;
             egg_active = 1;
             SDL_WarpMouseInWindow(T4K_GetWindow(), tux_rect.x + tux_rect.w / 2,
                                   tux_rect.y + tux_rect.h - egg->h);

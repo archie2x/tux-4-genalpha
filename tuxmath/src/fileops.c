@@ -2,9 +2,8 @@
 
    All code involving disk operations is intended to be located here.
 
-   (Note: read_config_file() was made possible by studying the file prefs.c in gtkpod:
-URL: http://www.gtkpod.org/
-URL: http://gtkpod.sourceforge.net/
+   (Note: read_config_file() was made possible by studying the file prefs.c in
+gtkpod: URL: http://www.gtkpod.org/ URL: http://gtkpod.sourceforge.net/
 Copyright (C) 2002-2005 Jorg Schuler <jcsjcs at users sourceforge net>.
 Licensed under GNU GPL v2+.
 This code is a nearly complete rewrite but I would like to express my thanks.)
@@ -30,9 +29,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-
 /* Tuxmath includes: */
 #include "globals.h"
 #include "fileops.h"
@@ -42,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "lessons.h"
 
 /* OS includes - NOTE: these may not be very portable */
-#include <unistd.h>  /* for getcwd() */
+#include <unistd.h>    /* for getcwd() */
 #include <sys/types.h> /* for umask() */
 
 /* Standard C includes: */
@@ -52,28 +48,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <ctype.h>
 #include <time.h>
 
-
 /* Used by both write_pregame_summary() and */
 /* write_postgame_summary() so defined with */
 /* file scope:                              */
 #ifdef BUILD_MINGW32
-#define SUMMARY_EXTENSION ".txt"
+# define SUMMARY_EXTENSION ".txt"
 #else
-#define SUMMARY_EXTENSION ""
+# define SUMMARY_EXTENSION ""
 #endif
 
 static char* summary_filenames[NUM_SUMMARIES] = {
-    "summary1" SUMMARY_EXTENSION,
-    "summary2" SUMMARY_EXTENSION,
-    "summary3" SUMMARY_EXTENSION,
-    "summary4" SUMMARY_EXTENSION,
-    "summary5" SUMMARY_EXTENSION,
-    "summary6" SUMMARY_EXTENSION,
-    "summary7" SUMMARY_EXTENSION,
-    "summary8" SUMMARY_EXTENSION,
-    "summary9" SUMMARY_EXTENSION,
-    "summary10" SUMMARY_EXTENSION
-};
+    "summary1" SUMMARY_EXTENSION, "summary2" SUMMARY_EXTENSION,
+    "summary3" SUMMARY_EXTENSION, "summary4" SUMMARY_EXTENSION,
+    "summary5" SUMMARY_EXTENSION, "summary6" SUMMARY_EXTENSION,
+    "summary7" SUMMARY_EXTENSION, "summary8" SUMMARY_EXTENSION,
+    "summary9" SUMMARY_EXTENSION, "summary10" SUMMARY_EXTENSION};
 
 /* local function prototypes: */
 static int find_tuxmath_dir(void);
@@ -85,49 +74,48 @@ static int str_compare(const void* a, const void* b)
 {
     return strcmp(*(const char* const*)a, *(const char* const*)b);
 }
-static int read_goldstars(void);
-static int read_lines_from_file(FILE *fp,char ***lines);
-static int parse_option(MC_MathGame* game, const char* name, int val, int file_type);
-static void dirname_up(char *dirname);
+static int   read_goldstars(void);
+static int   read_lines_from_file(FILE* fp, char*** lines);
+static int   parse_option(MC_MathGame* game, const char* name, int val,
+                          int file_type);
+static void  dirname_up(char* dirname);
 static char* get_user_name(void);
-static char* get_file_name(char *fullpath);
-
+static char* get_file_name(char* fullpath);
 
 /* Mingw does not have localtime_r(): */
 /* (this replacement is Windows-specific, so also check for Win32) */
 #ifndef HAVE_LOCALTIME_R
-#ifdef WIN32
+# ifdef WIN32
 static inline struct tm* localtime_r(const time_t* clock, struct tm* result)
 {
     *result = *localtime(clock);
     return result;
 }
+# endif
 #endif
-#endif
-
-
 
 /* fix HOME on windows */
 #ifdef BUILD_MINGW32
-#include <windows.h>
-
-
-
+# include <windows.h>
 
 /* STOLEN from tuxpaint */
 
 /*
    Removes a single '\' or '/' from end of path
    */
-static char *remove_slash(char *path)
+static char* remove_slash(char* path)
 {
     int len = strlen(path);
 
     if (!len)
+    {
         return path;
+    }
 
-    if (path[len-1] == '/' || path[len-1] == '\\')
-        path[len-1] = 0;
+    if (path[len - 1] == '/' || path[len - 1] == '\\')
+    {
+        path[len - 1] = 0;
+    }
 
     return path;
 }
@@ -135,37 +123,46 @@ static char *remove_slash(char *path)
 /*
    Read access to Windows Registry
    */
-static HRESULT ReadRegistry(const char *key, const char *option, char *value, int size)
+static HRESULT ReadRegistry(const char* key, const char* option, char* value,
+                            int size)
 {
-    LONG        res;
-    HKEY        hKey = NULL;
+    LONG res;
+    HKEY hKey = NULL;
 
     res = RegOpenKeyEx(HKEY_CURRENT_USER, key, 0, KEY_READ, &hKey);
     if (res != ERROR_SUCCESS)
+    {
         goto err_exit;
-    res = RegQueryValueEx(hKey, option, NULL, NULL, (LPBYTE)value, (LPDWORD)&size);
+    }
+    res = RegQueryValueEx(hKey, option, NULL, NULL, (LPBYTE)value,
+                          (LPDWORD)&size);
     if (res != ERROR_SUCCESS)
+    {
         goto err_exit;
+    }
     res = ERROR_SUCCESS;
 
 err_exit:
-    if (hKey) RegCloseKey(hKey);
+    if (hKey)
+    {
+        RegCloseKey(hKey);
+    }
     return HRESULT_FROM_WIN32(res);
 }
-
 
 /*
    Returns heap string containing default application data path.
    Creates suffix subdirectory (only one level).
    E.g. C:\Documents and Settings\jfp\Application Data\suffix
    */
-char *GetDefaultSaveDir(const char *suffix)
+char* GetDefaultSaveDir(const char* suffix)
 {
-    char          prefix[MAX_PATH];
-    char          path[2*MAX_PATH];
-    const char   *key    = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
-    const char   *option = "AppData";
-    HRESULT hr = S_OK;
+    char        prefix[MAX_PATH];
+    char        path[2 * MAX_PATH];
+    const char* key =
+        "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
+    const char* option = "AppData";
+    HRESULT     hr     = S_OK;
 
     if (SUCCEEDED(hr = ReadRegistry(key, option, prefix, sizeof(prefix))))
     {
@@ -177,27 +174,25 @@ char *GetDefaultSaveDir(const char *suffix)
     return strdup("userdata");
 }
 
-
 /* Windows XP: User/App Data/TuxMath/ */
 /* Windows 98/ME: TuxMath install dir/userdata/Options */
-#define OPTIONS_SUBDIR ""
-#define OPTIONS_FILENAME "options.txt"
-#define HIGHSCORE_FILENAME "highscores.txt"
-#define GOLDSTAR_FILENAME "goldstars.txt"
-#define USER_MENU_ENTRIES_FILENAME "user_menu_entries.txt"
-#define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions.txt"
+# define OPTIONS_SUBDIR ""
+# define OPTIONS_FILENAME "options.txt"
+# define HIGHSCORE_FILENAME "highscores.txt"
+# define GOLDSTAR_FILENAME "goldstars.txt"
+# define USER_MENU_ENTRIES_FILENAME "user_menu_entries.txt"
+# define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions.txt"
 #else
 
 # define get_home getenv("HOME")
-#define OPTIONS_SUBDIR "/.tuxmath"
-#define OPTIONS_FILENAME "options"
-#define HIGHSCORE_FILENAME "highscores"
-#define GOLDSTAR_FILENAME "goldstars"
-#define USER_MENU_ENTRIES_FILENAME "user_menu_entries"
-#define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions"
+# define OPTIONS_SUBDIR "/.tuxmath"
+# define OPTIONS_FILENAME "options"
+# define HIGHSCORE_FILENAME "highscores"
+# define GOLDSTAR_FILENAME "goldstars"
+# define USER_MENU_ENTRIES_FILENAME "user_menu_entries"
+# define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions"
 
 #endif
-
 
 /* This functions keep and returns the user data directory application path */
 /* FIXME?: currently the best way to test whether we're using the user's    */
@@ -205,23 +200,23 @@ char *GetDefaultSaveDir(const char *suffix)
 /* is 1 if we're using the user's ~/.tuxmath directory, 0 otherwise). Is    */
 /* this a bad example of using 1 thing for 2 purposes? So far there are     */
 /* no conflicts. */
-static char* user_data_dir = NULL;
-static int add_subdir = 1;
+static char* user_data_dir         = NULL;
+static int   add_subdir            = 1;
 static char* high_scores_file_path = NULL;
 
 /* A variable for storing the "current" config filename */
 static char* last_config_file_name = NULL;
 
-char *get_user_data_dir ()
+char* get_user_data_dir()
 {
-    if (! user_data_dir)
+    if (!user_data_dir)
     {
 #ifdef BUILD_MINGW32
         user_data_dir = GetDefaultSaveDir(PROGRAM_NAME);
 #else
-        //I think this should be slash terminated
-        user_data_dir = (char*)malloc(strlen(getenv("HOME"))+2);
-        if(user_data_dir)
+        // I think this should be slash terminated
+        user_data_dir = (char*)malloc(strlen(getenv("HOME")) + 2);
+        if (user_data_dir)
         {
             strcpy(user_data_dir, getenv("HOME"));
             strcat(user_data_dir, "/");
@@ -235,27 +230,34 @@ char *get_user_data_dir ()
 /* This function sets the user data directory, and also sets a flag
    indicating that this should function as a .tuxmath directory, and
    thus doesn't need the subdir appended. */
-void set_user_data_dir(const char *dirname)
+void set_user_data_dir(const char* dirname)
 {
     int len;
 
     if (user_data_dir != NULL)
-        free(user_data_dir);   // clear the previous setting
+    {
+        free(user_data_dir); // clear the previous setting
+    }
 
     // Allocate space for the directory name. We do it with +2 because
     // we have to leave room for a possible addition of a "/"
     // terminator.
-    user_data_dir = (char*) malloc((strlen(dirname)+2)*sizeof(char));
-    if (user_data_dir == NULL) {
-        fprintf(stderr,"Error: insufficient memory for duplicating string %s.\n",dirname);
+    user_data_dir = (char*)malloc((strlen(dirname) + 2) * sizeof(char));
+    if (user_data_dir == NULL)
+    {
+        fprintf(stderr,
+                "Error: insufficient memory for duplicating string %s.\n",
+                dirname);
         exit(EXIT_FAILURE);
     }
-    strcpy(user_data_dir,dirname);
+    strcpy(user_data_dir, dirname);
 
     // Check to see that dirname is properly terminated
     len = strlen(user_data_dir);
-    if (user_data_dir[len-1] != '/')
-        strcat(user_data_dir,"/");
+    if (user_data_dir[len - 1] != '/')
+    {
+        strcat(user_data_dir, "/");
+    }
 
     // If the user supplies a homedir, interpret it literally and don't
     // add .tuxmath
@@ -263,11 +265,13 @@ void set_user_data_dir(const char *dirname)
 }
 
 /* This gets the user data directory including the .tuxmath, if applicable */
-void get_user_data_dir_with_subdir(char *opt_path)
+void get_user_data_dir_with_subdir(char* opt_path)
 {
     strcpy(opt_path, get_user_data_dir());
     if (add_subdir)
+    {
         strcat(opt_path, OPTIONS_SUBDIR "/");
+    }
 }
 
 /* FIXME should have better file path (/etc or /usr/local/etc) and name */
@@ -291,7 +295,9 @@ int read_global_config_file(MC_MathGame* game)
         return 1;
     }
     else
+    {
         return 0;
+    }
 }
 
 /* Attempts to read in user's config file - on a *nix system, */
@@ -299,13 +305,15 @@ int read_global_config_file(MC_MathGame* game)
 int read_user_config_file(MC_MathGame* game)
 {
     FILE* fp;
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
 
     /* find $HOME and tack on file name: */
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, OPTIONS_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In read_user_config_file() full path to config file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_user_config_file() full path to config file is: = %s\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp && game) /* file exists and mathgame valid */
@@ -315,7 +323,7 @@ int read_user_config_file(MC_MathGame* game)
         fp = NULL;
         return 1;
     }
-    else  /* could not open config file: */
+    else /* could not open config file: */
     {
         return 0;
     }
@@ -332,27 +340,35 @@ int read_user_config_file(MC_MathGame* game)
 int read_named_config_file(MC_MathGame* game, const char* fn)
 {
     FILE* fp;
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
 
     /* Adjust fn extension for Windows, if needed: */
 #ifdef BUILD_MINGW32
     char fn_tmp[PATH_MAX];
     strncpy(fn_tmp, fn, PATH_MAX);
-    if(!strstr(fn_tmp, ".txt") && !strstr(fn_tmp, ".TXT")) //no strcasestr() in mingw
+    if (!strstr(fn_tmp, ".txt") &&
+        !strstr(fn_tmp, ".TXT")) // no strcasestr() in mingw
+    {
         strcat(fn_tmp, ".txt");
+    }
     const char* filename = (const char*)fn_tmp;
 #else
     const char* filename = (const char*)fn;
 #endif
 
     if (!game)
+    {
         return 0;
+    }
 
     if (last_config_file_name != NULL)
+    {
         free(last_config_file_name);
+    }
     last_config_file_name = strdup(filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() filename is: = %s\n", filename);
+    DEBUGMSG(debug_fileops, "In read_named_config_file() filename is: = %s\n",
+             filename);
 
     /* First look in current working directory:  */
     getcwd(opt_path, PATH_MAX); /* get current working directory */
@@ -363,10 +379,11 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     }
     strcat(opt_path, filename); /* tack on filename              */
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (cwd)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (cwd)\n", opt_path);
 
-    fp = fopen(opt_path, "r");  /* try to open file */
-    if (fp) /* file exists */
+    fp = fopen(opt_path, "r"); /* try to open file */
+    if (fp)                    /* file exists */
     {
         DEBUGMSG(debug_fileops, "Found %s\n", opt_path);
 
@@ -383,10 +400,9 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
         }
     }
 
-
     /* Next try matching filename as absolute:      */
     /* Supply leading '/' if not already there:   */
-    if (0 == strncmp ("/", filename, 1))
+    if (0 == strncmp("/", filename, 1))
     {
         strcpy(opt_path, filename);
     }
@@ -396,7 +412,8 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
         strcat(opt_path, filename);
     }
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (abs)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (abs)\n", opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -415,14 +432,15 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
             fp = NULL;
         }
     }
-
 
     /* Next look in missions folder:      */
     strcpy(opt_path, tm_data_prefix());
     strcat(opt_path, "/missions/");
     strcat(opt_path, filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (missions)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (missions)\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -442,12 +460,15 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
         }
     }
 
-    /* Next look in missions/lessons folder (for prepared "lessons curriculum"):      */
+    /* Next look in missions/lessons folder (for prepared "lessons curriculum"):
+     */
     strcpy(opt_path, tm_data_prefix());
     strcat(opt_path, "/missions/lessons/");
     strcat(opt_path, filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (missions/lessons)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (missions/lessons)\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -472,7 +493,9 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     strcat(opt_path, "/missions/arcade/");
     strcat(opt_path, filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (missions/arcade)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (missions/arcade)\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -497,7 +520,9 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (.tuxmath)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (.tuxmath)\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -517,14 +542,14 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
         }
     }
 
-
     /* Look in user's home directory  */
     /* find $HOME and tack on file name: */
     strcpy(opt_path, get_user_data_dir());
     strcat(opt_path, "/");
     strcat(opt_path, filename);
 
-    DEBUGMSG(debug_fileops, "In read_named_config_file() checking for %s (home)\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_named_config_file() checking for %s (home)\n", opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -545,31 +570,33 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     }
 
     /* Could not find file (or read it if found) in any location: */
-    DEBUGMSG(debug_fileops, "read_named_config_file() could not find/read: %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "read_named_config_file() could not find/read: %s\n", opt_path);
     return 0;
 }
 
 int parse_lesson_file_directory(void)
 {
-    char lesson_path[PATH_MAX];             //Path to lesson directory
+    char  lesson_path[PATH_MAX]; // Path to lesson directory
     char* fgets_return_val;
-    char name_buf[NAME_BUF_SIZE];
-    int nchars;
+    char  name_buf[NAME_BUF_SIZE];
+    int   nchars;
 
     char** lesson_list_names = NULL;
-    FILE* tempFile = NULL;
+    FILE*  tempFile          = NULL;
 
-    int i = 0;
-    int lessonIterator = 0;  //Iterator over matching files in lesson dir
-    int length = 0;
-    int lessons = 0;         //Iterator over accepted (& parsed) lesson files
+    int i              = 0;
+    int lessonIterator = 0; // Iterator over matching files in lesson dir
+    int length         = 0;
+    int lessons        = 0; // Iterator over accepted (& parsed) lesson files
 
     num_lessons = 0;
 
     /* find the directory containing the lesson files:  */
     nchars = snprintf(lesson_path, PATH_MAX, "%s/missions/lessons",
                       tm_data_prefix());
-    if (nchars < 0 || nchars >= PATH_MAX) {
+    if (nchars < 0 || nchars >= PATH_MAX)
+    {
         perror("formatting lesson directory");
         return 0;
     }
@@ -592,16 +619,22 @@ int parse_lesson_file_directory(void)
     qsort(lesson_list_names, num_lessons, sizeof(char*), str_compare);
 
     /* Allocate storage for lesson list */
-    lesson_list_titles = (char**) malloc(num_lessons * sizeof(char*));
-    lesson_list_filenames = (char**) malloc(num_lessons * sizeof(char*));
-    if (lesson_list_titles == NULL || lesson_list_filenames == NULL) {
+    lesson_list_titles    = (char**)malloc(num_lessons * sizeof(char*));
+    lesson_list_filenames = (char**)malloc(num_lessons * sizeof(char*));
+    if (lesson_list_titles == NULL || lesson_list_filenames == NULL)
+    {
         perror("allocating memory for lesson list");
         return 0;
     }
-    for (lessonIterator = 0; lessonIterator < num_lessons; lessonIterator++) {
-        lesson_list_titles[lessonIterator] = (char*) malloc(NAME_BUF_SIZE * sizeof(char));
-        lesson_list_filenames[lessonIterator] = (char*) malloc(NAME_BUF_SIZE * sizeof(char));
-        if (lesson_list_titles[lessonIterator] == NULL || lesson_list_filenames[lessonIterator] == NULL) {
+    for (lessonIterator = 0; lessonIterator < num_lessons; lessonIterator++)
+    {
+        lesson_list_titles[lessonIterator] =
+            (char*)malloc(NAME_BUF_SIZE * sizeof(char));
+        lesson_list_filenames[lessonIterator] =
+            (char*)malloc(NAME_BUF_SIZE * sizeof(char));
+        if (lesson_list_titles[lessonIterator] == NULL ||
+            lesson_list_filenames[lessonIterator] == NULL)
+        {
             perror("allocating memory for lesson filenames or titles");
             return 0;
         }
@@ -613,44 +646,50 @@ int parse_lesson_file_directory(void)
     /* just continue onto the next entry without incrementing */
     /* lessons, and the bad entry will get overwritten by the */
     /* next one (or simply never used, if it was the last).   */
-    for (lessonIterator = 0, lessons = 0; lessonIterator < num_lessons; lessonIterator++) {
+    for (lessonIterator = 0, lessons = 0; lessonIterator < num_lessons;
+         lessonIterator++)
+    {
         /* Copy over the filename (as a full pathname) */
         nchars =
             snprintf(lesson_list_filenames[lessons], NAME_BUF_SIZE, "%s/%s",
                      lesson_path, lesson_list_names[lessonIterator]);
         if (nchars < 0 || nchars >= NAME_BUF_SIZE)
+        {
             continue;
+        }
 
-        DEBUGMSG(debug_fileops, "Found lesson file %d:\t%s\n", lessons, lesson_list_filenames[lessons]);
+        DEBUGMSG(debug_fileops, "Found lesson file %d:\t%s\n", lessons,
+                 lesson_list_filenames[lessons]);
 
         /* load the name for the lesson from the file ... (1st line) */
         tempFile = fopen(lesson_list_filenames[lessons], "r");
-        if (tempFile==NULL)
+        if (tempFile == NULL)
         {
             continue;
         }
         fgets_return_val = fgets(name_buf, NAME_BUF_SIZE, tempFile);
-        if (fgets_return_val == NULL) {
+        if (fgets_return_val == NULL)
+        {
             continue;
         }
         fclose(tempFile);
 
-
         /* check to see if it has a \r at the end of it (dos format!) */
         length = strlen(name_buf);
-        while (length>0 && (name_buf[length - 1] == '\r' || name_buf[length - 1] == '\n')) {
+        while (length > 0 &&
+               (name_buf[length - 1] == '\r' || name_buf[length - 1] == '\n'))
+        {
             name_buf[length - 1] = '\0';
             length--;
         }
 
         /* Go past leading '#', ';', or whitespace: */
-        /* NOTE getting i to the correct value on exit is the main goal of the loop */
-        for (  i = 0;
-                ((name_buf[i] == '#') ||
-                 (name_buf[i] == ';') ||
-                 isspace(name_buf[i])) &&
-                (i < NAME_BUF_SIZE);
-                i++  )
+        /* NOTE getting i to the correct value on exit is the main goal of the
+         * loop */
+        for (i = 0; ((name_buf[i] == '#') || (name_buf[i] == ';') ||
+                     isspace(name_buf[i])) &&
+                    (i < NAME_BUF_SIZE);
+             i++)
         {
             length--;
         }
@@ -673,13 +712,13 @@ int parse_lesson_file_directory(void)
 
     /* prevent memory leak in case we called this already and */
     /* free the list:                                         */
-    if(lesson_list_goldstars)
+    if (lesson_list_goldstars)
     {
         free(lesson_list_goldstars);
         lesson_list_goldstars = NULL;
     }
 
-    lesson_list_goldstars = (int*)malloc(num_lessons*sizeof(int));
+    lesson_list_goldstars = (int*)malloc(num_lessons * sizeof(int));
     if (!lesson_list_goldstars)
     {
         perror("unable to allocate memory for gold star list");
@@ -693,9 +732,8 @@ int parse_lesson_file_directory(void)
     /* Now read file to see what lessons have been previously completed: */
     read_goldstars();
 
-    return (num_lessons > 0);  /* Success! */
+    return (num_lessons > 0); /* Success! */
 }
-
 
 /* Look for a completed lessons file in the user's homedir   */
 /* and if found, pass the FILE* to read_goldstars_fp()       */
@@ -706,13 +744,14 @@ int parse_lesson_file_directory(void)
 int read_goldstars(void)
 {
     FILE* fp;
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
 
     /* find $HOME and tack on file name: */
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, GOLDSTAR_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In read_goldstars() full path to file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops, "In read_goldstars() full path to file is: = %s\n",
+             opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -722,18 +761,17 @@ int read_goldstars(void)
         fp = NULL;
         return 1;
     }
-    else  /* could not open goldstar file: */
+    else /* could not open goldstar file: */
     {
         return 0;
     }
 }
 
-
 /* Write gold star list in user's homedir in format     */
 /* compatible with read_goldstars() above.              */
 int write_goldstars(void)
 {
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
     FILE* fp;
 
     if (!find_tuxmath_dir())
@@ -746,7 +784,8 @@ int write_goldstars(void)
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, GOLDSTAR_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In write_goldstars() full path to file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops, "In write_goldstars() full path to file is: = %s\n",
+             opt_path);
 
     fp = fopen(opt_path, "w");
     if (fp)
@@ -756,12 +795,12 @@ int write_goldstars(void)
         fp = NULL;
         return 1;
     }
-    else {
+    else
+    {
         fprintf(stderr, "\nUnable to write goldstars file.\n");
         return 0;
     }
 }
-
 
 /* Look for a highscore table file in the current user    */
 /* data directory.  Return 1 if found, 0 if not.  This    */
@@ -770,13 +809,14 @@ int write_goldstars(void)
 int high_scores_found_in_user_dir(void)
 {
     FILE* fp;
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
 
     /* find $HOME and tack on file name: */
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, HIGHSCORE_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In read_high_scores() full path to file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_high_scores() full path to file is: = %s\n", opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
@@ -785,7 +825,9 @@ int high_scores_found_in_user_dir(void)
         return 1;
     }
     else
+    {
         return 0;
+    }
 }
 
 /* Set the path to the high score file to the current     */
@@ -799,7 +841,9 @@ void set_high_score_path(void)
 
     // Free any previous allocation
     if (high_scores_file_path != NULL)
+    {
         free(high_scores_file_path);
+    }
 
     high_scores_file_path = strdup(opt_path);
 }
@@ -813,27 +857,32 @@ void set_high_score_path(void)
 int read_high_scores(void)
 {
     FILE* fp;
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
 
     /* find $HOME and tack on file name: */
     if (high_scores_file_path == NULL)
+    {
         get_user_data_dir_with_subdir(opt_path);
+    }
     else
-        strncpy(opt_path,high_scores_file_path,PATH_MAX);
+    {
+        strncpy(opt_path, high_scores_file_path, PATH_MAX);
+    }
     strcat(opt_path, HIGHSCORE_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In read_high_scores() full path to file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In read_high_scores() full path to file is: = %s\n", opt_path);
 
     fp = fopen(opt_path, "r");
     if (fp) /* file exists */
     {
-        initialize_scores();  // clear any previous values
+        initialize_scores(); // clear any previous values
         read_high_scores_fp(fp);
         fclose(fp);
         fp = NULL;
         return 1;
     }
-    else  /* could not open highscore file: */
+    else /* could not open highscore file: */
     {
         return 0;
     }
@@ -879,9 +928,9 @@ int read_high_scores(void)
 /* high scores table if you're in an environment where    */
 /* multiple users might be updating the table             */
 /* simultaneously.                                        */
-int append_high_score(int tableid,int score,char *player_name)
+int append_high_score(int tableid, int score, char* player_name)
 {
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
     FILE* fp;
 
     if (!find_tuxmath_dir())
@@ -892,26 +941,31 @@ int append_high_score(int tableid,int score,char *player_name)
 
     /* find $HOME and add rest of path to config file: */
     if (high_scores_file_path == NULL)
+    {
         get_user_data_dir_with_subdir(opt_path);
+    }
     else
-        strncpy(opt_path,high_scores_file_path,PATH_MAX);
+    {
+        strncpy(opt_path, high_scores_file_path, PATH_MAX);
+    }
     strcat(opt_path, HIGHSCORE_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In write_high_scores() full path to file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In write_high_scores() full path to file is: = %s\n", opt_path);
 
     fp = fopen(opt_path, "a");
     if (fp)
     {
-        fprintf(fp,"%d\t%d\t%s\t\n",tableid,score,player_name);
+        fprintf(fp, "%d\t%d\t%s\t\n", tableid, score, player_name);
         fclose(fp);
         fp = NULL;
         return 1;
     }
     else
+    {
         return 0;
+    }
 }
-
-
 
 /* Checks to see if the current homedir has a menu_entries file, and if */
 /* so returns the names of the menu entries. This is used in cases      */
@@ -919,22 +973,23 @@ int append_high_score(int tableid,int score,char *player_name)
 /* of menu entries (0 if there are none), and sets the input            */
 /* argument to a malloc-ed array of names (sets to NULL if there are no */
 /* choices to be made).  */
-int read_user_menu_entries(char ***user_names)
+int read_user_menu_entries(char*** user_names)
 {
-    FILE *fp;
-    int n_entries;
-    char opt_path[PATH_MAX],menu_entries_file[PATH_MAX];
+    FILE* fp;
+    int   n_entries;
+    char  opt_path[PATH_MAX], menu_entries_file[PATH_MAX];
 
     // Look for a menu_entries file
     get_user_data_dir_with_subdir(opt_path);
-    strncpy(menu_entries_file,opt_path,PATH_MAX);
-    strncat(menu_entries_file,USER_MENU_ENTRIES_FILENAME,PATH_MAX-strlen(menu_entries_file));
+    strncpy(menu_entries_file, opt_path, PATH_MAX);
+    strncat(menu_entries_file, USER_MENU_ENTRIES_FILENAME,
+            PATH_MAX - strlen(menu_entries_file));
     n_entries = 0;
-    fp = fopen(menu_entries_file,"r");
+    fp        = fopen(menu_entries_file, "r");
     if (fp)
     {
         // There is a menu_entries file, read it
-        n_entries = read_lines_from_file(fp,user_names);
+        n_entries = read_lines_from_file(fp, user_names);
         fclose(fp);
     }
 
@@ -943,22 +998,23 @@ int read_user_menu_entries(char ***user_names)
 
 /* Reads the user_login_questions file. The syntax is identical to
    read_user_menu_entries. */
-int read_user_login_questions(char ***user_login_questions)
+int read_user_login_questions(char*** user_login_questions)
 {
-    FILE *fp;
-    int n_entries;
-    char opt_path[PATH_MAX],user_login_questions_file[PATH_MAX];
+    FILE* fp;
+    int   n_entries;
+    char  opt_path[PATH_MAX], user_login_questions_file[PATH_MAX];
 
     // Look for a user_login_questions file
     get_user_data_dir_with_subdir(opt_path);
-    strncpy(user_login_questions_file,opt_path,PATH_MAX);
-    strncat(user_login_questions_file,USER_LOGIN_QUESTIONS_FILENAME,PATH_MAX-strlen(user_login_questions_file));
+    strncpy(user_login_questions_file, opt_path, PATH_MAX);
+    strncat(user_login_questions_file, USER_LOGIN_QUESTIONS_FILENAME,
+            PATH_MAX - strlen(user_login_questions_file));
     n_entries = 0;
-    fp = fopen(user_login_questions_file,"r");
+    fp        = fopen(user_login_questions_file, "r");
     if (fp)
     {
         // There is a user_login_questions file, read it
-        n_entries = read_lines_from_file(fp,user_login_questions);
+        n_entries = read_lines_from_file(fp, user_login_questions);
         fclose(fp);
     }
 
@@ -970,39 +1026,46 @@ void user_data_dirname_up(void)
     dirname_up(user_data_dir);
 }
 
-void user_data_dirname_down(char *subdir)
+void user_data_dirname_down(char* subdir)
 {
     // The space for user_data_dir has to have sufficient memory
     // available for concatenating subdir and a possible final "/",
     // hence the +2s.
-    if (user_data_dir != NULL) {
+    if (user_data_dir != NULL)
+    {
         char* tmp = (char*)realloc(
             user_data_dir,
             (strlen(user_data_dir) + strlen(subdir) + 2) * sizeof(char));
         if (NULL == tmp)
         {
             free(user_data_dir);
-            fprintf(stderr,"Error allocating memory in user_data_dirname_down.\n");
+            fprintf(stderr,
+                    "Error allocating memory in user_data_dirname_down.\n");
             exit(EXIT_FAILURE);
         }
         user_data_dir = tmp;
-        strcat(user_data_dir,subdir);
+        strcat(user_data_dir, subdir);
     }
-    else {
-        user_data_dir = (char*) malloc((strlen(subdir)+2)*sizeof(char));
-        if (user_data_dir == NULL) {
-            fprintf(stderr,"Error allocating memory in user_data_dirname_down.\n");
+    else
+    {
+        user_data_dir = (char*)malloc((strlen(subdir) + 2) * sizeof(char));
+        if (user_data_dir == NULL)
+        {
+            fprintf(stderr,
+                    "Error allocating memory in user_data_dirname_down.\n");
             exit(EXIT_FAILURE);
         }
-        strcpy(user_data_dir,subdir);
+        strcpy(user_data_dir, subdir);
     }
-    strcat(user_data_dir,"/");
+    strcat(user_data_dir, "/");
     SDL_PathInfo info;
     if (!SDL_GetPathInfo(user_data_dir, &info) ||
         info.type != SDL_PATHTYPE_DIRECTORY)
     {
-        fprintf(stderr, "User data directory cannot be opened, there is a configuration error\n");
-        fprintf(stderr, "Continuing anyway without saving or loading individual settings.\n");
+        fprintf(stderr, "User data directory cannot be opened, there is a "
+                        "configuration error\n");
+        fprintf(stderr, "Continuing anyway without saving or loading "
+                        "individual settings.\n");
     }
     else
     {
@@ -1018,20 +1081,19 @@ void user_data_dirname_down(char *subdir)
  *                                                          *
  ***********************************************************/
 
-
 /* This function does the heavy lifting, so to speak:     */
 /* Note that file_type simply indicates whether or not    */
 /* to change admin-only settings such as per_user_config. */
 /* FIXME return value only tells whether file pointer valid */
-int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
+int read_config_file(MC_MathGame* game, FILE* fp, int file_type)
 {
-    char buf[PATH_MAX];
+    char  buf[PATH_MAX];
     char *parameter, *param_begin, *param_end, *value, *value_end;
 
     DEBUGMSG(debug_fileops, "Entering read_config_file()\n");
 
     /* get out if file pointer invalid: */
-    if(!fp)
+    if (!fp)
     {
         DEBUGMSG(debug_fileops, "config file pointer invalid!\n");
         DEBUGMSG(debug_fileops, "Leaving read_config_file()\n");
@@ -1041,7 +1103,8 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
     }
 
     /* Make sure options systems are initialized. Note that these init functions
-     * have checks to do this safely even if they have previously been initialized.
+     * have checks to do this safely even if they have previously been
+     * initialized.
      */
     Opts_Initialize();
     MC_Initialize(game);
@@ -1051,22 +1114,26 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
 
     /* read in top line (lesson title), removing initial "# "          */
     {
-        char* p1, *p2;
-        fgets (buf, PATH_MAX, fp);
+        char *p1, *p2;
+        fgets(buf, PATH_MAX, fp);
         p1 = buf;
-        while (*p1 == '#'||isspace(*p1))
+        while (*p1 == '#' || isspace(*p1))
+        {
             ++p1;
+        }
         // we also don't want a newline char at the end:
         p2 = strchr(buf, '\n');
-        if(p2)
+        if (p2)
+        {
             *p2 = '\0';
+        }
         Opts_SetLessonTitle(p1);
     }
 
     /* now start over at beginning: */
     rewind(fp);
 
-    while (fgets (buf, PATH_MAX, fp))
+    while (fgets(buf, PATH_MAX, fp))
     {
         /* "parameter" and "value" will contain the non-whitespace chars */
         /* before and after the '=' sign, respectively.  e.g.:           */
@@ -1092,20 +1159,21 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         }
 
         /* If this was a blank line, then we don't have to process any more */
-        if (param_begin-buf >= strlen(buf))
+        if (param_begin - buf >= strlen(buf))
+        {
             continue;
+        }
 
         /* now go from here to end of string, stopping at either */
         /* whitespace or '=':   */
         param_end = param_begin;
-        while (!isspace(*param_end)
-                && ('=' != (*param_end)))
+        while (!isspace(*param_end) && ('=' != (*param_end)))
         {
             ++param_end;
         }
 
         /* copy chars from start of non-whitespace up to '=': */
-        //parameter = strndup(param_begin, (param_end - param_begin));
+        // parameter = strndup(param_begin, (param_end - param_begin));
 
         /* Next three lines do same as strndup(), which may not be available: */
         parameter = malloc((sizeof(char) * (param_end - param_begin)) + 1);
@@ -1134,17 +1202,19 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         value_end = value;
 
         /* remove trailing whitespace or newline */
-        while (!isspace(*value_end)
-                && (0x0a != (*value_end))
-                && (*value_end))
+        while (!isspace(*value_end) && (0x0a != (*value_end)) && (*value_end))
         {
             ++value_end;
         }
         /* terminate string here: */
         *value_end = 0;
 
-        DEBUGMSG(debug_fileops, "parameter = '%s'\t, length = %zu\n", parameter, strlen(parameter));
-        DEBUGMSG(debug_fileops, "value = '%s'\t, length = %zu\t, atoi() = %d\t, atof() = %.2f\n", value, strlen(value), atoi(value), atof(value));
+        DEBUGMSG(debug_fileops, "parameter = '%s'\t, length = %zu\n", parameter,
+                 strlen(parameter));
+        DEBUGMSG(
+            debug_fileops,
+            "value = '%s'\t, length = %zu\t, atoi() = %d\t, atof() = %.2f\n",
+            value, strlen(value), atoi(value), atof(value));
 
         /* Now ready to handle each name/value pair! */
 
@@ -1168,7 +1238,8 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         //        /* Check to see whether the specified homedir exists */
         //        dir = opendir(value);
         //        if (dir == NULL)
-        //          fprintf(stderr,"homedir: %s is not a directory, or it could not be read\n", value);
+        //          fprintf(stderr,"homedir: %s is not a directory, or it could
+        //          not be read\n", value);
         //        else {
         //          set_user_data_dir(value);  /* copy the homedir setting */
         //          closedir(dir);
@@ -1202,150 +1273,170 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         //      if (v != -1)
         //        Opts_SetGlobalOpt(FULLSCREEN, v);
         //    }
-        //TODO herd these per-game options into their own "domain" as well
-        if(0 == strcasecmp(parameter, "use_bkgd"))
+        // TODO herd these per-game options into their own "domain" as well
+        if (0 == strcasecmp(parameter, "use_bkgd"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetUseBkgd(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "demo_mode"))
+        else if (0 == strcasecmp(parameter, "demo_mode"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetDemoMode(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "oper_override"))
+        else if (0 == strcasecmp(parameter, "oper_override"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetOperOverride(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "use_keypad"))
+        else if (0 == strcasecmp(parameter, "use_keypad"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetGlobalOpt(USE_KEYPAD, v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "allow_pause"))
+        else if (0 == strcasecmp(parameter, "allow_pause"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetAllowPause(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "use_igloos"))
+        else if (0 == strcasecmp(parameter, "use_igloos"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetGlobalOpt(USE_IGLOOS, v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "bonus_comet_interval"))
+        else if (0 == strcasecmp(parameter, "bonus_comet_interval"))
         {
             Opts_SetBonusCometInterval(atoi(value));
         }
 
-        else if(0 == strcasecmp(parameter, "bonus_speed_ratio"))
+        else if (0 == strcasecmp(parameter, "bonus_speed_ratio"))
         {
             Opts_SetBonusSpeedRatio(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "save_summary"))
+        else if (0 == strcasecmp(parameter, "save_summary"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetSaveSummary(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "speed"))
+        else if (0 == strcasecmp(parameter, "speed"))
         {
             Opts_SetSpeed(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "use_feedback"))
+        else if (0 == strcasecmp(parameter, "use_feedback"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetUseFeedback(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "danger_level"))
+        else if (0 == strcasecmp(parameter, "danger_level"))
         {
             Opts_SetDangerLevel(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "danger_level_speedup"))
+        else if (0 == strcasecmp(parameter, "danger_level_speedup"))
         {
             Opts_SetDangerLevelSpeedup(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "danger_level_max"))
+        else if (0 == strcasecmp(parameter, "danger_level_max"))
         {
             Opts_SetDangerLevelMax(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "city_explode_handicap"))
+        else if (0 == strcasecmp(parameter, "city_explode_handicap"))
         {
             Opts_SetCityExplHandicap(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "allow_speedup"))
+        else if (0 == strcasecmp(parameter, "allow_speedup"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetAllowSpeedup(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "speedup_factor"))
+        else if (0 == strcasecmp(parameter, "speedup_factor"))
         {
             Opts_SetSpeedupFactor(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "max_speed"))
+        else if (0 == strcasecmp(parameter, "max_speed"))
         {
             Opts_SetMaxSpeed(atof(value));
         }
 
-        else if(0 == strcasecmp(parameter, "slow_after_wrong"))
+        else if (0 == strcasecmp(parameter, "slow_after_wrong"))
         {
             int v = str_to_bool(value);
             if (v != -1)
+            {
                 Opts_SetSlowAfterWrong(v);
+            }
         }
 
-        else if(0 == strcasecmp(parameter, "starting_comets"))
+        else if (0 == strcasecmp(parameter, "starting_comets"))
         {
             Opts_SetStartingComets(atoi(value));
         }
 
-        else if(0 == strcasecmp(parameter, "extra_comets_per_wave"))
+        else if (0 == strcasecmp(parameter, "extra_comets_per_wave"))
         {
             Opts_SetExtraCometsPerWave(atoi(value));
         }
 
-        else if(0 == strcasecmp(parameter, "max_comets"))
+        else if (0 == strcasecmp(parameter, "max_comets"))
         {
             Opts_SetMaxComets(atoi(value));
         }
 
-        else if(0 == strcasecmp(parameter, "use_powerup_comets"))
+        else if (0 == strcasecmp(parameter, "use_powerup_comets"))
         {
             Opts_SetUsePowerupComets(atoi(value));
         }
 
-        else if(0 == strcasecmp(parameter, "powerup_freq"))
+        else if (0 == strcasecmp(parameter, "powerup_freq"))
         {
             Opts_SetPowerupFreq(atoi(value));
         }
 
         else if (0 == strcasecmp(parameter, "keep_score"))
         {
-            Opts_SetKeepScore(atoi(value) );
+            Opts_SetKeepScore(atoi(value));
         }
 
         else if (0 == strcasecmp(parameter, "fps_limit"))
@@ -1357,27 +1448,36 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         {
             int w = atoi(value);
 
-            //Read them only if resolution wasn't set through
-            //command line options
-            if(w > 0 && Opts_WindowWidth() == DEFAULT_WINDOW_WIDTH)
+            // Read them only if resolution wasn't set through
+            // command line options
+            if (w > 0 && Opts_WindowWidth() == DEFAULT_WINDOW_WIDTH)
+            {
                 Opts_SetWindowWidth(w);
+            }
         }
 
         else if (0 == strcasecmp(parameter, "window_height"))
         {
             int h = atoi(value);
 
-            if(h > 0 && Opts_WindowHeight() == DEFAULT_WINDOW_HEIGHT)
+            if (h > 0 && Opts_WindowHeight() == DEFAULT_WINDOW_HEIGHT)
+            {
                 Opts_SetWindowHeight(h);
+            }
         }
 
-        else //we're going to delegate the setting of options to their subsystems
+        else // we're going to delegate the setting of options to their
+             // subsystems
         {
-            int ival = str_to_bool(value); //see if it's a valid bool
-            if (ival == -1) //guess not, must be an int
+            int ival = str_to_bool(value); // see if it's a valid bool
+            if (ival == -1)                // guess not, must be an int
+            {
                 ival = atoi(value);
-            if (!parse_option(game, parameter, ival, file_type) )
+            }
+            if (!parse_option(game, parameter, ival, file_type))
+            {
                 fprintf(stderr, "Sorry, I couldn't set %s\n", parameter);
+            }
             //
             //      if (file_type != GLOBAL_CONFIG_FILE)
             //        MC_SetOp(parameter, ival);
@@ -1391,13 +1491,13 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
             //        {
             //          if (user_data_dir == NULL)
             //          {
-            //            /* Check to see whether the specified homedir exists */
-            //            dir = opendir(value);
-            //            if (dir == NULL)
-            //              fprintf(stderr,"homedir: %s is not a directory, or it could not be read\n", value);
+            //            /* Check to see whether the specified homedir exists
+            //            */ dir = opendir(value); if (dir == NULL)
+            //              fprintf(stderr,"homedir: %s is not a directory, or
+            //              it could not be read\n", value);
             //            else {
-            //              set_user_data_dir(value);  /* copy the homedir setting */
-            //              closedir(dir);
+            //              set_user_data_dir(value);  /* copy the homedir
+            //              setting */ closedir(dir);
             //            }
             //          }
             //        }
@@ -1405,7 +1505,7 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
         }
         free(parameter);
     }
-    //handle min > max by disallowing operation
+    // handle min > max by disallowing operation
     if (MC_GetOpt(game, MIN_AUGEND) > MC_GetOpt(game, MAX_AUGEND) ||
         MC_GetOpt(game, MIN_ADDEND) > MC_GetOpt(game, MAX_ADDEND))
     {
@@ -1426,41 +1526,45 @@ int read_config_file(MC_MathGame* game, FILE *fp, int file_type)
     {
         MC_SetOpt(game, DIVISION_ALLOWED, 0);
     }
-    if (MC_GetOpt(game, MIN_TYPING_NUM) > MC_GetOpt(game, MAX_TYPING_NUM) )
+    if (MC_GetOpt(game, MIN_TYPING_NUM) > MC_GetOpt(game, MAX_TYPING_NUM))
+    {
         MC_SetOpt(game, TYPING_PRACTICE_ALLOWED, 0);
+    }
 
     DEBUGMSG(debug_fileops, "After file read in:\n");
     DEBUGCODE(debug_fileops)
-        write_config_file(game, stdout, 0);
+    write_config_file(game, stdout, 0);
     DEBUGMSG(debug_fileops, "Leaving read_config_file()\n");
 
     return 1;
 }
-//TODO get rid of enum/array-based global opts and go back
-//to set/get functions for each option.  Being more compact
-//isn't worth making the code more error-prone, IMHO.
+// TODO get rid of enum/array-based global opts and go back
+// to set/get functions for each option.  Being more compact
+// isn't worth making the code more error-prone, IMHO.
 //
 /* determine which option class a name belongs to, and set it */
 /* accordingly. Returns 1 on success, 0 on failure            */
-static int parse_option(MC_MathGame* game, const char* name, int val, int file_type)
+static int parse_option(MC_MathGame* game, const char* name, int val,
+                        int file_type)
 {
     int index = -1;
 
-    if (-1 !=
-        (index = MC_MapTextToIndex(
-             name))) //is it a math opt? NOLINT(bugprone-assignment-in-if-condition)
+    if (-1 != (index = MC_MapTextToIndex(
+                   name))) // is it a math opt?
+                           // NOLINT(bugprone-assignment-in-if-condition)
     {
         MC_SetOpt(game, index, val);
     }
-    else if (
-        -1 !=
-        (index = Opts_MapTextToIndex(
-             name))) //is it a global opt? NOLINT(bugprone-assignment-in-if-condition)
+    else if (-1 != (index = Opts_MapTextToIndex(
+                        name))) // is it a global opt?
+                                // NOLINT(bugprone-assignment-in-if-condition)
     {
         if (file_type == GLOBAL_CONFIG_FILE)
+        {
             Opts_SetGlobalOpt(index, val);
+        }
     }
-    else //no? oh well.
+    else // no? oh well.
     {
         return 0;
     }
@@ -1468,13 +1572,12 @@ static int parse_option(MC_MathGame* game, const char* name, int val, int file_t
     return 1;
 }
 
-
 int write_user_config_file(MC_MathGame* game)
 {
-    char opt_path[PATH_MAX];
+    char  opt_path[PATH_MAX];
     FILE* fp;
 
-    if(!game)
+    if (!game)
     {
         fprintf(stderr, "\nInvalid MC_MathGame* arg\n");
         return 0;
@@ -1490,7 +1593,9 @@ int write_user_config_file(MC_MathGame* game)
     get_user_data_dir_with_subdir(opt_path);
     strcat(opt_path, OPTIONS_FILENAME);
 
-    DEBUGMSG(debug_fileops, "In write_user_config_file() full path to config file is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops,
+             "In write_user_config_file() full path to config file is: = %s\n",
+             opt_path);
 
     /* save settings: */
     fp = fopen(opt_path, "w");
@@ -1502,29 +1607,31 @@ int write_user_config_file(MC_MathGame* game)
         return 1;
     }
     else
+    {
         return 0;
+    }
 }
-
-
 
 /* this function writes the settings for all game options to a */
 /* human-readable file.                                        */
 int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
 {
-    int i, vcommentsprimed = 0;
-    static char* vcomments[NOPTS]; //comments when writing out verbose
+    int          i, vcommentsprimed = 0;
+    static char* vcomments[NOPTS]; // comments when writing out verbose
 
-    if(!game)
+    if (!game)
     {
         fprintf(stderr, "\nInvalid MC_MathGame* arg\n");
         return 0;
     }
 
-    if (!vcommentsprimed) //we only want to initialize these once
+    if (!vcommentsprimed) // we only want to initialize these once
     {
         vcommentsprimed = 1;
         for (i = 0; i < NOPTS; ++i)
+        {
             vcomments[i] = NULL;
+        }
         vcomments[PLAY_THROUGH_LIST] =
             "############################################################\n"
             "#                                                          #\n"
@@ -1645,8 +1752,7 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
                                     "# multiplier * multiplicand = product\n\n";
         vcomments[MIN_DIVISOR]    = "\n# Division operands:\n"
                                     "# dividend / divisor = quotiend\n\n";
-        vcomments[MIN_TYPING_NUM] =
-            "\n# Typing practice:\n";
+        vcomments[MIN_TYPING_NUM] = "\n# Typing practice:\n";
         vcomments[QUESTION_COPIES] =
             "\n\n\n############################################################"
             "\n"
@@ -1744,31 +1850,33 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     DEBUGMSG(debug_fileops, "Entering write_config_file()\n");
 
     /* get out if file pointer null */
-    if(!fp)
+    if (!fp)
     {
-        fprintf (stderr, "write_config_file() - file pointer invalid/n");
+        fprintf(stderr, "write_config_file() - file pointer invalid/n");
         DEBUGMSG(debug_fileops, "Leaving write_config_file()\n");
         return 0;
     }
 
-    for (i = 0; i < NOPTS; ++i) //for each option
+    for (i = 0; i < NOPTS; ++i) // for each option
     {
-        if (verbose && vcomments[i]) //comment goes before
+        if (verbose && vcomments[i]) // comment goes before
+        {
             fprintf(fp, "%s", vcomments[i]);
-        fprintf(fp, "%s = %d\n", MC_OPTION_TEXT[i], MC_GetOpt(game, i) );
+        }
+        fprintf(fp, "%s = %d\n", MC_OPTION_TEXT[i], MC_GetOpt(game, i));
     }
 
     if (verbose)
     {
-        //allow_speedup comment
+        // allow_speedup comment
     }
-    fprintf(fp, "allow_speedup = %d\n", Opts_AllowSpeedup() );
+    fprintf(fp, "allow_speedup = %d\n", Opts_AllowSpeedup());
 
     if (verbose)
     {
-        //use_sound comment
+        // use_sound comment
     }
-    fprintf(fp, "use_sound = %d\n", Opts_GetGlobalOpt(USE_SOUND) );
+    fprintf(fp, "use_sound = %d\n", Opts_GetGlobalOpt(USE_SOUND));
 
     if (verbose)
     {
@@ -1818,95 +1926,97 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
             "############################################################\n\n");
     }
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Number of comets for first wave. Default is 2.\n");
+        fprintf(fp, "\n# Number of comets for first wave. Default is 2.\n");
     }
     fprintf(fp, "starting_comets = %d\n", Opts_StartingComets());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Comets to add for each successive wave. Default is 2.\n");
+        fprintf(fp,
+                "\n# Comets to add for each successive wave. Default is 2.\n");
     }
     fprintf(fp, "extra_comets_per_wave = %d\n", Opts_ExtraCometsPerWave());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Maximum number of comets. Default is 10.\n");
+        fprintf(fp, "\n# Maximum number of comets. Default is 10.\n");
     }
     fprintf(fp, "max_comets = %d\n", Opts_MaxComets());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Whether to enable \"Smart Bomb\" powerup comets.  Default is 1 (yes)\n");
+        fprintf(fp, "\n# Whether to enable \"Smart Bomb\" powerup comets.  "
+                    "Default is 1 (yes)\n");
     }
     fprintf(fp, "use_powerup_comets = %d\n", Opts_UsePowerupComets());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# How often \"Smart Bomb\" comets appear.  Default is 100\n");
-        fprintf (fp, "(meaning 1 special comet for every 100 ordinary comets\n");
+        fprintf(
+            fp,
+            "\n# How often \"Smart Bomb\" comets appear.  Default is 100\n");
+        fprintf(fp, "(meaning 1 special comet for every 100 ordinary comets\n");
     }
     fprintf(fp, " powerup_freq= %d\n", Opts_PowerupFreq());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Starting comet speed. Default is 1.\n");
+        fprintf(fp, "\n# Starting comet speed. Default is 1.\n");
     }
     fprintf(fp, "speed = %.2f\n", Opts_Speed());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# Maximum speed. Default is 10.\n");
+        fprintf(fp, "\n# Maximum speed. Default is 10.\n");
     }
     fprintf(fp, "max_speed = %.2f\n", Opts_MaxSpeed());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# 'speedup_factor': If feedback is not used but \n"
-                "# 'allow_speedup' is enabled, the comet speed will be\n"
-                "# multiplied by this factor with each new wave.\n"
-                "# Values from 0.5 to 2 are accepted (note that a \n"
-                "# value less than 1 causes the comets to be \n"
-                "# slower with each wave!).\n"
-                "# Default is 1.2 (i.e. 20 percent increase per wave)\n\n");
+        fprintf(fp, "\n# 'speedup_factor': If feedback is not used but \n"
+                    "# 'allow_speedup' is enabled, the comet speed will be\n"
+                    "# multiplied by this factor with each new wave.\n"
+                    "# Values from 0.5 to 2 are accepted (note that a \n"
+                    "# value less than 1 causes the comets to be \n"
+                    "# slower with each wave!).\n"
+                    "# Default is 1.2 (i.e. 20 percent increase per wave)\n\n");
     }
     fprintf(fp, "speedup_factor = %.2f\n", Opts_SpeedupFactor());
 
-
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# 'bonus_comet_interval' controls how frequently\n"
-                "# special comets appear that cause a igloo to be  \n"
-                "# rebuilt if answered correctly. The bonus comet  \n"
-                "# appears after this number of regular comets (a  \n"
-                "# value of 0 disables bonus comets). Default is 10. \n");
+        fprintf(fp, "\n# 'bonus_comet_interval' controls how frequently\n"
+                    "# special comets appear that cause a igloo to be  \n"
+                    "# rebuilt if answered correctly. The bonus comet  \n"
+                    "# appears after this number of regular comets (a  \n"
+                    "# value of 0 disables bonus comets). Default is 10. \n");
     }
     fprintf(fp, "bonus_comet_interval = %d\n", Opts_BonusCometInterval());
 
-
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# 'bonus_speed_ratio' determines how fast the\n"
-                "# bonus comets fall relative to the regular comets.\n"
-                "# Range 1.0 - 3.0, default 1.5:\n");
+        fprintf(fp, "\n# 'bonus_speed_ratio' determines how fast the\n"
+                    "# bonus comets fall relative to the regular comets.\n"
+                    "# Range 1.0 - 3.0, default 1.5:\n");
     }
     fprintf(fp, "bonus_speed_ratio = %.2f\n", Opts_BonusSpeedRatio());
 
-
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# 'slow_after_wrong' tells Tuxmath to go back to  \n"
+        fprintf(fp,
+                "\n# 'slow_after_wrong' tells Tuxmath to go back to  \n"
                 "# starting speed and number of comets if the player misses \n"
                 "# a question. Useful for smaller kids. Default is 0.\n\n");
     }
 
     fprintf(fp, "slow_after_wrong = %d\n", Opts_SlowAfterWrong());
 
-
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# (Feedback) Set the desired danger level.\n"
+        fprintf(fp,
+                "\n# (Feedback) Set the desired danger level.\n"
                 "# 0 = too safe, comets typically exploded at the very top\n"
                 "# 1 = too dangerous, comets typically exploded as they\n"
                 "# hit cities. Set it somewhere between these extremes. As\n"
@@ -1915,33 +2025,35 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     }
     fprintf(fp, "danger_level = %.2f\n", Opts_DangerLevel());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# (Feedback) Set danger level speedup.\n"
-                "# The margin of safety will decrease by this factor each\n"
-                "# wave. Default 1.1. Note 1 = no increase in danger level.\n\n");
+        fprintf(
+            fp,
+            "\n# (Feedback) Set danger level speedup.\n"
+            "# The margin of safety will decrease by this factor each\n"
+            "# wave. Default 1.1. Note 1 = no increase in danger level.\n\n");
     }
     fprintf(fp, "danger_level_speedup = %.2f\n", Opts_DangerLevelSpeedup());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n# (Feedback) Set the maximum danger level.\n"
-                "# Default 0.9.\n");
+        fprintf(fp, "\n# (Feedback) Set the maximum danger level.\n"
+                    "# Default 0.9.\n");
     }
     fprintf(fp, "danger_level_max = %.2f\n", Opts_DangerLevelMax());
 
     if (verbose)
     {
-        fprintf (fp, "\n# (Feedback) Set the handicap for hitting cities.\n"
-                "# When bigger than 0, this causes the game to slow down\n"
-                "# by an extra amount after a wave in which one or more\n"
-                "# cities get hit. Note that this is similar to\n"
-                "# 'slow_after_wrong', but allows for more gradual\n"
-                "# changes. Default 0 (no extra handicap).\n\n");
+        fprintf(fp, "\n# (Feedback) Set the handicap for hitting cities.\n"
+                    "# When bigger than 0, this causes the game to slow down\n"
+                    "# by an extra amount after a wave in which one or more\n"
+                    "# cities get hit. Note that this is similar to\n"
+                    "# 'slow_after_wrong', but allows for more gradual\n"
+                    "# changes. Default 0 (no extra handicap).\n\n");
     }
     fprintf(fp, "city_explode_handicap = %.2f\n", Opts_CityExplHandicap());
 
-    if(verbose)
+    if (verbose)
     {
         fprintf(
             fp,
@@ -1976,41 +2088,44 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     fprintf(fp, "per_user_config = %d\n", Opts_GetGlobalOpt(PER_USER_CONFIG));
     fprintf(fp, "# homedir = /servervolume/tuxmath_users\n");
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n\n############################################################\n"
-                "#                                                          #\n"
-                "#                       Frame rate                         #\n"
-                "#                                                          #\n"
-                "# Parameter: fps_limit (integer)                           #\n"
-                "# Default: 60                                              #\n"
-                "#                                                          #\n"
-                "# 'fps_limit' is the max allowed frame count per second,   #\n"
-                "# 0 means no limit.                                        #\n"
-                "#                                                          #\n"
-                "############################################################\n\n");
+        fprintf(
+            fp,
+            "\n\n############################################################\n"
+            "#                                                          #\n"
+            "#                       Frame rate                         #\n"
+            "#                                                          #\n"
+            "# Parameter: fps_limit (integer)                           #\n"
+            "# Default: 60                                              #\n"
+            "#                                                          #\n"
+            "# 'fps_limit' is the max allowed frame count per second,   #\n"
+            "# 0 means no limit.                                        #\n"
+            "#                                                          #\n"
+            "############################################################\n\n");
     }
     fprintf(fp, "fps_limit = %d\n", Opts_FPSLimit());
 
-    if(verbose)
+    if (verbose)
     {
-        fprintf (fp, "\n\n############################################################\n"
-                "#                                                          #\n"
-                "#                   Resolution                             #\n"
-                "#                                                          #\n"
-                "# Parameter: window_width (integer)                        #\n"
-                "# Default: 640                                             #\n"
-                "# Parameter: window_height (integer)                       #\n"
-                "# Default: 480                                             #\n"
-                "#                                                          #\n"
-                "# Set window resolution for windowed mode. Or the screen   #\n"
-                "# resolution in fullscreen mode                            #\n"
-                "#                                                          #\n"
-                "############################################################\n\n");
+        fprintf(
+            fp,
+            "\n\n############################################################\n"
+            "#                                                          #\n"
+            "#                   Resolution                             #\n"
+            "#                                                          #\n"
+            "# Parameter: window_width (integer)                        #\n"
+            "# Default: 640                                             #\n"
+            "# Parameter: window_height (integer)                       #\n"
+            "# Default: 480                                             #\n"
+            "#                                                          #\n"
+            "# Set window resolution for windowed mode. Or the screen   #\n"
+            "# resolution in fullscreen mode                            #\n"
+            "#                                                          #\n"
+            "############################################################\n\n");
     }
     fprintf(fp, "window_width = %d\n", Opts_WindowWidth());
     fprintf(fp, "window_height = %d\n", Opts_WindowHeight());
-
 
     /* print general game options (passing '1' as second arg causes */
     /* "help" info for each option to be written to file as comments) */
@@ -2023,7 +2138,6 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
     return 1;
 }
 
-
 /* write_pregame_summary() and write_postgame_summary() are used to */
 /* record data about the player's game to file for review (perhaps by */
 /* teacher). write_pregame_summary() is called at the start of each  */
@@ -2034,24 +2148,24 @@ int write_config_file(MC_MathGame* game, FILE* fp, int verbose)
 /* calculates the percent correct.                                    */
 int write_pregame_summary(MC_MathGame* game)
 {
-    int i;
+    int   i;
     FILE* fp;
-    char filepath1[PATH_MAX];
-    char filepath2[PATH_MAX];
+    char  filepath1[PATH_MAX];
+    char  filepath2[PATH_MAX];
 
-    if(!game)
+    if (!game)
+    {
         return 0;
+    }
 
-    DEBUGMSG(debug_fileops,"Entering write_pregame_summary.\n")
+    DEBUGMSG(debug_fileops, "Entering write_pregame_summary.\n")
 
-        /* Make sure tuxmath dir exists or can be created: */
-        if (!find_tuxmath_dir())
-        {
-            fprintf(stderr, "\nCould not find or create tuxmath dir\n");
-            return 0;
-        }
-
-
+    /* Make sure tuxmath dir exists or can be created: */
+    if (!find_tuxmath_dir())
+    {
+        fprintf(stderr, "\nCould not find or create tuxmath dir\n");
+        return 0;
+    }
 
     /* Rotate filenames of old summaries, oldest summary if present */
     /* and leaving summary1 available for current game:             */
@@ -2063,9 +2177,11 @@ int write_pregame_summary(MC_MathGame* game)
     fp = fopen(filepath1, "r");
     if (fp)
     {
-        DEBUGMSG(debug_fileops,"\nIn write_pregame_summary() - removing oldest summary file\n")
+        DEBUGMSG(
+            debug_fileops,
+            "\nIn write_pregame_summary() - removing oldest summary file\n")
 
-            fclose(fp);
+        fclose(fp);
         remove(filepath1);
     }
 
@@ -2076,7 +2192,7 @@ int write_pregame_summary(MC_MathGame* game)
     {
         /* old filename: */
         get_user_data_dir_with_subdir(filepath1);
-        strcpy(filepath2,filepath1);
+        strcpy(filepath2, filepath1);
         strcat(filepath1, summary_filenames[i - 1]);
         /* new filename: */
         strcat(filepath2, summary_filenames[i]);
@@ -2093,14 +2209,16 @@ int write_pregame_summary(MC_MathGame* game)
     {
         /* Write header and identifying data for summary file:       */
         fprintf(fp, "************************\n"
-                "* Tuxmath Game Summary *\n"
-                "************************\n");
+                    "* Tuxmath Game Summary *\n"
+                    "************************\n");
         if (add_subdir)
         {
-            /* Identify user by login if we're not in a multiuser configuration */
+            /* Identify user by login if we're not in a multiuser configuration
+             */
             fprintf(fp, "\nPlayer: %s\n", getenv("USER"));
         }
-        else {
+        else
+        {
             /* Identify user by the directory name.*/
             fprintf(fp, "\nPlayer: %s\n", get_user_name());
         }
@@ -2113,33 +2231,34 @@ int write_pregame_summary(MC_MathGame* game)
         fprintf(fp, "\n\nNumber of Questions: %d", MC_StartingListLength(game));
 
         fclose(fp);
-        DEBUGMSG(debug_fileops,"Leaving write_pregame_summary.\n")
-            return 1;
+        DEBUGMSG(debug_fileops, "Leaving write_pregame_summary.\n")
+        return 1;
     }
     else /* Couldn't write file for some reason: */
     {
-        DEBUGMSG(debug_fileops,"Can't write_pregame_summary.\n")
-            return 0;
+        DEBUGMSG(debug_fileops, "Can't write_pregame_summary.\n")
+        return 0;
     }
 }
 
 int write_postgame_summary(MC_MathGame* game)
 {
-    FILE* fp;
-    char filepath1[PATH_MAX];
-    int total_answered;
-    float median_time;
-    int success = 1;
-    int write_column_names = 0;
-    time_t filetime;
+    FILE*       fp;
+    char        filepath1[PATH_MAX];
+    int         total_answered;
+    float       median_time;
+    int         success            = 1;
+    int         write_column_names = 0;
+    time_t      filetime;
     struct stat filestat;
-    struct tm datetime;
-    char* mission_name;
+    struct tm   datetime;
+    char*       mission_name;
 
     get_user_data_dir_with_subdir(filepath1);
     strcat(filepath1, summary_filenames[0]);
 
-    total_answered = MC_NumAnsweredCorrectly(game) + MC_NumNotAnsweredCorrectly(game);
+    total_answered =
+        MC_NumAnsweredCorrectly(game) + MC_NumNotAnsweredCorrectly(game);
     median_time = MC_MedianTimePerQuestion(game);
 
     fp = fopen(filepath1, "a"); /* "a" means append to end of file */
@@ -2148,15 +2267,15 @@ int write_postgame_summary(MC_MathGame* game)
         /* Write list of questions missed: */
         fprintf(fp, "\n\n\nList Of Questions Not Answered Correctly:");
         MC_PrintWrongList(game, fp);
-        fprintf(fp, "\n\nNumber Of Distinct Questions Not Answered Correctly: %d",
+        fprintf(fp,
+                "\n\nNumber Of Distinct Questions Not Answered Correctly: %d",
                 MC_WrongListLength(game));
 
         /* Write post-game statistics:     */
 
         fprintf(fp, "\n\nSummary:\n");
         fprintf(fp, "Questions Answered:\t%d\n", total_answered);
-        fprintf(fp, "Questions Correct:\t%d\n",
-                MC_NumAnsweredCorrectly(game));
+        fprintf(fp, "Questions Correct:\t%d\n", MC_NumAnsweredCorrectly(game));
         fprintf(fp, "Questions Missed:\t%d\n",
                 MC_NumNotAnsweredCorrectly(game));
         /* Avoid divide-by-zero errror: */
@@ -2166,9 +2285,11 @@ int write_postgame_summary(MC_MathGame* game)
                     ((MC_NumAnsweredCorrectly(game) * 100) / total_answered));
         }
         else
+        {
             fprintf(fp, "Percent Correct: (not applicable)\n");
+        }
 
-        fprintf(fp,"Median Time/Question:\t%g\n",median_time);
+        fprintf(fp, "Median Time/Question:\t%g\n", median_time);
 
         fprintf(fp, "Mission Accomplished:\t");
         if (MC_MissionAccomplished(game))
@@ -2184,12 +2305,13 @@ int write_postgame_summary(MC_MathGame* game)
     }
     else /* Couldn't write file for some reason: */
     {
-        fprintf(stderr,"Summary not written.\n");
+        fprintf(stderr, "Summary not written.\n");
         success = 0;
     }
 
     /* Append brief summary to log */
-    if (total_answered > 0) {
+    if (total_answered > 0)
+    {
         /* We're going to want to write the date.  Use the filetime  */
         /* rather than calling "time" directly, because "time"       */
         /* returns the time according to whatever computer is        */
@@ -2198,12 +2320,15 @@ int write_postgame_summary(MC_MathGame* game)
         /* instead the time according to the server on which the     */
         /* accounts are stored, which can be extracted from the      */
         /* modification time of the summary we just wrote.           */
-        if (stat(filepath1,&filestat) == 0) {
+        if (stat(filepath1, &filestat) == 0)
+        {
             filetime = filestat.st_mtime;
-        } else {
+        }
+        else
+        {
             filetime = time(NULL);
         }
-        localtime_r(&filetime,&datetime); /* generate broken-down time */
+        localtime_r(&filetime, &datetime); /* generate broken-down time */
 
         get_user_data_dir_with_subdir(filepath1);
         strcat(filepath1, "log.csv");
@@ -2211,30 +2336,49 @@ int write_postgame_summary(MC_MathGame* game)
         /* the column names */
         fp = fopen(filepath1, "r");
         if (fp == NULL)
+        {
             write_column_names = 1;
+        }
         else
+        {
             fclose(fp);
+        }
 
         fp = fopen(filepath1, "a"); /* "a" means append to end of file */
-        if (fp) {
-            if (write_column_names) {
-                fprintf(fp,"\"User\",\"Mission\",\"Date\",\"Completed?\",\"Number answered\",\"Percent correct\",\"Time per question\"\n");
+        if (fp)
+        {
+            if (write_column_names)
+            {
+                fprintf(
+                    fp,
+                    "\"User\",\"Mission\",\"Date\",\"Completed?\",\"Number "
+                    "answered\",\"Percent correct\",\"Time per question\"\n");
             }
             if (last_config_file_name)
+            {
                 mission_name = strdup(last_config_file_name);
+            }
             else
+            {
                 mission_name = strdup("[NONE]");
-            fprintf(fp,"\"%s\",\"%s\",%d/%d/%d,%d,%d,%d,%g\n", get_user_name(), get_file_name(mission_name), datetime.tm_year+1900, datetime.tm_mon+1, datetime.tm_mday, MC_MissionAccomplished(game), total_answered, ((MC_NumAnsweredCorrectly(game) * 100)/ total_answered), median_time);
+            }
+            fprintf(fp, "\"%s\",\"%s\",%d/%d/%d,%d,%d,%d,%g\n", get_user_name(),
+                    get_file_name(mission_name), datetime.tm_year + 1900,
+                    datetime.tm_mon + 1, datetime.tm_mday,
+                    MC_MissionAccomplished(game), total_answered,
+                    ((MC_NumAnsweredCorrectly(game) * 100) / total_answered),
+                    median_time);
             fclose(fp);
             free(mission_name);
-        } else
+        }
+        else
+        {
             success = 0;
+        }
     }
 
     return success;
 }
-
-
 
 /* Checks to see if user's .tuxmath directory exists and, if not, tries  */
 /* to create it. Returns 1 if .tuxmath dir found or successfully created */
@@ -2245,7 +2389,8 @@ static int find_tuxmath_dir(void)
     /* find $HOME */
     get_user_data_dir_with_subdir(opt_path);
 
-    DEBUGMSG(debug_fileops, "In find_tuxmath_dir() tuxmath dir is: = %s\n", opt_path);
+    DEBUGMSG(debug_fileops, "In find_tuxmath_dir() tuxmath dir is: = %s\n",
+             opt_path);
 
     SDL_PathInfo info;
     if (SDL_GetPathInfo(opt_path, &info) && info.type == SDL_PATHTYPE_DIRECTORY)
@@ -2256,29 +2401,37 @@ static int find_tuxmath_dir(void)
     else /* need to create tuxmath config directory: */
     {
         FILE* fp;
-        int status;
+        int   status;
 
         if (!add_subdir)
-            return 0;      // fail if the user specified a directory, but it doesn't exist
+        {
+            return 0; // fail if the user specified a directory, but it doesn't
+                      // exist
+        }
 
-        /* if user's home has a _file_ named .tuxmath (as from previous version */
-        /* of program), need to get rid of it or directory creation will fail:  */
+        /* if user's home has a _file_ named .tuxmath (as from previous version
+         */
+        /* of program), need to get rid of it or directory creation will fail:
+         */
         fp = fopen(opt_path, "r");
         if (fp)
         {
-            DEBUGMSG(debug_fileops, "In find_tuxmath_dir() - removing old .tuxmath file\n");
+            DEBUGMSG(debug_fileops,
+                     "In find_tuxmath_dir() - removing old .tuxmath file\n");
 
             fclose(fp);
             remove(opt_path);
         }
 
-        DEBUGMSG(debug_fileops, "In find_tuxmath_dir() - trying to create .tuxmath dir\n");
+        DEBUGMSG(debug_fileops,
+                 "In find_tuxmath_dir() - trying to create .tuxmath dir\n");
 
-        //status = mkdir(opt_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        // status = mkdir(opt_path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
         status = SDL_CreateDirectory(opt_path) ? 0 : -1;
 
-        DEBUGMSG(debug_fileops, "In find_tuxmath_dir() - mkdir returned: %d\n", status);
+        DEBUGMSG(debug_fileops, "In find_tuxmath_dir() - mkdir returned: %d\n",
+                 status);
 
         /* mkdir () returns 0 if successful */
         if (0 == status)
@@ -2294,8 +2447,6 @@ static int find_tuxmath_dir(void)
     }
 }
 
-
-
 /* A utility function to read lines from a textfile.  Upon exit, it */
 /* returns the # of lines successfully read, and sets the pointer   */
 /* array so that (*lines)[i] is a pointer to the text on the ith    */
@@ -2303,65 +2454,79 @@ static int find_tuxmath_dir(void)
 /* and skips blank lines.                                           */
 /* On entry, *lines must be NULL, as a sign that any previously     */
 /* allocated memory has been freed.                                 */
-static int read_lines_from_file(FILE *fp,char ***lines)
+static int read_lines_from_file(FILE* fp, char*** lines)
 {
-    char *fgets_return_val;
-    char name_buf[NAME_BUF_SIZE];
-    int n_entries;
-    int length;
+    char* fgets_return_val;
+    char  name_buf[NAME_BUF_SIZE];
+    int   n_entries;
+    int   length;
 
     n_entries = 0;
-    if(*lines != NULL) {
+    if (*lines != NULL)
+    {
         fprintf(stderr, "Error: lines buffer was not NULL upon entry");
         exit(EXIT_FAILURE);
     }
 
-    fgets_return_val = fgets(name_buf,NAME_BUF_SIZE,fp);
-    while (fgets_return_val != NULL) {
+    fgets_return_val = fgets(name_buf, NAME_BUF_SIZE, fp);
+    while (fgets_return_val != NULL)
+    {
         // Strip terminal whitespace and \r
         length = strlen(name_buf);
-        while (length>0 && (name_buf[length - 1] == '\r' || name_buf[length - 1] == '\n'|| name_buf[length-1] == ' ' || name_buf[length-1] == '\t')) {
+        while (length > 0 &&
+               (name_buf[length - 1] == '\r' || name_buf[length - 1] == '\n' ||
+                name_buf[length - 1] == ' ' || name_buf[length - 1] == '\t'))
+        {
             name_buf[length - 1] = '\0';
             length--;
         }
-        if (length == 0) {
+        if (length == 0)
+        {
             // If we get to a blank line, skip over it
-            fgets_return_val = fgets(name_buf,NAME_BUF_SIZE,fp);
+            fgets_return_val = fgets(name_buf, NAME_BUF_SIZE, fp);
             continue;
         }
         n_entries++;
-        *lines = (char**) realloc(*lines,n_entries*sizeof(char*));
-        if (*lines == NULL) {
+        *lines = (char**)realloc(*lines, n_entries * sizeof(char*));
+        if (*lines == NULL)
+        {
             // Memory allocation error
-            fprintf(stderr, "Error #1 allocating memory in read_lines_from_file\n");
+            fprintf(stderr,
+                    "Error #1 allocating memory in read_lines_from_file\n");
             exit(EXIT_FAILURE);
         }
         // Copy the cleaned-up line to the list
-        (*lines)[n_entries-1] = strdup(name_buf);
-        if ((*lines)[n_entries-1] == NULL) {
+        (*lines)[n_entries - 1] = strdup(name_buf);
+        if ((*lines)[n_entries - 1] == NULL)
+        {
             // Memory allocation error
-            fprintf(stderr, "Error #2 allocating memory in read_lines_from_file\n");
+            fprintf(stderr,
+                    "Error #2 allocating memory in read_lines_from_file\n");
             exit(EXIT_FAILURE);
         }
         // Read the next line
-        fgets_return_val = fgets(name_buf,NAME_BUF_SIZE,fp);
+        fgets_return_val = fgets(name_buf, NAME_BUF_SIZE, fp);
     }
     return n_entries;
 }
 
 /* A utility function to go up one level in a directory hierarchy */
-static void dirname_up(char *dirname)
+static void dirname_up(char* dirname)
 {
     int len;
 
     len = strlen(dirname);
     // Pass over all trailing "/"
-    while (len > 0 && dirname[len-1] == '/')
+    while (len > 0 && dirname[len - 1] == '/')
+    {
         len--;
+    }
 
     // Now pass over all non-"/" characters at the end
-    while (len > 0 && dirname[len-1] != '/')
+    while (len > 0 && dirname[len - 1] != '/')
+    {
         len--;
+    }
 
     // Terminate the string after that next-to-last "/"
     dirname[len] = '\0';
@@ -2379,23 +2544,25 @@ static char* get_user_name(void)
 }
 
 /* Extract the last "field" in a full pathname */
-static char* get_file_name(char *fullpath)
+static char* get_file_name(char* fullpath)
 {
-    char *file_name;
+    char* file_name;
 
-    file_name = &fullpath[strlen(fullpath)-1];
+    file_name = &fullpath[strlen(fullpath) - 1];
     /* Chop off trailing "/" */
-    while (file_name > &fullpath[0] && *file_name == '/') {
+    while (file_name > &fullpath[0] && *file_name == '/')
+    {
         *file_name = '\0';
         file_name--;
     }
     /* Back up to the next "/" */
     while (file_name > &fullpath[0] && *file_name != '/')
+    {
         file_name--;
+    }
 
     return ++file_name;
 }
-
 
 /* Allows use of "true", "YES", T, etc. in text file for boolean values. */
 /* Return value of -1 means value string is not recognized.              */
@@ -2405,22 +2572,16 @@ static int str_to_bool(const char* val)
     char* ptr;
 
     /* Check for recognized boolean strings: */
-    if ((0 == strcasecmp(val, "true"))
-            ||(0 == strcasecmp(val, "t"))
-            ||(0 == strcasecmp(val, "yes"))
-            ||(0 == strcasecmp(val, "y"))
-            ||(0 == strcasecmp(val, "1"))
-            ||(0 == strcasecmp(val, "on")))
+    if ((0 == strcasecmp(val, "true")) || (0 == strcasecmp(val, "t")) ||
+        (0 == strcasecmp(val, "yes")) || (0 == strcasecmp(val, "y")) ||
+        (0 == strcasecmp(val, "1")) || (0 == strcasecmp(val, "on")))
     {
         return 1;
     }
 
-    if ((0 == strcasecmp(val, "false"))
-            ||(0 == strcasecmp(val, "f"))
-            ||(0 == strcasecmp(val, "no"))
-            ||(0 == strcasecmp(val, "n"))
-            ||(0 == strcasecmp(val, "0"))
-            ||(0 == strcasecmp(val, "off")))
+    if ((0 == strcasecmp(val, "false")) || (0 == strcasecmp(val, "f")) ||
+        (0 == strcasecmp(val, "no")) || (0 == strcasecmp(val, "n")) ||
+        (0 == strcasecmp(val, "0")) || (0 == strcasecmp(val, "off")))
     {
         return 0;
     }
@@ -2432,21 +2593,20 @@ static int str_to_bool(const char* val)
     while (*ptr)
     {
         if (!isdigit(*ptr))
+        {
             return -1;
+        }
         ptr++;
     }
 
     /* If we get to here, val should be an integer. */
 
     if (atoi(val))
+    {
         return 1;
+    }
     else
+    {
         return 0;
+    }
 }
-
-
-
-
-
-
-

@@ -22,24 +22,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-
-#ifndef FILEOPS_H
-#define FILEOPS_H
-
+#pragma once
 #include "globals.h"
 #include "mathcards.h"
 
 /* Flag basically telling whether or not to allow admin-level */
 /* settings to be changed: */
-enum {
+enum
+{
     USER_CONFIG_FILE,
     GLOBAL_CONFIG_FILE
 };
 
 /* Names for images (formerly in images.h) */
-enum {
+enum
+{
     IMG_TITLE,
     IMG_LEFT,
     IMG_LEFT_GRAY,
@@ -178,7 +175,8 @@ enum {
 };
 
 /* Names for animated images (sprites) */
-enum {
+enum
+{
     IMG_COMET,
     IMG_BONUS_COMET,
     IMG_COMET_EXPL,
@@ -191,7 +189,8 @@ enum {
 };
 
 /* Names for game sounds (formerly in sounds.h): */
-enum {
+enum
+{
     SND_HARP,
     SND_POP,
     SND_TOCK,
@@ -208,7 +207,8 @@ enum {
 };
 
 /* Names for background music (also formerly in sounds.h): */
-enum {
+enum
+{
     MUS_GAME1,
     MUS_GAME2,
     MUS_GAME3,
@@ -219,7 +219,8 @@ enum {
 };
 
 /* Names for game summary files: */
-enum {
+enum
+{
     SUMMARY1,
     SUMMARY2,
     SUMMARY3,
@@ -234,24 +235,24 @@ enum {
 };
 
 /* These functions used by setup() and titlescreen() to read in settings: */
-int read_global_config_file(MC_MathGame* game);
-int read_user_config_file(MC_MathGame* game);
-int parse_lesson_file_directory(void);
-int read_named_config_file(MC_MathGame* game, const char* fn);
-int write_user_config_file(MC_MathGame* game);
-int read_high_scores(void);
-int append_high_score(int tableid, int score, char *player_name);
+int  read_global_config_file(MC_MathGame* game);
+int  read_user_config_file(MC_MathGame* game);
+int  parse_lesson_file_directory(void);
+int  read_named_config_file(MC_MathGame* game, const char* fn);
+int  write_user_config_file(MC_MathGame* game);
+int  read_high_scores(void);
+int  append_high_score(int tableid, int score, char* player_name);
 void set_high_score_path(void);
 void set_user_data_dir(const char* dirname);
-int write_goldstars(void);
+int  write_goldstars(void);
 
 /* These functions are used by titlescreen() to assist with the login */
-int read_user_menu_entries(char ***user_names);
-int read_user_login_questions(char ***user_login_questions);
-int high_scores_found_in_user_dir(void);
+int  read_user_menu_entries(char*** user_names);
+int  read_user_login_questions(char*** user_login_questions);
+int  high_scores_found_in_user_dir(void);
 void set_high_score_path(void);
 void user_data_dirname_up(void);
-void user_data_dirname_down(char *subdir);
+void user_data_dirname_down(char* subdir);
 
 /* These functions used by game() to record game summary: */
 int write_pregame_summary(MC_MathGame* game);
@@ -259,9 +260,6 @@ int write_postgame_summary(MC_MathGame* game);
 
 int load_image_data();
 
-
 #ifndef NOSOUND
 int load_sound_data();
-#endif
-
 #endif

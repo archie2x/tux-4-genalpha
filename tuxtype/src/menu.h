@@ -29,22 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef MENU_H
-#define MENU_H
-
-//#include "globals.h"
+#pragma once
+// #include "globals.h"
 
 #include <SDL3/SDL.h>
 /* titlescreen & menu frame rate */
-#define MAX_FPS                    30
+#define MAX_FPS 30
 /* number of "real" frames per one sprite frame */
-#define SPRITE_FRAME_DELAY         6
-
-
-
+#define SPRITE_FRAME_DELAY 6
 
 /* these are all menu choices that are available in tuxmath.
    By using a define we can create both an enum and
@@ -60,24 +52,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* create enum */
 #define X(name) name
-enum { ACTIVITIES };
+enum
+{
+    ACTIVITIES
+};
 #undef X
 
 /* we may use a few separate menu trees */
-typedef enum {
+typedef enum
+{
     MENU_MAIN,
     N_OF_MENUS
 } MenuType;
 
 /* used also by highscore.c */
-extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
-extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
-
+extern SDL_Rect     menu_rect, stop_rect, prev_rect, next_rect;
+extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray,
+    *next_gray;
 
 /* global functions */
 void LoadMenus(void);
-int RunLoginMenu(void);
+int  RunLoginMenu(void);
 void RunMainMenu(void);
-
-#endif // MENU_H
-

@@ -32,18 +32,16 @@ extern Mix_Music* sounds[];
 
 static Mix_Music* defaultMusic = NULL; // holds music for audioMusicLoad/unload
 
-
-
 // play sound once
 void PlaySound(Mix_Chunk* snd)
 {
-  PlaySoundLoop(snd, 0);
+    PlaySoundLoop(snd, 0);
 }
 
 void playsound(int snd)
 {
 #ifndef NOSOUND
-	T4K_PlaySound(sounds[snd]);
+    T4K_PlaySound(sounds[snd]);
 #endif
 }
 

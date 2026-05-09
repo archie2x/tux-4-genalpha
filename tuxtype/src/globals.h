@@ -25,14 +25,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//TTS Parameters
+// TTS Parameters
 #define DEFAULT_VALUE 30
 #define INTERRUPT 0
 #define APPEND 1
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
-
+#pragma once
 // Autoheader-derived defs in here:
 
 // C library includes:
@@ -56,95 +54,95 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <t4k/gettext.h>
 #include <locale.h>
 #if ENABLE_NLS
-#include <iconv.h>
-#include <libintl.h>
+# include <iconv.h>
+# include <libintl.h>
 #endif
-#define _(String) gettext (String)
+#define _(String) gettext(String)
 #define gettext_noop(String) String
-#define N_(String) gettext_noop (String)
-
+#define N_(String) gettext_noop(String)
 
 /* FIXME don't think this is needed (done elsewhere) */
 #ifdef WIN32
-#undef DATA_PREFIX
-#define DATA_PREFIX "./data"
+# undef DATA_PREFIX
+# define DATA_PREFIX "./data"
 #endif
 
 #ifdef WIN32
-#define TUXLOCALE "./locale"
+# define TUXLOCALE "./locale"
 #else
-#define TUXLOCALE LOCALEDIR
+# define TUXLOCALE LOCALEDIR
 #endif
 
 // FIXME if we really need these, make them into functions rather than
 // "evil" macros
-#define to_upper(c) (((c) >= 'a' && (c) <= 'z') ? (c) -32 : (c))
+#define to_upper(c) (((c) >= 'a' && (c) <= 'z') ? (c) - 32 : (c))
 #define COL2RGB(col)                                                           \
     SDL_MapRGB(SDL_GetPixelFormatDetails(screen->format), NULL, col->r,        \
                col->g, col->b)
-#define MIN(x,y) ((x) < (y) ? (x) : (y))
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-//TTS Thread
-extern SDL_Thread *tts_thread;
+// TTS Thread
+extern SDL_Thread* tts_thread;
 
-//TTS Word announcer Thread
-extern SDL_Thread *tts_announcer_thread;
+// TTS Word announcer Thread
+extern SDL_Thread* tts_announcer_thread;
 
-#define FNLEN	256
-
+#define FNLEN 256
 
 /* (renamed from 'settings' to match tuxmath) */
-typedef struct game_option_type{
-  char default_data_path[FNLEN];  // for static read-only data
-  char theme_data_path[FNLEN];    // read-only data for current theme
-  char var_data_path[FNLEN];      // for modifiable shared data (custom word lists, etc.)
-  char user_settings_path[FNLEN];  // per-user settings (under /home)
-  char global_settings_path[FNLEN]; // settings for all users (under /etc)
-  char theme_name[FNLEN];
-  char lang[FNLEN];
-  char theme_font_name[FNLEN];
-  char theme_locale_name[FNLEN];
-  int use_english;
-  int fullscreen;
-  int sys_sound;
-  int braille;
-  int tts;
-  int tts_volume;
-  int sfx_volume;
-  int mus_volume;
-  int menu_music;
-  int menu_sound;
-  int speed_up;
-  int show_tux4kids;
-  int debug_on;
-  int o_lives;
-  int sound_vol;
-  int  show_keyboard;
-  int hidden; // Read the README file in the image directory for info on this ;)
+typedef struct game_option_type
+{
+    char default_data_path[FNLEN]; // for static read-only data
+    char theme_data_path[FNLEN];   // read-only data for current theme
+    char var_data_path[FNLEN]; // for modifiable shared data (custom word lists,
+                               // etc.)
+    char user_settings_path[FNLEN];   // per-user settings (under /home)
+    char global_settings_path[FNLEN]; // settings for all users (under /etc)
+    char theme_name[FNLEN];
+    char lang[FNLEN];
+    char theme_font_name[FNLEN];
+    char theme_locale_name[FNLEN];
+    int  use_english;
+    int  fullscreen;
+    int  sys_sound;
+    int  braille;
+    int  tts;
+    int  tts_volume;
+    int  sfx_volume;
+    int  mus_volume;
+    int  menu_music;
+    int  menu_sound;
+    int  speed_up;
+    int  show_tux4kids;
+    int  debug_on;
+    int  o_lives;
+    int  sound_vol;
+    int  show_keyboard;
+    int  hidden; // Read the README file in the image directory for info on this
+                 // ;)
 } game_option_type;
 
-//Declared in t4k_global.h
+// Declared in t4k_global.h
 extern int text_to_speech_status;
 
 struct braille_dict
 {
-	wchar_t key[100];
-	wchar_t value_begin[100];
-	wchar_t value_middle[100];
-	wchar_t value_end[100];
+    wchar_t key[100];
+    wchar_t value_begin[100];
+    wchar_t value_middle[100];
+    wchar_t value_end[100];
 };
 
 extern struct braille_dict braille_key_value_map[100];
 
-
 /* Default values for game_option_type struct */
 /* They can be changed in the struct to other values at run-time */
-#define DEFAULT_FONT_NAME       "AndikaDesRevG.ttf"
+#define DEFAULT_FONT_NAME "AndikaDesRevG.ttf"
 #define DEFAULT_GAME_FONT "AndikaDesRevG.ttf"
-#define DEFAULT_MENU_FONT_SIZE	20
-#define GAME_FONT_SIZE	20
-#define DEFAULT_LOCALE	        "en_US.UTF-8"
+#define DEFAULT_MENU_FONT_SIZE 20
+#define GAME_FONT_SIZE 20
+#define DEFAULT_LOCALE "en_US.UTF-8"
 #define DEFAULT_USE_ENGLISH 1
 #define DEFAULT_FULLSCREEN 0
 #define DEFAULT_BRAILLE 0
@@ -163,12 +161,11 @@ extern struct braille_dict braille_key_value_map[100];
 #define DEFAULT_SHOW_KEYBOARD 1
 #define DEFAULT_HIDDEN 0
 
-
 /* Goal is to have all global settings here */
 /* FIXME get rid of as much global data as possible, esp. pointers */
 extern game_option_type settings;
-extern SDL_Surface* screen;
-extern SDL_Event  event;
+extern SDL_Surface*     screen;
+extern SDL_Event        event;
 /* The SDL3 window created in setup.c::GraphicsInit(). NULL until then. */
 extern SDL_Window* tt_window;
 
@@ -192,51 +189,50 @@ extern int fs_res_y;
  *   all over the place!
  */
 
-#define LOG( str ) if (settings.debug_on) fprintf( stderr, str );
+#define LOG(str)                                                               \
+    if (settings.debug_on)                                                     \
+        fprintf(stderr, str);
 #define DEBUGCODE if (settings.debug_on)
-#define DOUT(x) if (settings.debug_on) fprintf(stderr, "%s = %d\n", #x, x);
-
-
-
+#define DOUT(x)                                                                \
+    if (settings.debug_on)                                                     \
+        fprintf(stderr, "%s = %d\n", #x, x);
 
 /* Various preprocessor constants: ------------------------- */
 
+#define RES_X 640
+#define RES_Y 480
+#define BPP 32
 
-#define RES_X	640
-#define RES_Y	480
-#define BPP	32
-
-/* Limits on word list size, word length, and on the number of distinct characters */
+/* Limits on word list size, word length, and on the number of distinct
+ * characters */
 /* that can be present within a word list: */
-#define MAX_NUM_WORDS   500
-#define MAX_WORD_SIZE   30
-#define MAX_WORD_LISTS  100
-#define MAX_UNICODES    1024
+#define MAX_NUM_WORDS 500
+#define MAX_WORD_SIZE 30
+#define MAX_WORD_LISTS 100
+#define MAX_UNICODES 1024
 
-#define WAIT_MS		2500
-#define	FRAMES_PER_SEC	15
-#define FULL_CIRCLE	140
-
+#define WAIT_MS 2500
+#define FRAMES_PER_SEC 15
+#define FULL_CIRCLE 140
 
 /* Title sequence constants */
-#define PRE_ANIM_FRAMES	 10
-#define PRE_FRAME_MULT	 3
-#define MENU_SEP	 20
+#define PRE_ANIM_FRAMES 10
+#define PRE_FRAME_MULT 3
+#define MENU_SEP 20
 
-
-#define IMG_REGULAR  0x01
+#define IMG_REGULAR 0x01
 #define IMG_COLORKEY 0x02
-#define IMG_ALPHA    0x04
-#define IMG_MODES    0x07
+#define IMG_ALPHA 0x04
+#define IMG_MODES 0x07
 
 #define IMG_NOT_REQUIRED 0x10
-#define IMG_NO_THEME     0x20
+#define IMG_NO_THEME 0x20
 
 /* Values for menu button drawing: */
-#define REG_RGBA 16,16,96,96
-#define SEL_RGBA 16,16,128,128
+#define REG_RGBA 16, 16, 96, 96
+#define SEL_RGBA 16, 16, 128, 128
 
-#define MUSIC_FADE_OUT_MS	80
+#define MUSIC_FADE_OUT_MS 80
 
 /* Menu Prototypes */
 enum Game_Type
@@ -272,9 +268,16 @@ enum Game_Type
     NONE
 };
 
-//Game difficulty levels
-enum { EASY, MEDIUM, HARD, INSANE, INF_PRACT };
-#define NUM_LEVELS  4
+// Game difficulty levels
+enum
+{
+    EASY,
+    MEDIUM,
+    HARD,
+    INSANE,
+    INF_PRACT
+};
+#define NUM_LEVELS 4
 
 enum
 {
@@ -291,89 +294,82 @@ enum
 
 extern const int debug_titlescreen;
 
-
-
 /* Names for game sounds (formerly in sounds.h): */
-enum {
+enum
+{
     SND_HARP,
-	SND_POP,
-	SND_LASER,
-	SND_BUZZ,
-	SND_ALARM,
-	SND_SHIELDSDOWN,
-	SND_EXPLOSION,
-	SND_TOCK,
-	NUM_SOUNDS
+    SND_POP,
+    SND_LASER,
+    SND_BUZZ,
+    SND_ALARM,
+    SND_SHIELDSDOWN,
+    SND_EXPLOSION,
+    SND_TOCK,
+    NUM_SOUNDS
 };
 
-
-
-
-
-enum {
-  IMG_TUX_HELMET1,
-  IMG_TUX_HELMET2,
-  IMG_TUX_HELMET3,
-  IMG_CITY_BLUE,
-  IMG_CITY_BLUE_EXPL1,
-  IMG_CITY_BLUE_EXPL2,
-  IMG_CITY_BLUE_EXPL3,
-  IMG_CITY_BLUE_EXPL4,
-  IMG_CITY_BLUE_EXPL5,
-  IMG_CITY_BLUE_DEAD,
-  IMG_CITY_GREEN,
-  IMG_CITY_GREEN_EXPL1,
-  IMG_CITY_GREEN_EXPL2,
-  IMG_CITY_GREEN_EXPL3,
-  IMG_CITY_GREEN_EXPL4,
-  IMG_CITY_GREEN_EXPL5,
-  IMG_CITY_GREEN_DEAD,
-  IMG_CITY_ORANGE,
-  IMG_CITY_ORANGE_EXPL1,
-  IMG_CITY_ORANGE_EXPL2,
-  IMG_CITY_ORANGE_EXPL3,
-  IMG_CITY_ORANGE_EXPL4,
-  IMG_CITY_ORANGE_EXPL5,
-  IMG_CITY_ORANGE_DEAD,
-  IMG_CITY_RED,
-  IMG_CITY_RED_EXPL1,
-  IMG_CITY_RED_EXPL2,
-  IMG_CITY_RED_EXPL3,
-  IMG_CITY_RED_EXPL4,
-  IMG_CITY_RED_EXPL5,
-  IMG_CITY_RED_DEAD,
-  IMG_COMET1,
-  IMG_COMET2,
-  IMG_COMET3,
-  IMG_COMETEX1,
-  IMG_COMETEX2,
-  IMG_CONSOLE,
-  IMG_TUX_CONSOLE1,
-  IMG_TUX_CONSOLE2,
-  IMG_TUX_CONSOLE3,
-  IMG_TUX_CONSOLE4,
-  IMG_TUX_RELAX1,
-  IMG_TUX_RELAX2,
-  IMG_TUX_DRAT,
-  IMG_TUX_YIPE,
-  IMG_TUX_YAY1,
-  IMG_TUX_YAY2,
-  IMG_TUX_YES1,
-  IMG_TUX_YES2,
-  IMG_TUX_SIT,
-  IMG_TUX_FIST1,
-  IMG_TUX_FIST2,
-  IMG_WAVE,
-  IMG_SCORE,
-  IMG_NUMBERS,
-  IMG_GAMEOVER,
-  IMG_ARROWS,
-  NUM_IMAGES
+enum
+{
+    IMG_TUX_HELMET1,
+    IMG_TUX_HELMET2,
+    IMG_TUX_HELMET3,
+    IMG_CITY_BLUE,
+    IMG_CITY_BLUE_EXPL1,
+    IMG_CITY_BLUE_EXPL2,
+    IMG_CITY_BLUE_EXPL3,
+    IMG_CITY_BLUE_EXPL4,
+    IMG_CITY_BLUE_EXPL5,
+    IMG_CITY_BLUE_DEAD,
+    IMG_CITY_GREEN,
+    IMG_CITY_GREEN_EXPL1,
+    IMG_CITY_GREEN_EXPL2,
+    IMG_CITY_GREEN_EXPL3,
+    IMG_CITY_GREEN_EXPL4,
+    IMG_CITY_GREEN_EXPL5,
+    IMG_CITY_GREEN_DEAD,
+    IMG_CITY_ORANGE,
+    IMG_CITY_ORANGE_EXPL1,
+    IMG_CITY_ORANGE_EXPL2,
+    IMG_CITY_ORANGE_EXPL3,
+    IMG_CITY_ORANGE_EXPL4,
+    IMG_CITY_ORANGE_EXPL5,
+    IMG_CITY_ORANGE_DEAD,
+    IMG_CITY_RED,
+    IMG_CITY_RED_EXPL1,
+    IMG_CITY_RED_EXPL2,
+    IMG_CITY_RED_EXPL3,
+    IMG_CITY_RED_EXPL4,
+    IMG_CITY_RED_EXPL5,
+    IMG_CITY_RED_DEAD,
+    IMG_COMET1,
+    IMG_COMET2,
+    IMG_COMET3,
+    IMG_COMETEX1,
+    IMG_COMETEX2,
+    IMG_CONSOLE,
+    IMG_TUX_CONSOLE1,
+    IMG_TUX_CONSOLE2,
+    IMG_TUX_CONSOLE3,
+    IMG_TUX_CONSOLE4,
+    IMG_TUX_RELAX1,
+    IMG_TUX_RELAX2,
+    IMG_TUX_DRAT,
+    IMG_TUX_YIPE,
+    IMG_TUX_YAY1,
+    IMG_TUX_YAY2,
+    IMG_TUX_YES1,
+    IMG_TUX_YES2,
+    IMG_TUX_SIT,
+    IMG_TUX_FIST1,
+    IMG_TUX_FIST2,
+    IMG_WAVE,
+    IMG_SCORE,
+    IMG_NUMBERS,
+    IMG_GAMEOVER,
+    IMG_ARROWS,
+    NUM_IMAGES
 };
 
-
-extern int num_lessons;
-extern int* lesson_list_goldstars;
-extern char **lesson_list_titles;
-
-#endif /* GLOBALS_H */
+extern int    num_lessons;
+extern int*   lesson_list_goldstars;
+extern char** lesson_list_titles;

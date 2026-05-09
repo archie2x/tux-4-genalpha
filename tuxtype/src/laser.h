@@ -26,43 +26,43 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LASER_H
-#define LASER_H
-
+#pragma once
 #define MAX_COMETS 30
-#define NUM_CITIES 9   /* MUST BE AN EVEN NUMBER! */
+#define NUM_CITIES 9 /* MUST BE AN EVEN NUMBER! */
 
 #define NUM_BKGDS 5
 #define MAX_CITY_COLORS 4
 
-typedef struct comet_type {
-  int alive;
-  int expl;
-  int city;
-  int x, y;
-  int shootable;
-  struct comet_type* next;
-  wchar_t ch;
-  wchar_t* word;
-  int pos;
+typedef struct comet_type
+{
+    int                alive;
+    int                expl;
+    int                city;
+    int                x, y;
+    int                shootable;
+    struct comet_type* next;
+    wchar_t            ch;
+    wchar_t*           word;
+    int                pos;
 } comet_type;
 
-typedef struct city_type {
-  int alive, expl, shields;
-  int x;
+typedef struct city_type
+{
+    int alive, expl, shields;
+    int x;
 } city_type;
 
-typedef struct laser_type {
-  int alive;
-  int x1, y1;
-  int x2, y2;
+typedef struct laser_type
+{
+    int alive;
+    int x1, y1;
+    int x2, y2;
 } laser_type;
 
-enum {
-  MUS_GAME,
-  MUS_GAME2,
-  MUS_GAME3,
-  NUM_MUSICS
+enum
+{
+    MUS_GAME,
+    MUS_GAME2,
+    MUS_GAME3,
+    NUM_MUSICS
 };
-
-#endif

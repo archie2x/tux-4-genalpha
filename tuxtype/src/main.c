@@ -30,217 +30,240 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "mysetenv.h"
 
 SDL_Surface* screen;
-SDL_Event  event;
-
-
-
+SDL_Event    event;
 
 /********************
   main : init stuff
 *********************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  Uint32 lib_flags = 0;
-  int i;
+    Uint32 lib_flags = 0;
+    int    i;
 
-  srand(time(NULL));
+    srand(time(NULL));
 
-  //FIXME we should inspect return values and bail if these functions fail:
-  Opts_Initialize(); // First, initialize settings with hard-coded defaults
-  // This sets settings.default_data_path to the default theme file path:
-  if(!SetupPaths(NULL))
-  {
-      fprintf(stderr, "Error - SetupPaths() failed, exiting program.\n");
-      return 0;
-  }
-  LoadSettings();    // Second, read saved any saved settings
+    // FIXME we should inspect return values and bail if these functions fail:
+    Opts_Initialize(); // First, initialize settings with hard-coded defaults
+    // This sets settings.default_data_path to the default theme file path:
+    if (!SetupPaths(NULL))
+    {
+        fprintf(stderr, "Error - SetupPaths() failed, exiting program.\n");
+        return 0;
+    }
+    LoadSettings(); // Second, read saved any saved settings
 
-  // Third, check command line args as these should override saved settings
-  if (argc > 1) /* FIXME this could go into something like HandleCommandArgs() */
-  {
-      for (i = 1; i < argc; i++)
-      {
-          if ((strcmp(argv[i], "-h") == 0) ||
-              (strcmp(argv[i], "--help") == 0) ||
-              (strcmp(argv[i], "-help") == 0))
-          {
-              fprintf(stderr, "\nUsage:\n tuxtype [OPTION]...");
-              fprintf(stderr, "\n\nOptions:\n\n\t-h, --help, -help");
-              fprintf(stderr, "\n\t\tPrints this help message");
-              fprintf(stderr, "\n\n\t-f, --fullscreen");
-              fprintf(stderr, "\n\t\tSelects fullscreen display (default)");
-              fprintf(stderr, "\n\n\t-w, --window");
-              fprintf(stderr,
-                      "\n\t\tSelects windowed display (not fullscreen)");
-              fprintf(stderr, "\n\n\t-s, --sound");
-              fprintf(stderr, "\n\t\tAllow in-game sounds (default)");
-              fprintf(stderr, "\n\n\t-ns, --nosound");
-              fprintf(stderr, "\n\t\tDisables in-game sounds");
-              fprintf(stderr, "\n\n\t-a, --tts");
-              fprintf(stderr, "\n\t\tEnable in-game accessibility");
-              fprintf(stderr, "\n\n\t-na, --notts");
-              fprintf(stderr, "\n\t\tDisables in-game accessibility");
-              fprintf(stderr, "\n\n\t-b, --braille");
-              fprintf(stderr, "\n\t\tEnable Braille Mode");
-              fprintf(stderr, "\n\n\t-t {THEME}, --theme {THEME}");
-              fprintf(stderr, "\n\t\tUse theme named {THEME}, if it exists");
-              fprintf(stderr, "\n\n\t-sp, --speed");
-              fprintf(stderr, "\n\t\tSpeed up gameplay (for use on slower");
-              fprintf(stderr, "\n\t\tmachines)");
-              fprintf(stderr, "\n\n\t-d, --debug");
-              fprintf(stderr, "\n\t\tEnable debug mode (output)\n");
-              fprintf(stderr, "\n\n\t-v, --version");
-              fprintf(stderr, "\n\t\tDisplay version number and exit\n");
-              exit(0);
-          }
+    // Third, check command line args as these should override saved settings
+    if (argc >
+        1) /* FIXME this could go into something like HandleCommandArgs() */
+    {
+        for (i = 1; i < argc; i++)
+        {
+            if ((strcmp(argv[i], "-h") == 0) ||
+                (strcmp(argv[i], "--help") == 0) ||
+                (strcmp(argv[i], "-help") == 0))
+            {
+                fprintf(stderr, "\nUsage:\n tuxtype [OPTION]...");
+                fprintf(stderr, "\n\nOptions:\n\n\t-h, --help, -help");
+                fprintf(stderr, "\n\t\tPrints this help message");
+                fprintf(stderr, "\n\n\t-f, --fullscreen");
+                fprintf(stderr, "\n\t\tSelects fullscreen display (default)");
+                fprintf(stderr, "\n\n\t-w, --window");
+                fprintf(stderr,
+                        "\n\t\tSelects windowed display (not fullscreen)");
+                fprintf(stderr, "\n\n\t-s, --sound");
+                fprintf(stderr, "\n\t\tAllow in-game sounds (default)");
+                fprintf(stderr, "\n\n\t-ns, --nosound");
+                fprintf(stderr, "\n\t\tDisables in-game sounds");
+                fprintf(stderr, "\n\n\t-a, --tts");
+                fprintf(stderr, "\n\t\tEnable in-game accessibility");
+                fprintf(stderr, "\n\n\t-na, --notts");
+                fprintf(stderr, "\n\t\tDisables in-game accessibility");
+                fprintf(stderr, "\n\n\t-b, --braille");
+                fprintf(stderr, "\n\t\tEnable Braille Mode");
+                fprintf(stderr, "\n\n\t-t {THEME}, --theme {THEME}");
+                fprintf(stderr, "\n\t\tUse theme named {THEME}, if it exists");
+                fprintf(stderr, "\n\n\t-sp, --speed");
+                fprintf(stderr, "\n\t\tSpeed up gameplay (for use on slower");
+                fprintf(stderr, "\n\t\tmachines)");
+                fprintf(stderr, "\n\n\t-d, --debug");
+                fprintf(stderr, "\n\t\tEnable debug mode (output)\n");
+                fprintf(stderr, "\n\n\t-v, --version");
+                fprintf(stderr, "\n\t\tDisplay version number and exit\n");
+                exit(0);
+            }
 
-          if ((strcmp(argv[i], "-v") == 0) ||
-              (strcmp(argv[i], "--version") == 0))
-          {
-              fprintf(stderr, "\n%s, Version %s\n", PACKAGE, VERSION);
-              fprintf(stderr, "Copyright 2000-2010 Sam Hart, Jesse Andrews, "
-                              "David Bruce, and the Tux4Kids team.\n");
-              fprintf(stderr,
-                      "Tux4Kids website: http://tux4kids.alioth.debian.org\n");
-              fprintf(stderr, "This software is licensed under the GNU General "
-                              "Public License, Version 3 or later, and "
-                              "compatible media licenses.\n");
-              fprintf(stderr, "See COPYING file for licensing details.\n\n");
-              exit(0);
-          }
+            if ((strcmp(argv[i], "-v") == 0) ||
+                (strcmp(argv[i], "--version") == 0))
+            {
+                fprintf(stderr, "\n%s, Version %s\n", PACKAGE, VERSION);
+                fprintf(stderr, "Copyright 2000-2010 Sam Hart, Jesse Andrews, "
+                                "David Bruce, and the Tux4Kids team.\n");
+                fprintf(
+                    stderr,
+                    "Tux4Kids website: http://tux4kids.alioth.debian.org\n");
+                fprintf(stderr,
+                        "This software is licensed under the GNU General "
+                        "Public License, Version 3 or later, and "
+                        "compatible media licenses.\n");
+                fprintf(stderr, "See COPYING file for licensing details.\n\n");
+                exit(0);
+            }
 
-          if ((strcmp(argv[i], "-f") == 0) ||
-              (strcmp(argv[i], "--fullscreen") == 0))
-              settings.fullscreen = 1;
+            if ((strcmp(argv[i], "-f") == 0) ||
+                (strcmp(argv[i], "--fullscreen") == 0))
+            {
+                settings.fullscreen = 1;
+            }
 
-          if ((strcmp(argv[i], "-w") == 0) ||
-              (strcmp(argv[i], "--window") == 0))
-              settings.fullscreen = 0;
+            if ((strcmp(argv[i], "-w") == 0) ||
+                (strcmp(argv[i], "--window") == 0))
+            {
+                settings.fullscreen = 0;
+            }
 
-          if ((strcmp(argv[i], "-sp") == 0) ||
-              (strcmp(argv[i], "--speed") == 0))
-              settings.speed_up = 1;
+            if ((strcmp(argv[i], "-sp") == 0) ||
+                (strcmp(argv[i], "--speed") == 0))
+            {
+                settings.speed_up = 1;
+            }
 
-          if ((strcmp(argv[i], "-d") == 0) || (strcmp(argv[i], "--debug") == 0))
-              settings.debug_on = 1;
+            if ((strcmp(argv[i], "-d") == 0) ||
+                (strcmp(argv[i], "--debug") == 0))
+            {
+                settings.debug_on = 1;
+            }
 
-          if ((strcmp(argv[i], "-s") == 0) || (strcmp(argv[i], "--sound") == 0))
-              settings.sys_sound = 1;
+            if ((strcmp(argv[i], "-s") == 0) ||
+                (strcmp(argv[i], "--sound") == 0))
+            {
+                settings.sys_sound = 1;
+            }
 
-          if ((strcmp(argv[i], "-ns") == 0) ||
-              (strcmp(argv[i], "--nosound") == 0))
-              settings.sys_sound = 0;
+            if ((strcmp(argv[i], "-ns") == 0) ||
+                (strcmp(argv[i], "--nosound") == 0))
+            {
+                settings.sys_sound = 0;
+            }
 
-          if ((strcmp(argv[i], "-a") == 0) || (strcmp(argv[i], "--tts") == 0))
-          {
-              settings.tts          = 1;
-              text_to_speech_status = 1;
-          }
+            if ((strcmp(argv[i], "-a") == 0) || (strcmp(argv[i], "--tts") == 0))
+            {
+                settings.tts          = 1;
+                text_to_speech_status = 1;
+            }
 
-          if ((strcmp(argv[i], "-na") == 0) ||
-              (strcmp(argv[i], "--notts") == 0))
-          {
-              settings.tts          = 0;
-              text_to_speech_status = 0;
-          }
+            if ((strcmp(argv[i], "-na") == 0) ||
+                (strcmp(argv[i], "--notts") == 0))
+            {
+                settings.tts          = 0;
+                text_to_speech_status = 0;
+            }
 
-          if ((strcmp(argv[i], "-b") == 0) ||
-              (strcmp(argv[i], "--braille") == 0))
-              settings.braille = 1;
+            if ((strcmp(argv[i], "-b") == 0) ||
+                (strcmp(argv[i], "--braille") == 0))
+            {
+                settings.braille = 1;
+            }
 
-          if ((strcmp(argv[i], "--hidden") == 0) ||
-              (strcmp(argv[i], "-hidden") == 0))
-              settings.hidden = 1;
+            if ((strcmp(argv[i], "--hidden") == 0) ||
+                (strcmp(argv[i], "-hidden") == 0))
+            {
+                settings.hidden = 1;
+            }
 
-          if ((strcmp(argv[i], "-t") == 0) || (strcmp(argv[i], "--theme") == 0))
-              SetupPaths(argv[++i]);
-      }
-  }
-
-  DEBUGCODE
-  {
-    fprintf(stderr, "\n%s, version %s BEGIN\n", PACKAGE, VERSION);
-  }
-
-  //Now initialize locale/gettext system.
-  //This is done after reading settings just so we can print
-  //if the "-d" debug flag is set.
-  {
-      const char *s1, *s2, *s3, *s4;
-
-      /* GNU gettext caches the message catalog the first time it is consulted.
-     * Setting LANG / LANGUAGE later doesn't dislodge the cache, so propagate
-     * the chosen theme's locale into the environment *before* the first
-     * setlocale/bindtextdomain — otherwise the user always sees English
-     * even after picking another language. */
-      if (settings.theme_locale_name[0])
-      {
-          char short_lang[6];
-          snprintf(short_lang, sizeof(short_lang), "%s",
-                   settings.theme_locale_name);
-          short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
-          my_setenv("LANG", settings.theme_locale_name);
-          my_setenv("LANGUAGE", short_lang);
-      }
-
-    s1 = setlocale(LC_ALL, "");
-    s2 = bindtextdomain(PACKAGE, tt_locale_dir());
-    s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
-    s4 = textdomain(PACKAGE);
+            if ((strcmp(argv[i], "-t") == 0) ||
+                (strcmp(argv[i], "--theme") == 0))
+            {
+                SetupPaths(argv[++i]);
+            }
+        }
+    }
 
     DEBUGCODE
     {
-      fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-      fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
-      fprintf(stderr, "setlocale(LC_ALL, \"\") returned: %s\n", s1);
-      fprintf(stderr, "bindtextdomain returned: %s\n", s2);
-      fprintf(stderr, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n", s3);
-      fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
-      fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));
-      fprintf(stderr, "After gettext() call\n");
+        fprintf(stderr, "\n%s, version %s BEGIN\n", PACKAGE, VERSION);
     }
-  }
 
+    // Now initialize locale/gettext system.
+    // This is done after reading settings just so we can print
+    // if the "-d" debug flag is set.
+    {
+        const char *s1, *s2, *s3, *s4;
 
-  lib_flags = SDL_INIT_VIDEO;
+        /* GNU gettext caches the message catalog the first time it is
+         * consulted. Setting LANG / LANGUAGE later doesn't dislodge the cache,
+         * so propagate the chosen theme's locale into the environment *before*
+         * the first setlocale/bindtextdomain — otherwise the user always sees
+         * English even after picking another language. */
+        if (settings.theme_locale_name[0])
+        {
+            char short_lang[6];
+            snprintf(short_lang, sizeof(short_lang), "%s",
+                     settings.theme_locale_name);
+            short_lang[5] = '\0'; /* "de_DE" from "de_DE.UTF-8" */
+            my_setenv("LANG", settings.theme_locale_name);
+            my_setenv("LANGUAGE", short_lang);
+        }
 
-  lib_flags |= SDL_INIT_AUDIO;
+        s1 = setlocale(LC_ALL, "");
+        s2 = bindtextdomain(PACKAGE, tt_locale_dir());
+        s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
+        s4 = textdomain(PACKAGE);
 
-  LibInit(lib_flags); /* calls SDL_Init(), TTF_Init(), some other settings */
-  GraphicsInit(); /* calls SDL_SetVideoMode(), a few others     */
+        DEBUGCODE
+        {
+            fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
+            fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
+            fprintf(stderr, "setlocale(LC_ALL, \"\") returned: %s\n", s1);
+            fprintf(stderr, "bindtextdomain returned: %s\n", s2);
+            fprintf(
+                stderr,
+                "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n",
+                s3);
+            fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
+            fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));
+            fprintf(stderr, "After gettext() call\n");
+        }
+    }
 
-  if (settings.sys_sound)
-  {
-      /* Mix_VolumeMusic stubbed for SDL3 port */
-      /* Mix_Volume stubbed for SDL3 port */
-  }
+    lib_flags = SDL_INIT_VIDEO;
 
-  /* Initialising TTS */
-   T4K_Tts_init();
-   T4K_Tts_set_volume(settings.tts_volume);
+    lib_flags |= SDL_INIT_AUDIO;
 
-   T4K_AddDataPrefix(tt_data_prefix());
+    LibInit(lib_flags); /* calls SDL_Init(), TTF_Init(), some other settings */
+    GraphicsInit();     /* calls SDL_SetVideoMode(), a few others     */
 
-   /* Apply saved volume settings so launches honor what the user picked. */
-   T4K_SetMusicVolume(settings.mus_volume);
-   T4K_SetSfxVolume(settings.sfx_volume);
+    if (settings.sys_sound)
+    {
+        /* Mix_VolumeMusic stubbed for SDL3 port */
+        /* Mix_Volume stubbed for SDL3 port */
+    }
 
-   /* FIXME: we should check config files/environment variables like LANG! */
-   /* NOTE what should we do if LANG is something without a theme - should */
-   /* we then default to English?                                          */
+    /* Initialising TTS */
+    T4K_Tts_init();
+    T4K_Tts_set_volume(settings.tts_volume);
 
-   LoadLang();
-   LoadKeyboard();
+    T4K_AddDataPrefix(tt_data_prefix());
 
-   /* Now actually play the game: */
-   TitleScreen();
+    /* Apply saved volume settings so launches honor what the user picked. */
+    T4K_SetMusicVolume(settings.mus_volume);
+    T4K_SetSfxVolume(settings.sfx_volume);
 
-   SaveSettings();
+    /* FIXME: we should check config files/environment variables like LANG! */
+    /* NOTE what should we do if LANG is something without a theme - should */
+    /* we then default to English?                                          */
 
-   /* Release heap: */
-   Cleanup();
+    LoadLang();
+    LoadKeyboard();
 
-   LOG("---GAME DONE, EXIT---- Thank you.\n");
+    /* Now actually play the game: */
+    TitleScreen();
 
-   return EXIT_SUCCESS;
+    SaveSettings();
+
+    /* Release heap: */
+    Cleanup();
+
+    LOG("---GAME DONE, EXIT---- Thank you.\n");
+
+    return EXIT_SUCCESS;
 }

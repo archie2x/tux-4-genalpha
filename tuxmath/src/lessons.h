@@ -25,15 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef LESSONS_H
-#define LESSONS_H
-
+#pragma once
 #include "globals.h"
 
-int read_goldstars_fp(FILE* fp);
+int  read_goldstars_fp(FILE* fp);
 void write_goldstars_fp(FILE* fp);
-
-#endif

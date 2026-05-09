@@ -27,27 +27,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef NETWORK_H
-#define NETWORK_H
-
+#pragma once
 #include "config.h"
 
 #ifdef HAVE_LIBSDL_NET
 
-#include "transtruct.h"
+# include "transtruct.h"
 /* SDL_net dropped — networking disabled */
 
-typedef struct {
-    IPaddress ip;            /* 32-bit IPv4 host address */
-    char name[NAME_SIZE];
-    char lesson[LESSON_TITLE_LENGTH];
-}ServerEntry;
+typedef struct
+{
+    IPaddress ip; /* 32-bit IPv4 host address */
+    char      name[NAME_SIZE];
+    char      lesson[LESSON_TITLE_LENGTH];
+} ServerEntry;
 
 /* Keep information on other connected players for on-screen display: */
-typedef struct lan_player_type {
+typedef struct lan_player_type
+{
     bool connected;
     char name[NAME_SIZE];
     bool mine;
@@ -56,36 +53,31 @@ typedef struct lan_player_type {
 } lan_player_type;
 
 /* Networking setup and cleanup: */
-int LAN_DetectServers(void);
-int LAN_AutoSetup(int i);
+int   LAN_DetectServers(void);
+int   LAN_AutoSetup(int i);
 char* LAN_ServerName(int i);
 char* LAN_ConnectedServerName(void);
 char* LAN_ConnectedServerLesson(void);
-void print_server_list(void);
+void  print_server_list(void);
 
 void LAN_Cleanup(void);
-int LAN_SetName(char* name);
-int LAN_SetReady(bool ready);
-int LAN_RequestIndex(void);
+int  LAN_SetName(char* name);
+int  LAN_SetReady(bool ready);
+int  LAN_RequestIndex(void);
 /* Network replacement functions for mathcards "API": */
 /* These functions are how the client tells things to the server: */
 int LAN_AnsweredCorrectly(int id, float t);
 int LAN_NotAnsweredCorrectly(int id);
 int LAN_LeaveGame(void);
 /* These functions return info about currently connected players */
-int LAN_NumPlayers(void);
+int   LAN_NumPlayers(void);
 char* LAN_PlayerName(int i);
-bool LAN_PlayerMine(int i);
-bool LAN_PlayerReady(int i);
-bool LAN_PlayerConnected(int i);
-int LAN_PlayerScore(int i);
-int LAN_MyIndex(void);
+bool  LAN_PlayerMine(int i);
+bool  LAN_PlayerReady(int i);
+bool  LAN_PlayerConnected(int i);
+int   LAN_PlayerScore(int i);
+int   LAN_MyIndex(void);
 /* This is how the client receives messages from the server: */
 int LAN_NextMsg(char* buf);
 
-
-
-
 #endif // HAVE_LIBSDL_NET
-
-#endif // NETWORK_H

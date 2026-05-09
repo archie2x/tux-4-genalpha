@@ -26,20 +26,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EDITOR_H
-#define EDITOR_H
-
-
+#pragma once
 void ChooseListToEdit(void);
 void EditWordList(char* words_file);
 
-
 int CreateNewWordList(void);
-int ChooseRemoveList(char *name, char *filename);
+int ChooseRemoveList(char* name, char* filename);
 int RemoveList(char* words_file);
 
 #define New 0
 #define Remove 1
 #define Done 2
-
-#endif

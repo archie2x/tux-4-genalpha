@@ -130,7 +130,8 @@ SDL_Surface* BlackOutline(const char* t, int font_size, const SDL_Color* c)
     return T4K_BlackOutline(t, font_size, c);
 }
 
-SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c, int length)
+SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c,
+                            int length)
 {
     /* Convert wide-char to UTF-8 then forward to T4K_BlackOutline (which
      * expects UTF-8). A naive byte-cast truncates 'ü' (U+00FC) to 0xFC and

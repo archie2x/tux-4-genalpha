@@ -26,29 +26,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-#ifndef GLOBALS_H
-#define GLOBALS_H
-
+#pragma once
 // Translation stuff (now works for Mac and Win too!):
 #ifdef HAVE_CONFIG_H
-#ifdef HAVE_CONFIG_H
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#endif
+# include "config.h"
 #endif
 #include <t4k/gettext.h>
 #include <locale.h>
-#define _(String) gettext (String)
+#define _(String) gettext(String)
 #define gettext_noop(String) String
-#define N_(String) gettext_noop (String)
+#define N_(String) gettext_noop(String)
 
 #ifdef WIN32
-#define TUXLOCALE "./locale"
+# define TUXLOCALE "./locale"
 #else
-#define TUXLOCALE LOCALEDIR
+# define TUXLOCALE LOCALEDIR
 #endif
 
 #include <wchar.h>
@@ -58,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "sdl3_compat.h"
 
 /* debug data (now declared in libt4k_common */
-//extern int debug_status;
+// extern int debug_status;
 
 /* bitmasks for debugging options (declared in options.c) */
 extern const int debug_setup;
@@ -75,12 +67,13 @@ extern const int debug_text_and_intl;
 extern const int debug_multiplayer;
 
 /* debug macros (now in libt4k_comon) */
-//#define DEBUGCODE(mask) if((mask) & debug_status)
-//#define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
+// #define DEBUGCODE(mask) if((mask) & debug_status)
+// #define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr,
+// __VA_ARGS__); fflush(stderr); }
 
 /* Maximum length of file path: */
 #ifndef PATH_MAX
-#define PATH_MAX 4096
+# define PATH_MAX 4096
 #endif
 
 /* Error code if game_options not valid: */
@@ -128,7 +121,7 @@ extern const int debug_multiplayer;
 
 /* These values are hard-coded and used 'as is' by the program */
 /* (i.e. these behaviors require recompilation to change)   */
-#define DEFAULT_NUM_CITIES 4   /* MUST BE AN EVEN NUMBER! */
+#define DEFAULT_NUM_CITIES 4 /* MUST BE AN EVEN NUMBER! */
 #define DEFAULT_MAX_CITY_COLORS 4
 
 #define MINIMUM_SPEED 0.8
@@ -150,12 +143,13 @@ extern const int debug_multiplayer;
 #define HIGH_SCORES_SAVED 10
 #define HIGH_SCORE_NAME_LENGTH 32
 
-#define REG_RGBA 16,16,96,96
-#define SEL_RGBA 16,16,128,128
+#define REG_RGBA 16, 16, 96, 96
+#define SEL_RGBA 16, 16, 128, 128
 
 #define PIXEL_BITS 32
 
-enum {
+enum
+{
     CADET_HIGH_SCORE,
     SCOUT_HIGH_SCORE,
     RANGER_HIGH_SCORE,
@@ -164,27 +158,24 @@ enum {
     NUM_MATH_COMMAND_LEVELS
 };
 
-enum {
+enum
+{
     FACTORS_HIGH_SCORE = NUM_MATH_COMMAND_LEVELS,
     FRACTIONS_HIGH_SCORE,
     NUM_HIGH_SCORE_LEVELS
 };
 
-
-
-//Declared in t4k_global.h
+// Declared in t4k_global.h
 extern int text_to_speech_status;
 
 #define NAME_BUF_SIZE 200
 
 /* data for 'Training Academy' lessons: */
-extern char **lesson_list_titles;
-extern char **lesson_list_filenames;
-extern int* lesson_list_goldstars;
-extern int num_lessons;
+extern char** lesson_list_titles;
+extern char** lesson_list_filenames;
+extern int*   lesson_list_goldstars;
+extern int    num_lessons;
 
 extern SDL_Thread* tts_announcer_thread;
 
-#endif
-
-//int text_to_speech_global_switch = 1;
+// int text_to_speech_global_switch = 1;

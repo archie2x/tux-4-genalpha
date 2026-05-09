@@ -5,16 +5,14 @@
 #include "options.h"
 #include "fileops.h"
 
-
-
 /* Pause loop: */
 int pause_game(void)
 {
     /* NOTE - done and quit changed to pause_done and pause_quit */
     /* due to potentially confusing name collision */
-    int pause_done, pause_quit;
+    int       pause_done, pause_quit;
     SDL_Event event;
-    SDL_Rect dest;
+    SDL_Rect  dest;
 
     /* Only pause if pause allowed: */
     if (!Opts_AllowPause())
@@ -31,7 +29,7 @@ int pause_game(void)
     dest.w = images[IMG_PAUSED]->w;
     dest.h = images[IMG_PAUSED]->h;
 
-    T4K_DarkenScreen(1);  // cut all channels by half
+    T4K_DarkenScreen(1); // cut all channels by half
     SDL_BlitSurface(images[IMG_PAUSED], NULL, screen, &dest);
 
     do
@@ -45,13 +43,12 @@ int pause_game(void)
             else if (event.type == SDL_EVENT_QUIT)
             {
                 user_quit_received = GAME_OVER_WINDOW_CLOSE;
-                pause_quit = 1;
+                pause_quit         = 1;
             }
         }
 
         SDL_Delay(100);
-    }
-    while (!pause_done && !pause_quit);
+    } while (!pause_done && !pause_quit);
 
     return (pause_quit);
 }

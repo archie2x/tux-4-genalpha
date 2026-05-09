@@ -1,21 +1,20 @@
-#ifndef COMETS_H
-#define COMETS_H
+#pragma once
 #include <SDL3/SDL.h>
 
 #include "mathcards.h"
 
 #define MAX_COMETS 10
-#define NUM_CITIES 4   /* MUST BE AN EVEN NUMBER! */
+#define NUM_CITIES 4 /* MUST BE AN EVEN NUMBER! */
 
 #define NUM_BKGDS 8
 
 #define MAX_CITY_COLORS 4
 
-
-typedef struct laser_type {
+typedef struct laser_type
+{
     float alive;
-    int x1, y1;
-    int x2, y2;
+    int   x1, y1;
+    int   x2, y2;
 } laser_type;
 
 /* Note: both igloos and the original "cities" graphics are handled
@@ -38,31 +37,35 @@ typedef struct laser_type {
    are handled properly). Layer 0 is rendered first, then layer 1, and
    so on. */
 
-typedef struct city_type {
+typedef struct city_type
+{
     int hits_left;
     int status, counter;
-    int threatened;   /* true if a comet is near */
+    int threatened; /* true if a comet is near */
     int x;
-    int img,layer;
+    int img, layer;
 } city_type;
 
-typedef struct penguin_type {
+typedef struct penguin_type
+{
     int status, counter;
     int x;
-    int img,layer;
+    int img, layer;
 } penguin_type;
 
-typedef struct steam_type {
+typedef struct steam_type
+{
     int status, counter;
-    int img,layer;
+    int img, layer;
 } steam_type;
 
 #define NUM_SNOWFLAKES 100
 
-typedef struct cloud_type {
+typedef struct cloud_type
+{
     int status;
     int city;
-    int x,y;
+    int x, y;
     int snowflake_x[NUM_SNOWFLAKES];
     int snowflake_y[NUM_SNOWFLAKES];
     int snowflake_size[NUM_SNOWFLAKES];
@@ -70,14 +73,16 @@ typedef struct cloud_type {
 
 #define GAME_MESSAGE_LENGTH 100
 
-typedef struct {
-    int x,y;
-    int alpha;
+typedef struct
+{
+    int  x, y;
+    int  alpha;
     char message[GAME_MESSAGE_LENGTH];
 } game_message;
 
 /* City animation status types */
-enum {
+enum
+{
     CITY_PRESENT,
     CITY_EXPLODING,
     CITY_EVAPORATING,
@@ -86,7 +91,8 @@ enum {
 };
 
 /* Penguin animation status types */
-enum {
+enum
+{
     PENGUIN_OFFSCREEN,
     PENGUIN_HAPPY,
     PENGUIN_FLAPPING,
@@ -101,58 +107,61 @@ enum {
 };
 
 /* Steam animation status types */
-enum {
+enum
+{
     STEAM_OFF,
     STEAM_ON
 };
 
 /* Cloud & snowflake animation types */
-enum {
+enum
+{
     EXTRA_LIFE_OFF,
     EXTRA_LIFE_ON
 };
 
-typedef enum {
+typedef enum
+{
     SMARTBOMB,
     NPOWERUP
 } PowerUp_Type;
 
-typedef enum {
+typedef enum
+{
     POWERUP_DIR_LEFT,
     POWERUP_DIR_RIGHT,
     POWERUP_DIR_UNKNOWN
 } PowerUp_Direction;
 
-typedef struct comet_type {
-    int alive;
-    int expl;
-    int city;
-    float x, y;
-    int answer;
-    int bonus;
-    int zapped;
+typedef struct comet_type
+{
+    int          alive;
+    int          expl;
+    int          city;
+    float        x, y;
+    int          answer;
+    int          bonus;
+    int          zapped;
     MC_FlashCard flashcard;
     SDL_Surface* formula_surf;
     SDL_Surface* answer_surf;
-    Uint32 time_started;
+    Uint32       time_started;
 } comet_type;
 
-typedef struct powerup_comet_type {
-    comet_type comet;
+typedef struct powerup_comet_type
+{
+    comet_type        comet;
     PowerUp_Direction direction;
-    PowerUp_Type type;
-    int inc_speed;
+    PowerUp_Type      type;
+    int               inc_speed;
 } powerup_comet_type;
 
-typedef struct help_controls_type {
+typedef struct help_controls_type
+{
     int x_is_blinking;
     int extra_life_is_blinking;
     int laser_enabled;
 } help_controls_type;
 
-
-int comets_game(MC_MathGame* loc_game);
+int  comets_game(MC_MathGame* loc_game);
 void game_set_start_message(const char*, const char*, const char*, const char*);
-
-
-#endif

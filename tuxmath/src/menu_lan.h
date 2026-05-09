@@ -21,14 +21,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-#ifndef MENU_LAN_H
-#define MENU_LAN_H
-
+#pragma once
 #include "globals.h"
 
-enum {
+enum
+{
     PREGAME_WAITING,
     PREGAME_GAME_IN_PROGRESS,
     PREGAME_OVER_START_GAME,
@@ -40,5 +37,3 @@ enum {
 
 int ConnectToServer(void);
 int Pregame(void);
-
-#endif

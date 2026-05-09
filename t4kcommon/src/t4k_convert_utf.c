@@ -42,7 +42,8 @@ static const char* push_utf8_ctype(char* save, size_t save_len)
     return NULL;
 }
 
-int T4K_ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_length)
+int T4K_ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word,
+                        int max_length)
 {
     if (max_length <= 0)
     {

@@ -28,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 int debug_status;
 
-
 /* set global variables */
 /* TODO look into support for locale switching at runtime
  ** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115
@@ -40,19 +39,20 @@ int InitT4KCommon(int debug_flags)
     /* Video. SDL3 SDL_Init returns bool (true=success) instead of int<0. */
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
-	fprintf(stderr,
-		"\nError: I could not initialize video!\n"
-		"The Simple DirectMedia error that occured was:\n"
-		"%s\n\n", SDL_GetError());
-	return 0;
+        fprintf(stderr,
+                "\nError: I could not initialize video!\n"
+                "The Simple DirectMedia error that occured was:\n"
+                "%s\n\n",
+                SDL_GetError());
+        return 0;
     }
 
     /* Audio is stubbed in this initial port (task #13). */
 
     /* TTS */
-    if(T4K_Tts_init())
+    if (T4K_Tts_init())
     {
-        fprintf(stderr,"\nWarning: I could not initialize Tts!\n");
+        fprintf(stderr, "\nWarning: I could not initialize Tts!\n");
     }
 
     /* Text (SDL3_ttf): */
@@ -82,8 +82,7 @@ void CleanupT4KCommon(void)
     SDL_Quit();
 }
 
-
-int T4K_HandleStdEvents (const SDL_Event* event)
+int T4K_HandleStdEvents(const SDL_Event* event)
 {
     int ret = 0;
 
@@ -97,17 +96,17 @@ int T4K_HandleStdEvents (const SDL_Event* event)
     /* Toggle screen mode: */
     if (key == SDLK_F10)
     {
-	//    Opts_SetGlobalOpt(FULLSCREEN, !Opts_GetGlobalOpt(FULLSCREEN) );
-	T4K_SwitchScreenMode();
-	//    game_recalc_positions();
-	ret = 1;
+        //    Opts_SetGlobalOpt(FULLSCREEN, !Opts_GetGlobalOpt(FULLSCREEN) );
+        T4K_SwitchScreenMode();
+        //    game_recalc_positions();
+        ret = 1;
     }
 
     /* Toggle music: */
 #ifndef NOSOUND
     else if (key == SDLK_F11)
     {
-	T4K_AudioToggle();
+        T4K_AudioToggle();
     }
 #endif
 

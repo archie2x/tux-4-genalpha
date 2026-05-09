@@ -35,12 +35,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "highscore.h"
 #include "mysetenv.h"
 
-
 /* SDL includes: -----------------*/
 #include <SDL3/SDL.h>
 
 #ifndef NOSOUND
-#include <SDL3_mixer/SDL_mixer.h>
+# include <SDL3_mixer/SDL_mixer.h>
 #endif
 #include <SDL3_image/SDL_image.h>
 
@@ -54,17 +53,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <string.h>
 
-
-
-
-
 /* Global data used in setup.c:              */
 /* (These are now 'extern'd in "tuxmath.h") */
 
-
 SDL_Surface* screen;
 SDL_Surface* images[NUM_IMAGES];
-sprite* sprites[NUM_SPRITES];
+sprite*      sprites[NUM_SPRITES];
 MC_MathGame* local_game;
 MC_MathGame* lan_game_settings;
 
@@ -73,18 +67,12 @@ MC_MathGame* lan_game_settings;
    NUM_IMAGES. */
 #define NUM_FLIPPED_IMAGES 6
 SDL_Surface* flipped_images[NUM_FLIPPED_IMAGES];
-int flipped_img_lookup[NUM_IMAGES];
+int          flipped_img_lookup[NUM_IMAGES];
 SDL_Surface* blended_igloos[NUM_BLENDED_IGLOOS];
 
-const int flipped_img[] = {
-    IMG_PENGUIN_WALK_ON1,
-    IMG_PENGUIN_WALK_ON2,
-    IMG_PENGUIN_WALK_ON3,
-    IMG_PENGUIN_WALK_OFF1,
-    IMG_PENGUIN_WALK_OFF2,
-    IMG_PENGUIN_WALK_OFF3
-};
-
+const int flipped_img[] = {IMG_PENGUIN_WALK_ON1,  IMG_PENGUIN_WALK_ON2,
+                           IMG_PENGUIN_WALK_ON3,  IMG_PENGUIN_WALK_OFF1,
+                           IMG_PENGUIN_WALK_OFF2, IMG_PENGUIN_WALK_OFF3};
 
 #ifndef NOSOUND
 Mix_Chunk* sounds[NUM_SOUNDS];
@@ -92,7 +80,8 @@ Mix_Music* musics[NUM_MUSICS];
 #endif
 
 /* Keep return values from locale setup: */
-typedef struct locale_info {
+typedef struct locale_info
+{
     char setlocale_ret[64];
     char bindtextdomain_ret[64];
     char bind_textdomain_codeset_ret[64];
@@ -111,19 +100,17 @@ void load_data_files(void);
 void generate_flipped_images(void);
 void generate_blended_images(void);
 
-//int initialize_game_options(void);
+// int initialize_game_options(void);
 void seticon(void);
-void usage(int err, char * cmd);
+void usage(int err, char* cmd);
 
 void cleanup_memory(void);
-
-
 
 /* --- Set-up function - now in four easier-to-digest courses! --- */
 /* --- Er - make that six courses! --- */
 /* --- Six is right out. Seven is much better. --- */
 /* --- OK, now we have eight. --- */
-void setup(int argc, char * argv[])
+void setup(int argc, char* argv[])
 {
     /* Read debugging args from command line */
     handle_debug_args(argc, argv);
@@ -151,12 +138,10 @@ void setup(int argc, char * argv[])
        Is this desirable? */
 }
 
-
-
 void initialize_locale(const char* desired_loc)
 {
     const char *s1, *s2, *s3, *s4;
-    if(!desired_loc)
+    if (!desired_loc)
     {
         fprintf(stderr, "initialize_locale() - null desired_loc arg. \n");
         return;
@@ -175,10 +160,9 @@ void initialize_locale(const char* desired_loc)
     DEBUGCODE(debug_setup) print_locale_info(stderr);
 }
 
-
 void print_locale_info(FILE* fp)
 {
-    if(!fp)
+    if (!fp)
     {
         fprintf(stderr, "print_locale_info() - null FILE* arg. \n");
         return;
@@ -196,9 +180,9 @@ void print_locale_info(FILE* fp)
             tuxmath_locale.textdomain_ret);
     fprintf(fp, "gettext(\"Help\"): %s\n\n", gettext("Help"));
     fprintf(fp, "_(\"Help\"): %s\n\n", _("Help"));
-    fprintf(fp, "dgettext(\"tuxmath\", \"Help\"): %s\n", dgettext("tuxmath", "Help"));
+    fprintf(fp, "dgettext(\"tuxmath\", \"Help\"): %s\n",
+            dgettext("tuxmath", "Help"));
 }
-
 
 /* Set up mathcards with default values for math question options, */
 /* set up game_options with defaults for general game options,     */
@@ -206,7 +190,7 @@ void print_locale_info(FILE* fp)
 void initialize_options(void)
 {
     /* Initialize MathCards backend for math questions: */
-    local_game = (MC_MathGame*) malloc(sizeof(MC_MathGame));
+    local_game = (MC_MathGame*)malloc(sizeof(MC_MathGame));
     if (local_game == NULL)
     {
         fprintf(stderr, "\nUnable to allocate MC_MathGame\n");
@@ -219,8 +203,7 @@ void initialize_options(void)
         exit(1);
     }
 
-
-    lan_game_settings = (MC_MathGame*) malloc(sizeof(MC_MathGame));
+    lan_game_settings = (MC_MathGame*)malloc(sizeof(MC_MathGame));
     if (lan_game_settings == NULL)
     {
         fprintf(stderr, "\nUnable to allocate MC_MathGame\n");
@@ -232,7 +215,6 @@ void initialize_options(void)
         fprintf(stderr, "\nUnable to initialize MathCards\n");
         exit(1);
     }
-
 
     /* initialize game_options struct with defaults DSB */
     if (!Opts_Initialize())
@@ -278,7 +260,9 @@ void initialize_options_user(void)
     /* Read the lessons directory to determine which lesson   */
     /* files are available.                                   */
     if (!parse_lesson_file_directory())
-        fprintf(stderr,"\nCould not parse the lesson file directory.\n");
+    {
+        fprintf(stderr, "\nCould not parse the lesson file directory.\n");
+    }
 
     /* Now set up high score tables: */
     initialize_scores();
@@ -289,10 +273,8 @@ void initialize_options_user(void)
     }
 
     DEBUGCODE(debug_setup)
-        print_high_scores(stdout);
+    print_high_scores(stdout);
 }
-
-
 
 /* Handle debugging arguments passed from command line */
 /* NOTE - moved into separate, earlier pass so we can  */
@@ -367,11 +349,10 @@ void handle_debug_args(int argc, char* argv[])
         {
             debug_status |= debug_text_and_intl;
         }
-    }/* end of command-line args */
+    } /* end of command-line args */
 
-    DEBUGMSG(debug_setup,"debug_status: %x", debug_status);
+    DEBUGMSG(debug_setup, "debug_status: %x", debug_status);
 }
-
 
 /* Handle any arguments passed from command line, except */
 /* for debug flags which we already have dealt with.     */
@@ -385,25 +366,37 @@ void handle_command_args(int argc, char* argv[])
         {
             /* Display help message: */
 
-            fprintf(stderr, "\nTux, of Math Command\n\n"
-                    "Use the number keys on the keyboard to answer math equations,\n"
-                    "and then hit the space bar or enter.\n"
-                    "If you don't answer a comet's math equation before it hits\n"
-                    "one of your igloos, the igloo will be damaged.\n"
-                    "If an igloo is hit twice, the penguin inside walks away.\n"
-                    "When you lose all of your igloos, the game ends.\n\n");
+            fprintf(
+                stderr,
+                "\nTux, of Math Command\n\n"
+                "Use the number keys on the keyboard to answer math "
+                "equations,\n"
+                "and then hit the space bar or enter.\n"
+                "If you don't answer a comet's math equation before it hits\n"
+                "one of your igloos, the igloo will be damaged.\n"
+                "If an igloo is hit twice, the penguin inside walks away.\n"
+                "When you lose all of your igloos, the game ends.\n\n");
 
-            fprintf(stderr, "There is also a \"factoroids\" game in which a ship\n"
-                    "destroys asteroids if you type a valid factor of the number\n"
-                    "for a particular asteroid.  Use the number keys to steer.\n\n");
+            fprintf(
+                stderr,
+                "There is also a \"factoroids\" game in which a ship\n"
+                "destroys asteroids if you type a valid factor of the number\n"
+                "for a particular asteroid.  Use the number keys to "
+                "steer.\n\n");
 
-            fprintf(stderr, "Note: most settings are now stored in a config file named 'options' in\n"
-                    "a hidden directory named './tuxmath' within the user's home directory.\n"
-                    "The file consists of simple name/value pairs. It is much easier\n"
-                    "to edit this file to set game parameters than to use the command-line\n"
-                    "arguments listed below. Also, many options are not selectable from the\n"
-                    "command line. The config file contains extensive comments detailing how\n"
-                    "to configure the behavior of Tuxmath.\n\n");
+            fprintf(stderr, "Note: most settings are now stored in a config "
+                            "file named 'options' in\n"
+                            "a hidden directory named './tuxmath' within the "
+                            "user's home directory.\n"
+                            "The file consists of simple name/value pairs. It "
+                            "is much easier\n"
+                            "to edit this file to set game parameters than to "
+                            "use the command-line\n"
+                            "arguments listed below. Also, many options are "
+                            "not selectable from the\n"
+                            "command line. The config file contains extensive "
+                            "comments detailing how\n"
+                            "to configure the behavior of Tuxmath.\n\n");
 
             fprintf(
                 stderr,
@@ -492,25 +485,30 @@ void handle_command_args(int argc, char* argv[])
             exit(0);
         }
         else if (strcmp(argv[i], "--copyright") == 0 ||
-                strcmp(argv[i], "-c") == 0)
+                 strcmp(argv[i], "-c") == 0)
         {
             printf(
-                    "\n\"Tux, of Math Command\" version " VERSION ", Copyright (C) 2001-2011,\n"
-                    "Bill Kendrick, David Bruce, Tim Holy, and the Tux4Kids Project.\n"
-                    "This program is free software; you can redistribute it and/or\n"
-                    "modify it under the terms of the GNU General Public License\n"
-                    "as published by the Free Software Foundation.  See COPYING.txt\n"
-                    "\n"
-                    "This program is distributed in the hope that it will be useful,\n"
-                    "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-                    "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
-                    "\n");
+                "\n\"Tux, of Math Command\" version " VERSION
+                ", Copyright (C) 2001-2011,\n"
+                "Bill Kendrick, David Bruce, Tim Holy, and the Tux4Kids "
+                "Project.\n"
+                "This program is free software; you can redistribute it "
+                "and/or\n"
+                "modify it under the terms of the GNU General Public License\n"
+                "as published by the Free Software Foundation.  See "
+                "COPYING.txt\n"
+                "\n"
+                "This program is distributed in the hope that it will be "
+                "useful,\n"
+                "but WITHOUT ANY WARRANTY; without even the implied warranty "
+                "of\n"
+                "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+                "\n");
 
             cleanup_on_error();
             exit(0);
         }
-        else if (strcmp(argv[i], "--usage") == 0 ||
-                strcmp(argv[i], "-u") == 0)
+        else if (strcmp(argv[i], "--usage") == 0 || strcmp(argv[i], "-u") == 0)
         {
             /* Display (happy) usage: */
 
@@ -519,9 +517,10 @@ void handle_command_args(int argc, char* argv[])
         else if (0 == strcmp(argv[i], "--homedir"))
         {
             // Parse the user choice of a non-default home directory
-            if (i >= argc -1)
+            if (i >= argc - 1)
             {
-                fprintf(stderr, "%s option requires an argument (dirname)\n", argv[i]);
+                fprintf(stderr, "%s option requires an argument (dirname)\n",
+                        argv[i]);
                 usage(1, argv[0]);
             }
             else // see whether the specified name is a directory
@@ -535,35 +534,39 @@ void handle_command_args(int argc, char* argv[])
                             "be read\n",
                             argv[i + 1]);
                 }
-                else {
+                else
+                {
                     set_user_data_dir(argv[i + 1]); // copy the homedir setting
                 }
-                i++;   // to pass over the next argument, so remaining options parsed
+                i++; // to pass over the next argument, so remaining options
+                     // parsed
             }
         }
         else if (0 == strcmp(argv[i], "--optionfile"))
         {
             if (i >= argc - 1)
             {
-                fprintf(stderr, "%s option requires an argument (filename)\n", argv[i]);
+                fprintf(stderr, "%s option requires an argument (filename)\n",
+                        argv[i]);
                 usage(1, argv[0]);
             }
             else /* try to read file named in following arg: */
             {
                 if (!read_named_config_file(local_game, argv[i + 1]))
                 {
-                    fprintf(stderr, "Could not read config file: %s\n", argv[i + 1]);
+                    fprintf(stderr, "Could not read config file: %s\n",
+                            argv[i + 1]);
                 }
             }
             i++; /* so program doesn't barf on next arg (the filename) */
         }
         else if (strcmp(argv[i], "--fullscreen") == 0 ||
-                strcmp(argv[i], "-f") == 0)
+                 strcmp(argv[i], "-f") == 0)
         {
             Opts_SetGlobalOpt(FULLSCREEN, 1);
         }
         else if (strcmp(argv[i], "--resolution") == 0 ||
-                strcmp(argv[i], "-r") == 0)
+                 strcmp(argv[i], "-r") == 0)
         {
             if (i >= argc - 1)
             {
@@ -572,10 +575,10 @@ void handle_command_args(int argc, char* argv[])
             }
             else
             {
-                int w=0, h=0;
-                sscanf(argv[i+1], "%dx%d", &w, &h);
+                int w = 0, h = 0;
+                sscanf(argv[i + 1], "%dx%d", &w, &h);
 
-                if(w>0 && h>0)
+                if (w > 0 && h > 0)
                 {
                     Opts_SetWindowWidth(w);
                     Opts_SetWindowHeight(h);
@@ -584,60 +587,56 @@ void handle_command_args(int argc, char* argv[])
             ++i;
         }
         else if (strcmp(argv[i], "--windowed") == 0 ||
-                strcmp(argv[i], "-w") == 0)
+                 strcmp(argv[i], "-w") == 0)
         {
             Opts_SetGlobalOpt(FULLSCREEN, 0);
         }
 
-        else if (strcmp(argv[i], "--tts") == 0 ||
-                strcmp(argv[i], "-t") == 0)
+        else if (strcmp(argv[i], "--tts") == 0 || strcmp(argv[i], "-t") == 0)
         {
             Opts_SetGlobalOpt(USE_TTS, 1);
         }
 
-        else if (strcmp(argv[i], "--notts") == 0 ||
-                strcmp(argv[i], "-nt") == 0)
+        else if (strcmp(argv[i], "--notts") == 0 || strcmp(argv[i], "-nt") == 0)
         {
             Opts_SetGlobalOpt(USE_TTS, 0);
         }
 
         else if (strcmp(argv[i], "--nosound") == 0 ||
-                strcmp(argv[i], "-s") == 0 ||
-                strcmp(argv[i], "--quiet") == 0 ||
-                strcmp(argv[i], "-q") == 0)
+                 strcmp(argv[i], "-s") == 0 ||
+                 strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0)
         {
-            Opts_SetGlobalOpt(USE_SOUND, -1);  // prevent options files from overwriting
+            Opts_SetGlobalOpt(USE_SOUND,
+                              -1); // prevent options files from overwriting
         }
         else if (strcmp(argv[i], "--version") == 0 ||
-                strcmp(argv[i], "-v") == 0)
+                 strcmp(argv[i], "-v") == 0)
         {
             fprintf(stderr, "Tux, of Math Command (\"tuxmath\")\n"
-                    "Version " VERSION "\n");
+                            "Version " VERSION "\n");
             cleanup_on_error();
             exit(0);
         }
         else if (strcmp(argv[i], "--nobackground") == 0 ||
-                strcmp(argv[i], "-b") == 0)
+                 strcmp(argv[i], "-b") == 0)
         {
             Opts_SetUseBkgd(0);
         }
-        else if (strcmp(argv[i], "--demo") == 0 ||
-                strcmp(argv[i], "-d") == 0)
+        else if (strcmp(argv[i], "--demo") == 0 || strcmp(argv[i], "-d") == 0)
         {
             Opts_SetDemoMode(1);
         }
-        else if (strcmp(argv[i], "--keypad") == 0 ||
-                strcmp(argv[i], "-k") == 0)
+        else if (strcmp(argv[i], "--keypad") == 0 || strcmp(argv[i], "-k") == 0)
         {
             Opts_SetGlobalOpt(USE_KEYPAD, 1);
         }
         else if (strcmp(argv[i], "--allownegatives") == 0 ||
-                strcmp(argv[i], "-n") == 0)
+                 strcmp(argv[i], "-n") == 0)
         {
             MC_SetOpt(local_game, ALLOW_NEGATIVES, 1);
         }
         else if (strcmp(argv[i], "--playthroughlist") == 0 ||
-                strcmp(argv[i], "-l") == 0)
+                 strcmp(argv[i], "-l") == 0)
         {
             MC_SetOpt(local_game, PLAY_THROUGH_LIST, 1);
         }
@@ -655,17 +654,16 @@ void handle_command_args(int argc, char* argv[])
         }
 
         else if (strcmp(argv[i], "--language") == 0 ||
-                strcmp(argv[i], "-l") == 0)
+                 strcmp(argv[i], "-l") == 0)
         {
-			++i;
-			my_setenv("LANGUAGE",argv[i]);
-			/* initialize Tts */
-			T4K_Tts_init();
-			T4K_Tts_set_voice(argv[i]);
+            ++i;
+            my_setenv("LANGUAGE", argv[i]);
+            /* initialize Tts */
+            T4K_Tts_init();
+            T4K_Tts_set_voice(argv[i]);
         }
 
-        else if (strcmp(argv[i], "--speed") == 0 ||
-                strcmp(argv[i], "-s") == 0)
+        else if (strcmp(argv[i], "--speed") == 0 || strcmp(argv[i], "-s") == 0)
         {
             if (i >= argc - 1)
             {
@@ -673,19 +671,18 @@ void handle_command_args(int argc, char* argv[])
                 usage(1, argv[0]);
             }
 
-            Opts_SetSpeed(strtod(argv[i + 1], (char **) NULL));
+            Opts_SetSpeed(strtod(argv[i + 1], (char**)NULL));
             i++;
         }
         else /* Warn for unknown option, except debug flags */
-            /* that we deal with separately:               */
+        /* that we deal with separately:               */
         {
             if (strncmp(argv[i], "--debug", strlen("--debug")) != 0)
             {
                 fprintf(stderr, "Unknown option: %s\n", argv[i]);
             }
         }
-    }/* end of command-line args */
-
+    } /* end of command-line args */
 
     if (Opts_DemoMode() && Opts_GetGlobalOpt(USE_KEYPAD))
     {
@@ -699,7 +696,7 @@ void initialize_SDL(void)
     /* SDL3: SDL_Init / SDL_CreateWindow handled by t4k_common. */
 
     /* Init common library */
-    if(!InitT4KCommon(debug_status))
+    if (!InitT4KCommon(debug_status))
     {
         fprintf(stderr, "InitT4KCommon() failed - exiting.\n");
         cleanup_on_error();
@@ -718,7 +715,7 @@ void initialize_SDL(void)
 #else
     Opts_SetSoundHWAvailable(0);
 #endif
-    if(!Opts_SoundHWAvailable())
+    if (!Opts_SoundHWAvailable())
     {
         Opts_SetGlobalOpt(USE_SOUND, 0);
         Opts_SetGlobalOpt(MENU_SOUND, 0);
@@ -795,7 +792,8 @@ void load_data_files(void)
     T4K_AddDataPrefix(tm_data_prefix());
     if (!load_sound_data())
     {
-        fprintf(stderr, "\nCould not load sound file - attempting to proceed without sound.\n");
+        fprintf(stderr, "\nCould not load sound file - attempting to proceed "
+                        "without sound.\n");
         Opts_SetSoundHWAvailable(0);
     }
 
@@ -810,8 +808,6 @@ void load_data_files(void)
     }
 }
 
-
-
 /* Create flipped versions of certain images; also set up the flip
    lookup table */
 void generate_flipped_images(void)
@@ -820,10 +816,13 @@ void generate_flipped_images(void)
 
     /* Zero out the flip lookup table */
     for (i = 0; i < NUM_IMAGES; i++)
+    {
         flipped_img_lookup[i] = 0;
+    }
 
-    for (i = 0; i < NUM_FLIPPED_IMAGES; i++) {
-        flipped_images[i] = T4K_Flip(images[flipped_img[i]],1,0);
+    for (i = 0; i < NUM_FLIPPED_IMAGES; i++)
+    {
+        flipped_images[i] = T4K_Flip(images[flipped_img[i]], 1, 0);
         flipped_img_lookup[flipped_img[i]] = i;
     }
 }
@@ -832,23 +831,28 @@ void generate_flipped_images(void)
    the transitions. */
 void generate_blended_images(void)
 {
-    blended_igloos[0] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.06);
-    blended_igloos[1] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.125);
-    blended_igloos[2] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.185);
-    blended_igloos[3] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.25);
-    blended_igloos[4] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.5);
-    blended_igloos[5] = T4K_Blend(images[IMG_IGLOO_REBUILDING1],NULL,0.75);
-    blended_igloos[6] = images[IMG_IGLOO_REBUILDING1];
-    blended_igloos[7] = T4K_Blend(images[IMG_IGLOO_REBUILDING2],images[IMG_IGLOO_REBUILDING1],0.25);
-    blended_igloos[8] = T4K_Blend(images[IMG_IGLOO_REBUILDING2],images[IMG_IGLOO_REBUILDING1],0.5);
-    blended_igloos[9] = T4K_Blend(images[IMG_IGLOO_REBUILDING2],images[IMG_IGLOO_REBUILDING1],0.75);
+    blended_igloos[0]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.06);
+    blended_igloos[1]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.125);
+    blended_igloos[2]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.185);
+    blended_igloos[3]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.25);
+    blended_igloos[4]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.5);
+    blended_igloos[5]  = T4K_Blend(images[IMG_IGLOO_REBUILDING1], NULL, 0.75);
+    blended_igloos[6]  = images[IMG_IGLOO_REBUILDING1];
+    blended_igloos[7]  = T4K_Blend(images[IMG_IGLOO_REBUILDING2],
+                                   images[IMG_IGLOO_REBUILDING1], 0.25);
+    blended_igloos[8]  = T4K_Blend(images[IMG_IGLOO_REBUILDING2],
+                                   images[IMG_IGLOO_REBUILDING1], 0.5);
+    blended_igloos[9]  = T4K_Blend(images[IMG_IGLOO_REBUILDING2],
+                                   images[IMG_IGLOO_REBUILDING1], 0.75);
     blended_igloos[10] = images[IMG_IGLOO_REBUILDING2];
-    blended_igloos[11] = T4K_Blend(images[IMG_IGLOO_INTACT],images[IMG_IGLOO_REBUILDING2],0.25);
-    blended_igloos[12] = T4K_Blend(images[IMG_IGLOO_INTACT],images[IMG_IGLOO_REBUILDING2],0.5);
-    blended_igloos[13] = T4K_Blend(images[IMG_IGLOO_INTACT],images[IMG_IGLOO_REBUILDING2],0.75);
+    blended_igloos[11] = T4K_Blend(images[IMG_IGLOO_INTACT],
+                                   images[IMG_IGLOO_REBUILDING2], 0.25);
+    blended_igloos[12] =
+        T4K_Blend(images[IMG_IGLOO_INTACT], images[IMG_IGLOO_REBUILDING2], 0.5);
+    blended_igloos[13] = T4K_Blend(images[IMG_IGLOO_INTACT],
+                                   images[IMG_IGLOO_REBUILDING2], 0.75);
     blended_igloos[14] = images[IMG_IGLOO_INTACT];
 }
-
 
 /* save options and free heap */
 /* use for successful exit */
@@ -856,12 +860,10 @@ void cleanup(void)
 {
     /* No longer write settings here, because we only */
     /* want to save settings from certain types of games. */
-    //write_user_config_file();
+    // write_user_config_file();
     cleanup_memory();
     //  exit(0);
 }
-
-
 
 /* save options and free heap */
 /* use for fail exit */
@@ -870,8 +872,6 @@ void cleanup_on_error(void)
     cleanup_memory();
     exit(1);
 }
-
-
 
 /* free any heap memory used during game DSB */
 /* and also quit SDL properly:               */
@@ -888,14 +888,18 @@ void cleanup_memory(void)
     for (i = 0; i < NUM_IMAGES; i++)
     {
         if (images[i])
+        {
             SDL_DestroySurface(images[i]);
+        }
         images[i] = NULL;
     }
 
     for (i = 0; i < NUM_SPRITES; i++)
     {
         if (sprites[i])
+        {
             T4K_FreeSprite(sprites[i]);
+        }
         sprites[i] = NULL;
     }
 
@@ -948,13 +952,13 @@ void cleanup_memory(void)
     Opts_Cleanup();
 
     /* frees any heap used by MathCards: */
-    if(local_game)
+    if (local_game)
     {
         MC_EndGame(local_game);
         free(local_game);
         local_game = NULL;
     }
-    if(lan_game_settings)
+    if (lan_game_settings)
     {
         MC_EndGame(lan_game_settings);
         free(lan_game_settings);
@@ -964,8 +968,6 @@ void cleanup_memory(void)
     /* Cleanup SDL+friends and anything else used by t4k_common: */
     CleanupT4KCommon();
 }
-
-
 
 /* Set the application's icon: */
 
@@ -985,26 +987,30 @@ void seticon(void)
     SDL_DestroySurface(icon);
 }
 
-
 void usage(int err, char* cmd)
 {
     FILE* f;
 
     if (err == 0)
+    {
         f = stdout;
+    }
     else
+    {
         f = stderr;
+    }
 
-    fprintf(f,
-            "\nUsage: %s {--help | --usage | --copyright}\n"
-            "          [--optionfile <filename>]\n"
-            "          [--playthroughlist] [--answersfirst] [--answersmiddle]\n"
-            "       %s [--fullscreen] [--nosound] [--nobackground]\n"
-            "          [--demo] [--keypad] [--allownegatives]\n"
-            //   "          [--operator {add | subtract | multiply | divide} ...]\n"
-            "          [--speed <val>]\n"
-            "\n", cmd, cmd);
+    fprintf(
+        f,
+        "\nUsage: %s {--help | --usage | --copyright}\n"
+        "          [--optionfile <filename>]\n"
+        "          [--playthroughlist] [--answersfirst] [--answersmiddle]\n"
+        "       %s [--fullscreen] [--nosound] [--nobackground]\n"
+        "          [--demo] [--keypad] [--allownegatives]\n"
+        //   "          [--operator {add | subtract | multiply | divide} ...]\n"
+        "          [--speed <val>]\n"
+        "\n",
+        cmd, cmd);
 
-    exit (err);
+    exit(err);
 }
-

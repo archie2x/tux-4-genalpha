@@ -64,37 +64,46 @@ int main(int argc, char* argv[])
 
             fprintf(stderr,
                     "\nt4k_test, a test program for the t4k_common library.\n");
-            fprintf(stderr, "Run program with:\n"
-          	  "--version, -v          - Display version number.\n"
-          	  "--copyright, -c        - Display copyright and license information.\n"
-          	  "--help, -h             - Display this help message.\n"
-          	  "--silent, -s           - (Default) - run without interaction.\n"
-          	  "--fullscreen, -f       - Run additional interactive sound and graphics tests in fullscreen mode.\n"
-          	  "--windowed, -w         - Run additional interactive sound and graphics tests in window.\n"
-          	  );
+            fprintf(stderr,
+                    "Run program with:\n"
+                    "--version, -v          - Display version number.\n"
+                    "--copyright, -c        - Display copyright and license "
+                    "information.\n"
+                    "--help, -h             - Display this help message.\n"
+                    "--silent, -s           - (Default) - run without "
+                    "interaction.\n"
+                    "--fullscreen, -f       - Run additional interactive sound "
+                    "and graphics tests in fullscreen mode.\n"
+                    "--windowed, -w         - Run additional interactive sound "
+                    "and graphics tests in window.\n");
 
             fprintf(stderr, "\n");
             exit(0);
         }
         else if (strcmp(argv[i], "--version") == 0 ||
-                strcmp(argv[i], "-v") == 0)
+                 strcmp(argv[i], "-v") == 0)
         {
-            fprintf(stderr, "t4k_test program for t4k_common library, Version %s.\n", VERSION);
+            fprintf(stderr,
+                    "t4k_test program for t4k_common library, Version %s.\n",
+                    VERSION);
             exit(0);
         }
         else /* Warn for unknown option, except debug flags */
-            /* that we deal with separately:               */
+        /* that we deal with separately:               */
         {
-             fprintf(stderr, "Unknown option: %s\n", argv[i]);
+            fprintf(stderr, "Unknown option: %s\n", argv[i]);
         }
-    }/* end of command-line args */
+    } /* end of command-line args */
 
     fprintf(stderr, "Entering t4k_test (test program for t4k_common).\n");
     if (InitT4KCommon(debug_all) != 1)
+    {
         fprintf(stderr, "t4k_test exiting with errors.\n");
+    }
     else
+    {
         fprintf(stderr, "t4k_test exiting normally.\n");
+    }
 
     return 0;
 }
-

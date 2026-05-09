@@ -20,20 +20,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
 #include "tuxmath.h"
-#include "options.h"   //Needed for Opts_UsingSound()
+#include "options.h" //Needed for Opts_UsingSound()
 #include "titlescreen.h"
 
-Mix_Music *music;
+Mix_Music*  music;
 SDL_Thread* tts_announcer_thread;
 
 void playsound(int snd)
 {
 #ifndef NOSOUND
     if (Opts_GetGlobalOpt(USE_SOUND))
-	T4K_PlaySound(sounds[snd]);
+    {
+        T4K_PlaySound(sounds[snd]);
+    }
 #endif
 }
-

@@ -24,14 +24,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
 #include <stdio.h>
 #include "mathcards.h"
 
 int main()
 {
-    int i, iter, op;
+    int          i, iter, op;
     MC_FlashCard c;
 
     MC_Initialize();
@@ -50,18 +48,24 @@ int main()
         MC_SetDivAllowed(op);
 
         if (!MC_StartGame())
+        {
             continue;
+        }
 
         iter = 0;
 
-        while(!MC_MissionAccomplished())
+        while (!MC_MissionAccomplished())
         {
             MC_NextQuestion(&c);
             op = rand() % 2;
             if (op)
+            {
                 MC_AnsweredCorrectly(&c);
+            }
             else
+            {
                 MC_NotAnsweredCorrectly(&c);
+            }
             iter++;
         }
         //    MC_EndGame();

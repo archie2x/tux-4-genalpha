@@ -23,18 +23,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-
-#ifndef FACTOROIDS_H
-#define FACTOROIDS_H
-
+#pragma once
 #include <stdbool.h>
 
 #include "fileops.h"
 
-
-typedef struct asteroid_type {
+typedef struct asteroid_type
+{
     int alive, size;
     int angle, angle_speed;
     int xspeed, yspeed;
@@ -49,45 +44,48 @@ typedef struct asteroid_type {
     int xdead, ydead, isdead, countdead;
 } asteroid_type;
 
-
-typedef struct tuxship_type {
-    int lives, size;
-    int xspeed, yspeed;
-    int x, y;
-    int rx, ry;
-    int x1,y1,x2,y2,x3,y3;
-    int radius;
-    int centerx, centery;
-    int angle;
-    int hurt, hurt_count;
-    int count;
+typedef struct tuxship_type
+{
+    int  lives, size;
+    int  xspeed, yspeed;
+    int  x, y;
+    int  rx, ry;
+    int  x1, y1, x2, y2, x3, y3;
+    int  radius;
+    int  centerx, centery;
+    int  angle;
+    int  hurt, hurt_count;
+    int  count;
     bool thrust;
 } tuxship_type;
 
-
-typedef struct FF_laser_type{
-    int alive;
-    int x, y;
-    int destx,desty;
-    int r, g, b;
+typedef struct FF_laser_type
+{
+    int   alive;
+    int   x, y;
+    int   destx, desty;
+    int   r, g, b;
     float count;
-    int angle;
-    int m;
-    int n;
+    int   angle;
+    int   m;
+    int   n;
 } FF_laser_type;
-
 
 /********* Enums ******************/
 
-typedef enum _TuxBonus {
-    TB_CLOAKING, TB_FORCEFIELD, TB_POWERBOMB, TB_SIZE
+typedef enum _TuxBonus
+{
+    TB_CLOAKING,
+    TB_FORCEFIELD,
+    TB_POWERBOMB,
+    TB_SIZE
 } TuxBonus;
 
-enum {
+enum
+{
     FACTOROIDS_GAME,
     FRACTIONS_GAME
 };
-
 
 // Used in titleecreen.c
 
@@ -95,5 +93,3 @@ void factors(void);
 void fractions(void);
 
 void wait_for_input(void);
-
-#endif

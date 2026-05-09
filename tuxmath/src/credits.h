@@ -25,13 +25,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
-#ifndef CREDITS_H
-#define CREDITS_H
-
-
-int credits(void);
+#pragma once
+int  credits(void);
 int  scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed);
 void draw_text(char* str, SDL_Rect dest);
-#endif

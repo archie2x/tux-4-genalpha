@@ -25,12 +25,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern int SNOW_on;
+extern int      SNOW_on;
 extern SDL_Rect SNOW_rects[2000];
-extern int SNOW_add( SDL_Rect *rs, int num );
-extern void SNOW_toggle( void );
-extern void SNOW_draw( void );
-extern void SNOW_erase( void );
-extern void SNOW_setBkg( SDL_Surface *img );
-extern void SNOW_init( void );
-extern void SNOW_update( void );
+extern int      SNOW_add(SDL_Rect* rs, int num);
+extern void     SNOW_toggle(void);
+extern void     SNOW_draw(void);
+extern void     SNOW_erase(void);
+extern void     SNOW_setBkg(SDL_Surface* img);
+extern void     SNOW_init(void);
+extern void     SNOW_update(void);

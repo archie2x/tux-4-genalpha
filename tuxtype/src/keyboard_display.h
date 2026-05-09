@@ -3,9 +3,7 @@
  * highlights. Used by Cascade, Comet Zap, and Practice as a visual
  * typing guide. */
 
-#ifndef TUXTYPE_KEYBOARD_DISPLAY_H
-#define TUXTYPE_KEYBOARD_DISPLAY_H
-
+#pragma once
 #include "globals.h"
 
 typedef struct KbdDisplay
@@ -40,5 +38,3 @@ int Kbd_Display_DrawRedKey(KbdDisplay* keyboard, int key_index,
                            SDL_Surface* target);
 int Kbd_Display_DrawShiftForKey(KbdDisplay* keyboard, int key_index,
                                 SDL_Surface* target);
-
-#endif

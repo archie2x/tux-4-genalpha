@@ -2,7 +2,7 @@
    braille.c:
 
    Description: Functions for loding braille map and key's
-				order correcter
+                order correcter
 
    Copyright 2013.
    Author: Nalin.x.Linux < Nalin.x.Linux@gmail.com >
@@ -146,29 +146,32 @@ void Braille_Reorder(wchar_t* disorder)
  * means first f second d so on. */
 int Braille_LoadLanguage(char* language)
 {
-	int iter = 0;
-	FILE *fp;
-	char file[100];
+    int   iter = 0;
+    FILE* fp;
+    char  file[100];
 
     /* New map → drop the DotsForChar cache. */
     s_cache_n = -1;
 
-    sprintf(file,"%s/braille/%s",settings.default_data_path,language);
-	fp = fopen(file,"r");
+    sprintf(file, "%s/braille/%s", settings.default_data_path, language);
+    fp = fopen(file, "r");
 
-    if(fp == NULL)
-	{
-		DEBUGCODE{fprintf(stderr,"Couldn't open map for reading"); }
-		return 0;
-	}
+    if (fp == NULL)
+    {
+        DEBUGCODE
+        {
+            fprintf(stderr, "Couldn't open map for reading");
+        }
+        return 0;
+    }
 
-    while(!feof(fp))
-	{
-		fscanf(fp,"%S %S %S %S\n",braille_key_value_map[iter].key,
-			braille_key_value_map[iter].value_begin,
-			braille_key_value_map[iter].value_middle,
-			braille_key_value_map[iter].value_end);
-		iter++;
-	}
-	return 1;
+    while (!feof(fp))
+    {
+        fscanf(fp, "%S %S %S %S\n", braille_key_value_map[iter].key,
+               braille_key_value_map[iter].value_begin,
+               braille_key_value_map[iter].value_middle,
+               braille_key_value_map[iter].value_end);
+        iter++;
+    }
+    return 1;
 }

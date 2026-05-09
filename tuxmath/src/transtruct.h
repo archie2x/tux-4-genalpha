@@ -28,11 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-#ifndef TRANSTRUCT_H
-#define TRANSTRUCT_H
-
+#pragma once
 #define NET_BUF_LEN 512
 #define NAME_SIZE 50
 #define MAX_SERVERS 50
@@ -44,14 +40,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define QUEST_QUEUE_SIZE 10
 
-
-typedef struct _MC_FlashCard {
+typedef struct _MC_FlashCard
+{
     char formula_string[MC_FORMULA_LEN];
     char answer_string[MC_ANSWER_LEN];
-    int question_id;
-    int answer;
-    int difficulty;
+    int  question_id;
+    int  answer;
+    int  difficulty;
 } MC_FlashCard;
-
-
-#endif

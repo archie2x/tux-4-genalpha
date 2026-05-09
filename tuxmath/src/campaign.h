@@ -19,14 +19,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-#ifndef CAMPAIGN_H
-#define CAMPAIGN_H
-
-
+#pragma once
 #include "tuxmath.h"
 
-//#define TESTING_CAMPAIGN //allow ESC to skip missions instead of exiting
+// #define TESTING_CAMPAIGN //allow ESC to skip missions instead of exiting
 
 #define NUM_STAGES 5
 #define NUM_ROUNDS 3
@@ -35,5 +31,3 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 /* because that was the only place it was used - just occupying memory.     */
 
 int start_campaign();
-
-#endif // CAMPAIGN_H

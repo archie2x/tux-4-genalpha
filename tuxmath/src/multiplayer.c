@@ -39,26 +39,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 int params[NUM_PARAMS] = {0, 0, 0, 0};
 
-int inprogress = 0;
-int pscores[MAX_PLAYERS];
+int   inprogress = 0;
+int   pscores[MAX_PLAYERS];
 char* pnames[MAX_PLAYERS];
-int currentplayer = 0;
+int   currentplayer = 0;
 
-//local function decs
-static void showWinners(int* order, int num); //show a sequence recognizing winner
-static int initMP();
+// local function decs
+static void showWinners(int* order,
+                        int  num); // show a sequence recognizing winner
+static int  initMP();
 static void cleanupMP();
 
 void mp_set_parameter(unsigned int param, int value)
 {
     if (inprogress)
     {
-        DEBUGMSG(debug_multiplayer, "Oops, tried to set param %d in the middle of a game\n", param);
+        DEBUGMSG(debug_multiplayer,
+                 "Oops, tried to set param %d in the middle of a game\n",
+                 param);
         return;
     }
     if (param > NUM_PARAMS)
     {
-        DEBUGMSG(debug_multiplayer, "Oops, param %d is illegal, must be < %d\n", param, NUM_PARAMS);
+        DEBUGMSG(debug_multiplayer, "Oops, param %d is illegal, must be < %d\n",
+                 param, NUM_PARAMS);
         return;
     }
     params[param] = value;
@@ -67,95 +71,106 @@ void mp_set_parameter(unsigned int param, int value)
 void mp_run_multiplayer()
 {
     int i;
-    int round = 1;
-    int result = 0;
-    int done = 0;
+    int round         = 1;
+    int result        = 0;
+    int done          = 0;
     int activeplayers = params[PLAYERS];
     int winners[MAX_PLAYERS];
 
     currentplayer = 0;
     for (i = 0; i < MAX_PLAYERS; ++i)
+    {
         winners[i] = -1;
+    }
 
-    if (initMP() )
+    if (initMP())
     {
         fprintf(stderr, "Initialization failed, bailing out\n");
         return;
     }
 
-    //cycle through players until all but one has lost
+    // cycle through players until all but one has lost
     if (params[MODE] == ELIMINATION)
     {
-        while(!done)
+        while (!done)
         {
-            //TODO maybe gradually increase difficulty
+            // TODO maybe gradually increase difficulty
             game_set_start_message(pnames[currentplayer], "Go!", "", "");
 
-            //Announcing the current pleyer name
-            T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s %s ",pnames[currentplayer],_("Go!"));
+            // Announcing the current pleyer name
+            T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s %s ",
+                        pnames[currentplayer], _("Go!"));
 
             result = comets_game(local_game);
 
             if (result == GAME_OVER_LOST || result == GAME_OVER_ESCAPE)
             {
-                //eliminate player
-                pscores[currentplayer] = 0xbeef;
+                // eliminate player
+                pscores[currentplayer]   = 0xbeef;
                 winners[--activeplayers] = currentplayer;
             }
 
-            do //move to the next player
+            do // move to the next player
             {
                 ++currentplayer;
                 currentplayer %= params[PLAYERS];
                 if (currentplayer == 0)
+                {
                     ++round;
+                }
             } while (pscores[currentplayer] ==
-                     0xbeef); //skip over eliminated players
+                     0xbeef); // skip over eliminated players
 
-            if (activeplayers <= 1) //last man standing!
+            if (activeplayers <= 1) // last man standing!
             {
                 DEBUGMSG(debug_multiplayer, "%d wins\n", currentplayer);
                 winners[0] = currentplayer;
-                done = 1;
+                done       = 1;
             }
         }
     }
-    //players take turns, accumulating score, and the highest score wins
+    // players take turns, accumulating score, and the highest score wins
     else if (params[MODE] == SCORE_SWEEP)
     {
-        int hiscore = 0;
+        int hiscore       = 0;
         int currentwinner = -1;
 
-        //play through rounds
+        // play through rounds
         for (round = 1; round <= params[ROUNDS]; ++round)
         {
-            for (currentplayer = 0; currentplayer < params[PLAYERS]; ++currentplayer)
+            for (currentplayer = 0; currentplayer < params[PLAYERS];
+                 ++currentplayer)
             {
-                game_set_start_message(pnames[currentplayer], _("Go!"), NULL, NULL);
+                game_set_start_message(pnames[currentplayer], _("Go!"), NULL,
+                                       NULL);
 
-                //Announcing the current player name
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s %s ",pnames[currentplayer],_("Go!"));
+                // Announcing the current player name
+                T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s %s ",
+                            pnames[currentplayer], _("Go!"));
 
                 result = comets_game(local_game);
-                //pscores[currentplayer] += Opts_LastScore(); //add this player's score
+                // pscores[currentplayer] += Opts_LastScore(); //add this
+                // player's score
                 if (result == GAME_OVER_WON)
-                    pscores[currentplayer] += 500; //plus a possible bonus
+                {
+                    pscores[currentplayer] += 500; // plus a possible bonus
+                }
             }
         }
 
-        //sort out winners
+        // sort out winners
         for (i = 0; i < params[PLAYERS]; ++i)
         {
-            int j = 0;
+            int j   = 0;
             hiscore = 0;
             for (j = 0; j < params[PLAYERS]; ++j)
             {
                 if (pscores[j] >= hiscore)
                 {
-                    hiscore = pscores[j];
+                    hiscore       = pscores[j];
                     currentwinner = j;
                 }
-                winners[i] = currentwinner;
+                winners[i]             = currentwinner;
                 pscores[currentwinner] = -1;
             }
         }
@@ -213,31 +228,33 @@ int mp_get_parameter(unsigned int param)
     return params[param];
 }
 
-//TODO a nicer-looking sequence that also recognizes second place etc.
-//FIXME doesn't sort correctly if the winner happens to be other than the
-//first player (winner is correct, but others aren't).  We could use the
-//game-over standings coded for the LAN game here.
+// TODO a nicer-looking sequence that also recognizes second place etc.
+// FIXME doesn't sort correctly if the winner happens to be other than the
+// first player (winner is correct, but others aren't).  We could use the
+// game-over standings coded for the LAN game here.
 void showWinners(int* winners, int num)
 {
-    int skip = 0;
-    int i = 0;
+    int       skip     = 0;
+    int       i        = 0;
     const int boxspeed = 3;
-    int sectionlength = num * (HIGH_SCORE_NAME_LENGTH + strlen(" wins!\n"));
+    int  sectionlength = num * (HIGH_SCORE_NAME_LENGTH + strlen(" wins!\n"));
     char text[sectionlength];
-    SDL_Rect box = {screen->w / 2, screen->h / 2, 0, 0};
-    SDL_Rect center = box;
+    SDL_Rect  box    = {screen->w / 2, screen->h / 2, 0, 0};
+    SDL_Rect  center = box;
     SDL_Event evt;
 
-    const char* winnername = (winners[0] == -1 ? "Nobody" : pnames[winners[0]] );
+    const char* winnername = (winners[0] == -1 ? "Nobody" : pnames[winners[0]]);
 
-    snprintf(text, HIGH_SCORE_NAME_LENGTH + strlen(" wins!"),
-            "%s wins!\n", winnername);
+    snprintf(text, HIGH_SCORE_NAME_LENGTH + strlen(" wins!"), "%s wins!\n",
+             winnername);
     for (i = 1; i < num; ++i)
     {
-        snprintf(strchr(text, '\0'), sectionlength, _("Then %s\n"), pnames[winners[i]]);
+        snprintf(strchr(text, '\0'), sectionlength, _("Then %s\n"),
+                 pnames[winners[i]]);
     }
 
-    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,_("%s. press space or escape to return to main menu."),text);
+    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT,
+                _("%s. press space or escape to return to main menu."), text);
 
     DEBUGMSG(debug_multiplayer, "%s Win text: %s\n", pnames[winners[0]], text);
 
@@ -245,26 +262,30 @@ void showWinners(int* winners, int num)
 
     while (box.h < screen->h || box.w < screen->w)
     {
-        //expand black box
+        // expand black box
         box.x -= boxspeed;
         box.y -= boxspeed;
         box.h += boxspeed * 2;
         box.w += boxspeed * 2;
 
-        //reveal text specifying the winner
+        // reveal text specifying the winner
         SDL_FillSurfaceRect(screen, &box, 0);
         draw_text(text, center);
 
-        while (SDL_PollEvent(&evt) )
+        while (SDL_PollEvent(&evt))
+        {
             if (evt.type == SDL_EVENT_KEY_DOWN && evt.key.key == SDLK_ESCAPE)
             {
                 skip = 1;
             }
+        }
         if (skip)
+        {
             break;
+        }
         SDL_Delay(50);
     }
-    //in case we've skipped, cover the whole screen
+    // in case we've skipped, cover the whole screen
     SDL_FillSurfaceRect(screen, NULL, 0);
     draw_text(text, center);
     T4K_UpdateRect(screen, NULL);
@@ -288,18 +309,14 @@ void showWinners(int* winners, int num)
 
 int initMP()
 {
-    int i;
-    int success = 1;
+    int  i;
+    int  success = 1;
     char nrstr[HIGH_SCORE_NAME_LENGTH * 3];
-    int nplayers = params[PLAYERS];
+    int  nplayers = params[PLAYERS];
 
-    const char* config_files[5] = {
-        "multiplay/space_cadet",
-        "multiplay/scout",
-        "multiplay/ranger",
-        "multiplay/ace",
-        "multiplay/commando"
-    };
+    const char* config_files[5] = {"multiplay/space_cadet", "multiplay/scout",
+                                   "multiplay/ranger", "multiplay/ace",
+                                   "multiplay/commando"};
 
     DEBUGMSG(debug_multiplayer, "Reading in difficulty settings...\n");
 
@@ -307,29 +324,38 @@ int initMP()
 
     success *= read_named_config_file(local_game, "multiplay/mpoptions");
 
-    success *= read_named_config_file(local_game, config_files[params[DIFFICULTY]]);
+    success *=
+        read_named_config_file(local_game, config_files[params[DIFFICULTY]]);
 
     if (!success)
     {
         fprintf(stderr, "Couldn't read in settings for %s\n",
-                config_files[params[DIFFICULTY]] );
+                config_files[params[DIFFICULTY]]);
         return 1;
     }
 
     pscores[0] = pscores[1] = pscores[2] = pscores[3] = 0;
     pnames[0] = pnames[1] = pnames[2] = pnames[3] = NULL;
 
-    //allocate and enter player names
+    // allocate and enter player names
     for (i = 0; i < nplayers; ++i)
-        pnames[i] = malloc((1 + 3 * HIGH_SCORE_NAME_LENGTH) * sizeof(char) );
+    {
+        pnames[i] = malloc((1 + 3 * HIGH_SCORE_NAME_LENGTH) * sizeof(char));
+    }
     for (i = 0; i < nplayers; ++i)
     {
         if (pnames[i])
         {
-            if (i == 0) //First player
-                NameEntry(pnames[i], N_("Who is playing first?"), N_("Enter your name:"), NULL);
-            else //subsequent players
-                NameEntry(pnames[i], N_("Who is playing next?"), N_("Enter your name:"), NULL);
+            if (i == 0) // First player
+            {
+                NameEntry(pnames[i], N_("Who is playing first?"),
+                          N_("Enter your name:"), NULL);
+            }
+            else // subsequent players
+            {
+                NameEntry(pnames[i], N_("Who is playing next?"),
+                          N_("Enter your name:"), NULL);
+            }
         }
         else
         {
@@ -338,16 +364,17 @@ int initMP()
         }
     }
 
-    //enter how many rounds
+    // enter how many rounds
     if (params[MODE] == SCORE_SWEEP)
     {
         while (params[ROUNDS] <= 0)
         {
-            NameEntry(nrstr, N_("How many rounds will you play?"), N_("Enter a number"), NULL);
+            NameEntry(nrstr, N_("How many rounds will you play?"),
+                      N_("Enter a number"), NULL);
             params[ROUNDS] = atoi(nrstr);
         }
     }
-    inprogress = 1; //now we can start the game
+    inprogress = 1; // now we can start the game
     return 0;
 }
 
@@ -356,12 +383,18 @@ void cleanupMP()
     int i;
 
     for (i = 0; i < params[PLAYERS]; ++i)
+    {
         if (pnames[i])
+        {
             free(pnames[i]);
+        }
+    }
 
     for (i = 0; i < NUM_PARAMS; ++i)
+    {
         params[i] = 0;
+    }
 
-    inprogress = 0;
+    inprogress    = 0;
     currentplayer = 0;
 }

@@ -30,70 +30,68 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPRITE_DELAY 200
 
-
-//global
+// global
 float FC_time_elapsed;
-int FC_frame_rate;
-int FC_sprite_counter;
+int   FC_frame_rate;
+int   FC_sprite_counter;
 
 //'local'
 static Uint32 last_time;
 static Uint32 counter_time;
 static Uint32 frame_begin_time;
 static Uint32 sprite_counter_time;
-static int frame_count;
-
+static int    frame_count;
 
 void FC_init(void)
 {
-    last_time = SDL_GetTicks();
-    counter_time = 0;
+    last_time           = SDL_GetTicks();
+    counter_time        = 0;
     sprite_counter_time = 0;
-    frame_count = 0;
+    frame_count         = 0;
 
-    FC_time_elapsed = 0.0f;
-    FC_frame_rate = 0;
+    FC_time_elapsed   = 0.0f;
+    FC_frame_rate     = 0;
     FC_sprite_counter = 0;
 }
-
 
 void FC_frame_begin(void)
 {
     frame_begin_time = SDL_GetTicks();
 
     Uint32 delta_time = frame_begin_time - last_time;
-    last_time = frame_begin_time;
+    last_time         = frame_begin_time;
 
     counter_time += delta_time;
     ++frame_count;
-    if(counter_time >= 1000)
+    if (counter_time >= 1000)
     {
         FC_frame_rate = frame_count;
-        frame_count = 0;
-        counter_time = 0;
+        frame_count   = 0;
+        counter_time  = 0;
     }
 
     sprite_counter_time += delta_time;
-    if(sprite_counter_time >= SPRITE_DELAY)
+    if (sprite_counter_time >= SPRITE_DELAY)
     {
         ++FC_sprite_counter;
         sprite_counter_time = 0;
     }
 
-    FC_time_elapsed = delta_time/1000.0f;
+    FC_time_elapsed = delta_time / 1000.0f;
 }
-
 
 void FC_frame_end(void)
 {
-    if(Opts_FPSLimit() <= 0)
-        return;
-
-    Uint32 this_frame_time = SDL_GetTicks()-frame_begin_time;
-    Uint32 time_per_frame_limit = 1000/Opts_FPSLimit();
-
-    if(this_frame_time < time_per_frame_limit)
+    if (Opts_FPSLimit() <= 0)
     {
-        SDL_Delay(time_per_frame_limit-this_frame_time);
+        return;
+    }
+
+    Uint32 this_frame_time      = SDL_GetTicks() - frame_begin_time;
+    Uint32 time_per_frame_limit = 1000 / Opts_FPSLimit();
+
+    if (this_frame_time < time_per_frame_limit)
+    {
+        SDL_Delay(time_per_frame_limit - this_frame_time);
     }
 }

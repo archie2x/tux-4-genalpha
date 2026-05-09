@@ -35,16 +35,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* Compile this with the following statement:
 
-   gcc -lm -o generate_lesson -DDATA_PREFIX=\"/usr/local/share/tuxmath\" generate_lesson.c mathcards.c options.c fileops.c lesson.c
+   gcc -lm -o generate_lesson -DDATA_PREFIX=\"/usr/local/share/tuxmath\"
+generate_lesson.c mathcards.c options.c fileops.c lesson.c
 
 Usage: generate_lesson configfile1 configfile2 ...
 
 */
 
 /* Declarations needed for the auxillary functions */
-char **lesson_list_titles = NULL;
-char **lesson_list_filenames = NULL;
-int num_lessons = 0;
+char** lesson_list_titles    = NULL;
+char** lesson_list_filenames = NULL;
+int    num_lessons           = 0;
 
 int read_high_scores_fp(FILE* fp)
 {
@@ -57,9 +58,9 @@ void initialize_scores(void)
     /* This is a stub to let things compile */
 }
 
-int main(int argc,char *argv[])
+int main(int argc, char* argv[])
 {
-    int i;
+    int         i;
     MC_MathGame game;
 
     /* Initialize MathCards backend for math questions: */
@@ -80,8 +81,9 @@ int main(int argc,char *argv[])
     /* This next bit allows multiple config files to be read in sequence, since
        this is something that happens in the ordinary course of events
        in tuxmath itself. */
-    for (i = 1; i < argc; i++) {
-        fprintf(stderr, "Reading %s\n",argv[i]);
+    for (i = 1; i < argc; i++)
+    {
+        fprintf(stderr, "Reading %s\n", argv[i]);
         read_named_config_file(&game, argv[i]);
     }
     fprintf(stderr, "All done reading!\n");

@@ -34,23 +34,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PIXELS_H
-#define PIXELS_H
-
+#pragma once
 #include <SDL3/SDL.h>
 
-void putpixel8(SDL_Surface * surface, int x, int y, Uint32 pixel);
-void putpixel16(SDL_Surface * surface, int x, int y, Uint32 pixel);
-void putpixel24(SDL_Surface * surface, int x, int y, Uint32 pixel);
-void putpixel32(SDL_Surface * surface, int x, int y, Uint32 pixel);
+void putpixel8(SDL_Surface* surface, int x, int y, Uint32 pixel);
+void putpixel16(SDL_Surface* surface, int x, int y, Uint32 pixel);
+void putpixel24(SDL_Surface* surface, int x, int y, Uint32 pixel);
+void putpixel32(SDL_Surface* surface, int x, int y, Uint32 pixel);
 
-extern void (*putpixels[]) (SDL_Surface *, int, int, Uint32);
+extern void (*putpixels[])(SDL_Surface*, int, int, Uint32);
 
-Uint32 getpixel8(SDL_Surface * surface, int x, int y);
-Uint32 getpixel16(SDL_Surface * surface, int x, int y);
-Uint32 getpixel24(SDL_Surface * surface, int x, int y);
-Uint32 getpixel32(SDL_Surface * surface, int x, int y);
+Uint32 getpixel8(SDL_Surface* surface, int x, int y);
+Uint32 getpixel16(SDL_Surface* surface, int x, int y);
+Uint32 getpixel24(SDL_Surface* surface, int x, int y);
+Uint32 getpixel32(SDL_Surface* surface, int x, int y);
 
-extern Uint32(*getpixels[]) (SDL_Surface *, int, int);
-
-#endif
+extern Uint32 (*getpixels[])(SDL_Surface*, int, int);

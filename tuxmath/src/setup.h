@@ -32,15 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef SETUP_H
-#define SETUP_H
-
-
-void setup(int argc, char * argv[]);
-void cleanup(void);
-void cleanup_on_error(void);
+#pragma once
+void        setup(int argc, char* argv[]);
+void        cleanup(void);
+void        cleanup_on_error(void);
 const char* tm_data_prefix(void);
 extern void initialize_options_user(void);
 /* for debugging gettext behavior */
 void print_locale_info(FILE* fp);
-#endif

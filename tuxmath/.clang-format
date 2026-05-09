@@ -5,13 +5,14 @@ UseTab: Never
 IndentWidth: 4
 TabWidth: 4
 BreakBeforeBraces: Allman
-ColumnLimit: 80          # git clang-format only touches our diff lines
+ColumnLimit: 80
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: false
 SortIncludes: false      # SDL3/local include order is intentional
-ReflowComments: false    # legacy comments stay as-is
 PointerAlignment: Left   # SDL_Surface* s   (matches existing)
 InsertBraces: true       # always brace if/while/for/else bodies
+PPIndentWidth: 1
+IndentPPDirectives: AfterHash   # `#` flush-left, nested directive indented

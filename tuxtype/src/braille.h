@@ -1,6 +1,4 @@
-#ifndef TUXTYPE_BRAILLE_H
-#define TUXTYPE_BRAILLE_H
-
+#pragma once
 #include <wchar.h>
 
 void Braille_Reorder(wchar_t* disorder);
@@ -17,5 +15,3 @@ int Braille_DotsForChar(wchar_t ch, wchar_t dots[6]);
  *   2 if matches value_end, 1 if value_middle, 0 if value_begin,
  *  -1 if no match. */
 int Braille_PositionForChar(wchar_t ch);
-
-#endif

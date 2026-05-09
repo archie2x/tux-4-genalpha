@@ -70,7 +70,7 @@
 typedef MIX_Audio Mix_Chunk;
 typedef MIX_Audio Mix_Music;
 
-//TTS Macros
+// TTS Macros
 #define DEFAULT_VALUE 30
 #define INTERRUPT 0
 #define APPEND 1
@@ -87,64 +87,64 @@ typedef MIX_Audio Mix_Music;
 #ifndef DEBUGMSG
 
 //! DEBUGVAR prints out the name and value of a string variable
-#define DEBUGVAR(mask, Expr)                                                   \
-    if ((mask) & (debug_status))                                               \
-    {                                                                          \
-        fprintf(stderr, #Expr ": %s\n", (Expr));                               \
-        fflush(stderr);                                                        \
-    }
+# define DEBUGVAR(mask, Expr)                                                  \
+     if ((mask) & (debug_status))                                              \
+     {                                                                         \
+         fprintf(stderr, #Expr ": %s\n", (Expr));                              \
+         fflush(stderr);                                                       \
+     }
 
 //! DEBUGVARX prints out the name and hex value of an integral variable
-#define DEBUGVARX(mask, Expr)                                                  \
-    if ((mask) & (debug_status))                                               \
-    {                                                                          \
-        fprintf(stderr, #Expr ": %x\n", (Expr));                               \
-        fflush(stderr);                                                        \
-    }
+# define DEBUGVARX(mask, Expr)                                                 \
+     if ((mask) & (debug_status))                                              \
+     {                                                                         \
+         fprintf(stderr, #Expr ": %x\n", (Expr));                              \
+         fflush(stderr);                                                       \
+     }
 
 //! DEBUGVARF prints out the name and decimal value of a floating point variable
-#define DEBUGVARF(mask, Expr)                                                  \
-    if ((mask) & (debug_status))                                               \
-    {                                                                          \
-        fprintf(stderr, #Expr ": %f\n", (Expr));                               \
-        fflush(stderr);                                                        \
-    }
+# define DEBUGVARF(mask, Expr)                                                 \
+     if ((mask) & (debug_status))                                              \
+     {                                                                         \
+         fprintf(stderr, #Expr ": %f\n", (Expr));                              \
+         fflush(stderr);                                                       \
+     }
 
 //! DEBUGCODE is a conditional and should be followed by a code block.
 //! Guarded so callers that define their own (parameterless) DEBUGCODE win.
-#ifndef DEBUGCODE
-#define DEBUGCODE(mask) if ((mask) & debug_status)
-#endif
+# ifndef DEBUGCODE
+#  define DEBUGCODE(mask) if ((mask) & debug_status)
+# endif
 
 //! DEBUGMSG prints out a specific message, which can be formatted like printf
-#define DEBUGMSG(mask, ...)                                                    \
-    if ((mask) & debug_status)                                                 \
-    {                                                                          \
-        fprintf(stderr, __VA_ARGS__);                                          \
-        fflush(stderr);                                                        \
-    }
+# define DEBUGMSG(mask, ...)                                                   \
+     if ((mask) & debug_status)                                                \
+     {                                                                         \
+         fprintf(stderr, __VA_ARGS__);                                         \
+         fflush(stderr);                                                       \
+     }
 #endif
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define rmask 0xff000000 //!< SDL red mask
-#define gmask 0x00ff0000 //!< SDL green mask
-#define bmask 0x0000ff00 //!< SDL blue mask
-#define amask 0x000000ff //!< SDL alpha mask
+# define rmask 0xff000000 //!< SDL red mask
+# define gmask 0x00ff0000 //!< SDL green mask
+# define bmask 0x0000ff00 //!< SDL blue mask
+# define amask 0x000000ff //!< SDL alpha mask
 #else
-#define rmask 0x000000ff //!< SDL red mask
-#define gmask 0x0000ff00 //!< SDL green mask
-#define bmask 0x00ff0000 //!< SDL blue mask
-#define amask 0xff000000 //!< SDL alpha mask
+# define rmask 0x000000ff //!< SDL red mask
+# define gmask 0x0000ff00 //!< SDL green mask
+# define bmask 0x00ff0000 //!< SDL blue mask
+# define amask 0xff000000 //!< SDL alpha mask
 #endif
 
 #ifndef bool
-#if __STDC_VERSION__ <= 201710L
+# if __STDC_VERSION__ <= 201710L
 typedef enum
 {
     false,
     true
 } bool;
-#endif
+# endif
 #endif
 
 // These values have to match those used in games.
@@ -158,7 +158,7 @@ static const int debug_all  = ~0;     //!< Enable all debugging output (messy!)
 
 extern int debug_status;
 
-//Define our color constants:
+// Define our color constants:
 static const SDL_Color black        = {0x00, 0x00, 0x00, 0xff};
 static const SDL_Color gray         = {0x80, 0x80, 0x80, 0xff};
 static const SDL_Color dark_blue    = {0x00, 0x00, 0x60, 0xff};
@@ -228,10 +228,10 @@ typedef enum
 //!
 enum
 {
-    RUN_MAIN_MENU =
-        -3, //!< can be used in .xml menu structures but should not be declared in activities' lists.
-    QUIT = -2, //!< user decided to quit application
-    STOP = -1  //!< user pressed the stop button
+    RUN_MAIN_MENU = -3, //!< can be used in .xml menu structures but should not
+                        //!< be declared in activities' lists.
+    QUIT = -2,          //!< user decided to quit application
+    STOP = -1           //!< user pressed the stop button
 };
 
 //==============================================================================
@@ -243,9 +243,12 @@ enum
 //!
 typedef enum
 {
-    MF_UNIFORM, //!< All menus are searched and the largest size that will fit on all menus is used.
-    MF_BESTFIT, //!< Menus are searched separately for the largest fonts they can accommodate.
-    MF_EXACTLY //!< The font size given is used directly; text may run off the screen.
+    MF_UNIFORM, //!< All menus are searched and the largest size that will fit
+                //!< on all menus is used.
+    MF_BESTFIT, //!< Menus are searched separately for the largest fonts they
+                //!< can accommodate.
+    MF_EXACTLY  //!< The font size given is used directly; text may run off the
+                //!< screen.
 } MFStrategy;
 
 // from tk4_loaders.c
@@ -263,7 +266,7 @@ typedef enum
 extern char wrapped_lines[MAX_LINES]
                          [MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
-//TODO separate headers for different areas a la SDL?
+// TODO separate headers for different areas a la SDL?
 
 //==============================================================================
 // Structure used to pass arguments for T4K_Tts_say()
@@ -1987,9 +1990,10 @@ int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
 //!     which is allocated via  malloc(3).  If  sdfilter  is NULL, all entries
 //!     are selected.
 //!
-//!     The alphasort() and versionsort() functions can be used as the comparison
-//!     function compar(). The former sorts directory entries using strcoll(3),
-//!     the latter using strverscmp(3) on the strings (*a)->d_name and (*b)->d_name.
+//!     The alphasort() and versionsort() functions can be used as the
+//!     comparison function compar(). The former sorts directory entries using
+//!     strcoll(3), the latter using strverscmp(3) on the strings (*a)->d_name
+//!     and (*b)->d_name.
 //!
 //! \param
 //!     const char *dirname

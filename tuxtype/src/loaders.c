@@ -31,11 +31,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "mysetenv.h"
 #include "braille.h"
 
-static SDL_Surface* win_bkgd = NULL;
+static SDL_Surface* win_bkgd     = NULL;
 static SDL_Surface* fullscr_bkgd = NULL;
 
 /* Local function prototypes: */
-//static SDL_Surface* flip(SDL_Surface *in, int x, int y);
+// static SDL_Surface* flip(SDL_Surface *in, int x, int y);
 
 /* FIXME not sure we need to call *textdomain() functions again here  */
 /* FIXME need to read language's font name, if needed - e.g. Russian. */
@@ -47,175 +47,194 @@ void LoadLang(void)
     char        tts_language[10];
     s1 = setlocale(LC_ALL, settings.theme_locale_name);
     /* Tell t4k_common which font to use for text rendering this theme.
-   * Without this, every menu/wordlist title fell back to the default
-   * Latin font, which has no Devanagari/Bengali/etc. glyphs — Hindi
-   * lists rendered as empty rows. */
+     * Without this, every menu/wordlist title fell back to the default
+     * Latin font, which has no Devanagari/Bengali/etc. glyphs — Hindi
+     * lists rendered as empty rows. */
     if (settings.theme_font_name[0])
     {
         T4K_SetFontName(settings.theme_font_name);
     }
-  s2 = bindtextdomain(PACKAGE, tt_locale_dir());
-  s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
-  s4 = textdomain(PACKAGE);
+    s2 = bindtextdomain(PACKAGE, tt_locale_dir());
+    s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
+    s4 = textdomain(PACKAGE);
 
-  DEBUGCODE
-  {
-    fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-    fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
-    fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n", settings.theme_locale_name, s1);
-    fprintf(stderr, "bindtextdomain returned: %s\n", s2);
-    fprintf(stderr, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n", s3);
-    fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
-    fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));
-//    fprintf(stderr, "After gettext() call\n");
-  }
+    DEBUGCODE
+    {
+        fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
+        fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
+        fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n",
+                settings.theme_locale_name, s1);
+        fprintf(stderr, "bindtextdomain returned: %s\n", s2);
+        fprintf(stderr,
+                "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n",
+                s3);
+        fprintf(stderr, "textdomain(PACKAGE) returned: %s\n", s4);
+        fprintf(stderr, "gettext(\"Fish\"): %s\n\n", gettext("Fish"));
+        //    fprintf(stderr, "After gettext() call\n");
+    }
 
-  /* Also set LANG and LANGUAGE as fallbacks because setlocale() unreliable */
-  /* on some Windows versions, AFAICT                                       */
-  snprintf(buf, 30, "%s", settings.theme_locale_name);
-  buf[5] = '\0';  //en_US" rather than "en_US.utf8"
-  DEBUGCODE { fprintf(stderr, "buf is: %s\n", buf); }
+    /* Also set LANG and LANGUAGE as fallbacks because setlocale() unreliable */
+    /* on some Windows versions, AFAICT                                       */
+    snprintf(buf, 30, "%s", settings.theme_locale_name);
+    buf[5] = '\0'; // en_US" rather than "en_US.utf8"
+    DEBUGCODE
+    {
+        fprintf(stderr, "buf is: %s\n", buf);
+    }
 
-  /* Loading braille Map */
-  if (settings.braille)
-  {
-	  char file_name[100];
-	  if(settings.use_english){
-			sprintf(file_name,"english.txt");
-	  }
-	  else{
-		  sprintf(file_name,"%s.txt",settings.theme_name);
-	  }
+    /* Loading braille Map */
+    if (settings.braille)
+    {
+        char file_name[100];
+        if (settings.use_english)
+        {
+            sprintf(file_name, "english.txt");
+        }
+        else
+        {
+            sprintf(file_name, "%s.txt", settings.theme_name);
+        }
 
-      //If map not found then disable braille mode
-      if (Braille_LoadLanguage(file_name) == 0)
-      {
-          T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
-                      gettext("Braille mode is not available for this "
-                              "language. Braille disabled!"));
-          DEBUGCODE{  fprintf(stderr,"Braille disabled!"); }
-		  settings.braille = 0;
-      }
-  }
+        // If map not found then disable braille mode
+        if (Braille_LoadLanguage(file_name) == 0)
+        {
+            T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+                        gettext("Braille mode is not available for this "
+                                "language. Braille disabled!"));
+            DEBUGCODE
+            {
+                fprintf(stderr, "Braille disabled!");
+            }
+            settings.braille = 0;
+        }
+    }
 
-  /* Setting TTS language
-   * with code such as ml for malayalam*/
-  sprintf(tts_language, "%.*s", 2, buf);
-  if (!T4K_Tts_set_voice(tts_language))
-  {
-      T4K_Tts_say(
-          DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
-          gettext("Tts is not available for this language. Tts disabled!"));
-      settings.tts          = 0;
-      text_to_speech_status = 0;
-  }
+    /* Setting TTS language
+     * with code such as ml for malayalam*/
+    sprintf(tts_language, "%.*s", 2, buf);
+    if (!T4K_Tts_set_voice(tts_language))
+    {
+        T4K_Tts_say(
+            DEFAULT_VALUE, DEFAULT_VALUE, APPEND,
+            gettext("Tts is not available for this language. Tts disabled!"));
+        settings.tts          = 0;
+        text_to_speech_status = 0;
+    }
 
-  if (my_setenv("LANG", buf) == -1)
-  {
-    fprintf(stderr, "Warning - could not set LANG to %s\n\n", buf);
-  }
+    if (my_setenv("LANG", buf) == -1)
+    {
+        fprintf(stderr, "Warning - could not set LANG to %s\n\n", buf);
+    }
 
-  if (-1 == my_setenv("LANGUAGE", buf))
-  {
-    fprintf(stderr, "Warning - could not set LANGUAGE to %s\n\n", buf);
-  }
+    if (-1 == my_setenv("LANGUAGE", buf))
+    {
+        fprintf(stderr, "Warning - could not set LANGUAGE to %s\n\n", buf);
+    }
 }
 
 #ifdef HAVE_RSVG
 /***********************
     SVG related functions
 ************************/
-#include<librsvg/rsvg.h>
-#include<librsvg/rsvg-cairo.h>
+# include <librsvg/rsvg.h>
+# include <librsvg/rsvg-cairo.h>
 
 /* Load an SVG file and resize it to given dimensions.
    if width or height is set to 0 no resizing is applied
    (partly based on TuxPaint's SVG loading function) */
 SDL_Surface* LoadSVGOfDimensions(char* filename, int width, int height)
 {
-  cairo_surface_t* temp_surf;
-  cairo_t* context;
-  RsvgHandle* file_handle;
-  RsvgDimensionData dimensions;
-  SDL_Surface* dest;
-  float scale_x;
-  float scale_y;
-  int bpp = 32;
-  Uint32 Rmask, Gmask, Bmask, Amask;
+    cairo_surface_t*  temp_surf;
+    cairo_t*          context;
+    RsvgHandle*       file_handle;
+    RsvgDimensionData dimensions;
+    SDL_Surface*      dest;
+    float             scale_x;
+    float             scale_y;
+    int               bpp = 32;
+    Uint32            Rmask, Gmask, Bmask, Amask;
 
-  DEBUGCODE{
-    fprintf(stderr, "LoadSVGOfDimensions(): looking for %s\n", filename);
-  }
-
-  rsvg_init();
-
-  file_handle = rsvg_handle_new_from_file(filename, NULL);
-  if(file_handle == NULL)
-  {
-    DEBUGCODE{
-      fprintf(stderr, "LoadSVGOfDimensions(): file %s not found\n", filename);
+    DEBUGCODE
+    {
+        fprintf(stderr, "LoadSVGOfDimensions(): looking for %s\n", filename);
     }
-    rsvg_term();
-    return NULL;
-  }
 
-  rsvg_handle_get_dimensions(file_handle, &dimensions);
-  DEBUGCODE{
-    fprintf(stderr, "SVG is %d x %d\n", dimensions.width, dimensions.height);
-  }
+    rsvg_init();
 
-  if(width <= 0 || height <= 0)
-  {
-    width = dimensions.width;
-    height = dimensions.height;
-    scale_x = 1.0;
-    scale_y = 1.0;
-  }
-  else
-  {
-    scale_x = (float)width / dimensions.width;
-    scale_y = (float)height / dimensions.height;
-  }
+    file_handle = rsvg_handle_new_from_file(filename, NULL);
+    if (file_handle == NULL)
+    {
+        DEBUGCODE
+        {
+            fprintf(stderr, "LoadSVGOfDimensions(): file %s not found\n",
+                    filename);
+        }
+        rsvg_term();
+        return NULL;
+    }
 
-  /* FIXME: We assume that our bpp = 32 */
+    rsvg_handle_get_dimensions(file_handle, &dimensions);
+    DEBUGCODE
+    {
+        fprintf(stderr, "SVG is %d x %d\n", dimensions.width,
+                dimensions.height);
+    }
 
-  /* rmask, gmask, bmask, amask defined in SDL_extras.h do not work !
+    if (width <= 0 || height <= 0)
+    {
+        width   = dimensions.width;
+        height  = dimensions.height;
+        scale_x = 1.0;
+        scale_y = 1.0;
+    }
+    else
+    {
+        scale_x = (float)width / dimensions.width;
+        scale_y = (float)height / dimensions.height;
+    }
+
+    /* FIXME: We assume that our bpp = 32 */
+
+    /* rmask, gmask, bmask, amask defined in SDL_extras.h do not work !
      are those (taken from TuxPaint) dependent on endianness ? */
-  Rmask = 0x00ff0000;
-  Gmask = 0x0000ff00;
-  Bmask = 0x000000ff;
-  Amask = 0xff000000;
+    Rmask = 0x00ff0000;
+    Gmask = 0x0000ff00;
+    Bmask = 0x000000ff;
+    Amask = 0xff000000;
 
-  dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-        width, height, bpp, Rmask, Gmask, Bmask, Amask);
+    dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height,
+                                bpp, Rmask, Gmask, Bmask, Amask);
 
-  SDL_LockSurface(dest);
-  temp_surf = cairo_image_surface_create_for_data(dest->pixels,
-        CAIRO_FORMAT_ARGB32, dest->w, dest->h, dest->pitch);
+    SDL_LockSurface(dest);
+    temp_surf = cairo_image_surface_create_for_data(
+        dest->pixels, CAIRO_FORMAT_ARGB32, dest->w, dest->h, dest->pitch);
 
-  context = cairo_create(temp_surf);
-  if(cairo_status(context) != CAIRO_STATUS_SUCCESS)
-  {
-    DEBUGCODE{
-      fprintf(stderr, "LoadSVGOfDimensions(): error rendering SVG from %s\n", filename);
+    context = cairo_create(temp_surf);
+    if (cairo_status(context) != CAIRO_STATUS_SUCCESS)
+    {
+        DEBUGCODE
+        {
+            fprintf(stderr,
+                    "LoadSVGOfDimensions(): error rendering SVG from %s\n",
+                    filename);
+        }
+        g_object_unref(file_handle);
+        cairo_surface_destroy(temp_surf);
+        rsvg_term();
+        return NULL;
     }
+
+    cairo_scale(context, scale_x, scale_y);
+    rsvg_handle_render_cairo(file_handle, context);
+
+    SDL_UnlockSurface(dest);
+
     g_object_unref(file_handle);
     cairo_surface_destroy(temp_surf);
+    cairo_destroy(context);
     rsvg_term();
-    return NULL;
-  }
 
-  cairo_scale(context, scale_x, scale_y);
-  rsvg_handle_render_cairo(file_handle, context);
-
-  SDL_UnlockSurface(dest);
-
-  g_object_unref(file_handle);
-  cairo_surface_destroy(temp_surf);
-  cairo_destroy(context);
-  rsvg_term();
-
-  return dest;
+    return dest;
 }
 
 #endif
@@ -224,122 +243,138 @@ SDL_Surface* LoadSVGOfDimensions(char* filename, int width, int height)
         LoadImageFromFile : Simply load an image from given file
         or its SVG equivalent (if present). Return NULL if loading failed.
 ************************/
-SDL_Surface* LoadImageFromFile(char *datafile)
+SDL_Surface* LoadImageFromFile(char* datafile)
 {
-  SDL_Surface* tmp_pic = NULL;
+    SDL_Surface* tmp_pic = NULL;
 
 #ifdef HAVE_RSVG
-  char svgfn[PATH_MAX];
+    char svgfn[PATH_MAX];
 #endif
 
-  DEBUGCODE{
-    fprintf(stderr, "LoadImageFromFile(): looking in %s\n", datafile);
-  }
+    DEBUGCODE
+    {
+        fprintf(stderr, "LoadImageFromFile(): looking in %s\n", datafile);
+    }
 
 #ifdef HAVE_RSVG
-  /* This is just an ugly workaround to test SVG
+    /* This is just an ugly workaround to test SVG
      before any scaling routines are implemented */
 
-  /* change extension into .svg */
-  char* dotpos = strrchr(datafile, '.');
-  if (dotpos) //will be NULL if '.' not found:
-  {
-    strncpy(svgfn, datafile, dotpos - datafile);
-    svgfn[dotpos - datafile] = '\0';
-    strcat(svgfn, ".svg");
+    /* change extension into .svg */
+    char* dotpos = strrchr(datafile, '.');
+    if (dotpos) // will be NULL if '.' not found:
+    {
+        strncpy(svgfn, datafile, dotpos - datafile);
+        svgfn[dotpos - datafile] = '\0';
+        strcat(svgfn, ".svg");
 
-    /* try to load an SVG equivalent */
-    tmp_pic = LoadSVGOfDimensions(svgfn, 0, 0);
-  }
+        /* try to load an SVG equivalent */
+        tmp_pic = LoadSVGOfDimensions(svgfn, 0, 0);
+    }
 #endif
 
-  if(tmp_pic == NULL)
-    /* Try to load image with SDL_image: */
-    tmp_pic = IMG_Load(datafile);
+    if (tmp_pic == NULL)
+    {
+        /* Try to load image with SDL_image: */
+        tmp_pic = IMG_Load(datafile);
+    }
 
-  return tmp_pic;
+    return tmp_pic;
 }
 
 /***********************
-	LoadImage : Load an image and set transparent if requested
+    LoadImage : Load an image and set transparent if requested
 ************************/
 SDL_Surface* LoadImage(const char* datafile, int mode)
 {
-  SDL_Surface* tmp_pic = NULL, *final_pic = NULL;
-  char fn[FNLEN];
+    SDL_Surface *tmp_pic = NULL, *final_pic = NULL;
+    char         fn[FNLEN];
 
-  /* Look for image under theme path if desired: */
-  if (!settings.use_english && !(mode & IMG_NO_THEME))
-  {
-    sprintf(fn, "%s/images/%s", settings.theme_data_path, datafile);
+    /* Look for image under theme path if desired: */
+    if (!settings.use_english && !(mode & IMG_NO_THEME))
+    {
+        sprintf(fn, "%s/images/%s", settings.theme_data_path, datafile);
 
-    tmp_pic = LoadImageFromFile(fn);
-    if (tmp_pic != NULL)
-      {}
-    else
-      DEBUGCODE { fprintf(stderr, "Warning: graphics file %s could not be loaded\n", fn);}
-  }
+        tmp_pic = LoadImageFromFile(fn);
+        if (tmp_pic != NULL)
+        {
+        }
+        else
+        {
+            DEBUGCODE
+            {
+                fprintf(stderr,
+                        "Warning: graphics file %s could not be loaded\n", fn);
+            }
+        }
+    }
 
-  /* If we don't have a valid image yet, try the default path: */
-  if (!tmp_pic)
-  {
-    sprintf(fn, "%s/images/%s", settings.default_data_path, datafile);
+    /* If we don't have a valid image yet, try the default path: */
+    if (!tmp_pic)
+    {
+        sprintf(fn, "%s/images/%s", settings.default_data_path, datafile);
 
-    tmp_pic = LoadImageFromFile(fn);
-    if (tmp_pic != NULL)
-      {}
-    else
-      DEBUGCODE { fprintf(stderr, "Warning: graphics file %s could not be loaded\n", fn);}
-  }
+        tmp_pic = LoadImageFromFile(fn);
+        if (tmp_pic != NULL)
+        {
+        }
+        else
+        {
+            DEBUGCODE
+            {
+                fprintf(stderr,
+                        "Warning: graphics file %s could not be loaded\n", fn);
+            }
+        }
+    }
 
-  /* NOTE changed this so we just return NULL instead of exiting - DSB   */
-  /* Couldn't load image - action depends on whether image is essential: */
-  if (!tmp_pic)
-  {
-      {
-          DEBUGCODE
-          {
-              fprintf(stderr, "Warning - could not load graphics file %s\n",
-                      datafile);
-          }
-          return NULL;
-      }
-  }
+    /* NOTE changed this so we just return NULL instead of exiting - DSB   */
+    /* Couldn't load image - action depends on whether image is essential: */
+    if (!tmp_pic)
+    {
+        {
+            DEBUGCODE
+            {
+                fprintf(stderr, "Warning - could not load graphics file %s\n",
+                        datafile);
+            }
+            return NULL;
+        }
+    }
 
+    /* If we get to here, success - setup the image in the proper format: */
 
-  /* If we get to here, success - setup the image in the proper format: */
-
-  switch (mode & IMG_MODES)
-  {
-  case IMG_REGULAR:
-  case IMG_ALPHA:
-  {
-      final_pic = SDL_DuplicateSurface(tmp_pic);
-      SDL_DestroySurface(tmp_pic);
-      break;
-  }
+    switch (mode & IMG_MODES)
+    {
+    case IMG_REGULAR:
+    case IMG_ALPHA:
+    {
+        final_pic = SDL_DuplicateSurface(tmp_pic);
+        SDL_DestroySurface(tmp_pic);
+        break;
+    }
 
     case IMG_COLORKEY:
     {
-      SDL_LockSurface(tmp_pic);
-      SDL_SetSurfaceColorKey(
-          tmp_pic, true,
-          SDL_MapRGB(SDL_GetPixelFormatDetails(tmp_pic->format), NULL, 255, 255,
-                     0));
-      final_pic = SDL_DuplicateSurface(tmp_pic);
-      SDL_DestroySurface(tmp_pic);
-      break;
+        SDL_LockSurface(tmp_pic);
+        SDL_SetSurfaceColorKey(
+            tmp_pic, true,
+            SDL_MapRGB(SDL_GetPixelFormatDetails(tmp_pic->format), NULL, 255,
+                       255, 0));
+        final_pic = SDL_DuplicateSurface(tmp_pic);
+        SDL_DestroySurface(tmp_pic);
+        break;
     }
 
     default:
     {
-      LOG ("Image mode not recognized\n");
+        LOG("Image mode not recognized\n");
     }
-  }
+    }
 
-//  LOG( "LoadImage(): Done\n" );
+    //  LOG( "LoadImage(): Done\n" );
 
-  return (final_pic);
+    return (final_pic);
 }
 
 /**********************
@@ -349,137 +384,162 @@ Returns: the number of images that were scaled
 **********************/
 int LoadBothBkgds(const char* datafile)
 {
-  int ret = 0;
-  SDL_Surface* orig = NULL;
+    int          ret  = 0;
+    SDL_Surface* orig = NULL;
 
-  //Avoid memory leak in case something else already loaded:
-  FreeBothBkgds();
+    // Avoid memory leak in case something else already loaded:
+    FreeBothBkgds();
 
-  LOG("Entering LoadBothBkgds()\n");
+    LOG("Entering LoadBothBkgds()\n");
 
-  orig = LoadImage(datafile, IMG_REGULAR);
+    orig = LoadImage(datafile, IMG_REGULAR);
 
-  DEBUGCODE
-  {
-      printf("Scaling %dx%d to: %dx%d, %dx%d\n", orig->w, orig->h, RES_X, RES_Y,
-             fs_res_x, fs_res_y);
-  }
+    DEBUGCODE
+    {
+        printf("Scaling %dx%d to: %dx%d, %dx%d\n", orig->w, orig->h, RES_X,
+               RES_Y, fs_res_x, fs_res_y);
+    }
 
-  if (orig->w == RES_X && orig->h == RES_Y)
-  {
-    win_bkgd = orig;
-  }
-  else
-  {
-    win_bkgd = zoom(orig, RES_X, RES_Y);
-    ++ret;
-  }
+    if (orig->w == RES_X && orig->h == RES_Y)
+    {
+        win_bkgd = orig;
+    }
+    else
+    {
+        win_bkgd = zoom(orig, RES_X, RES_Y);
+        ++ret;
+    }
 
-  if (orig->w == fs_res_x && orig->h == fs_res_y)
-  {
-    fullscr_bkgd = orig;
-  }
-  else
-  {
-    fullscr_bkgd = zoom(orig, fs_res_x, fs_res_y);
-    ++ret;
-  }
+    if (orig->w == fs_res_x && orig->h == fs_res_y)
+    {
+        fullscr_bkgd = orig;
+    }
+    else
+    {
+        fullscr_bkgd = zoom(orig, fs_res_x, fs_res_y);
+        ++ret;
+    }
 
-  if (ret == 2) //orig won't be used at all
-      SDL_DestroySurface(orig);
+    if (ret == 2) // orig won't be used at all
+    {
+        SDL_DestroySurface(orig);
+    }
 
-  DEBUGCODE
-  {
-    printf("%d images scaled\nLeaving LoadBothBkgds()\n", ret);
-  }
-  return ret;
+    DEBUGCODE
+    {
+        printf("%d images scaled\nLeaving LoadBothBkgds()\n", ret);
+    }
+    return ret;
 }
-
 
 SDL_Surface* CurrentBkgd(void)
 {
-  if (!screen)
-    return NULL;
-  /* SDL3: fullscreen state is on the window now, not the surface. For first
-   * launch we always use windowed bkgd. Tracked properly via settings later. */
-  return win_bkgd;
+    if (!screen)
+    {
+        return NULL;
+    }
+    /* SDL3: fullscreen state is on the window now, not the surface. For first
+     * launch we always use windowed bkgd. Tracked properly via settings later.
+     */
+    return win_bkgd;
 }
 
 void FreeBothBkgds(void)
 {
-  if (win_bkgd)
-      SDL_DestroySurface(win_bkgd);
-  win_bkgd = NULL;
+    if (win_bkgd)
+    {
+        SDL_DestroySurface(win_bkgd);
+    }
+    win_bkgd = NULL;
 
-  if (fullscr_bkgd)
-      SDL_DestroySurface(fullscr_bkgd);
-  fullscr_bkgd = NULL;
+    if (fullscr_bkgd)
+    {
+        SDL_DestroySurface(fullscr_bkgd);
+    }
+    fullscr_bkgd = NULL;
 }
 
-
-sprite* FlipSprite(sprite* in, int X, int Y ) {
-	sprite* out;
-
-	out = malloc(sizeof(sprite));
-	if (in->default_img != NULL)
-		out->default_img = Flip( in->default_img, X, Y );
-	else
-		out->default_img = NULL;
-	for ( out->num_frames=0; out->num_frames<in->num_frames; out->num_frames++ )
-		out->frame[out->num_frames] = Flip( in->frame[out->num_frames], X, Y );
-	out->cur = 0;
-	return out;
-}
-
-sprite* LoadSprite(const char* name, int MODE ) {
-	sprite *new_sprite;
-	char fn[FNLEN];
-	int x;
-
-	/* JA --- HACK check out what has changed with new code */
-
-	new_sprite = malloc(sizeof(sprite));
-
-	sprintf(fn, "%sd.png", name);
-	new_sprite->default_img = LoadImage( fn, MODE|IMG_NOT_REQUIRED );
-	for (x = 0; x < MAX_SPRITE_FRAMES; x++) {
-		sprintf(fn, "%s%d.png", name, x);
-		new_sprite->frame[x] = LoadImage( fn, MODE|IMG_NOT_REQUIRED );
-		if ( new_sprite->frame[x] == NULL ) {
-			new_sprite->cur = 0;
-			new_sprite->num_frames = x;
-			break;
-		}
-	}
-
-	DEBUGCODE {
-		fprintf( stderr, "loading sprite %s - contains %d frames\n",
-		        name, new_sprite->num_frames );
-	}
-
-	return new_sprite;
-}
-
-void FreeSprite(sprite* gfx )
+sprite* FlipSprite(sprite* in, int X, int Y)
 {
-  int x;
+    sprite* out;
 
-  if (!gfx)
-    return;
+    out = malloc(sizeof(sprite));
+    if (in->default_img != NULL)
+    {
+        out->default_img = Flip(in->default_img, X, Y);
+    }
+    else
+    {
+        out->default_img = NULL;
+    }
+    for (out->num_frames = 0; out->num_frames < in->num_frames;
+         out->num_frames++)
+    {
+        out->frame[out->num_frames] = Flip(in->frame[out->num_frames], X, Y);
+    }
+    out->cur = 0;
+    return out;
+}
 
-  for (x = 0; x < gfx->num_frames; x++)
-  {
-    if (gfx->frame[x])
-        SDL_DestroySurface(gfx->frame[x]);
-  }
-  if (gfx->default_img)
-      SDL_DestroySurface(gfx->default_img);
-  free(gfx);
+sprite* LoadSprite(const char* name, int MODE)
+{
+    sprite* new_sprite;
+    char    fn[FNLEN];
+    int     x;
+
+    /* JA --- HACK check out what has changed with new code */
+
+    new_sprite = malloc(sizeof(sprite));
+
+    sprintf(fn, "%sd.png", name);
+    new_sprite->default_img = LoadImage(fn, MODE | IMG_NOT_REQUIRED);
+    for (x = 0; x < MAX_SPRITE_FRAMES; x++)
+    {
+        sprintf(fn, "%s%d.png", name, x);
+        new_sprite->frame[x] = LoadImage(fn, MODE | IMG_NOT_REQUIRED);
+        if (new_sprite->frame[x] == NULL)
+        {
+            new_sprite->cur        = 0;
+            new_sprite->num_frames = x;
+            break;
+        }
+    }
+
+    DEBUGCODE
+    {
+        fprintf(stderr, "loading sprite %s - contains %d frames\n", name,
+                new_sprite->num_frames);
+    }
+
+    return new_sprite;
+}
+
+void FreeSprite(sprite* gfx)
+{
+    int x;
+
+    if (!gfx)
+    {
+        return;
+    }
+
+    for (x = 0; x < gfx->num_frames; x++)
+    {
+        if (gfx->frame[x])
+        {
+            SDL_DestroySurface(gfx->frame[x]);
+        }
+    }
+    if (gfx->default_img)
+    {
+        SDL_DestroySurface(gfx->default_img);
+    }
+    free(gfx);
 }
 
 /***************************
-	LoadSound : Load a sound/music patch from a file.
-	Tries the theme path first, then falls back to default.
+    LoadSound : Load a sound/music patch from a file.
+    Tries the theme path first, then falls back to default.
 ****************************/
 Mix_Chunk* LoadSound(const char* datafile)
 {

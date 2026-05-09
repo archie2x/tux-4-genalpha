@@ -3,9 +3,7 @@
  * sound ship embedded in the library. Mixer gain is updated immediately
  * via T4K_SetSfxVolume / T4K_SetMusicVolume. */
 
-#ifndef T4K_VOLUME_H
-#define T4K_VOLUME_H
-
+#pragma once
 #include <stdbool.h>
 #include <SDL3/SDL.h>
 
@@ -32,5 +30,3 @@ bool T4K_Volume_Tick(T4K_VolumeWidget* w);
 
 int T4K_Volume_Sfx(const T4K_VolumeWidget* w);
 int T4K_Volume_Mus(const T4K_VolumeWidget* w);
-
-#endif

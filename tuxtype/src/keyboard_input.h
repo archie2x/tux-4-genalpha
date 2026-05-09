@@ -5,9 +5,7 @@
  * chord-decode in braille mode). All three games share the same
  * braille chord state via file-static storage in keyboard_input.c. */
 
-#ifndef TUXTYPE_KEYBOARD_INPUT_H
-#define TUXTYPE_KEYBOARD_INPUT_H
-
+#pragma once
 #include "globals.h"
 
 typedef struct
@@ -23,5 +21,3 @@ void Kbd_Input_Reset(void);
  * since it depends on game-specific word progression. */
 void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
                            KbdTyped* out);
-
-#endif

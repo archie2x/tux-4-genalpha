@@ -27,18 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-
-
-#ifndef TUXMATH_H
-#define TUXMATH_H
-
+#pragma once
 #include "globals.h"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
 #ifndef NOSOUND
-#include <SDL3_mixer/SDL_mixer.h>
+# include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 #include <t4k/common.h>
@@ -54,24 +49,23 @@ extern MC_MathGame* lan_game_settings;
 extern int fs_res_x;
 extern int fs_res_y;
 
-
-extern SDL_Surface* screen; /* declared in setup.c; also used in game.c, options.c, fileops.c, credits.c, titlescreen.c */
-extern SDL_Surface* images[];    /* declared in setup.c, used in same files as screen */
+extern SDL_Surface* screen; /* declared in setup.c; also used in game.c,
+                               options.c, fileops.c, credits.c, titlescreen.c */
+extern SDL_Surface*
+               images[]; /* declared in setup.c, used in same files as screen */
 extern sprite* sprites[];
 extern SDL_Surface* flipped_images[];
 #define NUM_BLENDED_IGLOOS 15
 extern SDL_Surface* blended_igloos[];
-extern int flipped_img_lookup[];
+extern int          flipped_img_lookup[];
 
 extern int glyph_offset;
 
-
 #ifndef NOSOUND
-extern Mix_Chunk* sounds[];    /* declared in setup.c; also used in fileops.c, playsound.c */
-extern Mix_Music* musics[];    /* declared in setup.c; also used in fileops.c, game.c  */
+extern Mix_Chunk*
+    sounds[]; /* declared in setup.c; also used in fileops.c, playsound.c */
+extern Mix_Music*
+    musics[]; /* declared in setup.c; also used in fileops.c, game.c  */
 #endif
-
 
 /* NOTE: default values for math options are now in mathcards.h */
-
-#endif

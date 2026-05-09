@@ -24,8 +24,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,23 +34,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "credits.h"
 
 const char credit_text[MAX_LINES][MAX_LINEWIDTH] = {
-    {"-"N_("TUX, OF MATH COMMAND")},  /* '-' at beginning makes highlighted: */
+    {"-" N_("TUX, OF MATH COMMAND")}, /* '-' at beginning makes highlighted: */
     {N_("COPYRIGHT 2001-2011")},
-    {N_("VERSION ")VERSION},
+    {N_("VERSION ") VERSION},
     {" "},
     {N_("PART OF THE 'TUX4KIDS' PROJECT")},
     {"http://tux4kids.alioth.debian.org"},
     {" "},
-    {"-"N_("DESIGNED BY")},
+    {"-" N_("DESIGNED BY")},
     {"SAM 'CRISWELL' HART"},
     {" "},
-    {"-"N_("LEAD PROGRAMMERS")},
+    {"-" N_("LEAD PROGRAMMERS")},
     {"BILL KENDRICK,"},
     {"NEW BREED SOFTWARE"},
     {"DAVID BRUCE"},
     {"TIM HOLY"},
     {" "},
-    {"-"N_("ADDITIONAL CODE")},
+    {"-" N_("ADDITIONAL CODE")},
     {"GLEN DITCHFIELD"},
     {"MICHAEL BEHRISCH"},
     {"DONNY VISZNEKI"},
@@ -68,20 +66,20 @@ const char credit_text[MAX_LINES][MAX_LINEWIDTH] = {
     {"JOHNDHEL MACEDA"},
     {"\"Neynt\""},
     {" "},
-    {"-"N_("LEAD ARTISTS")},
+    {"-" N_("LEAD ARTISTS")},
     {"SAM HART"},
     {"TEEJAY DEGUZMAN"},
     {" "},
-    {"-"N_("ADDITIONAL ART")},
+    {"-" N_("ADDITIONAL ART")},
     {"BILL KENDRICK"},
     {"KENDRA SWANSON & LINNEA HOLY"},
     {"\"recKz\""},
     {"\"Smu33rules\""},
     {" "},
-    {"-"N_("SOUND EFFECTS")},
+    {"-" N_("SOUND EFFECTS")},
     {"TBA"},
     {" "},
-    {"-"N_("MUSIC")},
+    {"-" N_("MUSIC")},
     {"BEYOND THE HORIZON"},
     {"BY MYSTRA OF STONE ARTS, 1994"},
     {" "},
@@ -100,15 +98,15 @@ const char credit_text[MAX_LINES][MAX_LINEWIDTH] = {
     {"GRAVITY"},
     {"BY SERBERIS"},
     {" "},
-    {"-"N_("PACKAGERS")},
+    {"-" N_("PACKAGERS")},
     {"JESSE ANDREWS"},
     {"HOLGER LEVSEN"},
     {"DAVID BRUCE"},
     {" "},
-    {"-"N_("'TUX' THE PENGUIN CREATED BY")},
+    {"-" N_("'TUX' THE PENGUIN CREATED BY")},
     {"LARRY EWING"},
     {" "},
-    {"-"N_("TESTERS")},
+    {"-" N_("TESTERS")},
     {"PETE SALZMAN"},
     {"ST. CATHERINE ELEM., CINCINNATI, OH"},
     {"WESTWOOD ELEMENTARY, CINCINNATI, OH"},
@@ -120,268 +118,109 @@ const char credit_text[MAX_LINES][MAX_LINEWIDTH] = {
     {"STEPHANIE CHAPIE & HOWARD NATHANSON"},
     {" "},
     {" "},
-    {"-"N_("USER WEBSITE")},
+    {"-" N_("USER WEBSITE")},
     {"http://tux4kids.alioth.debian.org"},
     {" "},
-    {"-"N_("TUX4KIDS DEVELOPMENT HOSTED AT ALIOTH:")},
+    {"-" N_("TUX4KIDS DEVELOPMENT HOSTED AT ALIOTH:")},
     {"http://alioth.debian.org"},
     {" "},
-    {N_("TuxMath is Free Software licensed under the GNU General Public License (GPL). As such, you are specifically granted the rights that are usually denied to users of proprietary software.")},
+    {N_("TuxMath is Free Software licensed under the GNU General Public "
+        "License (GPL). As such, you are specifically granted the rights that "
+        "are usually denied to users of proprietary software.")},
     {" "},
-    {N_("These rights include the freedom to study, copy, modify, and redistribute the program.")},
+    {N_("These rights include the freedom to study, copy, modify, and "
+        "redistribute the program.")},
     {" "},
-    {N_("A full copy of the GPL is included with the documentation for this program.")},
+    {N_("A full copy of the GPL is included with the documentation for this "
+        "program.")},
     {" "},
     {N_("For more information about Free Software and the GNU GPL, visit:")},
     {"http://www.fsf.org"},
-    {" "}
-};
-
+    {" "}};
 
 /* Some simple pixel-based characters we can blit quickly: */
 
-char chars[39][5][5] = {
-    {".###.",
-     "#..##",
-     "#.#.#",
-     "##..#",
-     ".###."},
+char chars[39][5][5] = {{".###.", "#..##", "#.#.#", "##..#", ".###."},
 
-    {"..#..",
-     ".##..",
-     "..#..",
-     "..#..",
-     ".###."},
+                        {"..#..", ".##..", "..#..", "..#..", ".###."},
 
-    {".###.",
-     "....#",
-     "..##.",
-     ".#...",
-     "#####"},
+                        {".###.", "....#", "..##.", ".#...", "#####"},
 
-    {".###.",
-     "....#",
-     "..##.",
-     "....#",
-     ".###."},
+                        {".###.", "....#", "..##.", "....#", ".###."},
 
-    {"...#.",
-     "..##.",
-     ".#.#.",
-     "#####",
-     "...#."},
+                        {"...#.", "..##.", ".#.#.", "#####", "...#."},
 
-    {"#####",
-     "#....",
-     "####.",
-     "....#",
-     "####."},
+                        {"#####", "#....", "####.", "....#", "####."},
 
-    {".###.",
-     "#....",
-     "####.",
-     "#...#",
-     ".###."},
+                        {".###.", "#....", "####.", "#...#", ".###."},
 
-    {"#####",
-     "....#",
-     "...#.",
-     "..#..",
-     ".#..."},
+                        {"#####", "....#", "...#.", "..#..", ".#..."},
 
-    {".###.",
-     "#...#",
-     ".###.",
-     "#...#",
-     ".###."},
+                        {".###.", "#...#", ".###.", "#...#", ".###."},
 
-    {".###.",
-     "#...#",
-     ".####",
-     "....#",
-     ".###."},
+                        {".###.", "#...#", ".####", "....#", ".###."},
 
-    {".###.",
-     "#...#",
-     "#####",
-     "#...#",
-     "#...#"},
+                        {".###.", "#...#", "#####", "#...#", "#...#"},
 
-    {"####.",
-     "#...#",
-     "####.",
-     "#...#",
-     "####."},
+                        {"####.", "#...#", "####.", "#...#", "####."},
 
-    {".###.",
-     "#....",
-     "#....",
-     "#....",
-     ".###."},
+                        {".###.", "#....", "#....", "#....", ".###."},
 
-    {"####.",
-     "#...#",
-     "#...#",
-     "#...#",
-     "####."},
+                        {"####.", "#...#", "#...#", "#...#", "####."},
 
-    {"#####",
-     "#....",
-     "###..",
-     "#....",
-     "#####"},
+                        {"#####", "#....", "###..", "#....", "#####"},
 
-    {"#####",
-     "#....",
-     "###..",
-     "#....",
-     "#...."},
+                        {"#####", "#....", "###..", "#....", "#...."},
 
-    {".###.",
-     "#....",
-     "#.###",
-     "#...#",
-     ".###."},
+                        {".###.", "#....", "#.###", "#...#", ".###."},
 
-    {"#...#",
-     "#...#",
-     "#####",
-     "#...#",
-     "#...#"},
+                        {"#...#", "#...#", "#####", "#...#", "#...#"},
 
-    {".###.",
-     "..#..",
-     "..#..",
-     "..#..",
-     ".###."},
+                        {".###.", "..#..", "..#..", "..#..", ".###."},
 
-    {"....#",
-     "....#",
-     "....#",
-     "#...#",
-     ".###."},
+                        {"....#", "....#", "....#", "#...#", ".###."},
 
-    {"#..#.",
-     "#.#..",
-     "##...",
-     "#.#..",
-     "#..#."},
+                        {"#..#.", "#.#..", "##...", "#.#..", "#..#."},
 
-    {"#....",
-     "#....",
-     "#....",
-     "#....",
-     "#####"},
+                        {"#....", "#....", "#....", "#....", "#####"},
 
-    {"#...#",
-     "##.##",
-     "#.#.#",
-     "#...#",
-     "#...#"},
+                        {"#...#", "##.##", "#.#.#", "#...#", "#...#"},
 
-    {"#...#",
-     "##..#",
-     "#.#.#",
-     "#..##",
-     "#...#"},
+                        {"#...#", "##..#", "#.#.#", "#..##", "#...#"},
 
-    {".###.",
-     "#...#",
-     "#...#",
-     "#...#",
-     ".###."},
+                        {".###.", "#...#", "#...#", "#...#", ".###."},
 
-    {"####.",
-     "#...#",
-     "####.",
-     "#....",
-     "#...."},
+                        {"####.", "#...#", "####.", "#....", "#...."},
 
-    {".###.",
-     "#...#",
-     "#.#.#",
-     "#..#.",
-     ".##.#"},
+                        {".###.", "#...#", "#.#.#", "#..#.", ".##.#"},
 
-    {"####.",
-     "#...#",
-     "####.",
-     "#...#",
-     "#...#"},
+                        {"####.", "#...#", "####.", "#...#", "#...#"},
 
-    {".###.",
-     "#....",
-     ".###.",
-     "....#",
-     ".###."},
+                        {".###.", "#....", ".###.", "....#", ".###."},
 
-    {"#####",
-     "..#..",
-     "..#..",
-     "..#..",
-     "..#.."},
+                        {"#####", "..#..", "..#..", "..#..", "..#.."},
 
-    {"#...#",
-     "#...#",
-     "#...#",
-     "#...#",
-     ".###."},
+                        {"#...#", "#...#", "#...#", "#...#", ".###."},
 
-    {"#...#",
-     "#...#",
-     ".#.#.",
-     ".#.#.",
-     "..#.."},
+                        {"#...#", "#...#", ".#.#.", ".#.#.", "..#.."},
 
-    {"#...#",
-     "#...#",
-     "#.#.#",
-     "##.##",
-     "#...#"},
+                        {"#...#", "#...#", "#.#.#", "##.##", "#...#"},
 
-    {"#...#",
-     ".#.#.",
-     "..#..",
-     ".#.#.",
-     "#...#"},
+                        {"#...#", ".#.#.", "..#..", ".#.#.", "#...#"},
 
-    {"#...#",
-     ".#.#.",
-     "..#..",
-     "..#..",
-     "..#.."},
+                        {"#...#", ".#.#.", "..#..", "..#..", "..#.."},
 
-    {"#####",
-     "...#.",
-     "..#..",
-     ".#...",
-     "#####"},
+                        {"#####", "...#.", "..#..", ".#...", "#####"},
 
-    {".....",
-     ".....",
-     ".....",
-     "..#..",
-     ".#..."},
+                        {".....", ".....", ".....", "..#..", ".#..."},
 
-    {".....",
-     ".....",
-     ".....",
-     "..#..",
-     "..#.."},
+                        {".....", ".....", ".....", "..#..", "..#.."},
 
-    {"..#..",
-     "..#..",
-     ".....",
-     ".....",
-     "....."}
-};
+                        {"..#..", "..#..", ".....", ".....", "....."}};
 
-
-//void draw_text(char * str, SDL_Rect dest);
-
+// void draw_text(char * str, SDL_Rect dest);
 
 int line;
-
 
 int credits(void)
 {
@@ -390,14 +229,15 @@ int credits(void)
 
     char credit_tts_text[MAX_LINES * MAX_LINEWIDTH];
     credit_tts_text[0] = '\0';
-	for (i = 0; i< MAX_LINES;i++)
-	{
-		strcat(credit_tts_text,credit_text[i]);
-	}
-	strcat(credit_tts_text,"Thaks for reading \0");
-	//fprintf(stderr,"OUTPUT = %s \n LEN = %d",credit_tts_text,MAX_LINES*MAX_LINEWIDTH);
+    for (i = 0; i < MAX_LINES; i++)
+    {
+        strcat(credit_tts_text, credit_text[i]);
+    }
+    strcat(credit_tts_text, "Thaks for reading \0");
+    // fprintf(stderr,"OUTPUT = %s \n LEN =
+    // %d",credit_tts_text,MAX_LINES*MAX_LINEWIDTH);
 
-    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",credit_tts_text);
+    T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE, INTERRUPT, "%s", credit_tts_text);
 
     /* Clear window: */
 
@@ -414,7 +254,6 @@ int credits(void)
 
     SDL_BlitSurface(images[IMG_TITLE], NULL, screen, &dest);
 
-
     /* --- MAIN OPTIONS SCREEN LOOP: --- */
 
     quit = 0;
@@ -428,7 +267,7 @@ int credits(void)
     /*convert the text array to one wrapped at 40 columns: */
     T4K_LineWrapList(credit_text, wrapped_lines, 40, MAX_LINES, MAX_LINEWIDTH);
     quit = scroll_text(wrapped_lines, subscreen, 2);
-    fprintf(stderr,"\n%s",credit_text[10]);
+    fprintf(stderr, "\n%s", credit_text[10]);
 
     /* Return the chosen command: */
 
@@ -437,24 +276,24 @@ int credits(void)
 
 int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
 {
-    int done = 0, quit = 0, scroll = 0, clearing = 0, line_height = 0;
+    int       done = 0, quit = 0, scroll = 0, clearing = 0, line_height = 0;
     SDL_Event event;
-    SDL_Rect src, dest;
-    Uint32 last_time = SDL_GetTicks(), now_time;
+    SDL_Rect  src, dest;
+    Uint32    last_time = SDL_GetTicks(), now_time;
 
     line = 0;
 
-    //Figure out how tall each line needs to be:
+    // Figure out how tall each line needs to be:
     {
         SDL_Surface* s = T4K_SimpleText("A", DEFAULT_MENU_FONT_SIZE, &white);
-        if(s)
+        if (s)
         {
             line_height = s->h;
             SDL_DestroySurface(s);
         }
     }
 
-    //Now actually scroll text:
+    // Now actually scroll text:
     do
     {
         /* Handle any incoming events: */
@@ -482,7 +321,7 @@ int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
 
         /* Scroll: */
         src = dest = subscreen;
-        src.y += speed; //amount to scroll by
+        src.y += speed; // amount to scroll by
 
         SDL_BlitSurface(screen, &src, screen, &dest);
 
@@ -498,10 +337,12 @@ int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
 
         ++scroll;
 
-        if (clearing) //scroll/check, but don't display any more text
+        if (clearing) // scroll/check, but don't display any more text
         {
-            if (scroll > subscreen.h/speed)
+            if (scroll > subscreen.h / speed)
+            {
                 done = 1;
+            }
         }
         else
         {
@@ -509,19 +350,22 @@ int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
             dest.y = subscreen.y + (subscreen.h - scroll * speed);
             dest.w = 1;
             dest.h = 1;
-            draw_text(text[line], dest);  // translation should have already occurred
+            draw_text(text[line],
+                      dest); // translation should have already occurred
 
             if (scroll * speed >= line_height)
             {
                 scroll = 0;
                 line++;
 
-                if (text[line][0] == '\0') //end of text
+                if (text[line][0] == '\0') // end of text
                 {
-                    clearing = 1; //scroll to blank
+                    clearing = 1; // scroll to blank
                 }
                 else
+                {
                     DEBUGMSG(debug_titlescreen, "text[line]: %s\n", text[line]);
+                }
             }
         }
 
@@ -535,12 +379,11 @@ int scroll_text(char text[][MAX_LINEWIDTH], SDL_Rect subscreen, int speed)
         }
         last_time = SDL_GetTicks();
 
-    }
-    while (!done);
+    } while (!done);
 
     return quit;
 }
-#if 0 //really cool effect, but not translatable. I'll leave it in in case we
+#if 0 // really cool effect, but not translatable. I'll leave it in in case we
 //decide to use it e.g. only for English
 void draw_text(char * str, int offset)
 {
@@ -622,26 +465,28 @@ void draw_text(char * str, int offset)
 
 #else
 
-//FIXME it's possible that generating the surface every frame taxes
-//slower machines. If so consider returning the surface to be used
-//as long as it's needed.
+// FIXME it's possible that generating the surface every frame taxes
+// slower machines. If so consider returning the surface to be used
+// as long as it's needed.
 void draw_text(char* str, SDL_Rect dest)
 {
-    SDL_Color col;
+    SDL_Color    col;
     SDL_Surface* surf = NULL;
     if (!str || *str == '\0')
+    {
         return;
+    }
 
     DEBUGMSG(debug_titlescreen, "Entering draw_text(%s)\n", str);
 
-    if (str[0] == '-') //highlight text
+    if (str[0] == '-') // highlight text
     {
         str++;
         col.r = 128;
         col.g = 192;
         col.b = 255 - (40);
     }
-    else //normal color
+    else // normal color
     {
         col.r = 255 - (line % 256);
         col.g = 255 / 2;
@@ -650,9 +495,9 @@ void draw_text(char* str, SDL_Rect dest)
 
     /* This func from SDL_extras draws with SDL_Pango if avail, */
     /* with SDL_ttf as fallback:                                */
-    surf =  T4K_SimpleText(str, DEFAULT_MENU_FONT_SIZE, &col);
+    surf = T4K_SimpleText(str, DEFAULT_MENU_FONT_SIZE, &col);
 
-    dest.x -= surf->w / 2; //center text
+    dest.x -= surf->w / 2; // center text
     SDL_BlitSurface(surf, NULL, screen, &dest);
     SDL_DestroySurface(surf);
     DEBUGMSG(debug_titlescreen, "done\n");
