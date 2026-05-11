@@ -41,6 +41,104 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/CMakeLists.txt")
     add_subdirectory(tuxmath)
 endif()
 
+# ---------------------------------------------------------------------------
+# API documentation
+# ---------------------------------------------------------------------------
+option(BUILD_DOXYGEN "Add Doxygen API documentation targets" ON)
+if(BUILD_DOXYGEN)
+    find_package(Doxygen QUIET)
+    if(DOXYGEN_FOUND)
+        set(DOXYGEN_GENERATE_LATEX NO)
+        set(DOXYGEN_GENERATE_HTML YES)
+        set(DOXYGEN_RECURSIVE YES)
+        set(DOXYGEN_EXTRACT_ALL NO)
+        set(DOXYGEN_EXTRACT_STATIC YES)
+        set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
+        set(DOXYGEN_WARN_IF_UNDOCUMENTED NO)
+        set(DOXYGEN_QUIET YES)
+        set(DOXYGEN_EXCLUDE_PATTERNS
+            "*/.git/*"
+            "*/_build/*"
+            "*/build/*"
+            "*/.#*"
+            "*/src/linebreak/*"
+            "*/src/tests/*"
+        )
+
+        add_custom_target(doxygen)
+        add_custom_target(docs DEPENDS doxygen)
+        add_custom_target(doc DEPENDS doxygen)
+
+        file(
+            GLOB_RECURSE T4KCOMMON_DOC_INPUT
+            CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/t4kcommon/include/*.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/t4kcommon/src/*.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/t4kcommon/src/*.h"
+        )
+        list(
+            FILTER T4KCOMMON_DOC_INPUT
+            EXCLUDE REGEX
+            "/src/(linebreak|tests)/|/src/t4k_test\\.c$"
+        )
+        set(DOXYGEN_PROJECT_NAME "t4k_common")
+        set(DOXYGEN_OUTPUT_DIRECTORY
+            "${CMAKE_CURRENT_BINARY_DIR}/docs/t4kcommon"
+        )
+        doxygen_add_docs(
+            docs-t4kcommon
+            ${T4KCOMMON_DOC_INPUT}
+            COMMENT "Generating t4k_common API documentation"
+        )
+        add_dependencies(doxygen docs-t4kcommon)
+
+        file(
+            GLOB_RECURSE TUXTYPE_DOC_INPUT
+            CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/tuxtype/src/*.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tuxtype/src/*.h"
+        )
+        list(FILTER TUXTYPE_DOC_INPUT EXCLUDE REGEX "/\\.#[^/]*$")
+        set(DOXYGEN_PROJECT_NAME "tuxtype")
+        set(DOXYGEN_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/docs/tuxtype")
+        doxygen_add_docs(
+            docs-tuxtype
+            ${TUXTYPE_DOC_INPUT}
+            COMMENT "Generating tuxtype API documentation"
+        )
+        add_dependencies(doxygen docs-tuxtype)
+
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/src")
+            file(
+                GLOB_RECURSE TUXMATH_DOC_INPUT
+                CONFIGURE_DEPENDS
+                "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/src/*.c"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/src/*.h"
+            )
+            set(DOXYGEN_PROJECT_NAME "tuxmath")
+            set(DOXYGEN_OUTPUT_DIRECTORY
+                "${CMAKE_CURRENT_BINARY_DIR}/docs/tuxmath"
+            )
+            doxygen_add_docs(
+                docs-tuxmath
+                ${TUXMATH_DOC_INPUT}
+                COMMENT "Generating tuxmath API documentation"
+            )
+            add_dependencies(doxygen docs-tuxmath)
+        endif()
+    else()
+        message(STATUS "Doxygen not found; documentation targets disabled")
+        add_custom_target(
+            doxygen
+            COMMAND
+                ${CMAKE_COMMAND} -E echo
+                "Doxygen not found. Install doxygen to generate API documentation."
+        )
+        add_custom_target(docs DEPENDS doxygen)
+        add_custom_target(doc DEPENDS doxygen)
+    endif()
+endif()
+
 # Cross-compile runtime bundle: gather the SDL3*.dll's that CPM built
 # (their own install rules are suppressed by CPM's EXCLUDE_FROM_ALL),
 # plus libwinpthread-1.dll (mingw's pthread shim, dynamically linked
