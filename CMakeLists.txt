@@ -42,6 +42,19 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/CMakeLists.txt")
 endif()
 
 # ---------------------------------------------------------------------------
+# Packaging — owns install layout, RPATH, CPack rules. Each submodule
+# CMakeLists.txt builds its target; packaging variant decides how those
+# get installed. Select via -DTUX4KIDS_PACKAGING=<variant>.
+# Variants live under cmake/packaging/ (currently: self-contained).
+# ---------------------------------------------------------------------------
+set(TUX4KIDS_PACKAGING
+    "self-contained"
+    CACHE STRING
+    "Packaging variant (filename under cmake/packaging/, no extension)"
+)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/packaging/${TUX4KIDS_PACKAGING}.cmake")
+
+# ---------------------------------------------------------------------------
 # API documentation
 # ---------------------------------------------------------------------------
 option(BUILD_DOXYGEN "Add Doxygen API documentation targets" ON)
@@ -139,59 +152,3 @@ if(BUILD_DOXYGEN)
     endif()
 endif()
 
-# Cross-compile runtime bundle: gather the SDL3*.dll's that CPM built
-# (their own install rules are suppressed by CPM's EXCLUDE_FROM_ALL),
-# plus libwinpthread-1.dll (mingw's pthread shim, dynamically linked
-# by SDL3_ttf — the rest of mingw's runtime is static via
-# -static-libgcc in the toolchain file).
-include(GNUInstallDirs)
-
-# When SDL3 family is CPM-fetched (vs. found via system find_package), each
-# upstream's own install rules are gated on its <PROJECT>_INSTALL option,
-# which defaults to PROJECT_IS_TOP_LEVEL — i.e. off when added via
-# add_subdirectory. Force-enabling those triggers a chain of broken
-# config-package exports (SDL3_ttf-shared depending on SDL3-shared which
-# isn't in any export set, etc.). Just install the .so / .dylib / .dll
-# files directly — that's all our binaries need at runtime.
-foreach(_lib SDL3 SDL3_image SDL3_ttf SDL3_mixer)
-    if(TARGET ${_lib}-shared)
-        if(CMAKE_CROSSCOMPILING)
-            # Windows: shared libs go in bin/ alongside .exe.
-            install(
-                FILES $<TARGET_FILE:${_lib}-shared>
-                DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-        else()
-            # Linux/macOS: shared libs in lib/, with the SOVERSION
-            # symlink chain. install(TARGETS) on a non-imported target
-            # from another directory works since CMake 3.13.
-            install(
-                TARGETS ${_lib}-shared
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            )
-        endif()
-    endif()
-endforeach()
-
-# libwinpthread-1.dll: mingw's pthread shim, dynamically linked by
-# SDL3_ttf. The rest of mingw's runtime is static via -static-libgcc
-# in the toolchain file, so this is the only stray .dll we need.
-if(CMAKE_CROSSCOMPILING)
-    get_filename_component(_mingw_bin "${CMAKE_C_COMPILER}" REALPATH)
-    get_filename_component(_mingw_bin "${_mingw_bin}" DIRECTORY)
-    find_file(
-        LIBWINPTHREAD_DLL
-        libwinpthread-1.dll
-        PATHS "${_mingw_bin}" "${_mingw_bin}/../x86_64-w64-mingw32/bin"
-        NO_DEFAULT_PATH
-        NO_CMAKE_FIND_ROOT_PATH
-    )
-    if(LIBWINPTHREAD_DLL)
-        install(FILES ${LIBWINPTHREAD_DLL} DESTINATION ${CMAKE_INSTALL_BINDIR})
-    else()
-        message(
-            WARNING
-            "libwinpthread-1.dll not found near ${_mingw_bin}; SDL3_ttf will fail to load at runtime"
-        )
-    endif()
-endif()

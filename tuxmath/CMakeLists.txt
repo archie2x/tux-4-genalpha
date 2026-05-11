@@ -14,17 +14,7 @@ project(
 )
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
-include(GNUInstallDirs)
 include(CMakeDependentOption)
-
-# Bake link-time library locations into the installed binary's rpath so
-# tuxmath can find libt4k_common.dylib without DYLD_LIBRARY_PATH.
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
-if(APPLE)
-    set(CMAKE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}")
-else()
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
-endif()
 
 # Force off when cross-compiling — mingw cross prefix has no libintl/libiconv.
 cmake_dependent_option(
@@ -39,25 +29,6 @@ cmake_dependent_option(
 # Dependencies — SDL3 / Intl / Iconv inherit transitively from t4k_common.
 # ---------------------------------------------------------------------------
 find_package(t4k_common REQUIRED)
-
-# ---------------------------------------------------------------------------
-# Runtime path-prefix definitions baked into the binary
-# ---------------------------------------------------------------------------
-set(TUXMATH_DATA_PREFIX
-    "${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}"
-    CACHE PATH
-    "Runtime data dir baked into tuxmath binary"
-)
-set(TUXMATH_VAR_PREFIX
-    "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/${PROJECT_NAME}"
-    CACHE PATH
-    "Runtime var (modifiable user data) dir"
-)
-set(TUXMATH_CONF_PREFIX
-    "${CMAKE_INSTALL_FULL_SYSCONFDIR}/${PROJECT_NAME}"
-    CACHE PATH
-    "Runtime config dir"
-)
 
 # ---------------------------------------------------------------------------
 # tuxmath executable — networking (SDL_net) and the admin tool dropped for
@@ -90,13 +61,11 @@ add_executable(
     src/tuxmath.c
 )
 
+# Build-time-only compile defs. Install-path defines (DATA_PREFIX et al.) are
+# added by the active packaging module (cmake/packaging/).
 target_compile_definitions(
     tuxmath
     PRIVATE
-        DATA_PREFIX="${TUXMATH_DATA_PREFIX}"
-        VAR_PREFIX="${TUXMATH_VAR_PREFIX}"
-        CONF_PREFIX="${TUXMATH_CONF_PREFIX}"
-        LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
         PACKAGE="${PROJECT_NAME}"
         VERSION="${PROJECT_VERSION}"
         $<$<BOOL:${ENABLE_I18N}>:ENABLE_NLS=1>
@@ -136,42 +105,3 @@ if(ENABLE_I18N)
         )
     endif()
 endif()
-
-# ---------------------------------------------------------------------------
-# Install
-# ---------------------------------------------------------------------------
-install(TARGETS tuxmath RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_LOCALSTATEDIR}/${PROJECT_NAME})
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME})
-
-install(
-    DIRECTORY data/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
-    FILES_MATCHING
-    PATTERN "*.png"
-    PATTERN "*.svg"
-    PATTERN "*.jpg"
-    PATTERN "*.gif"
-    PATTERN "*.wav"
-    PATTERN "*.ogg"
-    PATTERN "*.mp3"
-    PATTERN "*.ttf"
-    PATTERN "*.txt"
-    PATTERN "*.xml"
-    PATTERN "*.lst"
-)
-
-# Mission/lesson config files have no extension, so they need their own
-# install rule (FILES_MATCHING above only takes globbed patterns).
-install(
-    DIRECTORY data/missions
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
-)
-
-message(STATUS "tuxmath configuration:")
-message(STATUS "  data prefix : ${TUXMATH_DATA_PREFIX}")
-message(STATUS "  var prefix  : ${TUXMATH_VAR_PREFIX}")
-message(STATUS "  conf prefix : ${TUXMATH_CONF_PREFIX}")
-message(STATUS "  i18n        : ${ENABLE_I18N}")
-message(STATUS "  t4k_common  : ${t4k_common_DIR}")
