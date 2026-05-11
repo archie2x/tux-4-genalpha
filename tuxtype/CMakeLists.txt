@@ -13,7 +13,7 @@ project(
     LANGUAGES C
 )
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 include(GNUInstallDirs)
 include(CMakeDependentOption)
 

@@ -11,7 +11,7 @@ project(
     LANGUAGES C
 )
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CMakeDependentOption)
@@ -227,7 +227,7 @@ foreach(_w format-truncation format-overflow stringop-truncation)
 endforeach()
 
 # ---------------------------------------------------------------------------
-# i18n (vendored framework from cmake/Modules/Internationalization.cmake)
+# i18n (vendored framework from cmake/modules/Internationalization.cmake)
 # ---------------------------------------------------------------------------
 if(ENABLE_I18N AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/po")
     include(Internationalization)
@@ -301,7 +301,7 @@ if(NOT CMAKE_CROSSCOMPILING AND NOT _t4k_inhibit_export)
     )
 
     configure_package_config_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/t4k_commonConfig.cmake.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/package/t4k_commonConfig.cmake.in"
         "${CMAKE_CURRENT_BINARY_DIR}/t4k_commonConfig.cmake"
         INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/t4k_common
     )
