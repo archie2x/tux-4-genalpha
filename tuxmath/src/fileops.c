@@ -94,104 +94,18 @@ static inline struct tm* localtime_r(const time_t* clock, struct tm* result)
 # endif
 #endif
 
-/* fix HOME on windows */
 #ifdef BUILD_MINGW32
-# include <windows.h>
-
-/* STOLEN from tuxpaint */
-
-/*
-   Removes a single '\' or '/' from end of path
-   */
-static char* remove_slash(char* path)
-{
-    int len = strlen(path);
-
-    if (!len)
-    {
-        return path;
-    }
-
-    if (path[len - 1] == '/' || path[len - 1] == '\\')
-    {
-        path[len - 1] = 0;
-    }
-
-    return path;
-}
-
-/*
-   Read access to Windows Registry
-   */
-static HRESULT ReadRegistry(const char* key, const char* option, char* value,
-                            int size)
-{
-    LONG res;
-    HKEY hKey = NULL;
-
-    res = RegOpenKeyEx(HKEY_CURRENT_USER, key, 0, KEY_READ, &hKey);
-    if (res != ERROR_SUCCESS)
-    {
-        goto err_exit;
-    }
-    res = RegQueryValueEx(hKey, option, NULL, NULL, (LPBYTE)value,
-                          (LPDWORD)&size);
-    if (res != ERROR_SUCCESS)
-    {
-        goto err_exit;
-    }
-    res = ERROR_SUCCESS;
-
-err_exit:
-    if (hKey)
-    {
-        RegCloseKey(hKey);
-    }
-    return HRESULT_FROM_WIN32(res);
-}
-
-/*
-   Returns heap string containing default application data path.
-   Creates suffix subdirectory (only one level).
-   E.g. C:\Documents and Settings\jfp\Application Data\suffix
-   */
-char* GetDefaultSaveDir(const char* suffix)
-{
-    char        prefix[MAX_PATH];
-    char        path[2 * MAX_PATH];
-    const char* key =
-        "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
-    const char* option = "AppData";
-    HRESULT     hr     = S_OK;
-
-    if (SUCCEEDED(hr = ReadRegistry(key, option, prefix, sizeof(prefix))))
-    {
-        remove_slash(prefix);
-        snprintf(path, sizeof(path), "%s/%s", prefix, suffix);
-        _mkdir(path);
-        return strdup(path);
-    }
-    return strdup("userdata");
-}
-
-/* Windows XP: User/App Data/TuxMath/ */
-/* Windows 98/ME: TuxMath install dir/userdata/Options */
-# define OPTIONS_SUBDIR ""
 # define OPTIONS_FILENAME "options.txt"
 # define HIGHSCORE_FILENAME "highscores.txt"
 # define GOLDSTAR_FILENAME "goldstars.txt"
 # define USER_MENU_ENTRIES_FILENAME "user_menu_entries.txt"
 # define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions.txt"
 #else
-
-# define get_home getenv("HOME")
-# define OPTIONS_SUBDIR "/.tuxmath"
 # define OPTIONS_FILENAME "options"
 # define HIGHSCORE_FILENAME "highscores"
 # define GOLDSTAR_FILENAME "goldstars"
 # define USER_MENU_ENTRIES_FILENAME "user_menu_entries"
 # define USER_LOGIN_QUESTIONS_FILENAME "user_login_questions"
-
 #endif
 
 /* This functions keep and returns the user data directory application path */
@@ -211,17 +125,12 @@ char* get_user_data_dir()
 {
     if (!user_data_dir)
     {
-#ifdef BUILD_MINGW32
-        user_data_dir = GetDefaultSaveDir(PROGRAM_NAME);
-#else
-        // I think this should be slash terminated
-        user_data_dir = (char*)malloc(strlen(getenv("HOME")) + 2);
+        const char* p = T4K_PathPref();
+        user_data_dir = (char*)malloc(strlen(p) + 1);
         if (user_data_dir)
         {
-            strcpy(user_data_dir, getenv("HOME"));
-            strcat(user_data_dir, "/");
+            strcpy(user_data_dir, p);
         }
-#endif
     }
 
     return user_data_dir;
@@ -268,10 +177,6 @@ void set_user_data_dir(const char* dirname)
 void get_user_data_dir_with_subdir(char* opt_path)
 {
     strcpy(opt_path, get_user_data_dir());
-    if (add_subdir)
-    {
-        strcat(opt_path, OPTIONS_SUBDIR "/");
-    }
 }
 
 /* FIXME should have better file path (/etc or /usr/local/etc) and name */

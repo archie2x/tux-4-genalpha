@@ -164,33 +164,8 @@ void LibInit(Uint32 lib_flags)
 void LoadSettings(void)
 {
     char fn[FNLEN];
-    // 	char setting[FNLEN];
-    // 	char value[FNLEN];
-    //	FILE *settingsFile;
 
-    /* set the settings directory/file */
-
-#ifdef WIN32
-    // MDTTEMP: commented out the next line and added the line after
-    // snprintf(fn, FNLEN - 1, "userdata/settings.txt");
-    snprintf(fn, FNLEN - 1, "%s/TuxType/settings.txt", getenv("APPDATA"));
-    LOG("WIN32 defined\n");
-#else
-    const char* xdg_dir;
-
-    xdg_dir = getenv("XDG_CONFIG_HOME");
-    if (xdg_dir != NULL)
-    {
-        snprintf(fn, FNLEN - 1, (const char*)"%s/tuxtype/settings.txt",
-                 xdg_dir);
-    }
-    else
-    {
-        snprintf(fn, FNLEN - 1, (const char*)"%s/.config/tuxtype/settings.txt",
-                 getenv("HOME"));
-    }
-    LOG("WIN32 not defined\n");
-#endif
+    snprintf(fn, FNLEN - 1, "%s/settings.txt", settings.user_settings_path);
 
     DEBUGCODE
     {
@@ -380,23 +355,6 @@ void SaveSettings(void)
     char  fn[FNLEN];
     FILE* settingsFile;
 
-    /* set the settings directory/file */
-
-    // #ifdef WIN32
-    //     //MDTTEMP: Commented out the next line and added the next 2 lines
-    //     after
-    //	//_mkdir( "userdata" );  // just in case try to create save location
-    //	snprintf( fn, FNLEN-1, (const char*)"%s/TuxType", getenv("APPDATA") );
-    //	_mkdir( fn );  // just in case try to create save location
-    //     // MDTTEMP: Commented out the next line and added the line after
-    //	//snprintf( fn, FNLEN-1, "userdata/settings.txt" );
-    //	snprintf( fn, FNLEN-1, "%s/TuxType/settings.txt", getenv("APPDATA"));
-    // #else
-    //	snprintf( fn, FNLEN-1, (const char*)"%s/.tuxtype", getenv("HOME") );
-    //	mkdir( fn, 0755 ); // just in case try to create save location
-    //	snprintf( fn, FNLEN-1, (const char*)"%s/.tuxtype/settings.txt",
-    // getenv("HOME") ); #endif
-
     // Use the settings.user_settings_path member
     snprintf(fn, FNLEN - 1, (const char*)"%s/settings.txt",
              settings.user_settings_path);
@@ -407,9 +365,7 @@ void SaveSettings(void)
     }
 
     LOG("SaveSettings: trying to open settings file\n");
-
     settingsFile = fopen(fn, "w");
-
     if (settingsFile == NULL)
     {
         printf("SaveSettings: Settings file cannot be created!\n");
@@ -417,11 +373,7 @@ void SaveSettings(void)
     }
 
     /* Save all the settings here! */
-    // NOTE for now, don't save theme because things get screwed up if the
-    // language
-    //  doesn't match the LANG environmental variable - DSB
-    //  MDTTEMP: uncommented the following 2 lines
-    if (strncmp(settings.theme_name, "", FNLEN) != 0)
+    if ('\0' != settings.theme_name[0])
     {
         fprintf(settingsFile, "lang=%s\n", settings.theme_name);
     }
@@ -429,17 +381,12 @@ void SaveSettings(void)
     {
         fprintf(settingsFile, "o_lives=%d\n", settings.o_lives);
     }
-
     fprintf(settingsFile, "mus_volume=%d\n", settings.mus_volume);
     fprintf(settingsFile, "sfx_volume=%d\n", settings.sfx_volume);
     fprintf(settingsFile, "menu_music=%d\n", settings.menu_music);
     fprintf(settingsFile, "fullscreen=%d\n", settings.fullscreen);
     fprintf(settingsFile, "tts_volume=%d\n", settings.tts_volume);
 
-    // 	if ((tt_window ? (SDL_GetWindowFlags(tt_window) & SDL_WINDOW_FULLSCREEN)
-    // : 0)){ 		fprintf( settingsFile, "fullscreen=%s\n", "1"); 	} else {
-    // fprintf( settingsFile, "fullscreen=%s\n", "0");
-    // 	}
     fclose(settingsFile);
 }
 
@@ -454,14 +401,15 @@ void SaveSettings(void)
 
 int SetupPaths(const char* theme_dir)
 {
+    char fn[FNLEN];
+
     DEBUGCODE
     {
         fprintf(stderr, "Entering SetupPaths()\n");
     }
 
-    settings.use_english =
-        1;          // default is to use English if we cannot find theme
-    char fn[FNLEN]; // used later when setting settings.user_settings_path
+    settings.use_english = 1; // English dft if we cannot find theme used later
+                              // when setting settings.user_settings_path
 
     const char* data_prefix = T4K_PathData();
     if (T4K_CheckFile(data_prefix))
