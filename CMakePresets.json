@@ -6,41 +6,28 @@
             "name": "base",
             "hidden": true,
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/_build/${presetName}",
+            "binaryDir": "${sourceDir}/_build/${hostSystemName}/${presetName}",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "${presetName}",
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             }
         },
+        { "name": "Debug",          "inherits": "base" },
+        { "name": "Release",        "inherits": "base" },
+        { "name": "RelWithDebInfo", "inherits": "base" },
         {
-            "name": "Debug",
-            "displayName": "Debug",
-            "inherits": "base"
-        },
-        {
-            "name": "Release",
-            "displayName": "Release (-O3, no asserts)",
-            "inherits": "base"
-        },
-        {
-            "name": "RelWithDebInfo",
-            "displayName": "Release with debug info",
-            "inherits": "base"
-        },
-        {
-            "name": "MinGW-Win64",
+            "name": "Windows",
             "displayName": "Cross-compile to Windows x86_64 (mingw-w64)",
-            "inherits": "base",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/_build/Windows/Release",
             "toolchainFile": "${sourceDir}/cmake/toolchain/MinGW-Win64.cmake",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+            "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
         }
     ],
     "buildPresets": [
         { "name": "Debug",          "configurePreset": "Debug" },
         { "name": "Release",        "configurePreset": "Release" },
         { "name": "RelWithDebInfo", "configurePreset": "RelWithDebInfo" },
-        { "name": "MinGW-Win64",    "configurePreset": "MinGW-Win64" }
+        { "name": "Windows",        "configurePreset": "Windows" }
     ]
 }

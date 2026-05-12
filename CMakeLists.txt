@@ -17,6 +17,7 @@ list(
 
 project(
     tux4kids
+    VERSION 1.0.0
     DESCRIPTION
         "Tux4Kids super-project: t4kcommon + tuxtype + tuxmath (SDL3 port)"
     LANGUAGES C
@@ -42,17 +43,17 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/CMakeLists.txt")
 endif()
 
 # ---------------------------------------------------------------------------
-# Packaging — owns install layout, RPATH, CPack rules. Each submodule
-# CMakeLists.txt builds its target; packaging variant decides how those
-# get installed. Select via -DTUX4KIDS_PACKAGING=<variant>.
-# Variants live under cmake/packaging/ (currently: self-contained).
+# Packaging — orthogonal layers, all unconditionally loaded:
+#   self-contained.cmake : install layout for `cmake --install` (cross-platform)
+#   macos-app.cmake      : adds `dmg` build-target (no-op on non-macOS)
+# (future) deb.cmake / rpm.cmake / msi.cmake : platform-guarded build-targets
+#
+# Each platform-specific module guards itself with an early `return()`,
+# so loading all of them is safe — only the ones whose platform matches
+# add their custom targets.
 # ---------------------------------------------------------------------------
-set(TUX4KIDS_PACKAGING
-    "self-contained"
-    CACHE STRING
-    "Packaging variant (filename under cmake/packaging/, no extension)"
-)
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/packaging/${TUX4KIDS_PACKAGING}.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/packaging/self-contained.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/packaging/macos-app.cmake")
 
 # ---------------------------------------------------------------------------
 # API documentation
