@@ -54,14 +54,14 @@ void LoadLang(void)
     {
         T4K_SetFontName(settings.theme_font_name);
     }
-    s2 = bindtextdomain(PACKAGE, tt_locale_dir());
+    s2 = bindtextdomain(PACKAGE, T4K_PathLocale());
     s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
     s4 = textdomain(PACKAGE);
 
     DEBUGCODE
     {
         fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-        fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
+        fprintf(stderr, "T4K_PathLocale() = %s\n", T4K_PathLocale());
         fprintf(stderr, "setlocale(LC_ALL, %s) returned: %s\n",
                 settings.theme_locale_name, s1);
         fprintf(stderr, "bindtextdomain returned: %s\n", s2);

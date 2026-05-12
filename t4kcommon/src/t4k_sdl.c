@@ -1786,13 +1786,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
         f                          = TTF_OpenFont(fontfile, font_size);
     }
 
-    /* Fallbacks: t4k_common's own data dir, then a typical Debian path. */
-    if (!f)
-    {
-        snprintf(fontfile, T4K_PATH_MAX, "%s/fonts/%s", COMMON_DATA_PREFIX,
-                 font_name);
-        f = TTF_OpenFont(fontfile, font_size);
-    }
+    /* Last-resort Debian system-wide font path for SIL Andika. */
     if (!f)
     {
         snprintf(fontfile, T4K_PATH_MAX,

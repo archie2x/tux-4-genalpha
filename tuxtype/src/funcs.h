@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* non-local functions are visible throughout the program.               */
 
 #include <t4k/common.h>
+#include <t4k/path.h>
 /* t4k/common.h redefines DEBUGCODE/DOUT/LOG with a different (mask-taking)
  * signature than tuxtype's globals.h uses. Restore tuxtype's versions: */
 #undef DEBUGCODE
@@ -121,14 +122,6 @@ void LoadSettings(void);
 void SaveSettings(void);
 int  SetupPaths(const char* theme_dir);
 void Cleanup(void);
-
-/* Runtime path resolvers — relocatable: prefer paths relative to the
- * executable (<exe_dir>/../share/tuxtype etc.), fall back to the compile-time
- * DATA_PREFIX/VAR_PREFIX/CONF_PREFIX baked in via -D. */
-const char* tt_data_prefix(void);
-const char* tt_var_prefix(void);
-const char* tt_conf_prefix(void);
-const char* tt_locale_dir(void);
 
 /* In theme.c: */
 void ChooseTheme(void);

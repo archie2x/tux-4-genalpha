@@ -40,41 +40,8 @@ foreach(_bin tuxtype tuxmath)
     endif()
 endforeach()
 
-# ---------------------------------------------------------------------------
-# Compile definitions that bake install paths into the binaries. These
-# necessarily depend on the chosen install layout, which is why they
-# live here and not in submodule CMakeLists.
-# ---------------------------------------------------------------------------
-target_compile_definitions(
-    t4k_common
-    PRIVATE
-        COMMON_DATA_PREFIX="${CMAKE_INSTALL_FULL_DATADIR}/t4k_common"
-        LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
-)
-
-if(TARGET tuxtype)
-    target_compile_definitions(
-        tuxtype
-        PRIVATE
-            DATA_PREFIX="${CMAKE_INSTALL_FULL_DATADIR}/tuxtype"
-            VAR_PREFIX="${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/tuxtype"
-            CONF_PREFIX="${CMAKE_INSTALL_FULL_SYSCONFDIR}/tuxtype"
-            LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
-            LOCALSTATEDIR="${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/tuxtype"
-            SYSCONFDIRDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/tuxtype"
-    )
-endif()
-
-if(TARGET tuxmath)
-    target_compile_definitions(
-        tuxmath
-        PRIVATE
-            DATA_PREFIX="${CMAKE_INSTALL_FULL_DATADIR}/tuxmath"
-            VAR_PREFIX="${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/tuxmath"
-            CONF_PREFIX="${CMAKE_INSTALL_FULL_SYSCONFDIR}/tuxmath"
-            LOCALEDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
-    )
-endif()
+# All path resolution happens at runtime via SDL_GetBasePath() and
+# SDL_GetPrefPath(). No baked-in directories.
 
 # ---------------------------------------------------------------------------
 # Install rules — library + headers + data + desktop entries.

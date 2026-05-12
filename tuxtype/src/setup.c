@@ -31,69 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 int fs_res_x = 0;
 int fs_res_y = 0;
 
-/* Runtime-resolved path prefixes. Initialized once on first call.
- * Lets the binary be relocatable: if data exists at <exe_dir>/../share/tuxtype
- * (the layout produced by `cmake --install --prefix anywhere`), use that;
- * otherwise fall back to the compile-time DATA_PREFIX/etc baked in via -D. */
-static char rt_data_prefix[FNLEN];
-static char rt_var_prefix[FNLEN];
-static char rt_conf_prefix[FNLEN];
-static char rt_locale_dir[FNLEN];
-
-static void init_runtime_paths(void)
-{
-    static int initialized = 0;
-    if (initialized)
-    {
-        return;
-    }
-    initialized = 1;
-
-    /* If <exe_dir>/../share/tuxtype exists, derive var + conf alongside it.
-     * T4K_RelocatablePath returns a pointer to its own static buffer that
-     * gets clobbered by subsequent calls, so copy each result before the
-     * next call. */
-    const char* p = T4K_RelocatablePath("../share/tuxtype");
-    if (p)
-    {
-        strncpy(rt_data_prefix, p, FNLEN - 1);
-        p = T4K_RelocatablePath("../var/tuxtype");
-        strncpy(rt_var_prefix, p ? p : VAR_PREFIX, FNLEN - 1);
-        p = T4K_RelocatablePath("../etc/tuxtype");
-        strncpy(rt_conf_prefix, p ? p : CONF_PREFIX, FNLEN - 1);
-        p = T4K_RelocatablePath("../share/locale");
-        strncpy(rt_locale_dir, p ? p : LOCALEDIR, FNLEN - 1);
-        return;
-    }
-
-    /* Fallback: compile-time prefixes baked in by CMake (-DDATA_PREFIX=...). */
-    strncpy(rt_data_prefix, DATA_PREFIX, FNLEN - 1);
-    strncpy(rt_var_prefix, VAR_PREFIX, FNLEN - 1);
-    strncpy(rt_conf_prefix, CONF_PREFIX, FNLEN - 1);
-    strncpy(rt_locale_dir, LOCALEDIR, FNLEN - 1);
-}
-
-const char* tt_data_prefix(void)
-{
-    init_runtime_paths();
-    return rt_data_prefix;
-}
-const char* tt_var_prefix(void)
-{
-    init_runtime_paths();
-    return rt_var_prefix;
-}
-const char* tt_conf_prefix(void)
-{
-    init_runtime_paths();
-    return rt_conf_prefix;
-}
-const char* tt_locale_dir(void)
-{
-    init_runtime_paths();
-    return rt_locale_dir;
-}
-
 /* The SDL_Window we created (also handed off to t4k_common). Declared
  * extern in globals.h so the rest of tuxtype (titlescreen.c, etc.) can
  * pass it to SDL_SetWindowMouseGrab / SDL_WarpMouseInWindow / etc. */
@@ -526,7 +463,7 @@ int SetupPaths(const char* theme_dir)
         1;          // default is to use English if we cannot find theme
     char fn[FNLEN]; // used later when setting settings.user_settings_path
 
-    const char* data_prefix = tt_data_prefix();
+    const char* data_prefix = T4K_PathData();
     if (T4K_CheckFile(data_prefix))
     {
         strncpy(settings.default_data_path, data_prefix, FNLEN - 1);
@@ -605,11 +542,8 @@ int SetupPaths(const char* theme_dir)
         strncpy(settings.theme_locale_name, DEFAULT_LOCALE, FNLEN);
     }
 
-    /* Now check for VAR_PREFIX (for modifiable data shared by all users, */
-    /* such as custom word lists, high scores, etc:                       */
-    /* This will generally be /var/lib/tuxtype (distro-provided pkg)      */
-    /* or /usr/local/etc/tuxtype (locally-built and installed pkg)        */
-    const char* var_prefix = tt_var_prefix();
+    /* Modifiable user data (custom word lists, high scores). */
+    const char* var_prefix = T4K_PathPref();
     if (T4K_CheckFile(var_prefix))
     {
         strncpy(settings.var_data_path, var_prefix, FNLEN - 1);
@@ -625,12 +559,9 @@ int SetupPaths(const char* theme_dir)
         return 0;
     }
 
-    /* Now check for CONF_PREFIX (for program wide settings that apply to all
-     * users). */
-    /* This would typically be /etc/tuxtype if tuxtype is installed by a distro
-     * pkg,  */
-    /* or /usr/local/etc/tuxtype if the package is built locally */
-    const char* conf_prefix = tt_conf_prefix();
+    /* Program-wide settings. Collapses to the same per-user pref dir as
+     * var_prefix — no system-wide /etc location under SDL's path model. */
+    const char* conf_prefix = T4K_PathPref();
     if (T4K_CheckFile(conf_prefix))
     {
         strncpy(settings.global_settings_path, conf_prefix, FNLEN - 1);
@@ -647,27 +578,9 @@ int SetupPaths(const char* theme_dir)
         return 0;
     }
 
-/* Determine the user data path (for user specific settings)  this would
- * normally be     */
-/* $XDG_CONFIG_HOME/tuxtype for POSIX systems or Documents and
- * Settings/user/Application */
-/* Data for windows systems */
-#ifdef WIN32
-    snprintf(fn, FNLEN - 1, (const char*)"%s/TuxType", getenv("APPDATA"));
-#else
-    const char* xdg_dir;
-
-    xdg_dir = getenv("XDG_CONFIG_HOME");
-    if (xdg_dir != NULL)
-    {
-        snprintf(fn, FNLEN - 1, (const char*)"%s/tuxtype", xdg_dir);
-    }
-    else
-    {
-        snprintf(fn, FNLEN - 1, (const char*)"%s/.config/tuxtype",
-                 getenv("HOME"));
-    }
-#endif
+    /* Editor wordlists + saved settings in the same per-user pref dir. */
+    strncpy(fn, T4K_PathPref(), FNLEN - 1);
+    fn[FNLEN - 1] = '\0';
 
     if (T4K_CheckFile(fn))
     {
@@ -740,16 +653,16 @@ __attribute__((unused)) static void seticon(void)
 {
     SDL_Surface* icon;
     int          colorkey;
+    char         icon_path[FNLEN];
 
-    /* Load icon into a surface: */
-    icon = IMG_Load(DATA_PREFIX "/images/icons/icon.png");
+    snprintf(icon_path, FNLEN, "%s/images/icons/icon.png", T4K_PathData());
+    icon = IMG_Load(icon_path);
     if (icon == NULL)
     {
         fprintf(stderr,
-                "\nWarning: I could not load the icon image: %s\n"
-                "The Simple DirectMedia error that occured was:\n"
-                "%s\n\n",
-                DATA_PREFIX "/images/icons/icon.png", SDL_GetError());
+                "\nWarning: could not load icon image: %s\n"
+                "SDL error: %s\n\n",
+                icon_path, SDL_GetError());
         return;
     }
 

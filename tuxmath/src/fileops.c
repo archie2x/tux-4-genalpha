@@ -281,9 +281,9 @@ int read_global_config_file(MC_MathGame* game)
 
     char gopt_path[PATH_MAX];
 #ifdef BUILD_MINGW32
-    snprintf(gopt_path, PATH_MAX, "%s/missions/options.txt", tm_data_prefix());
+    snprintf(gopt_path, PATH_MAX, "%s/missions/options.txt", T4K_PathData());
 #else
-    snprintf(gopt_path, PATH_MAX, "%s/missions/options", tm_data_prefix());
+    snprintf(gopt_path, PATH_MAX, "%s/missions/options", T4K_PathData());
 #endif
     fp = fopen(gopt_path, "r");
 
@@ -434,7 +434,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     }
 
     /* Next look in missions folder:      */
-    strcpy(opt_path, tm_data_prefix());
+    strcpy(opt_path, T4K_PathData());
     strcat(opt_path, "/missions/");
     strcat(opt_path, filename);
 
@@ -462,7 +462,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
 
     /* Next look in missions/lessons folder (for prepared "lessons curriculum"):
      */
-    strcpy(opt_path, tm_data_prefix());
+    strcpy(opt_path, T4K_PathData());
     strcat(opt_path, "/missions/lessons/");
     strcat(opt_path, filename);
 
@@ -489,7 +489,7 @@ int read_named_config_file(MC_MathGame* game, const char* fn)
     }
 
     /* Next look in missions/arcade folder (for high score competition):      */
-    strcpy(opt_path, tm_data_prefix());
+    strcpy(opt_path, T4K_PathData());
     strcat(opt_path, "/missions/arcade/");
     strcat(opt_path, filename);
 
@@ -594,7 +594,7 @@ int parse_lesson_file_directory(void)
 
     /* find the directory containing the lesson files:  */
     nchars = snprintf(lesson_path, PATH_MAX, "%s/missions/lessons",
-                      tm_data_prefix());
+                      T4K_PathData());
     if (nchars < 0 || nchars >= PATH_MAX)
     {
         perror("formatting lesson directory");

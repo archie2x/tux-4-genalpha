@@ -65,6 +65,7 @@ add_library(
     src/t4k_loaders.c
     src/t4k_main.c
     src/t4k_menu.c
+    src/t4k_path.c
     src/t4k_pixels.c
     src/t4k_sdl.c
     src/t4k_throttle.c
@@ -139,10 +140,17 @@ target_include_directories(
 
 # Build-time-only compile defs. Install-path defines (COMMON_DATA_PREFIX,
 # LOCALEDIR) are added by the active packaging module (see cmake/packaging/).
+# Org dir name SDL_GetPrefPath roots per-user state under
+# (~/Library/Application Support/<T4K_ORG>/<app> on macOS, etc.).
+if(NOT DEFINED T4K_ORG)
+    set(T4K_ORG "tux4-genalpha")
+endif()
+
 target_compile_definitions(
     t4k_common
     PRIVATE
         USE_T4K_PREFIX=1
+        T4K_ORG="${T4K_ORG}"
         # Without ENABLE_NLS, gettext.h falls into its "disabled NLS" branch
         # where the _() macro is the identity function, so menu titles
         # rendered inside t4k_common never get translated even though the

@@ -42,6 +42,8 @@ int main(int argc, char* argv[])
 
     srand(time(NULL));
 
+    T4K_PathInit("tuxtype");
+
     // FIXME we should inspect return values and bail if these functions fail:
     Opts_Initialize(); // First, initialize settings with hard-coded defaults
     // This sets settings.default_data_path to the default theme file path:
@@ -205,14 +207,14 @@ int main(int argc, char* argv[])
         }
 
         s1 = setlocale(LC_ALL, "");
-        s2 = bindtextdomain(PACKAGE, tt_locale_dir());
+        s2 = bindtextdomain(PACKAGE, T4K_PathLocale());
         s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
         s4 = textdomain(PACKAGE);
 
         DEBUGCODE
         {
             fprintf(stderr, "PACKAGE = %s\n", PACKAGE);
-            fprintf(stderr, "tt_locale_dir() = %s\n", tt_locale_dir());
+            fprintf(stderr, "T4K_PathLocale() = %s\n", T4K_PathLocale());
             fprintf(stderr, "setlocale(LC_ALL, \"\") returned: %s\n", s1);
             fprintf(stderr, "bindtextdomain returned: %s\n", s2);
             fprintf(
@@ -242,7 +244,7 @@ int main(int argc, char* argv[])
     T4K_Tts_init();
     T4K_Tts_set_volume(settings.tts_volume);
 
-    T4K_AddDataPrefix(tt_data_prefix());
+    T4K_AddDataPrefix(T4K_PathData());
 
     /* Apply saved volume settings so launches honor what the user picked. */
     T4K_SetMusicVolume(settings.mus_volume);

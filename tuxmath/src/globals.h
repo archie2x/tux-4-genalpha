@@ -46,6 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <wchar.h>
 
 #include <t4k/common.h>
+#include <t4k/path.h>
 
 #include "sdl3_compat.h"
 

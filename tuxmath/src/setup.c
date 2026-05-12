@@ -148,7 +148,7 @@ void initialize_locale(const char* desired_loc)
     }
 
     s1 = setlocale(LC_ALL, desired_loc);
-    s2 = bindtextdomain(PACKAGE, TUXLOCALE);
+    s2 = bindtextdomain(PACKAGE, T4K_PathLocale());
     s3 = bind_textdomain_codeset(PACKAGE, "UTF-8");
     s4 = textdomain(PACKAGE);
 
@@ -169,10 +169,10 @@ void print_locale_info(FILE* fp)
     }
 
     fprintf(fp, "PACKAGE = %s\n", PACKAGE);
-    fprintf(fp, "TUXLOCALE = %s\n", TUXLOCALE);
+    fprintf(fp, "locale dir = %s\n", T4K_PathLocale());
     fprintf(fp, "setlocale(LC_ALL, \"\") returned: %s\n",
             tuxmath_locale.setlocale_ret);
-    fprintf(fp, "bindtextdomain(PACKAGE, TUXLOCALE) returned: %s\n",
+    fprintf(fp, "bindtextdomain returned: %s\n",
             tuxmath_locale.bindtextdomain_ret);
     fprintf(fp, "bind_textdomain_codeset(PACKAGE, \"UTF-8\") returned: %s\n",
             tuxmath_locale.bind_textdomain_codeset_ret);
@@ -769,27 +769,9 @@ void initialize_SDL(void)
     seticon();
 }
 
-/* Cached runtime data prefix — relocatable lookup the first time, then
- * the compile-time fallback. Exposed via tm_data_prefix() so other TUs
- * can build paths to data files without hard-coding DATA_PREFIX. */
-static char tm_rt_data_prefix[PATH_MAX];
-
-const char* tm_data_prefix(void)
-{
-    if (tm_rt_data_prefix[0])
-    {
-        return tm_rt_data_prefix;
-    }
-    const char* p = T4K_RelocatablePath("../share/tuxmath");
-    strncpy(tm_rt_data_prefix, p ? p : DATA_PREFIX, PATH_MAX - 1);
-    return tm_rt_data_prefix;
-}
-
 void load_data_files(void)
 {
-    /* Prefer relocatable path so the binary works from any install root.
-     * Falls back to the compile-time DATA_PREFIX bake-in (-D). */
-    T4K_AddDataPrefix(tm_data_prefix());
+    T4K_AddDataPrefix(T4K_PathData());
     if (!load_sound_data())
     {
         fprintf(stderr, "\nCould not load sound file - attempting to proceed "
@@ -973,8 +955,9 @@ void cleanup_memory(void)
 
 void seticon(void)
 {
-    /* SDL3: SDL_SetWindowIcon takes the SDL_Surface*; mask not needed. */
-    SDL_Surface* icon = IMG_Load(DATA_PREFIX "/images/icons/icon.png");
+    char icon_path[PATH_MAX];
+    snprintf(icon_path, PATH_MAX, "%s/images/icons/icon.png", T4K_PathData());
+    SDL_Surface* icon = IMG_Load(icon_path);
     if (!icon)
     {
         return;

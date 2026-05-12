@@ -177,14 +177,8 @@ const char* find_file(const char* base_name)
     {
         return tmp_path;
     }
-    snprintf(tmp_path, T4K_PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name);
-    if (T4K_CheckFile(tmp_path))
-    {
-        return tmp_path;
-    }
-    /* Relocatable fallback: <exe_dir>/../share/t4k_common/<base_name>.
-     * Lets the package run from any install root without the compile-time
-     * COMMON_DATA_PREFIX matching the actual on-disk layout. */
+    /* Relocatable: <exe_dir>/../share/t4k_common/<base_name>. Works for
+     * cmake --install --prefix anywhere, /usr, /usr/local, .app bundles. */
     const char* base = SDL_GetBasePath();
     if (base)
     {

@@ -52,6 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Translation stuff:
 #include <t4k/gettext.h>
+#include <t4k/path.h>
 #include <locale.h>
 #if ENABLE_NLS
 # include <iconv.h>
@@ -88,7 +89,7 @@ extern SDL_Thread* tts_thread;
 // TTS Word announcer Thread
 extern SDL_Thread* tts_announcer_thread;
 
-#define FNLEN 256
+#define FNLEN T4K_PATH_MAX
 
 /* (renamed from 'settings' to match tuxmath) */
 typedef struct game_option_type

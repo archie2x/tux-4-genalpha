@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 int main(int argc, char* argv[])
 {
+    T4K_PathInit("tuxmath");
     setup(argc, argv);
     TitleScreen(); /* Run the game! */
     cleanup();
