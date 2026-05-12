@@ -34,8 +34,7 @@ project(
 #     endif()
 # endif()
 
-# Subprojects are submodules pinned at known-compatible revisions
-# (a2x/sdl3_port branch). Build in dependency order.
+# Build in dependency order.
 add_subdirectory(t4kcommon)
 add_subdirectory(tuxtype)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tuxmath/CMakeLists.txt")
