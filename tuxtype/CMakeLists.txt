@@ -40,6 +40,7 @@ add_executable(
     src/braille.c
     src/editor.c
     src/globals.c
+    src/hand_display.c
     src/keyboard_display.c
     src/keyboard_input.c
     src/laser.c

@@ -24,6 +24,7 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "globals.h"
 #include "funcs.h"
 #include "SDL_extras.h"
+#include "hand_display.h"
 #include "keyboard_display.h"
 #include "keyboard_input.h"
 #include "braille.h"
@@ -41,10 +42,8 @@ static int medfontsize = 0;
 static int bigfontsize = 0;
 
 /* Surfaces for things we want to pre-render: */
-static SDL_Surface* hands         = NULL;
-static SDL_Surface* hand_shift[3] = {NULL};
+static HandDisplay  practice_hands;
 static KbdDisplay   practice_keyboard;
-static SDL_Surface* hand[11]            = {NULL};
 static sprite*      tux_stand           = NULL;
 static sprite*      tux_win             = NULL;
 static SDL_Surface* time_label_srfc     = NULL;
@@ -348,7 +347,7 @@ int Phrases(wchar_t* pphrase)
         case 2:
             start = SDL_GetTicks();
             SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-            SDL_BlitSurface(hands, NULL, screen, &hand_loc);
+            Hand_Display_DrawBase(&practice_hands, screen);
             if (settings.show_keyboard)
             {
                 Kbd_Display_DrawBase(&practice_keyboard, screen);
@@ -379,7 +378,7 @@ int Phrases(wchar_t* pphrase)
 
         case 5:
             SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-            SDL_BlitSurface(hands, NULL, screen, &hand_loc);
+            Hand_Display_DrawBase(&practice_hands, screen);
             if (settings.show_keyboard)
             {
                 Kbd_Display_DrawBase(&practice_keyboard, screen);
@@ -911,10 +910,8 @@ static void calc_font_sizes(void)
 
 static int practice_load_media(void)
 {
-    int  i;
-    char fn[FNLEN];
-    int  load_failed = 0;
-    int  labels_ok   = 0;
+    int load_failed = 0;
+    int labels_ok   = 0;
 
     DEBUGCODE
     {
@@ -923,19 +920,10 @@ static int practice_load_media(void)
 
     /* load needed SDL_Surfaces: */
     LoadBothBkgds("main_bkg.png");
-    hands         = LoadImage("hands/hands.png", IMG_ALPHA);
-    hand_shift[0] = LoadImage("hands/none.png", IMG_ALPHA);
-    hand_shift[1] = LoadImage("hands/lshift.png", IMG_ALPHA);
-    hand_shift[2] = LoadImage("hands/rshift.png", IMG_ALPHA);
-
-    for (i = 0; i < 10; i++)
+    Hand_Display_Init(&practice_hands);
+    if (!Hand_Display_Load(&practice_hands))
     {
-        sprintf(fn, "hands/%d.png", i);
-        hand[i] = LoadImage(fn, IMG_ALPHA);
-        if (!hand[i])
-        {
-            load_failed = 1;
-        }
+        load_failed = 1;
     }
 
     /* load tux sprites: */
@@ -955,9 +943,8 @@ static int practice_load_media(void)
     labels_ok = create_labels();
 
     /* Get out if anything failed to load (except sounds): */
-    if (load_failed || !hands || !CurrentBkgd() || !tux_win || !tux_stand ||
-        !practice_keyboard.base || !hand_shift[0] || !hand_shift[1] ||
-        !hand_shift[2] || !labels_ok)
+    if (load_failed || !practice_hands.base || !CurrentBkgd() || !tux_win ||
+        !tux_stand || !practice_keyboard.base || !labels_ok)
     {
         fprintf(stderr,
                 "practice_load_media() - failed to load needed media \n");
@@ -981,9 +968,9 @@ static void print_load_results(void)
     {
         LOG("CurrentBkgd() did not load\n");
     }
-    if (!hands)
+    if (!practice_hands.base)
     {
-        LOG("hands did not load\n");
+        LOG("hand display did not load\n");
     }
     if (!tux_win)
     {
@@ -996,18 +983,6 @@ static void print_load_results(void)
     if (!practice_keyboard.base)
     {
         LOG("keyboard did not load\n");
-    }
-    if (!hand_shift[0])
-    {
-        LOG("hand_shift[0] did not load\n");
-    }
-    if (!hand_shift[1])
-    {
-        LOG("hand_shift[1] did not load\n");
-    }
-    if (!hand_shift[2])
-    {
-        LOG("hand_shift[2] did not load\n");
     }
     if (!time_label_srfc)
     {
@@ -1053,7 +1028,8 @@ static void recalc_positions(void)
                 screen->w, screen->h);
     }
 
-    if (!practice_keyboard.base || !tux_win || !tux_win->frame[0] || !hand[0])
+    if (!practice_keyboard.base || !tux_win || !tux_win->frame[0] ||
+        !practice_hands.base)
     {
         fprintf(stderr,
                 "recalc_positions() - needed ptr invalid - returning\n");
@@ -1180,8 +1156,9 @@ static void recalc_positions(void)
 
     hand_loc.x = keyboard_loc.x;
     hand_loc.y = keyboard_loc.y + keyboard_loc.h + 20;
-    hand_loc.w = (hand[0]->w);
-    hand_loc.h = (hand[0]->h);
+    hand_loc.w = practice_hands.base->w;
+    hand_loc.h = practice_hands.base->h;
+    Hand_Display_SetPosition(&practice_hands, hand_loc.x, hand_loc.y);
 
     nextletter_rect.x = keyboard_loc.x + keyboard_loc.w - 80;
     nextletter_rect.y = keyboard_loc.y + keyboard_loc.h;
@@ -1191,8 +1168,6 @@ static void recalc_positions(void)
 
 static void practice_unload_media(void)
 {
-    int i;
-
     FreeBothBkgds();
     FreeLetters();
 
@@ -1232,31 +1207,8 @@ static void practice_unload_media(void)
     }
     accuracy_label_srfc = NULL;
 
-    if (hands)
-    {
-        SDL_DestroySurface(hands);
-    }
-    hands = NULL;
-
-    for (i = 0; i < 3; i++)
-    {
-        if (hand_shift[i])
-        {
-            SDL_DestroySurface(hand_shift[i]);
-        }
-        hand_shift[i] = NULL;
-    }
-
+    Hand_Display_Free(&practice_hands);
     Kbd_Display_Free(&practice_keyboard);
-
-    for (i = 0; i < 10; i++)
-    {
-        if (hand[i])
-        {
-            SDL_DestroySurface(hand[i]);
-        }
-        hand[i] = NULL;
-    }
 
     if (tux_stand)
     {
@@ -1568,21 +1520,13 @@ static int create_labels(void)
  * **************************************************************/
 void set_hand(int cursor, int cur_phrase)
 {
+    SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
+
     if (!settings.braille)
     {
-
-        int key   = GetIndex(phrases[cur_phrase][cursor]);
-        int fing  = GetFinger(key);
-        int shift = GetShift(key);
-        SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-        SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-
-        if (fing >= 0)
-        {
-            SDL_BlitSurface(hand[fing], NULL, screen, &hand_loc);
-        }
-
-        SDL_BlitSurface(hand_shift[shift], NULL, screen, &hand_loc);
+        int key = GetIndex(phrases[cur_phrase][cursor]);
+        Hand_Display_DrawForKey(&practice_hands, GetFinger(key), GetShift(key),
+                                screen);
 
         if (settings.show_keyboard)
         {
@@ -1592,13 +1536,11 @@ void set_hand(int cursor, int cur_phrase)
     }
     else
     {
-        SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-        SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-
         wchar_t target = phrases[cur_phrase][cursor];
         if (target == L' ')
         {
             /* Space — just show the silhouette, no chord. */
+            Hand_Display_DrawBase(&practice_hands, screen);
             return;
         }
 
@@ -1617,24 +1559,11 @@ void set_hand(int cursor, int cur_phrase)
         }
         if (n <= 0)
         {
+            Hand_Display_DrawBase(&practice_hands, screen);
             return;
         }
 
-        /* Stack the per-finger hand[] sprite for each dot in the chord.
-         * Mapping: dot 1=f→finger 3 (left index), 2=d→2, 3=s→1, 4=j→6,
-         * 5=k→7, 6=l→8 (right ring). */
-        static const int dot_to_finger[128] = {
-            [L'f'] = 3, [L'd'] = 2, [L's'] = 1,
-            [L'j'] = 6, [L'k'] = 7, [L'l'] = 8,
-        };
-        for (int j = 0; j < n; j++)
-        {
-            int f = dot_to_finger[dots[j] & 0x7f];
-            if (f > 0 && hand[f])
-            {
-                SDL_BlitSurface(hand[f], NULL, screen, &hand_loc);
-            }
-        }
+        Hand_Display_DrawForChord(&practice_hands, dots, n, screen);
 
         if (settings.show_keyboard)
         {
