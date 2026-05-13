@@ -32,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include <ctype.h>
 #include "braille.h"
+#include "input.h"
 #include "keyboard_display.h"
-#include "keyboard_input.h"
 
 /* Should these be constants? */
 static int tux_max_width        = 0; // the max width of the images of tux
@@ -48,6 +48,7 @@ static SDL_Surface* curlev            = NULL;
 static SDL_Surface* lives             = NULL;
 static SDL_Surface* fish              = NULL;
 static KbdDisplay   cascade_keyboard;
+static Input*       cascade_input = NULL;
 /* The bkg filename in use for the current level — cached so the keyboard-
  * guide toggle in the pause overlay can re-bake without re-randomizing. */
 static char         cascade_current_bkg[FNLEN];
@@ -303,8 +304,12 @@ int PlayCascade(int diflevel)
         /*  --------- Begin main game loop (cycles once per frame):
          * ------------- */
 
-        /* Reset the shared input decoder for this game session. */
-        Kbd_Input_Reset();
+        /* (Re-)create the input decoder for this game session. */
+        Input_Free(cascade_input);
+        cascade_input = (settings.input_mode == INPUT_BRAILLE)
+                            ? Input_NewBraille(NULL, &cascade_keyboard)
+                            : Input_NewTypewriter(NULL, &cascade_keyboard);
+        Input_SetKbdVisible(cascade_input, settings.show_keyboard);
 
         while (playing_level)
         {
@@ -443,12 +448,11 @@ int PlayCascade(int diflevel)
                         }
                     }
 
-                    /* Run the same event through the shared input decoder.
-                     * Returns typed.ready=1 with a wchar_t when normal-mode
-                     * TEXT_INPUT or braille-mode KEY_UP produces a character.
-                     */
-                    KbdTyped typed = {0};
-                    Kbd_Input_HandleEvent(&event, braille_letter_pos, &typed);
+                    /* Pass event to active input decoder; returns ready=1
+                     * with a wchar_t when typewriter TEXT_INPUT or braille
+                     * KEY_UP produces a character. */
+                    Input_SetWordPosition(cascade_input, braille_letter_pos);
+                    InputToken typed = Input_Consume(cascade_input, &event);
 
                     if (typed.ready)
                     {

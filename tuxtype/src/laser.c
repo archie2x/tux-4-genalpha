@@ -31,8 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SDL_extras.h"
 #include "laser.h"
 #include "braille.h"
+#include "input.h"
 #include "keyboard_display.h"
-#include "keyboard_input.h"
 #include <ctype.h>
 
 #include <t4k/visible_bell.h>
@@ -77,6 +77,7 @@ static int braille_letter_pos   = 0;
 static T4K_VisibleBell s_wrong_bell;
 
 static KbdDisplay laser_keyboard;
+static Input*     laser_input = NULL;
 
 /* Local function prototypes: */
 static void laser_add_comet(int diff_level);
@@ -186,8 +187,13 @@ int PlayLaserGame(int diff_level)
         tts_thread = SDL_CreateThread(tts_announcer, "tt_thread", NULL);
     }
 
-    /* Reset the shared input decoder for this game session. */
-    Kbd_Input_Reset();
+    /* Create the input decoder for this game session — no hand widget
+     * in Comet Zap, so pass NULL for it. */
+    Input_Free(laser_input);
+    laser_input = (settings.input_mode == INPUT_BRAILLE)
+                      ? Input_NewBraille(NULL, &laser_keyboard)
+                      : Input_NewTypewriter(NULL, &laser_keyboard);
+    Input_SetKbdVisible(laser_input, settings.show_keyboard);
 
     do
     {
@@ -261,9 +267,9 @@ int PlayLaserGame(int diff_level)
                  * below. KEY_DOWN here just runs the control-key switch. */
             }
 
-            /* Run the same event through the shared input decoder. */
-            KbdTyped typed = {0};
-            Kbd_Input_HandleEvent(&event, braille_letter_pos, &typed);
+            /* Run the event through the active input decoder. */
+            Input_SetWordPosition(laser_input, braille_letter_pos);
+            InputToken typed = Input_Consume(laser_input, &event);
 
             if (typed.ready && level_start_wait <= 0)
             {
@@ -979,6 +985,8 @@ static void laser_unload_data(void)
 
     Kbd_Display_Free(&laser_keyboard);
     T4K_VisibleBell_Free(&s_wrong_bell);
+    Input_Free(laser_input);
+    laser_input = NULL;
 }
 
 /* Draw keyboard guide + the green next-letter-to-type highlight for each
@@ -989,7 +997,6 @@ static void laser_draw_keyboard_highlights(void)
 {
     int drawn[MAX_UNICODES] = {0};
     int lowest              = -1;
-    int i;
 
     if (!laser_keyboard.base || !settings.show_keyboard)
     {
@@ -998,19 +1005,14 @@ static void laser_draw_keyboard_highlights(void)
 
     Kbd_Display_DrawBase(&laser_keyboard, screen);
 
-    /* In word mode, multiple comets are chained via .next and only the
-     * chain head has .shootable=1 (i.e. the next letter to type for that
-     * word). In single-letter mode every alive comet is shootable.
-     *
-     * Normal mode highlights every alive shootable comet's next letter
-     * (dedup'd via drawn[]). Braille mode tracks the lowest-on-screen
-     * comet (largest .y, since SDL y grows downward) — its chord is the
-     * single highlight, since every chord shares the fdsjkl keys and
-     * showing multiple at once is unreadable. */
-    for (i = 0; i < MAX_COMETS; i++)
-    {
-        int key;
+    /* In chord-based modes (braille; later semaphore) every target shares
+     * the same input keys, so showing multiple hints at once is unreadable
+     * — pick the lowest-on-screen comet and hint that one only. Other
+     * modes highlight every distinct target key. */
+    int chord_mode = (settings.input_mode == INPUT_BRAILLE);
 
+    for (int i = 0; i < MAX_COMETS; i++)
+    {
         if (!comets[i].alive || comets[i].expl != 0 || !comets[i].shootable)
         {
             continue;
@@ -1020,7 +1022,7 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
-        if (settings.input_mode == INPUT_BRAILLE)
+        if (chord_mode)
         {
             if (lowest < 0 || comets[i].y > comets[lowest].y)
             {
@@ -1029,29 +1031,18 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
-        key = GetIndex(comets[i].ch);
+        int key = GetIndex(comets[i].ch);
         if (key < 0 || key >= MAX_UNICODES || drawn[key])
         {
             continue;
         }
-        if (Kbd_Display_BlitGreenKey(&laser_keyboard, key, screen))
-        {
-            drawn[key] = 1;
-        }
+        Input_DrawHint(laser_input, comets[i].ch, screen);
+        drawn[key] = 1;
     }
 
-    if ((settings.input_mode == INPUT_BRAILLE) && lowest >= 0)
+    if (chord_mode && lowest >= 0)
     {
-        wchar_t dots[6];
-        int     n = Braille_DotsForChar(comets[lowest].ch, dots);
-        for (int d = 0; d < n; d++)
-        {
-            int key = GetIndex(dots[d]);
-            if (key >= 0 && key < MAX_UNICODES)
-            {
-                Kbd_Display_BlitGreenKey(&laser_keyboard, key, screen);
-            }
-        }
+        Input_DrawHint(laser_input, comets[lowest].ch, screen);
     }
 }
 

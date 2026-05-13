@@ -41,8 +41,10 @@ add_executable(
     src/editor.c
     src/globals.c
     src/hand_display.c
+    src/input.c
+    src/input_braille.c
+    src/input_typewriter.c
     src/keyboard_display.c
-    src/keyboard_input.c
     src/laser.c
     src/loaders.c
     src/main.c

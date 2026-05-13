@@ -25,8 +25,8 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "funcs.h"
 #include "SDL_extras.h"
 #include "hand_display.h"
+#include "input.h"
 #include "keyboard_display.h"
-#include "keyboard_input.h"
 #include "braille.h"
 #include <ctype.h>
 #include <wctype.h>
@@ -44,6 +44,7 @@ static int bigfontsize = 0;
 /* Surfaces for things we want to pre-render: */
 static HandDisplay  practice_hands;
 static KbdDisplay   practice_keyboard;
+static Input*       practice_input      = NULL;
 static sprite*      tux_stand           = NULL;
 static sprite*      tux_win             = NULL;
 static SDL_Surface* time_label_srfc     = NULL;
@@ -138,11 +139,16 @@ int Phrases(wchar_t* pphrase)
     char   accuracy_str[20];
     SDL_Surface* tmpsurf = NULL;
 
-    /* Reset the shared input decoder (chord buffer + capital/number prefix
-     * flags) for this game session. Per-game word-position tracking lives
-     * in the file-scope braille_letter_pos. */
+    /* Per-game word-position tracking lives in the file-scope
+     * braille_letter_pos; the input decoder pulls it via
+     * Input_SetWordPosition() before each Consume(). */
     braille_letter_pos = 0;
-    Kbd_Input_Reset();
+    Input_Free(practice_input);
+    practice_input =
+        (settings.input_mode == INPUT_BRAILLE)
+            ? Input_NewBraille(&practice_hands, &practice_keyboard)
+            : Input_NewTypewriter(&practice_hands, &practice_keyboard);
+    Input_SetKbdVisible(practice_input, settings.show_keyboard);
 
     /* Load all needed graphics, strings, sounds.... */
     if (!practice_load_media())
@@ -201,7 +207,7 @@ int Phrases(wchar_t* pphrase)
             wrong_chars        = 0;
 
             /* Drop any in-flight braille chord state on phrase reset. */
-            Kbd_Input_Reset();
+            Input_Reset(practice_input);
 
         /* No 'break;' so we drop through to do case 1 as well : */
 
@@ -441,17 +447,15 @@ int Phrases(wchar_t* pphrase)
                 }
             }
 
-            /* Run the same event through the shared input decoder — handles
-             * TEXT_INPUT in normal mode and KEY_DOWN-accumulate / KEY_UP-decode
-             * in braille mode, including the capital-prefix one-shot.
+            /* Pass the event to the active input mode (typewriter/braille).
              * typed.ready=1 when a character is available. */
-            KbdTyped typed = {0};
-            Kbd_Input_HandleEvent(&event, braille_letter_pos, &typed);
+            Input_SetWordPosition(practice_input, braille_letter_pos);
+            InputToken typed = Input_Consume(practice_input, &event);
 
             if (typed.ready)
             {
                 wchar_t typed_ch = typed.ch;
-                int     key      = typed.key_index;
+                int     key      = GetIndex(typed_ch);
 
                 /* If state changed as direct result of keypress (e.g. F10),
                  * skip the hit-test so we don't count it as a wrong key. */
@@ -883,6 +887,8 @@ int Phrases(wchar_t* pphrase)
     savekeyboard();
 
     practice_unload_media();
+    Input_Free(practice_input);
+    practice_input = NULL;
 
     return quit;
 }
@@ -1514,80 +1520,22 @@ static int create_labels(void)
     return 0;
 }
 
-/*****************************************************************
- * Set the finger to the curresponding letter, if braille mode
- * is enabled fingers will be shown
- * **************************************************************/
+/* Erase hand area and draw the input mode's hint for the cursor's
+ * target rune. The keyboard widget is drawn unconditionally when shown
+ * (DrawBase restores the bg under it); the mode adds its overlays. */
 void set_hand(int cursor, int cur_phrase)
 {
+    wchar_t target = phrases[cur_phrase][cursor];
+
     SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
 
-    if (settings.input_mode != INPUT_BRAILLE)
-    {
-        int key = GetIndex(phrases[cur_phrase][cursor]);
-        Hand_Display_DrawForKey(&practice_hands, GetFinger(key), GetShift(key),
-                                screen);
+    /* Braille's chord lookup picks between value_begin / middle / end
+     * based on this. Updates as the cursor advances; other modes ignore. */
+    int pos            = Braille_PositionForChar(target);
+    braille_letter_pos = (pos >= 0) ? pos : 0;
+    Input_SetWordPosition(practice_input, braille_letter_pos);
 
-        if (settings.show_keyboard)
-        {
-            Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
-            Kbd_Display_DrawShiftForKey(&practice_keyboard, key, screen);
-        }
-    }
-    else
-    {
-        wchar_t target = phrases[cur_phrase][cursor];
-        if (target == L' ')
-        {
-            /* Space — silhouette + green-highlight the space bar. */
-            Hand_Display_DrawBase(&practice_hands, screen);
-            if (settings.show_keyboard)
-            {
-                int key = GetIndex(L' ');
-                if (key >= 0 && key < MAX_UNICODES)
-                {
-                    Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
-                }
-            }
-            return;
-        }
-
-        /* Compute the chord. When the target is a capital letter and the
-         * caps prefix (dot 6) hasn't been entered yet, hint that first. */
-        wchar_t dots[6];
-        int     n;
-        if (iswupper(target) && !Kbd_Input_CapitalPending())
-        {
-            dots[0] = L'l'; /* dot 6 — capital indicator */
-            n       = 1;
-        }
-        else
-        {
-            n = Braille_DotsForChar(target, dots);
-        }
-        if (n <= 0)
-        {
-            Hand_Display_DrawBase(&practice_hands, screen);
-            return;
-        }
-
-        Hand_Display_DrawForChord(&practice_hands, dots, n, screen);
-
-        if (settings.show_keyboard)
-        {
-            for (int d = 0; d < n; d++)
-            {
-                int key = GetIndex(dots[d]);
-                if (key >= 0 && key < MAX_UNICODES)
-                {
-                    Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
-                }
-            }
-        }
-
-        int pos            = Braille_PositionForChar(target);
-        braille_letter_pos = (pos >= 0) ? pos : 0;
-    }
+    Input_DrawHint(practice_input, target, screen);
 }
 
 /****************************************************************************
