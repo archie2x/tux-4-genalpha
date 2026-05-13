@@ -28,6 +28,7 @@ Sreyas Kurumanghat <k.sreyas@gmail.com>
 #include "input.h"
 #include "keyboard_display.h"
 #include "braille.h"
+#include <t4k/visible_bell.h>
 #include <ctype.h>
 #include <wctype.h>
 
@@ -55,9 +56,12 @@ static SDL_Surface* errors_label_srfc   = NULL;
 static SDL_Surface* accuracy_label_srfc = NULL;
 
 static wchar_t    phrases[MAX_PHRASES][MAX_PHRASE_LENGTH];
-static Mix_Chunk* wrong  = NULL;
 static Mix_Chunk* cheer  = NULL;
 static Mix_Chunk* snd_ok = NULL;
+
+/* Visual feedback for wrong keys — full-screen white flash that fades.
+ * Replaces the abrasive buzz.wav that used to fire on every miss. */
+static T4K_VisibleBell s_wrong_bell;
 
 static int phrase_draw_width = 0; /* How wide before text needs wrapping */
 static int num_phrases       = 0;
@@ -825,7 +829,7 @@ int Phrases(wchar_t* pphrase)
                             (event.key.key != SDLK_SPACE))
                         {
                             wrong_chars++;
-                            PlaySound(wrong);
+                            T4K_VisibleBell_Trigger(&s_wrong_bell);
 
                             /* Announce the letter again when incorrect letter.
                              */
@@ -890,8 +894,16 @@ int Phrases(wchar_t* pphrase)
             NEXT_FRAME(tux_stand);
         }
 
+        /* The bell additively-blends white each frame; without a fresh
+         * background blit underneath, alpha stacks and the screen
+         * stays white. Force a full-state redraw while active so each
+         * frame starts clean. */
+        if (T4K_VisibleBell_Active(&s_wrong_bell))
+        {
+            state = 1;
+        }
+        T4K_VisibleBell_Render(&s_wrong_bell, screen);
         T4K_UpdateRect(screen, NULL);
-        //    T4K_UpdateRect(screen, NULL);
         SDL_Delay(30); /* FIXME should keep frame rate constant */
 
     } while (!quit); /* ------- End of main event loop ------------- */
@@ -947,9 +959,11 @@ static int practice_load_media(void)
     tux_win   = LoadSprite("tux/win", IMG_ALPHA);
     tux_stand = LoadSprite("tux/stand", IMG_ALPHA);
     /* load needed sounds: */
-    wrong  = LoadSound("buzz.wav");
     cheer  = LoadSound("cheer.wav");
     snd_ok = LoadSound("tock.wav");
+
+    /* Wrong-key visual flash; defaults: 200ms duration, peak alpha 110. */
+    T4K_VisibleBell_Init(&s_wrong_bell, 0, 0);
 
     /* load needed fonts: */
     calc_font_sizes();
@@ -1245,11 +1259,7 @@ static void practice_unload_media(void)
     }
     cheer = NULL;
 
-    if (wrong)
-    {
-        ((void)0);
-    }
-    wrong = NULL;
+    T4K_VisibleBell_Free(&s_wrong_bell);
 }
 
 /* Looks for phrases.txt in theme, then in default if not found, */
