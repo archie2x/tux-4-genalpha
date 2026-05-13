@@ -185,9 +185,20 @@ void Kbd_Display_BakeIntoBackground(KbdDisplay*  keyboard,
 
 void Kbd_Display_DrawBase(KbdDisplay* keyboard, SDL_Surface* target)
 {
+    SDL_Surface* bg;
+
     if (!keyboard || !keyboard->base || !target)
     {
         return;
+    }
+
+    /* Base PNG has transparent pixels in the inter-key gaps. Restore the
+     * background under our footprint first so previous green/red key
+     * overlays don't bleed through those gaps. */
+    bg = CurrentBkgd();
+    if (bg)
+    {
+        SDL_BlitSurface(bg, &keyboard->rect, target, &keyboard->rect);
     }
 
     SDL_BlitSurface(keyboard->base, NULL, target, &keyboard->rect);
