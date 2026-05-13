@@ -1539,8 +1539,16 @@ void set_hand(int cursor, int cur_phrase)
         wchar_t target = phrases[cur_phrase][cursor];
         if (target == L' ')
         {
-            /* Space — just show the silhouette, no chord. */
+            /* Space — silhouette + green-highlight the space bar. */
             Hand_Display_DrawBase(&practice_hands, screen);
+            if (settings.show_keyboard)
+            {
+                int key = GetIndex(L' ');
+                if (key >= 0 && key < MAX_UNICODES)
+                {
+                    Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
+                }
+            }
             return;
         }
 
