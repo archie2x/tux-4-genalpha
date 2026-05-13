@@ -220,7 +220,7 @@ int PlayLaserGame(int diff_level)
                 key = event.key.key;
                 if (key == SDLK_F10)
                 {
-                    SwitchScreenMode();
+                    T4K_SwitchScreenMode();
                     calc_city_pos();
                     recalc_comet_pos();
                 }

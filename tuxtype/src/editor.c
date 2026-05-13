@@ -186,31 +186,32 @@ void ChooseListToEdit(void)
     for (i = 0; i < num_lists; i++)
     {
         white_titles_surf[i] =
-            BlackOutline(list_titles[i], DEFAULT_MENU_FONT_SIZE, &white);
+            T4K_BlackOutline(list_titles[i], DEFAULT_MENU_FONT_SIZE, &white);
         yellow_titles_surf[i] =
-            BlackOutline(list_titles[i], DEFAULT_MENU_FONT_SIZE, &yellow);
+            T4K_BlackOutline(list_titles[i], DEFAULT_MENU_FONT_SIZE, &yellow);
     }
 
     /* Render text and instructions */
-    directions[0] = BlackOutline(gettext_noop("Word List Editor"), 22, &yellow);
-    directions[1] = BlackOutline(gettext_noop("Click 'NEW' to add a new list."),
-                                 16, &white);
-    directions[2] = BlackOutline(
+    directions[0] =
+        T4K_BlackOutline(gettext_noop("Word List Editor"), 22, &yellow);
+    directions[1] = T4K_BlackOutline(
+        gettext_noop("Click 'NEW' to add a new list."), 16, &white);
+    directions[2] = T4K_BlackOutline(
         gettext_noop(
             "Select and click 'REMOVE' (or press 'DELETE') to remove a list."),
         16, &white);
-    directions[3] = BlackOutline(
+    directions[3] = T4K_BlackOutline(
         gettext_noop("Select and press 'ENTER/RETURN' to edit a list."), 16,
         &white);
-    directions[4] = BlackOutline(
+    directions[4] = T4K_BlackOutline(
         gettext_noop("Click 'DONE' or press 'ESC' to exit."), 16, &white);
 
-    max_title_size = BlackOutline(gettext_noop("WWWWWWWWW"),
-                                  DEFAULT_MENU_FONT_SIZE, &yellow);
+    max_title_size = T4K_BlackOutline(gettext_noop("WWWWWWWWW"),
+                                      DEFAULT_MENU_FONT_SIZE, &yellow);
 
-    NEW    = BlackOutline(gettext_noop("NEW"), 25, &yellow);
-    DONE   = BlackOutline(gettext_noop("DONE"), 25, &yellow);
-    REMOVE = BlackOutline(gettext_noop("REMOVE"), 25, &yellow);
+    NEW    = T4K_BlackOutline(gettext_noop("NEW"), 25, &yellow);
+    DONE   = T4K_BlackOutline(gettext_noop("DONE"), 25, &yellow);
+    REMOVE = T4K_BlackOutline(gettext_noop("REMOVE"), 25, &yellow);
 
     /* Load image of new/remove/done buttons: */
     /* Original asset is huge; scale into a 140x50 box. */
@@ -296,7 +297,7 @@ void ChooseListToEdit(void)
     {
         titleRects[i].y = titleRects[i - 1].y + 30;
         /* SDL3's SDL_BlitSurface no longer mutates the destination rect's
-         * w/h — without setting them here, hit-testing via inRect() against
+         * w/h — without setting them here, hit-testing via T4K_inRect() against
          * each title would always miss. Inherit the same bbox as titleRects[0].
          */
         titleRects[i].w = max_title_size->w;
@@ -320,7 +321,7 @@ void ChooseListToEdit(void)
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                if (inRect(leftRect, event.button.x, event.button.y))
+                if (T4K_inRect(leftRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) - 8 >= 0)
                     {
@@ -329,7 +330,7 @@ void ChooseListToEdit(void)
                     }
                 }
 
-                if (inRect(rightRect, event.button.x, event.button.y))
+                if (T4K_inRect(rightRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) + 8 < num_lists)
                     {
@@ -338,7 +339,8 @@ void ChooseListToEdit(void)
                     }
                 }
 
-                if (inRect(button_rect[New], event.button.x, event.button.y))
+                if (T4K_inRect(button_rect[New], event.button.x,
+                               event.button.y))
                 {
                     change = CreateNewWordList();
                     if (!change)
@@ -347,7 +349,8 @@ void ChooseListToEdit(void)
                     }
                 }
 
-                if (inRect(button_rect[Remove], event.button.x, event.button.y))
+                if (T4K_inRect(button_rect[Remove], event.button.x,
+                               event.button.y))
                 {
                     if (loc >= 0 && loc < num_lists)
                     {
@@ -356,7 +359,8 @@ void ChooseListToEdit(void)
                     }
                 }
 
-                if (inRect(button_rect[Done], event.button.x, event.button.y))
+                if (T4K_inRect(button_rect[Done], event.button.x,
+                               event.button.y))
                 {
                     stop = 1;
                     break;
@@ -368,8 +372,8 @@ void ChooseListToEdit(void)
                     int start = loc - (loc % 8);
                     for (i = 0; i < 8 && start + i < num_lists; i++)
                     {
-                        if (inRect(titleRects[i], event.button.x,
-                                   event.button.y))
+                        if (T4K_inRect(titleRects[i], event.button.x,
+                                       event.button.y))
                         {
                             loc = start + i;
                             break;
@@ -492,9 +496,9 @@ void ChooseListToEdit(void)
             /* Render SDL_Surfaces of title text for later blitting: */
             for (i = 0; i < num_lists; i++)
             {
-                white_titles_surf[i] = BlackOutline(
+                white_titles_surf[i] = T4K_BlackOutline(
                     list_titles[i], DEFAULT_MENU_FONT_SIZE, &white);
-                yellow_titles_surf[i] = BlackOutline(
+                yellow_titles_surf[i] = T4K_BlackOutline(
                     list_titles[i], DEFAULT_MENU_FONT_SIZE, &yellow);
             }
 
@@ -716,26 +720,28 @@ void EditWordList(char* words_file)
     /* Render the words in white and yellow: */
     for (i = 0; i < number_of_words - 1; i++)
     {
-        white_words[i] =
-            BlackOutline(words_in_list[i + 1], DEFAULT_MENU_FONT_SIZE, &white);
-        yellow_words[i] =
-            BlackOutline(words_in_list[i + 1], DEFAULT_MENU_FONT_SIZE, &yellow);
+        white_words[i]  = T4K_BlackOutline(words_in_list[i + 1],
+                                           DEFAULT_MENU_FONT_SIZE, &white);
+        yellow_words[i] = T4K_BlackOutline(words_in_list[i + 1],
+                                           DEFAULT_MENU_FONT_SIZE, &yellow);
     }
 
     left          = LoadImage("left.png", IMG_ALPHA);
     right         = LoadImage("right.png", IMG_ALPHA);
-    title         = BlackOutline(_("Word List Editor:"), 20, &yellow);
-    wordlist_name = BlackOutline(words_in_list[0], 25, &white);
+    title         = T4K_BlackOutline(_("Word List Editor:"), 20, &yellow);
+    wordlist_name = T4K_BlackOutline(words_in_list[0], 25, &white);
 
-    directions[0] = BlackOutline(
+    directions[0] = T4K_BlackOutline(
         _("To add a word, press 'RETURN' and start typing"), 11, &white);
-    directions[1] = BlackOutline(_("To edit a word, select the word using the "
-                                   "arrow buttons and continue typing"),
-                                 11, &white);
-    directions[2] = BlackOutline(_("To delete a character, select the word you "
-                                   "want to edit and press the 'DELETE' key"),
-                                 11, &white);
-    directions[3] = BlackOutline(
+    directions[1] =
+        T4K_BlackOutline(_("To edit a word, select the word using the "
+                           "arrow buttons and continue typing"),
+                         11, &white);
+    directions[2] =
+        T4K_BlackOutline(_("To delete a character, select the word you "
+                           "want to edit and press the 'DELETE' key"),
+                         11, &white);
+    directions[3] = T4K_BlackOutline(
         _("To exit and save the word list, press 'ESC'"), 11, &white);
 
     /* FIXME these need to be scaled to screen size */
@@ -798,7 +804,7 @@ void EditWordList(char* words_file)
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
             {
-                if (inRect(leftRect, event.button.x, event.button.y))
+                if (T4K_inRect(leftRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) - 8 >= 0)
                     {
@@ -807,7 +813,7 @@ void EditWordList(char* words_file)
                     }
                 }
 
-                if (inRect(rightRect, event.button.x, event.button.y))
+                if (T4K_inRect(rightRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) + 8 < number_of_words)
                     {
@@ -819,7 +825,8 @@ void EditWordList(char* words_file)
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < number_of_words);
                      i++)
                 {
-                    if (inRect(word_rects[i], event.motion.x, event.motion.y))
+                    if (T4K_inRect(word_rects[i], event.motion.x,
+                                   event.motion.y))
                     {
                         loc = loc - (loc % 8);
                         break;
@@ -843,11 +850,11 @@ void EditWordList(char* words_file)
                         len = T4K_ConvertToUTF8(temp, words_in_list[loc + 1],
                                                 MAX_WORD_SIZE);
                         white_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &white);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &white);
                         yellow_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &yellow);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &yellow);
                     }
                     else
                     {
@@ -896,10 +903,10 @@ void EditWordList(char* words_file)
                                                 words_in_list[x + 1]);
                                     }
 
-                                    white_words[x] = BlackOutline(
+                                    white_words[x] = T4K_BlackOutline(
                                         words_in_list[x + 1],
                                         DEFAULT_MENU_FONT_SIZE, &white);
-                                    yellow_words[x] = BlackOutline(
+                                    yellow_words[x] = T4K_BlackOutline(
                                         words_in_list[x + 1],
                                         DEFAULT_MENU_FONT_SIZE, &yellow);
                                 }
@@ -923,11 +930,11 @@ void EditWordList(char* words_file)
                         }
 
                         white_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &white);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &white);
                         yellow_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &yellow);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &yellow);
 
                         // handle deletion of words better, right now don't
                         // really do that
@@ -1060,11 +1067,11 @@ void EditWordList(char* words_file)
 
                         // Copy back to the on-screen list
                         white_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &white);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &white);
                         yellow_words[loc] =
-                            BlackOutline(words_in_list[loc + 1],
-                                         DEFAULT_MENU_FONT_SIZE, &yellow);
+                            T4K_BlackOutline(words_in_list[loc + 1],
+                                             DEFAULT_MENU_FONT_SIZE, &yellow);
                     }
                     i = 0;
                     break;
@@ -1247,14 +1254,15 @@ int CreateNewWordList(void)
     // FIXME: Create a rect for user to enter stuff, and a pretty box to go
     // around everything
 
-    OK            = BlackOutline(_("OK"), 25, &yellow);
-    CANCEL        = BlackOutline(_("CANCEL"), 25, &yellow);
+    OK            = T4K_BlackOutline(_("OK"), 25, &yellow);
+    CANCEL        = T4K_BlackOutline(_("CANCEL"), 25, &yellow);
     OK_button     = LoadImage("wordlist_button.png", IMG_ALPHA);
     CANCEL_button = LoadImage("wordlist_button.png", IMG_ALPHA);
-    Direction1    = BlackOutline(_("Create a New Wordlist"), 20, &yellow);
-    Direction2 = BlackOutline(_("Type the name of your new wordlist and press "
-                                "'ok' or 'RETURN' to save"),
-                              12, &white);
+    Direction1    = T4K_BlackOutline(_("Create a New Wordlist"), 20, &yellow);
+    Direction2 =
+        T4K_BlackOutline(_("Type the name of your new wordlist and press "
+                           "'ok' or 'RETURN' to save"),
+                         12, &white);
 
     SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
@@ -1314,7 +1322,7 @@ int CreateNewWordList(void)
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
             {
-                if (inRect(OK_rect, event.button.x, event.button.y))
+                if (T4K_inRect(OK_rect, event.button.x, event.button.y))
                 {
                     if (len == 0)
                     {
@@ -1328,7 +1336,7 @@ int CreateNewWordList(void)
                     }
                 }
 
-                if (inRect(CANCEL_rect, event.button.x, event.button.y))
+                if (T4K_inRect(CANCEL_rect, event.button.x, event.button.y))
                 {
                     stop = 1;
                     break;
@@ -1352,7 +1360,7 @@ int CreateNewWordList(void)
                     {
                         temp[len - 1] = temp[len];
                         len = T4K_ConvertToUTF8(temp, wordlist, MAX_WORD_SIZE);
-                        NewWordlist = BlackOutline(
+                        NewWordlist = T4K_BlackOutline(
                             wordlist, DEFAULT_MENU_FONT_SIZE, &yellow);
                         DEBUGCODE
                         {
@@ -1409,8 +1417,8 @@ int CreateNewWordList(void)
                     }
 
                     // Copy back into onscreen
-                    NewWordlist =
-                        BlackOutline(wordlist, DEFAULT_MENU_FONT_SIZE, &yellow);
+                    NewWordlist = T4K_BlackOutline(
+                        wordlist, DEFAULT_MENU_FONT_SIZE, &yellow);
 
                     i = 0;
                     break;
@@ -1569,15 +1577,15 @@ int ChooseRemoveList(char* name, char* filename)
     SDL_Rect     OK_rect_text;
     SDL_Rect     CANCEL_rect_text;
 
-    OK     = BlackOutline(_("OK"), 25, &yellow);
-    CANCEL = BlackOutline(_("NEVERMIND"), 25, &yellow);
+    OK     = T4K_BlackOutline(_("OK"), 25, &yellow);
+    CANCEL = T4K_BlackOutline(_("NEVERMIND"), 25, &yellow);
 
     OK_button     = LoadImage("wordlist_button.png", IMG_ALPHA);
     CANCEL_button = LoadImage("wordlist_button.png", IMG_ALPHA);
 
     Directions =
-        BlackOutline(_("Do you want to delete this wordlist:"), 18, &white);
-    wordname = BlackOutline(name, 18, &white);
+        T4K_BlackOutline(_("Do you want to delete this wordlist:"), 18, &white);
+    wordname = T4K_BlackOutline(name, 18, &white);
 
     SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
@@ -1626,13 +1634,13 @@ int ChooseRemoveList(char* name, char* filename)
             switch (event.type)
             {
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                if (inRect(OK_rect, event.button.x, event.button.y))
+                if (T4K_inRect(OK_rect, event.button.x, event.button.y))
                 {
                     RemoveList(filename);
                     result = 1;
                     stop   = 1;
                 }
-                if (inRect(CANCEL_rect, event.button.x, event.button.y))
+                if (T4K_inRect(CANCEL_rect, event.button.x, event.button.y))
                 {
                     result = 0;
                     stop   = 1;

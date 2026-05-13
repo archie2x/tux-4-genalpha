@@ -308,10 +308,10 @@ int XMLLesson(void)
     /* let the user pick the lesson script */
     for (i = 0; i < num_scripts; i++)
     {
-        titles[i] =
-            BlackOutline(script_filenames[i], DEFAULT_MENU_FONT_SIZE, &white);
-        select[i] =
-            BlackOutline(script_filenames[i], DEFAULT_MENU_FONT_SIZE, &yellow);
+        titles[i] = T4K_BlackOutline(script_filenames[i],
+                                     DEFAULT_MENU_FONT_SIZE, &white);
+        select[i] = T4K_BlackOutline(script_filenames[i],
+                                     DEFAULT_MENU_FONT_SIZE, &yellow);
     }
 
     left  = LoadImage("left.png", IMG_ALPHA);
@@ -372,7 +372,8 @@ int XMLLesson(void)
             case SDL_EVENT_MOUSE_MOTION:
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < num_scripts); i++)
                 {
-                    if (inRect(titleRects[i], event.motion.x, event.motion.y))
+                    if (T4K_inRect(titleRects[i], event.motion.x,
+                                   event.motion.y))
                     {
                         loc = loc - (loc % 8) + i;
                         break;
@@ -381,7 +382,7 @@ int XMLLesson(void)
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                if (inRect(leftRect, event.button.x, event.button.y))
+                if (T4K_inRect(leftRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) - 8 >= 0)
                     {
@@ -390,7 +391,7 @@ int XMLLesson(void)
                     }
                 }
 
-                if (inRect(rightRect, event.button.x, event.button.y))
+                if (T4K_inRect(rightRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) + 8 < num_scripts)
                     {
@@ -401,7 +402,8 @@ int XMLLesson(void)
 
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < num_scripts); i++)
                 {
-                    if (inRect(titleRects[i], event.button.x, event.button.y))
+                    if (T4K_inRect(titleRects[i], event.button.x,
+                                   event.button.y))
                     {
                         loc = loc - (loc % 8) + i;
 
@@ -1406,7 +1408,7 @@ static void run_script(void)
              * assuming svg is for that... -MDT */
             if (settings.fullscreen)
             {
-                SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
+                SDL_Surface* fsimg = T4K_zoom(img, fs_res_x, fs_res_y);
                 SDL_BlitSurface(fsimg, NULL, screen, NULL);
                 SDL_DestroySurface(fsimg);
             }
@@ -1426,7 +1428,7 @@ static void run_script(void)
              * fullscreen -MDT */
             if (settings.fullscreen)
             {
-                SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
+                SDL_Surface* fsimg = T4K_zoom(img, fs_res_x, fs_res_y);
                 SDL_BlitSurface(fsimg, NULL, screen, NULL);
                 SDL_DestroySurface(fsimg);
             }
@@ -1518,7 +1520,7 @@ static void run_script(void)
                      * in fullscreen -MDT */
                     if (settings.fullscreen)
                     {
-                        SDL_Surface* fsimg = zoom(img, fs_res_x, fs_res_y);
+                        SDL_Surface* fsimg = T4K_zoom(img, fs_res_x, fs_res_y);
                         SDL_BlitSurface(fsimg, NULL, screen, NULL);
                         SDL_DestroySurface(fsimg);
                     }
@@ -1589,7 +1591,7 @@ static void run_script(void)
 
                         tmp[toshow] = 0;
 
-                        img = SimpleText(tmp, (int)curItem->size, col);
+                        img = T4K_SimpleText(tmp, (int)curItem->size, col);
 
                         if (img)
                         {
@@ -1604,7 +1606,7 @@ static void run_script(void)
 
                     shown += toshow + 1;
 
-                    img = SimpleText(tmp, (int)curItem->size, col);
+                    img = T4K_SimpleText(tmp, (int)curItem->size, col);
 
                     if (img)
                     {
@@ -1695,8 +1697,8 @@ static void run_script(void)
 
                             for (j = 0; j < numClicks; j++)
                             {
-                                if (inRect(clickRects[j], event.button.x,
-                                           event.button.y))
+                                if (T4K_inRect(clickRects[j], event.button.x,
+                                               event.button.y))
                                 {
                                     PlaySound(clickWavs[j]);
                                 }

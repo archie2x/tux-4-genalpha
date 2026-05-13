@@ -1,34 +1,16 @@
-/*
-   SDL_extras.h:
-
-   Headers for wrapper and utility functions for use with the
-   SDL libraries.
-
-   Copyright 2007, 2008, 2009, 2010.
-   Authors: David Bruce, Tim Holy.
-
-   Project email: <tux4kids-tuxtype-dev@lists.alioth.debian.org>
-   Project website: http://tux4kids.alioth.debian.org
-
-   SDL_extras.h is part of Tux Typing, a.k.a "tuxtype".
-
-Tux Typing is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3 of the License, or
-(at your option) any later version.
-
-Tux Typing is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/* SDL_extras.h — tuxtype-only helpers that go beyond t4k_common.
+ *
+ * Most surface/text/blit-queue helpers are now T4K_* functions — call
+ * those directly. What's left here has a different signature than the
+ * t4k_common original (BlackOutline_w takes wchar_t; EraseObject auto-
+ * passes CurrentBkgd; TransWipe takes a const surface) or a tuxtype-
+ * specific implementation (WaitForKeypress).
+ *
+ * Copyright 2007, 2008, 2009, 2010 (David Bruce, Tim Holy). GPLv3+. */
 
 #pragma once
 #include <SDL3/SDL.h>
-#include <t4k/common.h> /* sprite, MAX_SPRITE_FRAMES, color constants, WIPE_* enum */
+#include <t4k/common.h> /* sprite, MAX_SPRITE_FRAMES, color constants, WIPE_* */
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 # define rmask 0xff000000
@@ -42,43 +24,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # define amask 0xff000000
 #endif
 
-/* SDL3 port note: `black`, `gray`, `dark_blue`, `red`, `white`, `yellow`,
- * `sprite`, `MAX_SPRITE_FRAMES`, `ERASE_MARGIN` are provided by t4k/common.h
- * (included from funcs.h). NEXT_FRAME and REWIND are still tuxtype-local: */
 #define NEXT_FRAME(SPRITE)                                                     \
     if ((SPRITE)->num_frames)                                                  \
         (SPRITE)->cur = (((SPRITE)->cur) + 1) % (SPRITE)->num_frames;
 #define REWIND(SPRITE) (SPRITE)->cur = 0;
 
-/* "Public" function prototypes: */
-void DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b,
-                Uint8 a);
-void RoundCorners(SDL_Surface* s, Uint16 radius);
-SDL_Surface* Flip(SDL_Surface* in, int x, int y);
-int          inRect(SDL_Rect r, int x, int y);
-void         DarkenScreen(Uint8 bits);
-void         SwitchScreenMode(void);
-int          WaitForKeypress(void);
-SDL_Surface* Blend(SDL_Surface* S1, SDL_Surface* S2, float gamma);
-SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h);
-int TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration);
+int WaitForKeypress(void);
 
-/* Blit queue functions: */
-void InitBlitQueue(void);
-void ResetBlitQueue(void);
-int  AddRect(SDL_Rect* src, SDL_Rect* dst);
-int  DrawObject(SDL_Surface* surf, int x, int y);
-int  DrawSprite(sprite* gfx, int x, int y);
-int  EraseObject(SDL_Surface* surf, int x, int y);
-int  EraseSprite(sprite* img, int x, int y);
-void UpdateScreen(int* frame);
-
-/*Text rendering functions: */
-int          Setup_SDL_Text(void);
-void         Cleanup_SDL_Text(void);
-SDL_Surface* BlackOutline(const char* t, int font_size, const SDL_Color* c);
+/* Wide-char variant of T4K_BlackOutline: encodes wchar_t→UTF-8 inline.
+ * Returns NULL when length<=0 so empty practice-prompt lines don't
+ * redraw under the user's typed area. */
 SDL_Surface* BlackOutline_w(const wchar_t* t, int font_size, const SDL_Color* c,
                             int length);
-SDL_Surface* SimpleText(const char* t, int size, const SDL_Color* col);
-// SDL_Surface* SimpleTextWithOffset(const char *t, int size, SDL_Color* col,
-// int *glyph_offset);
+
+/* Auto-pass CurrentBkgd() to T4K_Erase{Object,Sprite}. */
+int EraseObject(SDL_Surface* surf, int x, int y);
+int EraseSprite(sprite* img, int x, int y);
+
+/* T4K_TransWipe wants non-const SDL_Surface*. */
+int TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration);

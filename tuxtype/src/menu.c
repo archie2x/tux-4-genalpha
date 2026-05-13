@@ -590,7 +590,8 @@ static int chooseWordlist(void)
             case SDL_EVENT_MOUSE_MOTION:
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < lists); i++)
                 {
-                    if (inRect(titleRects[i], event.motion.x, event.motion.y))
+                    if (T4K_inRect(titleRects[i], event.motion.x,
+                                   event.motion.y))
                     {
                         loc = loc - (loc % 8) + i;
                         break;
@@ -599,7 +600,7 @@ static int chooseWordlist(void)
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                if (inRect(leftRect, event.button.x, event.button.y))
+                if (T4K_inRect(leftRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) - 8 >= 0)
                     {
@@ -608,7 +609,7 @@ static int chooseWordlist(void)
                     }
                 }
 
-                if (inRect(rightRect, event.button.x, event.button.y))
+                if (T4K_inRect(rightRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) + 8 < lists)
                     {
@@ -619,7 +620,8 @@ static int chooseWordlist(void)
 
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < lists); i++)
                 {
-                    if (inRect(titleRects[i], event.button.x, event.button.y))
+                    if (T4K_inRect(titleRects[i], event.button.x,
+                                   event.button.y))
                     {
                         loc = loc - (loc % 8) + i;
                         ClearWordList(); /* clear old selection */

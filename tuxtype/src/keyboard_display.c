@@ -230,7 +230,7 @@ int Kbd_Display_DrawGreenKey(KbdDisplay* keyboard, int key_index)
         return 0;
     }
 
-    return DrawObject(key, keyboard->rect.x, keyboard->rect.y);
+    return T4K_DrawObject(key, keyboard->rect.x, keyboard->rect.y);
 }
 
 int Kbd_Display_DrawGreenChar(KbdDisplay* keyboard, wchar_t ch)

@@ -104,7 +104,7 @@ void GraphicsInit(void)
     /* seticon() commented out — SDL3 expects an SDL_Surface* via
      * SDL_SetWindowIcon; do that in a follow-up. */
 
-    InitBlitQueue();
+    T4K_InitBlitQueue();
 
     DEBUGCODE
     {
@@ -148,7 +148,7 @@ void LibInit(Uint32 lib_flags)
 
     LOG("-about to init SDL text library (SDL_ttf or SDL_Pango\n");
 
-    if (!Setup_SDL_Text())
+    if (!T4K_Setup_SDL_Text())
     {
         fprintf(stderr, "Couldn't initialize desired SDL text library\n");
         exit(2);
@@ -646,6 +646,6 @@ void Cleanup(void)
 {
     SDL_DestroySurface(screen);
     screen = NULL;
-    Cleanup_SDL_Text();
+    T4K_Cleanup_SDL_Text();
     SDL_Quit();
 }

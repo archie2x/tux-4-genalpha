@@ -59,7 +59,7 @@ int Pause(void)
 
     /* Darken the screen — bits=2 (quarter brightness) keeps the volume
      * sliders and labels readable; bits=1 (half) was too pale. */
-    DarkenScreen(2);
+    T4K_DarkenScreen(2);
 
     pause_draw();
     if (pause_volume)
@@ -104,7 +104,8 @@ int Pause(void)
              * toggle before letting the volume widget see the event. */
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN &&
                 rectKbdToggle.w > 0 &&
-                inRect(rectKbdToggle, (int)event.button.x, (int)event.button.y))
+                T4K_inRect(rectKbdToggle, (int)event.button.x,
+                           (int)event.button.y))
             {
                 settings.show_keyboard = !settings.show_keyboard;
                 draw_kbd_toggle();
@@ -177,7 +178,8 @@ static void pause_draw(void)
 
     if (settings.sys_sound)
     {
-        t = BlackOutline(_("Sound Effects Volume"), pause_font_size1, &white);
+        t = T4K_BlackOutline(_("Sound Effects Volume"), pause_font_size1,
+                             &white);
         if (t)
         {
             s.y = screen->h / 2 - 80;
@@ -185,7 +187,7 @@ static void pause_draw(void)
             SDL_BlitSurface(t, NULL, screen, &s);
             SDL_DestroySurface(t);
         }
-        t = BlackOutline(_("Music Volume"), pause_font_size1, &white);
+        t = T4K_BlackOutline(_("Music Volume"), pause_font_size1, &white);
         if (t)
         {
             s.y = screen->h / 2 + 20;
@@ -196,7 +198,8 @@ static void pause_draw(void)
     }
     else
     {
-        t = BlackOutline(_("Sound & Music Disabled"), pause_font_size1, &white);
+        t = T4K_BlackOutline(_("Sound & Music Disabled"), pause_font_size1,
+                             &white);
         if (t)
         {
             s.y = screen->h / 2 - 80;
@@ -206,7 +209,7 @@ static void pause_draw(void)
         }
     }
 
-    t = BlackOutline(_("Paused!"), pause_font_size2, &white);
+    t = T4K_BlackOutline(_("Paused!"), pause_font_size2, &white);
     if (t)
     {
         s.y = screen->h / 2 - 180;
@@ -215,8 +218,8 @@ static void pause_draw(void)
         SDL_DestroySurface(t);
     }
 
-    t = BlackOutline(_("'SPACE' or 'ESC' to return."), pause_font_size1,
-                     &white);
+    t = T4K_BlackOutline(_("'SPACE' or 'ESC' to return."), pause_font_size1,
+                         &white);
     if (t)
     {
         s.y = screen->h / 2 + 160;
@@ -225,7 +228,7 @@ static void pause_draw(void)
         SDL_DestroySurface(t);
     }
 
-    t = BlackOutline(_("'Q' to quit."), pause_font_size1, &white);
+    t = T4K_BlackOutline(_("'Q' to quit."), pause_font_size1, &white);
     if (t)
     {
         s.y = screen->h / 2 + 200;
@@ -252,7 +255,7 @@ static void draw_kbd_toggle(void)
     if (!pause_kbd_bkg)
     {
         SDL_Surface* sample =
-            BlackOutline(sample_str, pause_font_size1, &white);
+            T4K_BlackOutline(sample_str, pause_font_size1, &white);
         if (!sample)
         {
             return;
@@ -275,7 +278,7 @@ static void draw_kbd_toggle(void)
         SDL_BlitSurface(pause_kbd_bkg, NULL, screen, &rectKbdToggle);
     }
 
-    t = BlackOutline(label, pause_font_size1, &white);
+    t = T4K_BlackOutline(label, pause_font_size1, &white);
     if (t)
     {
         dst.x = screen->w / 2 - t->w / 2;

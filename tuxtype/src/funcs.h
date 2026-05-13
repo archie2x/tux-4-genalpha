@@ -127,5 +127,5 @@ void Cleanup(void);
 void ChooseTheme(void);
 
 /* In titlescreen.c: */
-// void SwitchScreenMode(void);
+// void T4K_SwitchScreenMode(void);
 void TitleScreen(void);

@@ -406,7 +406,7 @@ int LoadBothBkgds(const char* datafile)
     }
     else
     {
-        win_bkgd = zoom(orig, RES_X, RES_Y);
+        win_bkgd = T4K_zoom(orig, RES_X, RES_Y);
         ++ret;
     }
 
@@ -416,7 +416,7 @@ int LoadBothBkgds(const char* datafile)
     }
     else
     {
-        fullscr_bkgd = zoom(orig, fs_res_x, fs_res_y);
+        fullscr_bkgd = T4K_zoom(orig, fs_res_x, fs_res_y);
         ++ret;
     }
 
@@ -466,7 +466,7 @@ sprite* FlipSprite(sprite* in, int X, int Y)
     out = malloc(sizeof(sprite));
     if (in->default_img != NULL)
     {
-        out->default_img = Flip(in->default_img, X, Y);
+        out->default_img = T4K_Flip(in->default_img, X, Y);
     }
     else
     {
@@ -475,7 +475,8 @@ sprite* FlipSprite(sprite* in, int X, int Y)
     for (out->num_frames = 0; out->num_frames < in->num_frames;
          out->num_frames++)
     {
-        out->frame[out->num_frames] = Flip(in->frame[out->num_frames], X, Y);
+        out->frame[out->num_frames] =
+            T4K_Flip(in->frame[out->num_frames], X, Y);
     }
     out->cur = 0;
     return out;

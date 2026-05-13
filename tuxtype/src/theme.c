@@ -110,13 +110,14 @@ void ChooseTheme(void)
 
     settings.use_english = 1;
 
-    titles[0] = BlackOutline("English", DEFAULT_MENU_FONT_SIZE, &white);
-    select[0] = BlackOutline("English", DEFAULT_MENU_FONT_SIZE, &yellow);
+    titles[0] = T4K_BlackOutline("English", DEFAULT_MENU_FONT_SIZE, &white);
+    select[0] = T4K_BlackOutline("English", DEFAULT_MENU_FONT_SIZE, &yellow);
     for (i = 1; i < themes; i++)
     {
-        titles[i] = BlackOutline(themeNames[i], DEFAULT_MENU_FONT_SIZE, &white);
+        titles[i] =
+            T4K_BlackOutline(themeNames[i], DEFAULT_MENU_FONT_SIZE, &white);
         select[i] =
-            BlackOutline(themeNames[i], DEFAULT_MENU_FONT_SIZE, &yellow);
+            T4K_BlackOutline(themeNames[i], DEFAULT_MENU_FONT_SIZE, &yellow);
     }
 
     LoadBothBkgds("main_bkg.png");
@@ -170,7 +171,8 @@ void ChooseTheme(void)
             case SDL_EVENT_MOUSE_MOTION:
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
                 {
-                    if (inRect(titleRects[i], event.motion.x, event.motion.y))
+                    if (T4K_inRect(titleRects[i], event.motion.x,
+                                   event.motion.y))
                     {
                         loc = loc - (loc % 8) + i;
                         break;
@@ -180,7 +182,7 @@ void ChooseTheme(void)
                 break;
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                if (inRect(leftRect, event.button.x, event.button.y))
+                if (T4K_inRect(leftRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) - 8 >= 0)
                     {
@@ -189,7 +191,7 @@ void ChooseTheme(void)
                     }
                 }
 
-                if (inRect(rightRect, event.button.x, event.button.y))
+                if (T4K_inRect(rightRect, event.button.x, event.button.y))
                 {
                     if (loc - (loc % 8) + 8 < themes)
                     {
@@ -200,7 +202,8 @@ void ChooseTheme(void)
 
                 for (i = 0; (i < 8) && (loc - (loc % 8) + i < themes); i++)
                 {
-                    if (inRect(titleRects[i], event.button.x, event.button.y))
+                    if (T4K_inRect(titleRects[i], event.button.x,
+                                   event.button.y))
                     {
                         loc = loc - (loc % 8) + i;
                         if (loc)

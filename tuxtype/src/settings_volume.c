@@ -18,7 +18,8 @@ static void draw_chrome(void)
 
     if (settings.sys_sound)
     {
-        t = BlackOutline(_("Sound Effects Volume"), label_font_size, &white);
+        t = T4K_BlackOutline(_("Sound Effects Volume"), label_font_size,
+                             &white);
         if (t)
         {
             s.y = screen->h / 2 - 80;
@@ -27,7 +28,7 @@ static void draw_chrome(void)
             SDL_DestroySurface(t);
         }
 
-        t = BlackOutline(_("Music Volume"), label_font_size, &white);
+        t = T4K_BlackOutline(_("Music Volume"), label_font_size, &white);
         if (t)
         {
             s.y = screen->h / 2 + 20;
@@ -38,7 +39,8 @@ static void draw_chrome(void)
     }
     else
     {
-        t = BlackOutline(_("Sound & Music Disabled"), label_font_size, &white);
+        t = T4K_BlackOutline(_("Sound & Music Disabled"), label_font_size,
+                             &white);
         if (t)
         {
             s.y = screen->h / 2 - 80;
@@ -48,7 +50,8 @@ static void draw_chrome(void)
         }
     }
 
-    t = BlackOutline(_("'SPACE' or 'ESC' to return."), label_font_size, &white);
+    t = T4K_BlackOutline(_("'SPACE' or 'ESC' to return."), label_font_size,
+                         &white);
     if (t)
     {
         s.y = screen->h / 2 + 180;
@@ -66,7 +69,7 @@ void SettingsVolume(void)
     LOG("Entering SettingsVolume()\n");
 
     SDL_ShowCursor();
-    DarkenScreen(2);
+    T4K_DarkenScreen(2);
 
     if (settings.sys_sound)
     {

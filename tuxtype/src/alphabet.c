@@ -387,7 +387,7 @@ int unicode_in_key_list(wchar_t uni_char)
 //
 // 	t[l] = 0;
 //
-// 	abit = BlackOutline(t, font, &white);
+// 	abit = T4K_BlackOutline(t, font, &white);
 //
 // 	dst.x = 320 - (abit->w / 2);
 // 	dst.y = 275;
@@ -398,7 +398,7 @@ int unicode_in_key_list(wchar_t uni_char)
 //
 // 	SDL_DestroySurface(abit);
 //
-// 	abit = BlackOutline("Alphabet Set To:", font, &white);
+// 	abit = T4K_BlackOutline("Alphabet Set To:", font, &white);
 // 	dst.x = 320 - (abit->w / 2);
 // 	dst.y = 200;
 // 	dst.w = abit->w;
@@ -1359,7 +1359,7 @@ void GenerateKeyboard(SDL_Surface* keyboard)
             new.y = 65;
             new.w = 5;
             new.h = 5;
-            tmp   = SimpleText(dots[k].label, 15, &black);
+            tmp   = T4K_SimpleText(dots[k].label, 15, &black);
             if (tmp)
             {
                 SDL_BlitSurface(tmp, NULL, keyboard, &new);
@@ -1434,7 +1434,7 @@ void GenerateKeyboard(SDL_Surface* keyboard)
             printf("Making %d : %C\n", i, keyboard_list[i].unicode_value);
         }
         T4K_ConvertToUTF8(t, buf, 8);
-        tmp = SimpleText(buf, 15, &black);
+        tmp = T4K_SimpleText(buf, 15, &black);
         //    tmp = TTF_RenderUNICODE_Blended((TTF_Font*)smallfont, t, black);
         if (tmp == NULL)
         {

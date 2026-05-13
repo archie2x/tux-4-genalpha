@@ -361,9 +361,9 @@ int PlayCascade(int diflevel)
                             /* first wipe out old blits because screen size is
                              * changing */
                             /* and otherwise we would segfault: */
-                            ResetBlitQueue();
+                            T4K_ResetBlitQueue();
                             // numupdates = 0;
-                            SwitchScreenMode();
+                            T4K_SwitchScreenMode();
                             DrawBackground();
                             ResetObjects();
                             break;
@@ -493,8 +493,8 @@ int PlayCascade(int diflevel)
 
             MoveTux(frame, fishies);
             CheckCollision(fishies, &fish_left, frame);
-            DrawSprite(tux_object.spr[tux_object.state][tux_object.facing],
-                       tux_object.x, tux_object.y);
+            T4K_DrawSprite(tux_object.spr[tux_object.state][tux_object.facing],
+                           tux_object.x, tux_object.y);
             MoveFishies(&fishies, &splats, &curlives, &frame);
             CheckFishies(&fishies, &splats);
             //      SNOW_update();
@@ -529,7 +529,7 @@ int PlayCascade(int diflevel)
             if (!quitting)
             {
                 /* This does all the blits that we have queued up this frame: */
-                UpdateScreen(&frame);
+                T4K_UpdateScreen(&frame);
             }
 
             /* Pause (keep frame-rate event) */
@@ -677,10 +677,11 @@ int PlayCascade(int diflevel)
                     text_rect.x = x_not + xamp * cos(i / WIN_GAME_ANGLE_MULT);
                 }
 
-                DrawSprite(tux_object.spr[tux_object.state][tux_object.facing],
-                           tux_object.x, tux_object.y);
-                DrawObject(temp_text[temp_text_count], text_rect.x, y_not);
-                DrawObject(level[diflevel], 1, 1);
+                T4K_DrawSprite(
+                    tux_object.spr[tux_object.state][tux_object.facing],
+                    tux_object.x, tux_object.y);
+                T4K_DrawObject(temp_text[temp_text_count], text_rect.x, y_not);
+                T4K_DrawObject(level[diflevel], 1, 1);
                 draw_bar(curlevel - 1, diflevel, curlives, oldlives, fish_left,
                          oldfish_left);
 
@@ -693,7 +694,7 @@ int PlayCascade(int diflevel)
                 }
                 //        SNOW_update();
                 /* Do all pending blits and increment frame counter: */
-                UpdateScreen(&frame);
+                T4K_UpdateScreen(&frame);
 
                 EraseSprite(tux_object.spr[tux_object.state][tux_object.facing],
                             tux_object.x, tux_object.y);
@@ -832,14 +833,14 @@ static void LoadOthers(void)
     RenderLetters(FISHY_FONT_SIZE);
     LOG(" Done rendering letters \n ");
 
-    curlev = BlackOutline(gettext("Level"), LABEL_FONT_SIZE, &white);
-    lives  = BlackOutline(gettext("Lives"), LABEL_FONT_SIZE, &white);
-    fish   = BlackOutline(gettext("Fish"), LABEL_FONT_SIZE, &white);
+    curlev = T4K_BlackOutline(gettext("Level"), LABEL_FONT_SIZE, &white);
+    lives  = T4K_BlackOutline(gettext("Lives"), LABEL_FONT_SIZE, &white);
+    fish   = T4K_BlackOutline(gettext("Fish"), LABEL_FONT_SIZE, &white);
 
-    level[0] = BlackOutline(gettext("Easy"), LABEL_FONT_SIZE, &white);
-    level[1] = BlackOutline(gettext("Medium"), LABEL_FONT_SIZE, &white);
-    level[2] = BlackOutline(gettext("Hard"), LABEL_FONT_SIZE, &white);
-    level[3] = BlackOutline(gettext("Practice"), LABEL_FONT_SIZE, &white);
+    level[0] = T4K_BlackOutline(gettext("Easy"), LABEL_FONT_SIZE, &white);
+    level[1] = T4K_BlackOutline(gettext("Medium"), LABEL_FONT_SIZE, &white);
+    level[2] = T4K_BlackOutline(gettext("Hard"), LABEL_FONT_SIZE, &white);
+    level[3] = T4K_BlackOutline(gettext("Practice"), LABEL_FONT_SIZE, &white);
 
     number_max_w = 0;
     for (i = 0; i < NUM_NUMS; i++)
@@ -854,13 +855,13 @@ static void LoadOthers(void)
 
     for (i = 0; i < CONGRATS_FRAMES; i++)
     {
-        congrats[i] =
-            BlackOutline(gettext("Congratulations"), LABEL_FONT_SIZE, &white);
+        congrats[i] = T4K_BlackOutline(gettext("Congratulations"),
+                                       LABEL_FONT_SIZE, &white);
     }
 
     for (i = 0; i < OH_NO_FRAMES; i++)
     {
-        ohno[i] = BlackOutline(gettext("Oh No!"), LABEL_FONT_SIZE, &white);
+        ohno[i] = T4K_BlackOutline(gettext("Oh No!"), LABEL_FONT_SIZE, &white);
     }
 
     Kbd_Display_Load(&cascade_keyboard, 96, screen->w * 9 / 10);
@@ -983,7 +984,7 @@ static void DrawNumbers(int num, int x, int y, int places)
         {
             for (i = 1; i <= (places - needed_places); i++)
             {
-                DrawObject(number[0], x, y);
+                T4K_DrawObject(number[0], x, y);
                 x += number[0]->w;
             }
         }
@@ -992,7 +993,7 @@ static void DrawNumbers(int num, int x, int y, int places)
     for (i = 0; i < needed_places; i++)
     {
         uddernumber = numnuts[i] - '0';
-        DrawObject(number[uddernumber], x, y);
+        T4K_DrawObject(number[uddernumber], x, y);
         x += number[uddernumber]->w;
     }
     LOG("\nLeaving DrawNumbers()\n");
@@ -1159,8 +1160,8 @@ or clearing game screen
 ****************************/
 static void DrawBackground(void)
 {
-    ResetBlitQueue();
-    DrawObject(CurrentBkgd(), 0, 0);
+    T4K_ResetBlitQueue();
+    T4K_DrawObject(CurrentBkgd(), 0, 0);
 
     // //    struct blit *update;
     //
@@ -1639,9 +1640,9 @@ static void DrawFish(int which)
     /* Draw the fishies: */
     for (j = 0; j < fish_object[which].len; j++)
     {
-        DrawSprite(fish_sprite,
-                   fish_object[which].x + (fish_sprite->frame[0]->w * j),
-                   fish_object[which].y);
+        T4K_DrawSprite(fish_sprite,
+                       fish_object[which].x + (fish_sprite->frame[0]->w * j),
+                       fish_object[which].y);
     }
 
     LOG("DrawFish() - drawing letters:\n");
@@ -1707,7 +1708,7 @@ static void DrawFish(int which)
 
             if (letter_surface != NULL)
             {
-                DrawObject(letter_surface, letter_x, letter_y);
+                T4K_DrawObject(letter_surface, letter_x, letter_y);
             }
         }
     }
@@ -1774,7 +1775,8 @@ static void MoveFishies(int* fishies, int* splats, int* lifes, int* frame)
             splat_object[i].alive--;
             if (splat_object[i].alive > 1)
             {
-                DrawSprite(splat_sprite, splat_object[i].x, splat_object[i].y);
+                T4K_DrawSprite(splat_sprite, splat_object[i].x,
+                               splat_object[i].y);
             }
         }
         else
@@ -2044,23 +2046,24 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives,
     LOG("Entering draw_bar()\n");
 
     /* --- draw difficulty --- */
-    DrawObject(level[diflevel], 1, 1);
+    T4K_DrawObject(level[diflevel], 1, 1);
 
     LOG("about to draw level()\n");
 
     /* --- draw level --- */
-    DrawObject(curlev, 1 + GRAPHIC_SPACE + level[diflevel]->w, 1);
+    T4K_DrawObject(curlev, 1 + GRAPHIC_SPACE + level[diflevel]->w, 1);
     DrawNumbers(curlevel + 1,
                 1 + 2 * GRAPHIC_SPACE + level[diflevel]->w + curlev->w, 1, 0);
 
     LOG("about to draw lives()\n");
 
     /* --- draw lives --- */
-    DrawObject(lives,
-               (screen->w) - (1 + lives->w + fish->w +
-                              ((MAX_FISHIES_DIGITS + 1) * 2 * number_max_w) +
-                              GRAPHIC_SPACE),
-               1);
+    T4K_DrawObject(lives,
+                   (screen->w) -
+                       (1 + lives->w + fish->w +
+                        ((MAX_FISHIES_DIGITS + 1) * 2 * number_max_w) +
+                        GRAPHIC_SPACE),
+                   1);
 
     if (oldlives != curlives)
     {
@@ -2083,7 +2086,7 @@ static void draw_bar(int curlevel, int diflevel, int curlives, int oldlives,
     LOG("about to draw fish left()\n");
 
     /* --- draw fish left --- */ /* Drawing text label "Fish" */
-    DrawObject(
+    T4K_DrawObject(
         fish, (screen->w) - (1 + fish->w + (MAX_FISHIES_DIGITS * number_max_w)),
         1);
 
