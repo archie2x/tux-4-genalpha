@@ -79,3 +79,12 @@ void Input_DrawHint(Input* im, wchar_t target_ch, SDL_Surface* dst)
         im->ops->draw_hint(im, target_ch, dst);
     }
 }
+
+void Input_DrawNextChar(Input* im, wchar_t target_ch, SDL_Rect rect,
+                        SDL_Surface* dst)
+{
+    if (im && dst && im->ops->draw_next_char)
+    {
+        im->ops->draw_next_char(im, target_ch, rect, dst);
+    }
+}

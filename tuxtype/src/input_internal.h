@@ -11,6 +11,10 @@ typedef struct InputOps
     InputToken (*consume)(Input*, const SDL_Event*);
     InputToken (*tick)(Input*, Uint32 now_ms);
     void (*draw_hint)(Input*, wchar_t target_ch, SDL_Surface* dst);
+    /* Optional: render the "next char" preview into rect on dst. NULL
+     * falls back to a Latin-glyph text render. */
+    void (*draw_next_char)(Input*, wchar_t target_ch, SDL_Rect rect,
+                           SDL_Surface* dst);
 } InputOps;
 
 struct Input_s

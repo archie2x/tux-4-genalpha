@@ -57,3 +57,10 @@ void Input_SetKbdVisible(Input* im, int visible);
  * (next-key highlight + finger hint for typewriter; chord highlight +
  * finger stack for braille; flag positions for semaphore; etc.). */
 void Input_DrawHint(Input* im, wchar_t target_ch, SDL_Surface* dst);
+
+/* Draw the "next character" preview into `rect` on `dst`. Typewriter
+ * renders the Latin glyph; braille draws a 2×3 cell of filled dots for
+ * the chord (caps prefix first if the target is an unconsumed
+ * uppercase); semaphore would draw flag positions; etc. */
+void Input_DrawNextChar(Input* im, wchar_t target_ch, SDL_Rect rect,
+                        SDL_Surface* dst);

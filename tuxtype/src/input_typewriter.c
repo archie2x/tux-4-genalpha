@@ -45,12 +45,37 @@ static void tw_draw_hint(Input* im, wchar_t target_ch, SDL_Surface* dst)
     }
 }
 
+static void tw_draw_next_char(Input* im, wchar_t target_ch, SDL_Rect rect,
+                              SDL_Surface* dst)
+{
+    (void)im;
+    int font_size = rect.h - 8;
+    if (font_size < 10)
+    {
+        font_size = 10;
+    }
+    if (font_size > 40)
+    {
+        font_size = 40;
+    }
+    wchar_t      ltr[2] = {target_ch, 0};
+    SDL_Surface* s      = BlackOutline_w(ltr, font_size, &white, 1);
+    if (!s)
+    {
+        return;
+    }
+    SDL_Rect dr = rect;
+    SDL_BlitSurface(s, NULL, dst, &dr);
+    SDL_DestroySurface(s);
+}
+
 static const InputOps tw_ops = {
-    .destroy   = NULL,
-    .reset     = NULL,
-    .consume   = tw_consume,
-    .tick      = NULL,
-    .draw_hint = tw_draw_hint,
+    .destroy        = NULL,
+    .reset          = NULL,
+    .consume        = tw_consume,
+    .tick           = NULL,
+    .draw_hint      = tw_draw_hint,
+    .draw_next_char = tw_draw_next_char,
 };
 
 Input* Input_NewTypewriter(HandDisplay* hd, KbdDisplay* kbd)

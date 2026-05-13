@@ -905,13 +905,10 @@ static void calc_font_sizes(void)
 {
     fontsize    = (screen->h) / 28;
     medfontsize = fontsize * 1.5;
-    /* t4k_common caches one TTF_Font per requested size and caps at 40
-     * (see MAX_FONT_SIZE in t4k_sdl.c). Going beyond just spams stderr
-     * and falls back to 40 anyway, so clamp here. */
     bigfontsize = fontsize * 4;
-    if (bigfontsize > 40)
+    if (bigfontsize > 80)
     {
-        bigfontsize = 40;
+        bigfontsize = 80;
     }
 }
 
@@ -1167,10 +1164,10 @@ static void recalc_positions(void)
     hand_loc.h = practice_hands.base->h;
     Hand_Display_SetPosition(&practice_hands, hand_loc.x, hand_loc.y);
 
-    nextletter_rect.x = keyboard_loc.x + keyboard_loc.w - 80;
-    nextletter_rect.y = keyboard_loc.y + keyboard_loc.h;
     nextletter_rect.w = bigfontsize * 1.5;
     nextletter_rect.h = bigfontsize * 1.5;
+    nextletter_rect.x = keyboard_loc.x + keyboard_loc.w - nextletter_rect.w;
+    nextletter_rect.y = keyboard_loc.y + keyboard_loc.h;
 }
 
 static void practice_unload_media(void)
@@ -1452,27 +1449,20 @@ static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
 /* Displays the next letter to be typed in a large font */
 static void display_next_letter(const wchar_t* str, Uint16 index)
 {
-    wchar_t      ltr[2];
-    SDL_Surface* s = NULL;
-
     if (!str || (index >= MAX_PHRASE_LENGTH))
     {
         return;
     }
 
-    ltr[0] = str[index];
-    ltr[1] = '\0';
-
-    s = BlackOutline_w(ltr, bigfontsize, &white, 1);
-
-    if (s)
-    {
-        SDL_BlitSurface(CurrentBkgd(), &nextletter_rect, screen,
-                        &nextletter_rect);
-        SDL_BlitSurface(s, NULL, screen, &nextletter_rect);
-        SDL_DestroySurface(s);
-        s = NULL;
-    }
+    /* Erase to background, then let the active input mode render its
+     * preview (Latin glyph for typewriter, 2x3 braille cell for braille,
+     * future: morse/semaphore visualizations). SDL_BlitSurface mutates
+     * its dstrect; use a local copy so file-scope nextletter_rect stays
+     * pristine for subsequent draws. */
+    SDL_Rect src = nextletter_rect;
+    SDL_Rect dst = nextletter_rect;
+    SDL_BlitSurface(CurrentBkgd(), &src, screen, &dst);
+    Input_DrawNextChar(practice_input, str[index], nextletter_rect, screen);
 }
 
 static int create_labels(void)

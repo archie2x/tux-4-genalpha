@@ -1445,7 +1445,7 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
 /* which library is used to do the actual rendering.                    */
 /************************************************************************/
 
-#define MAX_FONT_SIZE 40
+#define MAX_FONT_SIZE 120
 #define DEFAULT_FONT_SIZE 10
 
 // NOTE to test program with SDL_ttf, do "./configure --without-sdlpango"
@@ -1743,12 +1743,10 @@ static TTF_Font* get_font(int size)
 
     if (font_list[size] == NULL)
     {
-        /* Load the default (Latin) font as primary, then chain the theme
-         * font as a fallback so glyphs missing from the default — e.g.
-         * Devanagari, Bengali — get rendered from the theme font. UI
-         * chrome (English menu labels) stays in Andika; theme content
-         * (Hindi wordlist titles, Hindi falling fish) renders via the
-         * theme font automatically. */
+        /* Default (Latin) font as primary, then chain fallbacks for
+         * codepoints the primary lacks: theme font (Hindi/Bengali/...)
+         * + symbol font (Braille Patterns, math glyphs). SDL_ttf walks
+         * the fallback list in registration order. */
         font_list[size]        = load_font(DEFAULT_FONT_NAME, size);
         const char* theme_font = T4K_AskFontName();
         if (font_list[size] && theme_font &&
@@ -1758,6 +1756,15 @@ static TTF_Font* get_font(int size)
             if (fb)
             {
                 TTF_AddFallbackFont(font_list[size], fb);
+            }
+        }
+        if (font_list[size] &&
+            strcmp(DEFAULT_FONT_NAME, FALLBACK_SYMBOL_FONT) != 0)
+        {
+            TTF_Font* sym = load_font(FALLBACK_SYMBOL_FONT, size);
+            if (sym)
+            {
+                TTF_AddFallbackFont(font_list[size], sym);
             }
         }
     }
