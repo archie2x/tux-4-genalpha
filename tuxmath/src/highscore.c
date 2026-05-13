@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "options.h"
 
 #include <string.h>
+#include <unistd.h> /* _exit */
 
 typedef struct high_score_entry
 {
@@ -78,7 +79,10 @@ void DisplayHighScores(int level)
             {
             case SDL_EVENT_QUIT:
             {
-                cleanup();
+                /* _exit (not exit/cleanup) — both run atexit/SDL audio
+                 * teardown that races with the still-active AudioQueue
+                 * on macOS. OS reclaims memory anyway. */
+                _exit(0);
             }
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -452,7 +456,10 @@ void NameEntry(char* pl_name, const char* s1, const char* s2, const char* s3)
             {
             case SDL_EVENT_QUIT:
             {
-                cleanup();
+                /* _exit (not exit/cleanup) — both run atexit/SDL audio
+                 * teardown that races with the still-active AudioQueue
+                 * on macOS. OS reclaims memory anyway. */
+                _exit(0);
             }
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN:

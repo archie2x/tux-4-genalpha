@@ -849,6 +849,13 @@ void RunMainMenu(void)
 
     T4K_PrerenderMenu(MENU_LESSONS);
 
-    run_menu(MENU_MAIN, false);
+    /* Loop until the user actually picks Quit. ESC at the root menu
+     * returns STOP — re-show the menu instead of exiting the program. */
+    int rc;
+    do
+    {
+        SDL_ShowCursor();
+        rc = run_menu(MENU_MAIN, false);
+    } while (rc != QUIT);
     DEBUGMSG(debug_menu, "Leaving RunMainMenu()\n");
 }

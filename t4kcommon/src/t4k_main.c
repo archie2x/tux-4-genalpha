@@ -36,6 +36,11 @@ int InitT4KCommon(int debug_flags)
 {
     fprintf(stderr, "Initializing " PACKAGE_STRING "\n");
 
+    /* Don't let SDL install its own SIGINT/SIGTERM → SDL_EVENT_QUIT
+     * shim. Terminal Ctrl-C should kill the process via the OS default
+     * handler, not unwind through activity loops one layer at a time. */
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
+
     /* Video. SDL3 SDL_Init returns bool (true=success) instead of int<0. */
     if (!SDL_Init(SDL_INIT_VIDEO))
     {

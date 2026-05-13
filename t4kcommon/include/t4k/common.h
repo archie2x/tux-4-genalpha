@@ -2015,4 +2015,24 @@ int T4K_scandir(const char* dirname, struct dirent*** namelist,
                 int (*sdfilter)(struct dirent*),
                 int (*dcomp)(const void*, const void*));
 
+//==============================================================================
+//
+//  T4K_QuitConfirmed
+//
+//! \brief
+//!     Returns nonzero once the user has requested to quit the program.
+//!     Two paths set the flag:
+//!       - Window-close button (and any other direct SDL_EVENT_QUIT
+//!         where Cmd isn't held): honored immediately.
+//!       - Cmd-Q on macOS: opens a hold-to-confirm overlay; the flag
+//!         is set only after the user holds both Cmd and Q past the
+//!         confirmation threshold. Releasing either key cancels.
+//!     Activity loops should check this each iteration and unwind so
+//!     the whole program exits instead of just the current activity.
+//!
+//! \return
+//!     1 once confirmed (sticky); 0 otherwise.
+//!
+int T4K_QuitConfirmed(void);
+
 #endif /* TUX4KIDS_COMMON_H */

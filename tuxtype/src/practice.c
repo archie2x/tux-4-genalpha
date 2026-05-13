@@ -407,6 +407,13 @@ int Phrases(wchar_t* pphrase)
         /* This blits the next character onto the screen in a large font: */
         display_next_letter(phrases[cur_phrase], cursor);
 
+        /* Quit gesture committed (hold-⌘Q or window close) — unwind
+         * cleanly so the whole program exits, not just this activity. */
+        if (T4K_QuitConfirmed())
+        {
+            quit = 1;
+            break;
+        }
         while (SDL_PollEvent(&event))
         {
             /* Game-specific control keys (Pause, fullscreen, prev/next phrase).
@@ -740,6 +747,12 @@ int Phrases(wchar_t* pphrase)
 
                             while (!done)
                             {
+                                if (T4K_QuitConfirmed())
+                                {
+                                    quit = 1;
+                                    done = 1;
+                                    break;
+                                }
                                 while (SDL_PollEvent(&event))
                                 {
                                     if ((event.type == SDL_EVENT_KEY_DOWN) ||

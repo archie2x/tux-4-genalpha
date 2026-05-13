@@ -313,6 +313,10 @@ int PlayCascade(int diflevel)
 
         while (playing_level)
         {
+            if (T4K_QuitConfirmed())
+            {
+                exit(0);
+            }
 
             last_time = SDL_GetTicks();
 
@@ -664,6 +668,12 @@ int PlayCascade(int diflevel)
                  * the process as hung after a few hundred ms of no event
                  * activity. */
                 SDL_PumpEvents();
+
+                /* Honor the quit gesture mid-animation. */
+                if (T4K_QuitConfirmed())
+                {
+                    exit(0);
+                }
 
                 temp_text_count = (temp_text_count + 1) % temp_text_frames;
 

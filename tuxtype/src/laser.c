@@ -197,6 +197,10 @@ int PlayLaserGame(int diff_level)
 
     do
     {
+        if (T4K_QuitConfirmed())
+        {
+            exit(0);
+        }
 
         frame++;
         last_time = SDL_GetTicks();

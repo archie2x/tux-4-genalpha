@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> /* _exit */
 #include <string.h>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -1180,7 +1181,10 @@ void comets_handle_user_events(void)
 
         if (event.type == SDL_EVENT_QUIT)
         {
-            user_quit_received = GAME_OVER_WINDOW_CLOSE;
+            /* _exit (not exit) — atexit handlers race with the still-
+             * running AudioQueue thread on macOS, segfaulting in
+             * MEOutputStreamClient teardown. OS reclaims memory. */
+            _exit(0);
         }
         else if (event.type == SDL_EVENT_KEY_DOWN)
         {

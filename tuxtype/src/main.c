@@ -231,6 +231,12 @@ int main(int argc, char* argv[])
 
     lib_flags |= SDL_INIT_AUDIO;
 
+    /* Without this, SDL installs SIGINT/SIGTERM handlers that convert
+     * Ctrl-C into SDL_EVENT_QUIT — which the activity loops then treat
+     * as "back out one level" rather than "kill the program." Let the
+     * OS default handler do its job: terminate immediately. */
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
+
     LibInit(lib_flags); /* calls SDL_Init(), TTF_Init(), some other settings */
     GraphicsInit();     /* calls SDL_SetVideoMode(), a few others     */
 

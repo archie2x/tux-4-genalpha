@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> /* _exit */
 #include <string.h>
 #include <SDL3/SDL.h>
 #ifndef NOSOUND
@@ -1521,8 +1522,7 @@ void game_handle_user_events(void)
         T4K_HandleStdEvents(&event);
         if (event.type == SDL_EVENT_QUIT)
         {
-            SDL_quit_received = 1;
-            quit              = 1;
+            _exit(0); /* skip atexit so audio teardown can't race */
         }
         if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
             event.type == SDL_EVENT_MOUSE_BUTTON_UP)
@@ -1887,9 +1887,7 @@ void wait_for_input(void)
 
         if (event.type == SDL_EVENT_QUIT)
         {
-            SDL_quit_received = 1;
-            quit              = 1;
-            break;
+            _exit(0); /* skip atexit so audio teardown can't race */
         }
         else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN ||
                  event.type == SDL_EVENT_JOYSTICK_BUTTON_DOWN)

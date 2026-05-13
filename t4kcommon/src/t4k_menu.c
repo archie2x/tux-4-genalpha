@@ -645,6 +645,19 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(),
         DEBUGMSG(debug_menu, "run_menu(): entering menu loop\n");
         while (!stop)
         {
+            /* Quit gesture committed (hold-⌘Q or window close) — bail
+             * through every layer instead of waiting for a separate
+             * QUIT event. */
+            if (T4K_QuitConfirmed())
+            {
+                T4K_FreeSurfaceArray(menu_item_unselected, items);
+                T4K_FreeSurfaceArray(menu_item_selected, items);
+                if (desc_panel != NULL)
+                {
+                    SDL_DestroySurface(desc_panel);
+                }
+                return QUIT;
+            }
             frame_start = SDL_GetTicks(); /* For keeping frame rate constant.*/
 
             action = NONE;

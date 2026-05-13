@@ -578,6 +578,10 @@ static int chooseWordlist(void)
     /* Main event loop for this screen: */
     while (!stop)
     {
+        if (T4K_QuitConfirmed())
+        {
+            exit(0);
+        }
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -726,9 +730,12 @@ static int chooseWordlist(void)
             {
                 SDL_BlitSurface(right, NULL, screen, &rightRect);
             }
-
-            T4K_UpdateRect(screen, NULL);
         }
+
+        /* Present every frame so the quit-confirmation overlay (drawn
+         * during t4k_present) has a chance to repaint even when the
+         * cursor isn't moving. */
+        T4K_UpdateRect(screen, NULL);
 
         SDL_Delay(40);
         old_loc = loc;

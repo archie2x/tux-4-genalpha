@@ -53,6 +53,34 @@ static SDL_Surface* t4k_backing = NULL;
 #define T4K_CURSOR_IDLE_MS 2000
 static Uint64 last_mouse_activity_ms = 0;
 
+/* Quit confirmation gesture. Cmd-Q on macOS arrives as SDL_EVENT_QUIT
+ * (the system menu intercepts it; SDL doesn't deliver Q as a regular
+ * key event), and a fat-fingered Cmd-Q is too easy to do mid-game. If
+ * Cmd is held when the QUIT arrives we open a hold-to-confirm prompt;
+ * the user must keep Cmd+Q held past the threshold to commit, and
+ * releasing either key cancels. Window-close (X button) doesn't go
+ * through this — it's just a single-click quit like every other app.
+ * T4K_QuitConfirmed() lets activity loops unwind all the way to
+ * process exit instead of just bailing out one layer. */
+#define T4K_QUIT_HOLD_DURATION_MS 1200
+
+static bool   s_quit_prompt_active     = false;
+static Uint64 s_quit_prompt_started_ms = 0;
+static bool   s_quit_confirmed         = false;
+
+static bool t4k_cmd_held(void)
+{
+    const bool* keys = SDL_GetKeyboardState(NULL);
+    return keys && (keys[SDL_SCANCODE_LGUI] || keys[SDL_SCANCODE_RGUI]);
+}
+
+static bool t4k_cmd_q_held(void)
+{
+    const bool* keys = SDL_GetKeyboardState(NULL);
+    return keys && (keys[SDL_SCANCODE_LGUI] || keys[SDL_SCANCODE_RGUI]) &&
+           keys[SDL_SCANCODE_Q];
+}
+
 static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event);
 
 /* window size */
@@ -153,6 +181,31 @@ static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
         return true;
     }
 
+    if (event->type == SDL_EVENT_QUIT)
+    {
+        if (s_quit_confirmed)
+        {
+            return true;
+        }
+        /* No Cmd held → window-close button or similar direct request.
+         * Honor it immediately: mark confirmed so activity loops break
+         * out, and let the event through. */
+        if (!t4k_cmd_held())
+        {
+            s_quit_confirmed = true;
+            return true;
+        }
+        /* Cmd held → start (or refresh) the hold-to-confirm prompt and
+         * swallow the event. Commitment happens via the per-frame
+         * key-state check in t4k_present. */
+        if (!s_quit_prompt_active)
+        {
+            s_quit_prompt_active     = true;
+            s_quit_prompt_started_ms = SDL_GetTicks();
+        }
+        return false;
+    }
+
     float* px = NULL;
     float* py = NULL;
     switch (event->type)
@@ -206,6 +259,37 @@ static bool SDLCALL t4k_event_filter(void* userdata, SDL_Event* event)
     return true;
 }
 
+/* Quit-confirmation overlay: just dim the screen and put a centered
+ * white message on top. Drawn after the backing scale-blit so it sits
+ * over whatever the activity composed. */
+static void draw_quit_prompt(SDL_Surface* ws)
+{
+    if (!ws)
+    {
+        return;
+    }
+    SDL_Rect full = {0, 0, ws->w, ws->h};
+    T4K_DrawButtonOn(ws, &full, 0, 0, 0, 0, 180);
+
+    int font_size = ws->h / 14;
+    if (font_size > 36)
+    {
+        font_size = 36;
+    }
+    if (font_size < 18)
+    {
+        font_size = 18;
+    }
+    SDL_Surface* text = T4K_BlackOutline("Hold ⌘ Q to quit", font_size, &white);
+    if (text)
+    {
+        SDL_Rect tr = {(ws->w - text->w) / 2, (ws->h - text->h) / 2, text->w,
+                       text->h};
+        SDL_BlitSurface(text, NULL, ws, &tr);
+        SDL_DestroySurface(text);
+    }
+}
+
 /* Push the backing surface to the window, scaling to fit + letterboxing. */
 static void t4k_present(void)
 {
@@ -234,7 +318,38 @@ static void t4k_present(void)
             SDL_MapRGB(SDL_GetPixelFormatDetails(ws->format), NULL, 0, 0, 0));
     }
     SDL_BlitSurfaceScaled(t4k_backing, NULL, ws, &dst, SDL_SCALEMODE_LINEAR);
+
+    /* Quit-confirmation overlay sits above everything the activity drew.
+     * Commits when both Cmd+Q have been held past the threshold; if
+     * either is released early, the prompt is dismissed. On commit we
+     * also push a synthetic SDL_EVENT_QUIT so existing per-app handlers
+     * (case SDL_EVENT_QUIT: exit(0)) fire as if the user hit X. */
+    if (s_quit_prompt_active && !s_quit_confirmed)
+    {
+        if (!t4k_cmd_q_held())
+        {
+            s_quit_prompt_active = false;
+        }
+        else if (SDL_GetTicks() - s_quit_prompt_started_ms >=
+                 T4K_QUIT_HOLD_DURATION_MS)
+        {
+            s_quit_confirmed     = true;
+            s_quit_prompt_active = false;
+            SDL_Event qe         = {.type = SDL_EVENT_QUIT};
+            SDL_PushEvent(&qe);
+        }
+        else
+        {
+            draw_quit_prompt(ws);
+        }
+    }
+
     SDL_UpdateWindowSurface(t4k_window);
+}
+
+int T4K_QuitConfirmed(void)
+{
+    return s_quit_confirmed ? 1 : 0;
 }
 
 const char* s_font_name = DEFAULT_FONT_NAME;
