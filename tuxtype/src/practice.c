@@ -45,7 +45,6 @@ static SDL_Surface* hands         = NULL;
 static SDL_Surface* hand_shift[3] = {NULL};
 static KbdDisplay   practice_keyboard;
 static SDL_Surface* hand[11]            = {NULL};
-static SDL_Surface* braille_hand[65]    = {NULL};
 static sprite*      tux_stand           = NULL;
 static sprite*      tux_win             = NULL;
 static SDL_Surface* time_label_srfc     = NULL;
@@ -939,16 +938,6 @@ static int practice_load_media(void)
         }
     }
 
-    for (i = 1; i < 65; i++)
-    {
-        sprintf(fn, "braille_hands/%d.png", i);
-        braille_hand[i] = LoadImage(fn, IMG_ALPHA);
-        if (!braille_hand[i])
-        {
-            load_failed = 1;
-        }
-    }
-
     /* load tux sprites: */
     tux_win   = LoadSprite("tux/win", IMG_ALPHA);
     tux_stand = LoadSprite("tux/stand", IMG_ALPHA);
@@ -1579,7 +1568,6 @@ static int create_labels(void)
  * **************************************************************/
 void set_hand(int cursor, int cur_phrase)
 {
-    int fing;
     if (!settings.braille)
     {
 
@@ -1604,44 +1592,64 @@ void set_hand(int cursor, int cur_phrase)
     }
     else
     {
-        /* If the next letter to be typed is space then the 64th image
-         * which contains right thumb will be shown */
-        if (phrases[cur_phrase][cursor] == L' ')
+        SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
+        SDL_BlitSurface(hands, NULL, screen, &hand_loc);
+
+        wchar_t target = phrases[cur_phrase][cursor];
+        if (target == L' ')
         {
-            fing = 64;
-            SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-            SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-            SDL_BlitSurface(braille_hand[fing], NULL, screen, &hand_loc);
+            /* Space — just show the silhouette, no chord. */
+            return;
+        }
+
+        /* Compute the chord. When the target is a capital letter and the
+         * caps prefix (dot 6) hasn't been entered yet, hint that first. */
+        wchar_t dots[6];
+        int     n;
+        if (iswupper(target) && !Kbd_Input_CapitalPending())
+        {
+            dots[0] = L'l'; /* dot 6 — capital indicator */
+            n       = 1;
         }
         else
         {
-            /* Pick the braille_hand[] sprite for the chord and update
-             * braille_letter_pos to match this letter's position
-             * (begin/middle/end), so the decoder produces the right char
-             * on KEY_UP. */
-            wchar_t dots[6];
-            int     n = Braille_DotsForChar(phrases[cur_phrase][cursor], dots);
-            if (n > 0)
-            {
-                /* fing is a 6-bit bitmask: dot1=f→1, dot2=d→2, dot3=s→4,
-                 * dot4=j→8, dot5=k→16, dot6=l→32. Indexes braille_hand[0..63].
-                 */
-                static const int dot_to_bit[128] = {[L'f'] = 1,  [L'd'] = 2,
-                                                    [L's'] = 4,  [L'j'] = 8,
-                                                    [L'k'] = 16, [L'l'] = 32};
-                fing                             = 0;
-                for (int j = 0; j < n; j++)
-                {
-                    fing |= dot_to_bit[dots[j] & 0x7f];
-                }
-                SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
-                SDL_BlitSurface(hands, NULL, screen, &hand_loc);
-                SDL_BlitSurface(braille_hand[fing], NULL, screen, &hand_loc);
+            n = Braille_DotsForChar(target, dots);
+        }
+        if (n <= 0)
+        {
+            return;
+        }
 
-                int pos = Braille_PositionForChar(phrases[cur_phrase][cursor]);
-                braille_letter_pos = (pos >= 0) ? pos : 0;
+        /* Stack the per-finger hand[] sprite for each dot in the chord.
+         * Mapping: dot 1=f→finger 3 (left index), 2=d→2, 3=s→1, 4=j→6,
+         * 5=k→7, 6=l→8 (right ring). */
+        static const int dot_to_finger[128] = {
+            [L'f'] = 3, [L'd'] = 2, [L's'] = 1,
+            [L'j'] = 6, [L'k'] = 7, [L'l'] = 8,
+        };
+        for (int j = 0; j < n; j++)
+        {
+            int f = dot_to_finger[dots[j] & 0x7f];
+            if (f > 0 && hand[f])
+            {
+                SDL_BlitSurface(hand[f], NULL, screen, &hand_loc);
             }
         }
+
+        if (settings.show_keyboard)
+        {
+            for (int d = 0; d < n; d++)
+            {
+                int key = GetIndex(dots[d]);
+                if (key >= 0 && key < MAX_UNICODES)
+                {
+                    Kbd_Display_BlitGreenKey(&practice_keyboard, key, screen);
+                }
+            }
+        }
+
+        int pos            = Braille_PositionForChar(target);
+        braille_letter_pos = (pos >= 0) ? pos : 0;
     }
 }
 

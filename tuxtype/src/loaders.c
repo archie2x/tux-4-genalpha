@@ -85,14 +85,14 @@ void LoadLang(void)
     /* Loading braille Map */
     if (settings.braille)
     {
-        char file_name[100];
+        char file_name[FNLEN];
         if (settings.use_english)
         {
-            sprintf(file_name, "english.txt");
+            snprintf(file_name, FNLEN, "english.txt");
         }
         else
         {
-            sprintf(file_name, "%s.txt", settings.theme_name);
+            snprintf(file_name, FNLEN, "%s.txt", settings.theme_name);
         }
 
         // If map not found then disable braille mode

@@ -780,12 +780,12 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
     case IMG_ALPHA:
     {
         DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
-        /* SDL2 defaulted alpha-channel surfaces to BLENDMODE_BLEND;
-         * SDL3 defaults to BLENDMODE_NONE, which makes soft edges
-         * look hard-cut or fully opaque (visible on Comet Zap's
-         * glowing tails). Set blend explicitly to restore SDL2
-         * behavior. */
-        SDL_Surface* dup = SDL_DuplicateSurface(img);
+        /* Force RGBA so palette+tRNS sources get a real alpha channel —
+         * otherwise their transparency falls through as opaque palette
+         * indices on some screen-surface formats (fullscreen on Retina).
+         * Set BLENDMODE_BLEND explicitly: SDL3 defaults to BLENDMODE_NONE
+         * which hard-cuts soft edges. */
+        SDL_Surface* dup = SDL_ConvertSurface(img, SDL_PIXELFORMAT_RGBA32);
         if (dup)
         {
             SDL_SetSurfaceBlendMode(dup, SDL_BLENDMODE_BLEND);

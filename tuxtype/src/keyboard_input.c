@@ -15,7 +15,7 @@
 
 static wchar_t kbd_pressed[1000];
 static int     kbd_iter            = 0;
-static int     kbd_capital_pending = 0; /* set by 'g' chord, applied to next */
+static int kbd_capital_pending = 0; /* set by dot-6 chord, applied to next */
 static int     kbd_numbers_pending = 0; /* set by ';' chord, applied to next */
 
 static void kbd_clear_chord(void)
@@ -29,6 +29,11 @@ void Kbd_Input_Reset(void)
     kbd_clear_chord();
     kbd_capital_pending = 0;
     kbd_numbers_pending = 0;
+}
+
+int Kbd_Input_CapitalPending(void)
+{
+    return kbd_capital_pending;
 }
 
 void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
@@ -68,8 +73,9 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
     /* Braille mode: KEY_UP triggers chord decode. */
     if (event->type == SDL_EVENT_KEY_UP && settings.braille)
     {
-        /* Single-key prefixes — set a one-shot flag for the next chord. */
-        if (wcscmp(kbd_pressed, L"g") == 0)
+        /* Single-key prefixes — set a one-shot flag for the next chord.
+         * Dot 6 alone is the standard braille capital indicator (⠠). */
+        if (wcscmp(kbd_pressed, L"l") == 0)
         {
             kbd_capital_pending = 1;
             kbd_clear_chord();
@@ -126,14 +132,14 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
                 {
                     /* Reload the active language map to switch back from
                      * numerical to letter mode after one digit. */
-                    char fn[100];
+                    char fn[FNLEN];
                     if (settings.use_english)
                     {
-                        sprintf(fn, "english.txt");
+                        snprintf(fn, FNLEN, "english.txt");
                     }
                     else
                     {
-                        sprintf(fn, "%s.txt", settings.theme_name);
+                        snprintf(fn, FNLEN, "%s.txt", settings.theme_name);
                     }
                     Braille_LoadLanguage(fn);
                     kbd_numbers_pending = 0;

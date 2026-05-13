@@ -1341,6 +1341,33 @@ void GenerateKeyboard(SDL_Surface* keyboard)
 
     /* to give us a null-terminated string: */
     t[1] = '\0';
+
+    /* Braille mode: overlay dot numbers on fdsjkl instead of letters. */
+    if (settings.braille)
+    {
+        static const struct
+        {
+            const char* label;
+            int         col; /* row C — home row */
+        } dots[] = {
+            {"1", 4}, {"2", 3}, {"3", 2}, /* f d s */
+            {"4", 7}, {"5", 8}, {"6", 9}, /* j k l */
+        };
+        for (size_t k = 0; k < sizeof(dots) / sizeof(dots[0]); k++)
+        {
+            new.x = 33 + (int)(30.5 * dots[k].col);
+            new.y = 65;
+            new.w = 5;
+            new.h = 5;
+            tmp   = SimpleText(dots[k].label, 15, &black);
+            if (tmp)
+            {
+                SDL_BlitSurface(tmp, NULL, keyboard, &new);
+            }
+        }
+        return;
+    }
+
     /* Draw the unshifted and shifted chars overlying the corresponding key */
     /* for every entry in keyboard_list[]:                                  */
     for (i = 0; i < num_chars_used; i++)

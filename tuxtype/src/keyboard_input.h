@@ -21,3 +21,8 @@ void Kbd_Input_Reset(void);
  * since it depends on game-specific word progression. */
 void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
                            KbdTyped* out);
+
+/* 1 if a capital-indicator (dot 6) chord has been entered but not yet
+ * consumed by a letter chord. Lets the UI hint show the prefix vs the
+ * letter chord depending on what's needed next. */
+int Kbd_Input_CapitalPending(void);

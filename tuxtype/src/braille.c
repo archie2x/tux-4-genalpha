@@ -148,12 +148,13 @@ int Braille_LoadLanguage(char* language)
 {
     int   iter = 0;
     FILE* fp;
-    char  file[100];
+    char  file[FNLEN];
 
     /* New map → drop the DotsForChar cache. */
     s_cache_n = -1;
 
-    sprintf(file, "%s/braille/%s", settings.default_data_path, language);
+    snprintf(file, FNLEN, "%s/braille/%s", settings.default_data_path,
+             language);
     fp = fopen(file, "r");
 
     if (fp == NULL)
