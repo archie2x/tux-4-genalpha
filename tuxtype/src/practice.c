@@ -811,7 +811,7 @@ int Phrases(wchar_t* pphrase)
 
                             /* Announce the letter again when incorrect letter.
                              */
-                            if (!settings.braille)
+                            if (settings.input_mode != INPUT_BRAILLE)
                             {
                                 T4K_Tts_say(DEFAULT_VALUE, DEFAULT_VALUE,
                                             INTERRUPT, "Type %S",
@@ -1522,7 +1522,7 @@ void set_hand(int cursor, int cur_phrase)
 {
     SDL_BlitSurface(CurrentBkgd(), &hand_loc, screen, &hand_loc);
 
-    if (!settings.braille)
+    if (settings.input_mode != INPUT_BRAILLE)
     {
         int key = GetIndex(phrases[cur_phrase][cursor]);
         Hand_Display_DrawForKey(&practice_hands, GetFinger(key), GetShift(key),

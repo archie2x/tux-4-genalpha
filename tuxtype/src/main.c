@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
             if ((strcmp(argv[i], "-b") == 0) ||
                 (strcmp(argv[i], "--braille") == 0))
             {
-                settings.braille = 1;
+                settings.input_mode = INPUT_BRAILLE;
             }
 
             if ((strcmp(argv[i], "--hidden") == 0) ||

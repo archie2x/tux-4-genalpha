@@ -1343,7 +1343,7 @@ void GenerateKeyboard(SDL_Surface* keyboard)
     t[1] = '\0';
 
     /* Braille mode: overlay dot numbers on fdsjkl instead of letters. */
-    if (settings.braille)
+    if (settings.input_mode == INPUT_BRAILLE)
     {
         static const struct
         {

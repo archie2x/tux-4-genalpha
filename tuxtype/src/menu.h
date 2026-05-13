@@ -46,8 +46,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         X(RUN_CASCADE_LEVEL3), X(RUN_INSTRUCT), X(RUN_LASER_LEVEL1),           \
         X(RUN_LASER_LEVEL2), X(RUN_LASER_LEVEL3), X(RUN_LASER_LEVEL4),         \
         X(RUN_LESSONS), X(RUN_PHRASE_TYPING), X(RUN_SET_LANGUAGE),             \
-        X(RUN_EDIT_WORDLIST), X(RUN_SET_BRAILLE_KEYS), X(RUN_SET_VOLUME),      \
-        X(RUN_PROJECT_INFO),                                                   \
+        X(RUN_EDIT_WORDLIST), X(RUN_SET_INPUT_KEYBOARD),                       \
+        X(RUN_SET_INPUT_BRAILLE), X(RUN_SET_VOLUME), X(RUN_PROJECT_INFO),      \
         X(N_OF_ACTIVITIES) /* this one has to be the last one */
 
 /* create enum */

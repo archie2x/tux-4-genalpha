@@ -256,6 +256,18 @@ static int load_settings_fp(FILE* fp)
             settings.o_lives = atoi(value);
             setting_found    = 1;
         }
+        else if (0 == strncmp(setting, "input_mode", sizeof("input_mode")))
+        {
+            if (0 == strcmp(value, "braille"))
+            {
+                settings.input_mode = INPUT_BRAILLE;
+            }
+            else
+            {
+                settings.input_mode = INPUT_KEYBOARD;
+            }
+            setting_found = 1;
+        }
         else if (0 == strncmp(setting, "mus_volume", sizeof("mus_volume")))
         {
             DEBUGCODE
@@ -386,6 +398,8 @@ void SaveSettings(void)
     fprintf(settingsFile, "menu_music=%d\n", settings.menu_music);
     fprintf(settingsFile, "fullscreen=%d\n", settings.fullscreen);
     fprintf(settingsFile, "tts_volume=%d\n", settings.tts_volume);
+    fprintf(settingsFile, "input_mode=%s\n",
+            settings.input_mode == INPUT_BRAILLE ? "braille" : "keyboard");
 
     fclose(settingsFile);
 }

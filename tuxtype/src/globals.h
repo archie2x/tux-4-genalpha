@@ -91,6 +91,15 @@ extern SDL_Thread* tts_announcer_thread;
 
 #define FNLEN T4K_PATH_MAX
 
+/* Input methods the user can pick from the Options menu. INPUT_KEYBOARD
+ * is standard QWERTY typing; INPUT_BRAILLE is six-key chord input on
+ * fdsjkl. Morse and semaphore are placeholders for a future refactor. */
+typedef enum
+{
+    INPUT_KEYBOARD = 0,
+    INPUT_BRAILLE  = 1,
+} InputMode;
+
 /* (renamed from 'settings' to match tuxmath) */
 typedef struct game_option_type
 {
@@ -107,8 +116,8 @@ typedef struct game_option_type
     int  use_english;
     int  fullscreen;
     int  sys_sound;
-    int  braille;
-    int  tts;
+    InputMode input_mode;
+    int       tts;
     int  tts_volume;
     int  sfx_volume;
     int  mus_volume;
@@ -146,7 +155,7 @@ extern struct braille_dict braille_key_value_map[100];
 #define DEFAULT_LOCALE "en_US.UTF-8"
 #define DEFAULT_USE_ENGLISH 1
 #define DEFAULT_FULLSCREEN 0
-#define DEFAULT_BRAILLE 0
+#define DEFAULT_INPUT_MODE INPUT_KEYBOARD
 #define DEFAULT_TTS 0
 #define DEFAULT_TTS_VOLUME 100
 #define DEFAULT_SYS_SOUND 1

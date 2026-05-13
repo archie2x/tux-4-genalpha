@@ -44,7 +44,8 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
     out->key_index = -1;
 
     /* Braille mode accumulates raw KEY_DOWN keys into a chord buffer. */
-    if (event->type == SDL_EVENT_KEY_DOWN && settings.braille)
+    if (event->type == SDL_EVENT_KEY_DOWN &&
+        (settings.input_mode == INPUT_BRAILLE))
     {
         if (kbd_iter < (int)(sizeof(kbd_pressed) / sizeof(kbd_pressed[0])) - 1)
         {
@@ -56,7 +57,8 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
 
     /* Normal mode: TEXT_INPUT delivers composed glyphs (handles shift, dead
      * keys, IME). Skipped in braille mode where dot keys aren't characters. */
-    if (event->type == SDL_EVENT_TEXT_INPUT && !settings.braille)
+    if (event->type == SDL_EVENT_TEXT_INPUT &&
+        settings.input_mode != INPUT_BRAILLE)
     {
         wchar_t   typed = 0;
         mbstate_t mbs   = {0};
@@ -71,7 +73,8 @@ void Kbd_Input_HandleEvent(const SDL_Event* event, int braille_letter_pos,
     }
 
     /* Braille mode: KEY_UP triggers chord decode. */
-    if (event->type == SDL_EVENT_KEY_UP && settings.braille)
+    if (event->type == SDL_EVENT_KEY_UP &&
+        (settings.input_mode == INPUT_BRAILLE))
     {
         /* Single-key prefixes — set a one-shot flag for the next chord.
          * Dot 6 alone is the standard braille capital indicator (⠠). */

@@ -185,8 +185,17 @@ int handle_activity(int act, int param)
         ChooseListToEdit();
         break;
 
-    case RUN_SET_BRAILLE_KEYS:
-        DEBUGMSG(debug_menu, "activity: RUN_SET_BRAILLE_KEYS\n");
+    case RUN_SET_INPUT_KEYBOARD:
+        DEBUGMSG(debug_menu, "activity: RUN_SET_INPUT_KEYBOARD\n");
+        settings.input_mode = INPUT_KEYBOARD;
+        SaveSettings();
+        break;
+
+    case RUN_SET_INPUT_BRAILLE:
+        DEBUGMSG(debug_menu, "activity: RUN_SET_INPUT_BRAILLE\n");
+        settings.input_mode = INPUT_BRAILLE;
+        LoadLang(); /* loads the braille chord map for this theme */
+        SaveSettings();
         break;
 
     case RUN_SET_VOLUME:

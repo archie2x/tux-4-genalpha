@@ -298,7 +298,7 @@ int PlayLaserGame(int diff_level)
             lowest   = -1;
 
             /* Only Shoot the lowest letter if tts is enabled. */
-            if (settings.tts || settings.braille)
+            if (settings.tts || (settings.input_mode == INPUT_BRAILLE))
             {
                 for (i = 0; i < MAX_COMETS; i++)
                 {
@@ -1020,7 +1020,7 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
-        if (settings.braille)
+        if (settings.input_mode == INPUT_BRAILLE)
         {
             if (lowest < 0 || comets[i].y > comets[lowest].y)
             {
@@ -1040,7 +1040,7 @@ static void laser_draw_keyboard_highlights(void)
         }
     }
 
-    if (settings.braille && lowest >= 0)
+    if ((settings.input_mode == INPUT_BRAILLE) && lowest >= 0)
     {
         wchar_t dots[6];
         int     n = Braille_DotsForChar(comets[lowest].ch, dots);

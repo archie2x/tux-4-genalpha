@@ -1255,7 +1255,7 @@ static void DrawActiveKeyboardHighlights(int fishies)
             continue;
         }
 
-        if (settings.braille)
+        if (settings.input_mode == INPUT_BRAILLE)
         {
             if (lowest < 0 || fish_object[i].y > fish_object[lowest].y)
             {
@@ -1276,7 +1276,7 @@ static void DrawActiveKeyboardHighlights(int fishies)
         }
     }
 
-    if (settings.braille && lowest >= 0)
+    if ((settings.input_mode == INPUT_BRAILLE) && lowest >= 0)
     {
         wchar_t dots[6];
         int     n =

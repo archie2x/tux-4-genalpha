@@ -19,7 +19,10 @@
         <item title="Volume" sprite="tux_config" run="RUN_SET_VOLUME" desc="Adjust music and sound effects volume" />
         <item title="Language" sprite="tux_config" run="RUN_SET_LANGUAGE" desc="Set your language" />
         <item title="Word Lists" sprite="list" run="RUN_EDIT_WORDLIST" desc="Add or remove words" />
-        <item title="Braille Keys" sprite="keyboard" run="RUN_SET_BRAILLE_KEYS" desc="Choose your own keys for representing braille dots" />
+        <menu title="Input" sprite="keyboard" entries="2" desc="Choose typing input method">
+            <item title="Keyboard" sprite="keyboard" run="RUN_SET_INPUT_KEYBOARD" desc="Standard QWERTY typing" />
+            <item title="Braille" sprite="keyboard" run="RUN_SET_INPUT_BRAILLE" desc="Six-key braille chord input on fdsjkl" />
+        </menu>
     </menu>
     <item title="Project Info" sprite="alone" run="RUN_PROJECT_INFO" desc="See the project info" />
     <item title="Quit" sprite="quit" run="RUN_QUIT" desc="Exit to your desktop" />

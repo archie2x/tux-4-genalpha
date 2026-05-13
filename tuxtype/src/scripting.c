@@ -163,7 +163,7 @@ int XMLLesson(void)
         /* If braille is not enabled or scripts_braille folder does not exist
          * then select the default theme path */
         sprintf(script_path, "%s/scripts_braille", settings.theme_data_path);
-        if (!settings.braille || !T4K_CheckFile(script_path))
+        if (settings.input_mode != INPUT_BRAILLE || !T4K_CheckFile(script_path))
         {
             sprintf(script_path, "%s/scripts", settings.theme_data_path);
         }
@@ -184,7 +184,7 @@ int XMLLesson(void)
         /* If braille is not enabled or scripts_braille folder does not exist
          * then select the default data path */
         sprintf(script_path, "%s/scripts_braille", settings.default_data_path);
-        if (!settings.braille || !T4K_CheckFile(script_path))
+        if (settings.input_mode != INPUT_BRAILLE || !T4K_CheckFile(script_path))
         {
             sprintf(script_path, "%s/scripts", settings.default_data_path);
         }
@@ -421,7 +421,8 @@ int XMLLesson(void)
                                     script_filenames[loc]);
                         }
 
-                        if (!settings.braille || !T4K_CheckFile(fn))
+                        if (settings.input_mode != INPUT_BRAILLE ||
+                            !T4K_CheckFile(fn))
                         {
                             if (settings.use_english)
                             {
@@ -468,7 +469,8 @@ int XMLLesson(void)
                                 script_filenames[loc]);
                     }
 
-                    if (!settings.braille || !T4K_CheckFile(fn))
+                    if (settings.input_mode != INPUT_BRAILLE ||
+                        !T4K_CheckFile(fn))
                     {
                         if (settings.use_english)
                         {

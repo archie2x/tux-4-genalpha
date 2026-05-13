@@ -83,7 +83,7 @@ void LoadLang(void)
     }
 
     /* Loading braille Map */
-    if (settings.braille)
+    if (settings.input_mode == INPUT_BRAILLE)
     {
         char file_name[FNLEN];
         if (settings.use_english)
@@ -105,7 +105,7 @@ void LoadLang(void)
             {
                 fprintf(stderr, "Braille disabled!");
             }
-            settings.braille = 0;
+            settings.input_mode = INPUT_KEYBOARD;
         }
     }
 
