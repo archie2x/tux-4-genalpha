@@ -94,7 +94,9 @@ static SDL_Rect user_text_rect;
 
 /* Locations within bottom pane: */
 static SDL_Rect hand_loc;
-static SDL_Rect nextletter_rect;
+static SDL_Rect nextletter_rect; /* Latin preview, always shown */
+static SDL_Rect
+    altglyph_rect; /* input-mode encoding glyph, non-keyboard modes */
 // static SDL_Rect letter_loc;
 static SDL_Rect keyboard_loc;
 
@@ -1286,6 +1288,14 @@ static void recalc_positions(void)
     nextletter_rect.h = bigfontsize * 1.5;
     nextletter_rect.x = keyboard_loc.x + keyboard_loc.w - nextletter_rect.w;
     nextletter_rect.y = keyboard_loc.y + keyboard_loc.h;
+
+    /* Alt-glyph preview sits just left of the Latin one, same size +
+     * a small gap. Always reserved (so the input-mode toggle doesn't
+     * shift layout); only painted in non-keyboard modes. */
+    altglyph_rect.w = nextletter_rect.w;
+    altglyph_rect.h = nextletter_rect.h;
+    altglyph_rect.x = nextletter_rect.x - altglyph_rect.w - 8;
+    altglyph_rect.y = nextletter_rect.y;
 }
 
 static void practice_unload_media(void)
@@ -1628,15 +1638,40 @@ static void display_next_letter(const wchar_t* str, Uint16 index)
         return;
     }
 
-    /* Erase to background, then let the active input mode render its
-     * preview (Latin glyph for typewriter, 2x3 braille cell for braille,
-     * future: morse/semaphore visualizations). SDL_BlitSurface mutates
-     * its dstrect; use a local copy so file-scope nextletter_rect stays
-     * pristine for subsequent draws. */
-    SDL_Rect src = nextletter_rect;
-    SDL_Rect dst = nextletter_rect;
+    /* Erase both preview slots to bg. SDL_BlitSurface mutates its
+     * dstrect, so blit through local copies. */
+    SDL_Rect src = nextletter_rect, dst = nextletter_rect;
     SDL_BlitSurface(CurrentBkgd(), &src, screen, &dst);
-    Input_DrawNextChar(practice_input, str[index], nextletter_rect, screen);
+    src = altglyph_rect;
+    dst = altglyph_rect;
+    SDL_BlitSurface(CurrentBkgd(), &src, screen, &dst);
+
+    /* Latin preview is always shown. */
+    if (str[index] != L' ')
+    {
+        int font_size = nextletter_rect.h - 12;
+        if (font_size < 10)
+        {
+            font_size = 10;
+        }
+        wchar_t      ltr[2] = {str[index], 0};
+        SDL_Surface* s      = BlackOutline_w(ltr, font_size, &white, 1);
+        if (s)
+        {
+            SDL_Rect dr = {nextletter_rect.x + (nextletter_rect.w - s->w) / 2,
+                           nextletter_rect.y + (nextletter_rect.h - s->h) / 2,
+                           s->w, s->h};
+            SDL_BlitSurface(s, NULL, screen, &dr);
+            SDL_DestroySurface(s);
+        }
+    }
+
+    /* Encoding glyph preview in the dedicated alt slot, only when the
+     * input mode has its own visual representation. */
+    if (settings.input_mode != INPUT_KEYBOARD)
+    {
+        Input_DrawNextChar(practice_input, str[index], altglyph_rect, screen);
+    }
 }
 
 static int create_labels(void)
