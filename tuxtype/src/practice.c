@@ -114,9 +114,19 @@ static void practice_unload_media(void);
  * cell-by-cell with the echo's mode-specific glyphs by sourcing the
  * per-char slot width from Input_CellsForChar. Each returns the cell
  * count consumed from wstr[0..len). */
-static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect);
-static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect);
+static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect,
+                                int rtl);
+static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect,
+                              int rtl);
 static int cell_width_for_row(int font_size);
+
+/* Map a logical cell index (0 = first reading-order cell) to its
+ * physical x within rect. */
+static int cell_phys_x(SDL_Rect rect, int cell_idx, int cell_w, int rtl)
+{
+    return rtl ? rect.x + rect.w - (cell_idx + 1) * cell_w
+               : rect.x + cell_idx * cell_w;
+}
 // static void show(char t);
 static void print_load_results(void);
 wchar_t* get_next_word_letters(int cur_phrase, int cursor, int till_next_space);
@@ -124,6 +134,11 @@ wchar_t* get_next_word(int cur_phrase, int cursor);
 
 // Braille Variable
 int braille_letter_pos;
+
+/* F9-toggleable RTL test flag. Lets us exercise right-to-left layout
+ * on Latin content without switching locales. Real RTL locales will
+ * also flip layout via locale detection (TODO). */
+static int rtl_test_mode = 0;
 
 /************************************************************************/
 /*                                                                      */
@@ -317,11 +332,12 @@ int Phrases(wchar_t* pphrase)
 
         /* Prompt + echo + caret. Both start at scroll_offset_ch, run
          * for visible_chars; echo clipped at cursor. */
+        int rtl     = rtl_test_mode;
         int typed_w = 0;
         if (settings.input_mode == INPUT_BRAILLE)
         {
             draw_cell_row_prompt(&phrases[cur_phrase][scroll_offset_ch],
-                                 visible_chars, phr_text_rect);
+                                 visible_chars, phr_text_rect, rtl);
             int echo_chars = cursor - scroll_offset_ch;
             if (echo_chars > visible_chars)
             {
@@ -329,10 +345,12 @@ int Phrases(wchar_t* pphrase)
             }
             int typed_cells =
                 draw_cell_row_echo(&phrases[cur_phrase][scroll_offset_ch],
-                                   echo_chars, user_text_rect);
-            int pending_cells = Input_DrawPendingEcho(
-                practice_input, user_text_rect.x + typed_cells * cell_w,
-                user_text_rect.y, cell_w, user_text_rect.h, screen);
+                                   echo_chars, user_text_rect, rtl);
+            int pending_x =
+                cell_phys_x(user_text_rect, typed_cells, cell_w, rtl);
+            int pending_cells = Input_DrawPendingEcho(practice_input, pending_x,
+                                                      user_text_rect.y, cell_w,
+                                                      user_text_rect.h, screen);
             typed_w = (typed_cells + pending_cells) * cell_w;
         }
         else
@@ -345,7 +363,12 @@ int Phrases(wchar_t* pphrase)
                                 (tmpsurf->w > phr_text_rect.w) ? phr_text_rect.w
                                                                : tmpsurf->w,
                                 tmpsurf->h};
-                SDL_BlitSurface(tmpsurf, &src, screen, &phr_text_rect);
+                SDL_Rect dst = phr_text_rect;
+                if (rtl)
+                {
+                    dst.x += dst.w - src.w;
+                }
+                SDL_BlitSurface(tmpsurf, &src, screen, &dst);
                 SDL_DestroySurface(tmpsurf);
                 tmpsurf = NULL;
             }
@@ -363,16 +386,28 @@ int Phrases(wchar_t* pphrase)
                                     ? user_text_rect.w
                                     : tmpsurf->w,
                                 tmpsurf->h};
-                SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
+                SDL_Rect dst = user_text_rect;
+                if (rtl)
+                {
+                    dst.x += dst.w - src.w;
+                }
+                SDL_BlitSurface(tmpsurf, &src, screen, &dst);
                 typed_w = src.w;
                 SDL_DestroySurface(tmpsurf);
                 tmpsurf = NULL;
             }
         }
         {
-            SDL_Rect cur = {user_text_rect.x + typed_w,
-                            user_text_rect.y + user_text_rect.h - 4,
+            int caret_x  = rtl ? user_text_rect.x + user_text_rect.w - typed_w -
+                                     medfontsize / 2
+                               : user_text_rect.x + typed_w;
+            SDL_Rect cur = {caret_x, user_text_rect.y + user_text_rect.h - 4,
                             medfontsize / 2, 2};
+            if (cur.x < user_text_rect.x)
+            {
+                cur.w -= (user_text_rect.x - cur.x);
+                cur.x = user_text_rect.x;
+            }
             if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
             {
                 cur.w = user_text_rect.x + user_text_rect.w - cur.x;
@@ -498,6 +533,10 @@ int Phrases(wchar_t* pphrase)
                     T4K_SwitchScreenMode();
                     recalc_positions();
                     create_labels();
+                    handled_control = 1;
+                    break;
+                case SDLK_F9:
+                    rtl_test_mode   = !rtl_test_mode;
                     handled_control = 1;
                     break;
                 case SDLK_DOWN:
@@ -1117,19 +1156,23 @@ static int cell_width_for_row(int font_size)
     return font_size + 4;
 }
 
-static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect)
+static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect,
+                                int rtl)
 {
     int cell_w   = cell_width_for_row(medfontsize);
     int cell_idx = 0;
+    int cap      = rect.w / cell_w;
     for (int i = 0; i < len && wstr[i]; i++)
     {
         int n_cells = Input_CellsForChar(practice_input, wstr[i]);
-        /* Latin prompt sits right-justified in the slot's last cell. */
-        int slot_last_x = rect.x + (cell_idx + n_cells - 1) * cell_w;
-        if (slot_last_x + cell_w > rect.x + rect.w)
+        if (cell_idx + n_cells > cap)
         {
             break;
         }
+        /* Latin sits at slot's last reading-order cell (cell_idx +
+         * n_cells - 1). Its physical x flips with rtl. */
+        int slot_last_x =
+            cell_phys_x(rect, cell_idx + n_cells - 1, cell_w, rtl);
         if (wstr[i] != L' ')
         {
             wchar_t      ltr[2] = {wstr[i], 0};
@@ -1147,20 +1190,22 @@ static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect)
     return cell_idx;
 }
 
-static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect)
+static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect,
+                              int rtl)
 {
     int cell_w   = cell_width_for_row(medfontsize);
     int cell_idx = 0;
+    int cap      = rect.w / cell_w;
     for (int i = 0; i < len && wstr[i]; i++)
     {
         int n_cells = Input_CellsForChar(practice_input, wstr[i]);
         for (int c = 0; c < n_cells; c++)
         {
-            int x = rect.x + (cell_idx + c) * cell_w;
-            if (x + cell_w > rect.x + rect.w)
+            if (cell_idx + c >= cap)
             {
                 return cell_idx + c;
             }
+            int x = cell_phys_x(rect, cell_idx + c, cell_w, rtl);
             Input_DrawEchoCell(practice_input, wstr[i], c, x, rect.y, cell_w,
                                rect.h, screen);
         }
