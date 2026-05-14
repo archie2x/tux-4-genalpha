@@ -114,6 +114,53 @@ int Braille_PositionForChar(wchar_t ch)
     return -1;
 }
 
+/* Unicode Braille Patterns codepoint for ch. Maps the chord dots
+ * (fdsjkl) to bit positions in the U+2800 block:
+ *   f=dot1=0x01  d=dot2=0x02  s=dot3=0x04
+ *   j=dot4=0x08  k=dot5=0x10  l=dot6=0x20
+ * Upper-case ch returns the dot-6 capital indicator (U+2820). */
+wchar_t Braille_CodepointForChar(wchar_t ch)
+{
+    if (iswupper(ch))
+    {
+        return 0x2820;
+    }
+    wchar_t dots[6];
+    int     n = Braille_DotsForChar(ch, dots);
+    if (n <= 0)
+    {
+        return 0;
+    }
+    wchar_t cp = 0x2800;
+    for (int i = 0; i < n; i++)
+    {
+        switch (dots[i])
+        {
+        case L'f':
+            cp |= 0x01;
+            break;
+        case L'd':
+            cp |= 0x02;
+            break;
+        case L's':
+            cp |= 0x04;
+            break;
+        case L'j':
+            cp |= 0x08;
+            break;
+        case L'k':
+            cp |= 0x10;
+            break;
+        case L'l':
+            cp |= 0x20;
+            break;
+        default:
+            break;
+        }
+    }
+    return cp;
+}
+
 /* Reorder the given chord into canonical fdsjkl (dots 1,2,3,4,5,6) order
  * so the lookup against braille_key_value_map[].key works regardless of
  * which keys the user pressed first. */

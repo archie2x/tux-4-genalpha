@@ -31,7 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "snow.h"
 #include "SDL_extras.h"
 #include <ctype.h>
+#include <wctype.h>
 #include "braille.h"
+#include "target_hint.h"
 #include "input.h"
 #include "keyboard_display.h"
 
@@ -1280,7 +1282,11 @@ static void DrawActiveKeyboardHighlights(int fishies)
             continue;
         }
 
-        key = GetIndex(fish_object[i].word[match_len]);
+        /* Cascade is case-insensitive; use the lowercase rune for hint
+         * lookup so typewriter mode doesn't suggest shift and braille
+         * mode doesn't suggest the dot-6 capital prefix. */
+        wchar_t hint_ch = towlower(fish_object[i].word[match_len]);
+        key             = GetIndex(hint_ch);
         if (key < 0 || key >= MAX_UNICODES || drawn[key])
         {
             continue;
@@ -1294,8 +1300,8 @@ static void DrawActiveKeyboardHighlights(int fishies)
     if ((settings.input_mode == INPUT_BRAILLE) && lowest >= 0)
     {
         wchar_t dots[6];
-        int     n =
-            Braille_DotsForChar(fish_object[lowest].word[lowest_target], dots);
+        int     n = Braille_DotsForChar(
+            towlower(fish_object[lowest].word[lowest_target]), dots);
         for (int d = 0; d < n; d++)
         {
             int key = GetIndex(dots[d]);
@@ -1720,6 +1726,11 @@ static void DrawFish(int which)
             {
                 T4K_DrawObject(letter_surface, letter_x, letter_y);
             }
+
+            Target_DrawHintBelow((wchar_t)current_letter, letter_x, letter_y,
+                                 letter_surface ? letter_surface->w : 24,
+                                 letter_surface ? letter_surface->h : 28, 20,
+                                 screen);
         }
     }
     LOG("Leaving DrawFish()\n");
@@ -1750,6 +1761,19 @@ static void MoveFishies(int* fishies, int* splats, int* lifes, int* frame)
                 EraseSprite(fish_sprite,
                             fish_object[i].x + (fish_sprite->frame[0]->w * j),
                             fish_object[i].y);
+            }
+            /* In braille mode the chord glyph sits just below the
+             * letter (and below the fish-sprite-sized erase above), so
+             * trails persist without an extra erase strip. The
+             * background has the keyboard guide baked in, so this just
+             * restores the keyboard pixels under any stale braille. */
+            if (settings.input_mode == INPUT_BRAILLE)
+            {
+                SDL_Rect below = {
+                    fish_object[i].x,
+                    fish_object[i].y + fish_sprite->frame[0]->h,
+                    fish_sprite->frame[0]->w * (fish_object[i].len + 1), 32};
+                SDL_BlitSurface(CurrentBkgd(), &below, screen, &below);
             }
 
             fish_object[i].y += fish_object[i].dy;

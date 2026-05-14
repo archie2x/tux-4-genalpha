@@ -60,6 +60,7 @@ add_executable(
     src/setup.c
     src/settings_volume.c
     src/snow.c
+    src/target_hint.c
     src/theme.c
     src/titlescreen.c
 )

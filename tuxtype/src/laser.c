@@ -33,7 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "braille.h"
 #include "input.h"
 #include "keyboard_display.h"
+#include "target_hint.h"
 #include <ctype.h>
+#include <wctype.h>
 
 #include <t4k/visible_bell.h>
 
@@ -307,8 +309,11 @@ int PlayLaserGame(int diff_level)
             lowest_y = 0;
             lowest   = -1;
 
-            /* Only Shoot the lowest letter if tts is enabled. */
-            if (settings.tts || (settings.input_mode == INPUT_BRAILLE))
+            /* Only constrain to the lowest letter when TTS is on (the
+             * announcement implies which letter is next). Braille mode
+             * used to be lumped in here too, but it stopped you from
+             * targetting any visible comet — drop it. */
+            if (settings.tts)
             {
                 for (i = 0; i < MAX_COMETS; i++)
                 {
@@ -839,6 +844,11 @@ int PlayLaserGame(int diff_level)
 
         T4K_VisibleBell_Render(&s_wrong_bell, screen);
 
+        /* Flush any queued blits (e.g. Target_DrawHintBelow's braille
+         * glyphs) before presenting. Laser is otherwise immediate-blit,
+         * so this is normally a near-no-op. */
+        T4K_UpdateScreen(&frame);
+
         /* Swap buffers: */
 
         T4K_UpdateRect(screen, NULL);
@@ -1035,18 +1045,24 @@ static void laser_draw_keyboard_highlights(void)
             continue;
         }
 
-        int key = GetIndex(comets[i].ch);
+        /* Comets store .ch uppercased to match the comparison logic,
+         * but Comet Zap accepts the lowercase key without shift. Pass
+         * the lowercase rune to the hint path so typewriter mode
+         * doesn't suggest pressing shift and braille mode doesn't
+         * suggest dot-6 (capital prefix). */
+        wchar_t hint_ch = towlower(comets[i].ch);
+        int     key     = GetIndex(hint_ch);
         if (key < 0 || key >= MAX_UNICODES || drawn[key])
         {
             continue;
         }
-        Input_DrawHint(laser_input, comets[i].ch, screen);
+        Input_DrawHint(laser_input, hint_ch, screen);
         drawn[key] = 1;
     }
 
     if (chord_mode && lowest >= 0)
     {
-        Input_DrawHint(laser_input, comets[lowest].ch, screen);
+        Input_DrawHint(laser_input, towlower(comets[lowest].ch), screen);
     }
 }
 
@@ -1289,6 +1305,9 @@ static void laser_draw_let(wchar_t c, int x, int y)
     {
         SDL_BlitSurface(s, NULL, screen, &dst);
     }
+
+    Target_DrawHintBelow(c, x + offset_x, dst.y, s ? s->w : 24, s ? s->h : 32,
+                         24, screen);
 }
 
 /* Draw status numbers: */

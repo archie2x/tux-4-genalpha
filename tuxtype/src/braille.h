@@ -15,3 +15,9 @@ int Braille_DotsForChar(wchar_t ch, wchar_t dots[6]);
  *   2 if matches value_end, 1 if value_middle, 0 if value_begin,
  *  -1 if no match. */
 int Braille_PositionForChar(wchar_t ch);
+
+/* Unicode Braille Patterns codepoint (U+2800-U+28FF) for ch's chord.
+ * Returns 0 if ch has no chord in the active map. Upper-case ch yields
+ * the dot-6-only capital prefix (U+2820) — the cell that precedes the
+ * lowercase letter in standard braille. */
+wchar_t Braille_CodepointForChar(wchar_t ch);
