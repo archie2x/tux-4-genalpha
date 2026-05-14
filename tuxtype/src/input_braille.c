@@ -358,13 +358,88 @@ static void br_draw_next_char(Input* im, wchar_t target_ch, SDL_Rect rect,
     SDL_DestroySurface(s);
 }
 
+/* Render a single Unicode-Braille-Patterns codepoint centered in a cell. */
+static void blit_braille_cp(wchar_t cp, int x, int y, int cell_w, int cell_h,
+                            SDL_Surface* dst)
+{
+    int font_size = cell_h - 4;
+    if (font_size < 10)
+    {
+        font_size = 10;
+    }
+    wchar_t      ltr[2] = {cp, 0};
+    SDL_Surface* s      = BlackOutline_w(ltr, font_size, &white, 1);
+    if (!s)
+    {
+        return;
+    }
+    SDL_Rect dr = {x + (cell_w - s->w) / 2, y + (cell_h - s->h) / 2, s->w,
+                   s->h};
+    SDL_BlitSurface(s, NULL, dst, &dr);
+    SDL_DestroySurface(s);
+}
+
+static int br_cells_for_char(Input* im, wchar_t ch)
+{
+    (void)im;
+    return iswupper(ch) ? 2 : 1;
+}
+
+static void br_draw_echo_cell(Input* im, wchar_t target_ch, int cell_idx, int x,
+                              int y, int cell_w, int cell_h, SDL_Surface* dst)
+{
+    (void)im;
+    if (target_ch == L' ')
+    {
+        return;
+    }
+    /* Uppercase slot: caps-prefix in cell 0, letter braille in cell 1. */
+    if (iswupper(target_ch))
+    {
+        if (cell_idx == 0)
+        {
+            blit_braille_cp(0x2820, x, y, cell_w, cell_h, dst);
+        }
+        else
+        {
+            wchar_t cp = Braille_CodepointForChar(towlower(target_ch));
+            if (cp)
+            {
+                blit_braille_cp(cp, x, y, cell_w, cell_h, dst);
+            }
+        }
+        return;
+    }
+    /* Lowercase / single-cell: just the letter braille. */
+    wchar_t cp = Braille_CodepointForChar(target_ch);
+    if (cp)
+    {
+        blit_braille_cp(cp, x, y, cell_w, cell_h, dst);
+    }
+}
+
+static int br_draw_pending_echo(Input* im, int x, int y, int cell_w, int cell_h,
+                                SDL_Surface* dst)
+{
+    Braille* b = (Braille*)im;
+    if (!b->caps_pending)
+    {
+        return 0;
+    }
+    blit_braille_cp(0x2820, x, y, cell_w, cell_h, dst);
+    return 1;
+}
+
 static const InputOps br_ops = {
-    .destroy        = NULL,
-    .reset          = br_reset,
-    .consume        = br_consume,
-    .tick           = NULL,
-    .draw_hint      = br_draw_hint,
-    .draw_next_char = br_draw_next_char,
+    .destroy           = NULL,
+    .reset             = br_reset,
+    .consume           = br_consume,
+    .tick              = NULL,
+    .draw_hint         = br_draw_hint,
+    .draw_next_char    = br_draw_next_char,
+    .cells_for_char    = br_cells_for_char,
+    .draw_echo_cell    = br_draw_echo_cell,
+    .draw_pending_echo = br_draw_pending_echo,
 };
 
 Input* Input_NewBraille(HandDisplay* hd, KbdDisplay* kbd)

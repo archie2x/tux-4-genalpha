@@ -107,6 +107,14 @@ static int  create_labels(void);
 static void display_next_letter(const wchar_t* str, Uint16 index);
 static int  practice_load_media(void);
 static void practice_unload_media(void);
+
+/* Fixed-width cell-row rendering. Lets the prompt's Latin row line up
+ * cell-by-cell with the echo's mode-specific glyphs by sourcing the
+ * per-char slot width from Input_CellsForChar. Each returns the cell
+ * count consumed from wstr[0..len). */
+static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect);
+static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect);
+static int cell_width_for_row(int font_size);
 // static void show(char t);
 static void print_load_results(void);
 static void set_hand(int cursor, int cur_phrase);
@@ -238,67 +246,100 @@ int Phrases(wchar_t* pphrase)
             SDL_BlitSurface(errors_label_srfc, NULL, screen, &errors_label);
             SDL_BlitSurface(accuracy_label_srfc, NULL, screen, &accuracy_label);
 
-            /* Find wrapping point: */
-            wrap_pt = find_next_wrap(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, phrase_draw_width);
-
-            /* Draw the phrase to be typed up to the next wrapping point: */
-            DEBUGCODE
+            /* Find wrapping point. In braille mode (or any mode using
+             * the cell-row layout) we wrap by cell count instead of
+             * pixel width since each rune occupies a fixed slot. */
+            int cell_w        = cell_width_for_row(medfontsize);
+            int phr_cells_cap = (settings.input_mode == INPUT_BRAILLE)
+                                    ? (phr_text_rect.w / cell_w)
+                                    : 0;
+            if (settings.input_mode == INPUT_BRAILLE)
             {
-                wchar_t buf[200];
-                wcsncpy(buf, &phrases[cur_phrase][prev_wrap], wrap_pt + 1);
-                buf[wrap_pt + 1] = '\0';
-                fprintf(stderr, "wrap_pt = %d\t cursor = %d\t prev_wrap = %d\n",
-                        wrap_pt, cursor, prev_wrap);
-                fprintf(stderr, "Phrase to be typed is: %S\n", buf);
+                /* Walk chars accumulating cell width; remember the
+                 * last word-boundary so we can wrap there rather than
+                 * mid-word when the line fills. Mirrors find_next_wrap's
+                 * "end of last full word that fits" contract. */
+                int cells_used    = 0;
+                int prev_word_end = -1;
+                int i             = 0;
+                int wrapped       = 0;
+                for (; phrases[cur_phrase][prev_wrap + i] &&
+                       i < MAX_PHRASE_LENGTH;
+                     i++)
+                {
+                    wchar_t ch = phrases[cur_phrase][prev_wrap + i];
+                    int     n  = Input_CellsForChar(practice_input, ch);
+                    if (cells_used + n > phr_cells_cap)
+                    {
+                        wrap_pt =
+                            (prev_word_end >= 0) ? prev_word_end : (i - 1);
+                        wrapped = 1;
+                        break;
+                    }
+                    cells_used += n;
+                    if (ch == L' ' && i > 0)
+                    {
+                        prev_word_end = i - 1;
+                    }
+                }
+                if (!wrapped)
+                {
+                    wrap_pt = i - 1; /* whole remaining phrase fits */
+                }
             }
-
-            tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, &white, wrap_pt + 1);
-
-            if (tmpsurf)
+            else
             {
-                /* find_next_wrap measures with SimpleText but we render with
-                 * BlackOutline_w (adds outline pixels), so the rendered surface
-                 * can be slightly wider than wrap suggests. Clip the source so
-                 * nothing spills past the prompt/typed rects. */
-                SDL_Rect src = {0, 0,
-                                (tmpsurf->w > phr_text_rect.w) ? phr_text_rect.w
-                                                               : tmpsurf->w,
-                                tmpsurf->h};
-                SDL_BlitSurface(tmpsurf, &src, screen, &phr_text_rect);
-                SDL_DestroySurface(tmpsurf);
-                tmpsurf = NULL;
-            }
-
-            /* Draw the text the player has typed so far: */
-
-            tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, &white, cursor - prev_wrap);
-
-            DEBUGCODE
-            {
-                wchar_t buf[200];
-                wcsncpy(buf, &phrases[cur_phrase][prev_wrap],
-                        cursor - prev_wrap);
-                buf[cursor - prev_wrap] = '\0';
-                fprintf(stderr, "wrap_pt = %d\t cursor = %d\t prev_wrap = %d\n",
-                        wrap_pt, cursor, prev_wrap);
-                fprintf(stderr, "Text typed so far is: %S\n", buf);
+                wrap_pt = find_next_wrap(&phrases[cur_phrase][prev_wrap],
+                                         medfontsize, phrase_draw_width);
             }
 
             int typed_w = 0;
-            if (tmpsurf)
+            if (settings.input_mode == INPUT_BRAILLE)
             {
-                SDL_Rect src = {0, 0,
-                                (tmpsurf->w > user_text_rect.w)
-                                    ? user_text_rect.w
-                                    : tmpsurf->w,
-                                tmpsurf->h};
-                SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
-                typed_w = src.w;
-                SDL_DestroySurface(tmpsurf);
-                tmpsurf = NULL;
+                /* Cell-row layout for both prompt and echo. */
+                draw_cell_row_prompt(&phrases[cur_phrase][prev_wrap],
+                                     wrap_pt + 1, phr_text_rect);
+                int typed_cells =
+                    draw_cell_row_echo(&phrases[cur_phrase][prev_wrap],
+                                       cursor - prev_wrap, user_text_rect);
+                /* Live caps-pending indicator at the next cell. */
+                int pending_cell_x = user_text_rect.x + typed_cells * cell_w;
+                int pending_cells  = Input_DrawPendingEcho(
+                    practice_input, pending_cell_x, user_text_rect.y, cell_w,
+                    user_text_rect.h, screen);
+                typed_w = (typed_cells + pending_cells) * cell_w;
+            }
+            else
+            {
+                /* Proportional Latin (original behaviour). */
+                tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
+                                         medfontsize, &white, wrap_pt + 1);
+                if (tmpsurf)
+                {
+                    SDL_Rect src = {0, 0,
+                                    (tmpsurf->w > phr_text_rect.w)
+                                        ? phr_text_rect.w
+                                        : tmpsurf->w,
+                                    tmpsurf->h};
+                    SDL_BlitSurface(tmpsurf, &src, screen, &phr_text_rect);
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
+                tmpsurf =
+                    BlackOutline_w(&phrases[cur_phrase][prev_wrap], medfontsize,
+                                   &white, cursor - prev_wrap);
+                if (tmpsurf)
+                {
+                    SDL_Rect src = {0, 0,
+                                    (tmpsurf->w > user_text_rect.w)
+                                        ? user_text_rect.w
+                                        : tmpsurf->w,
+                                    tmpsurf->h};
+                    SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
+                    typed_w = src.w;
+                    SDL_DestroySurface(tmpsurf);
+                    tmpsurf = NULL;
+                }
             }
             /* Underline cursor — shows where the next char will land,
              * with a 1px drop shadow for depth. */
@@ -410,6 +451,43 @@ int Phrases(wchar_t* pphrase)
 
         /* This blits the next character onto the screen in a large font: */
         display_next_letter(phrases[cur_phrase], cursor);
+
+        /* Braille's caps-pending state changes from a dot-6 chord that
+         * doesn't emit a ready-token, so the state machine never fires
+         * an echo refresh. Refresh the echo row every frame instead —
+         * cheap (a handful of cell blits) and keeps the caps-prefix
+         * indicator live. */
+        if (settings.input_mode == INPUT_BRAILLE)
+        {
+            SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen,
+                            &user_text_rect);
+            int cell_w = cell_width_for_row(medfontsize);
+            int typed_cells =
+                draw_cell_row_echo(&phrases[cur_phrase][prev_wrap],
+                                   cursor - prev_wrap, user_text_rect);
+            int pending_cells = Input_DrawPendingEcho(
+                practice_input, user_text_rect.x + typed_cells * cell_w,
+                user_text_rect.y, cell_w, user_text_rect.h, screen);
+            int typed_w = (typed_cells + pending_cells) * cell_w;
+            /* Caret. */
+            SDL_Rect cur = {user_text_rect.x + typed_w,
+                            user_text_rect.y + user_text_rect.h - 4,
+                            medfontsize / 2, 2};
+            if (cur.x + cur.w > user_text_rect.x + user_text_rect.w)
+            {
+                cur.w = user_text_rect.x + user_text_rect.w - cur.x;
+            }
+            if (cur.w > 0)
+            {
+                SDL_Rect shadow = {cur.x + 1, cur.y + 1, cur.w, cur.h};
+                const SDL_PixelFormatDetails* pf =
+                    SDL_GetPixelFormatDetails(screen->format);
+                SDL_FillSurfaceRect(screen, &shadow,
+                                    SDL_MapRGB(pf, NULL, 0, 0, 0));
+                SDL_FillSurfaceRect(screen, &cur,
+                                    SDL_MapRGB(pf, NULL, 255, 255, 255));
+            }
+        }
 
         /* Quit gesture committed (hold-⌘Q or window close) — unwind
          * cleanly so the whole program exits, not just this activity. */
@@ -580,28 +658,41 @@ int Phrases(wchar_t* pphrase)
                         state = 2;
                     }
 
-                    /* Redraw everything below any "completed" lines of input
-                     * text, */
-                    /* except we don't want to redraw keyboard to avoid flicker:
-                     */
-                    tmpsurf =
-                        BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                       medfontsize, &white, cursor - prev_wrap);
-
+                    /* Redraw the user's typed-so-far row. Keep the
+                     * keyboard untouched (avoid flicker). */
                     int typed_w = 0;
                     SDL_BlitSurface(CurrentBkgd(), &user_text_rect, screen,
                                     &user_text_rect);
-                    if (tmpsurf)
+                    if (settings.input_mode == INPUT_BRAILLE)
                     {
-                        SDL_Rect src = {0, 0,
-                                        (tmpsurf->w > user_text_rect.w)
-                                            ? user_text_rect.w
-                                            : tmpsurf->w,
-                                        tmpsurf->h};
-                        SDL_BlitSurface(tmpsurf, &src, screen, &user_text_rect);
-                        typed_w = src.w;
-                        SDL_DestroySurface(tmpsurf);
-                        tmpsurf = NULL;
+                        int cell_w      = cell_width_for_row(medfontsize);
+                        int typed_cells = draw_cell_row_echo(
+                            &phrases[cur_phrase][prev_wrap], cursor - prev_wrap,
+                            user_text_rect);
+                        int pending_cells = Input_DrawPendingEcho(
+                            practice_input,
+                            user_text_rect.x + typed_cells * cell_w,
+                            user_text_rect.y, cell_w, user_text_rect.h, screen);
+                        typed_w = (typed_cells + pending_cells) * cell_w;
+                    }
+                    else
+                    {
+                        tmpsurf = BlackOutline_w(
+                            &phrases[cur_phrase][prev_wrap], medfontsize,
+                            &white, cursor - prev_wrap);
+                        if (tmpsurf)
+                        {
+                            SDL_Rect src = {0, 0,
+                                            (tmpsurf->w > user_text_rect.w)
+                                                ? user_text_rect.w
+                                                : tmpsurf->w,
+                                            tmpsurf->h};
+                            SDL_BlitSurface(tmpsurf, &src, screen,
+                                            &user_text_rect);
+                            typed_w = src.w;
+                            SDL_DestroySurface(tmpsurf);
+                            tmpsurf = NULL;
+                        }
                     }
                     {
                         SDL_Rect cur = {user_text_rect.x + typed_w,
@@ -1260,6 +1351,66 @@ static void practice_unload_media(void)
     cheer = NULL;
 
     T4K_VisibleBell_Free(&s_wrong_bell);
+}
+
+static int cell_width_for_row(int font_size)
+{
+    /* Slot needs to fit the widest mode glyph at this font size. Braille
+     * cells (rendered via DejaVu fallback) are roughly the font height
+     * wide; pad a couple of pixels so adjacent cells don't kiss. */
+    return font_size + 4;
+}
+
+static int draw_cell_row_prompt(const wchar_t* wstr, int len, SDL_Rect rect)
+{
+    int cell_w   = cell_width_for_row(medfontsize);
+    int cell_idx = 0;
+    for (int i = 0; i < len && wstr[i]; i++)
+    {
+        int n_cells = Input_CellsForChar(practice_input, wstr[i]);
+        /* Latin prompt sits right-justified in the slot's last cell. */
+        int slot_last_x = rect.x + (cell_idx + n_cells - 1) * cell_w;
+        if (slot_last_x + cell_w > rect.x + rect.w)
+        {
+            break;
+        }
+        if (wstr[i] != L' ')
+        {
+            wchar_t      ltr[2] = {wstr[i], 0};
+            SDL_Surface* s      = BlackOutline_w(ltr, medfontsize, &white, 1);
+            if (s)
+            {
+                SDL_Rect dr = {slot_last_x + (cell_w - s->w) / 2,
+                               rect.y + (rect.h - s->h) / 2, s->w, s->h};
+                SDL_BlitSurface(s, NULL, screen, &dr);
+                SDL_DestroySurface(s);
+            }
+        }
+        cell_idx += n_cells;
+    }
+    return cell_idx;
+}
+
+static int draw_cell_row_echo(const wchar_t* wstr, int len, SDL_Rect rect)
+{
+    int cell_w   = cell_width_for_row(medfontsize);
+    int cell_idx = 0;
+    for (int i = 0; i < len && wstr[i]; i++)
+    {
+        int n_cells = Input_CellsForChar(practice_input, wstr[i]);
+        for (int c = 0; c < n_cells; c++)
+        {
+            int x = rect.x + (cell_idx + c) * cell_w;
+            if (x + cell_w > rect.x + rect.w)
+            {
+                return cell_idx + c;
+            }
+            Input_DrawEchoCell(practice_input, wstr[i], c, x, rect.y, cell_w,
+                               rect.h, screen);
+        }
+        cell_idx += n_cells;
+    }
+    return cell_idx;
 }
 
 /* Looks for phrases.txt in theme, then in default if not found, */

@@ -15,6 +15,13 @@ typedef struct InputOps
      * falls back to a Latin-glyph text render. */
     void (*draw_next_char)(Input*, wchar_t target_ch, SDL_Rect rect,
                            SDL_Surface* dst);
+    /* Cell-row rendering hooks (see input.h header for the contract).
+     * NULL slots fall back to "1 cell per char, nothing pending". */
+    int (*cells_for_char)(Input*, wchar_t);
+    void (*draw_echo_cell)(Input*, wchar_t target_ch, int cell_idx, int x,
+                           int y, int cell_w, int cell_h, SDL_Surface* dst);
+    int (*draw_pending_echo)(Input*, int x, int y, int cell_w, int cell_h,
+                             SDL_Surface* dst);
 } InputOps;
 
 struct Input_s

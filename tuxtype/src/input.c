@@ -88,3 +88,32 @@ void Input_DrawNextChar(Input* im, wchar_t target_ch, SDL_Rect rect,
         im->ops->draw_next_char(im, target_ch, rect, dst);
     }
 }
+
+int Input_CellsForChar(Input* im, wchar_t target_ch)
+{
+    if (im && im->ops->cells_for_char)
+    {
+        return im->ops->cells_for_char(im, target_ch);
+    }
+    return 1; /* default: one cell per char */
+}
+
+void Input_DrawEchoCell(Input* im, wchar_t target_ch, int cell_idx, int x,
+                        int y, int cell_w, int cell_h, SDL_Surface* dst)
+{
+    if (im && dst && im->ops->draw_echo_cell)
+    {
+        im->ops->draw_echo_cell(im, target_ch, cell_idx, x, y, cell_w, cell_h,
+                                dst);
+    }
+}
+
+int Input_DrawPendingEcho(Input* im, int x, int y, int cell_w, int cell_h,
+                          SDL_Surface* dst)
+{
+    if (im && dst && im->ops->draw_pending_echo)
+    {
+        return im->ops->draw_pending_echo(im, x, y, cell_w, cell_h, dst);
+    }
+    return 0;
+}

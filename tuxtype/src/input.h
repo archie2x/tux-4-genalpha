@@ -64,3 +64,28 @@ void Input_DrawHint(Input* im, wchar_t target_ch, SDL_Surface* dst);
  * uppercase); semaphore would draw flag positions; etc. */
 void Input_DrawNextChar(Input* im, wchar_t target_ch, SDL_Rect rect,
                         SDL_Surface* dst);
+
+/* Cell-based row rendering. Lets a caller show one row of "what to
+ * type" (Latin) and a parallel row of "what was typed" (mode's
+ * glyphs) in fixed-width slots that line up cell-by-cell. Slot width
+ * per char is mode-defined via Input_CellsForChar.
+ *
+ * Conventions:
+ *   - Prompt: the Latin glyph sits right-justified in the slot's LAST
+ *     cell. Multi-cell slots leave the leading cells empty, visually
+ *     signalling that something else belongs there.
+ *   - Echo: caller fills each cell via Input_DrawEchoCell, passing
+ *     cell_idx in [0, n) where n = Input_CellsForChar(target_ch).
+ *   - Pending: modes with uncommitted state (e.g. a held modifier
+ *     awaiting its base key) draw a live marker at the next-cell
+ *     position via Input_DrawPendingEcho. */
+
+int Input_CellsForChar(Input* im, wchar_t target_ch);
+
+void Input_DrawEchoCell(Input* im, wchar_t target_ch, int cell_idx, int x,
+                        int y, int cell_w, int cell_h, SDL_Surface* dst);
+
+/* Returns the number of cells advanced (0 = nothing pending, caller
+ * doesn't move the cursor). */
+int Input_DrawPendingEcho(Input* im, int x, int y, int cell_w, int cell_h,
+                          SDL_Surface* dst);

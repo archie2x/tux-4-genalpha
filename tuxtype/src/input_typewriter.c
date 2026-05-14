@@ -69,13 +69,49 @@ static void tw_draw_next_char(Input* im, wchar_t target_ch, SDL_Rect rect,
     SDL_DestroySurface(s);
 }
 
+static int tw_cells_for_char(Input* im, wchar_t ch)
+{
+    (void)im;
+    (void)ch;
+    return 1;
+}
+
+static void tw_draw_echo_cell(Input* im, wchar_t target_ch, int cell_idx, int x,
+                              int y, int cell_w, int cell_h, SDL_Surface* dst)
+{
+    (void)im;
+    (void)cell_idx;
+    if (target_ch == L' ')
+    {
+        return;
+    }
+    int font_size = cell_h - 4;
+    if (font_size < 10)
+    {
+        font_size = 10;
+    }
+    wchar_t      ltr[2] = {target_ch, 0};
+    SDL_Surface* s      = BlackOutline_w(ltr, font_size, &white, 1);
+    if (!s)
+    {
+        return;
+    }
+    SDL_Rect dr = {x + (cell_w - s->w) / 2, y + (cell_h - s->h) / 2, s->w,
+                   s->h};
+    SDL_BlitSurface(s, NULL, dst, &dr);
+    SDL_DestroySurface(s);
+}
+
 static const InputOps tw_ops = {
-    .destroy        = NULL,
-    .reset          = NULL,
-    .consume        = tw_consume,
-    .tick           = NULL,
-    .draw_hint      = tw_draw_hint,
-    .draw_next_char = tw_draw_next_char,
+    .destroy           = NULL,
+    .reset             = NULL,
+    .consume           = tw_consume,
+    .tick              = NULL,
+    .draw_hint         = tw_draw_hint,
+    .draw_next_char    = tw_draw_next_char,
+    .cells_for_char    = tw_cells_for_char,
+    .draw_echo_cell    = tw_draw_echo_cell,
+    .draw_pending_echo = NULL,
 };
 
 Input* Input_NewTypewriter(HandDisplay* hd, KbdDisplay* kbd)

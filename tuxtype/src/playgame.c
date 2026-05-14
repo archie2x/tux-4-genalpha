@@ -303,8 +303,7 @@ int PlayCascade(int diflevel)
             LOG("->>PLAYING THE GAME\n");
         }
 
-        /*  --------- Begin main game loop (cycles once per frame):
-         * ------------- */
+        /* ----- Begin main game loop (cycles once per frame): ------ */
 
         /* (Re-)create the input decoder for this game session. */
         Input_Free(cascade_input);
