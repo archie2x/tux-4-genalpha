@@ -325,8 +325,12 @@ int PlayCascade(int diflevel)
             oldlives     = curlives;
             oldfish_left = fish_left;
 
-            EraseSprite(tux_object.spr[tux_object.state][tux_object.facing],
-                        tux_object.x, tux_object.y);
+            /* Full-redraw model (matches laser): blit the whole
+             * background — keyboard guide is already baked in — and
+             * let every game element re-draw on top each frame. Drops
+             * the per-sprite erase dance that caused braille trails,
+             * splat smears, and stale-pixel z-order bugs. */
+            SDL_BlitSurface(CurrentBkgd(), NULL, screen, NULL);
 
             /* --- Poll input queue, get keyboard info --- */
             while (SDL_PollEvent(&event))
@@ -1743,39 +1747,18 @@ to their settings
 *****************************/
 static void MoveFishies(int* fishies, int* splats, int* lifes, int* frame)
 {
-    int i, j;
+    int i;
 
     LOG("\nEntering MoveFishies()\n");
 
+    /* Advance + spawn-on-bottom only. No per-slot erases: the main
+     * loop blits CurrentBkgd over the whole logical screen each frame,
+     * so partial-redraw isn't needed and the streak/z-order bugs that
+     * came with it are gone. */
     for (i = 0; i < *fishies; i++)
     {
         if (fish_object[i].alive)
         {
-            /* Erase one extra slot past the word — Indic conjuncts (and some
-             * accented Latin) can render wider than fish_sprite.w, spilling
-             * into the slot to the right; without this last-slot erase, the
-             * trailing pixels of the last char leave a streak as the fish
-             * moves down. */
-            for (j = 0; j <= fish_object[i].len; j++)
-            {
-                EraseSprite(fish_sprite,
-                            fish_object[i].x + (fish_sprite->frame[0]->w * j),
-                            fish_object[i].y);
-            }
-            /* In braille mode the chord glyph sits just below the
-             * letter (and below the fish-sprite-sized erase above), so
-             * trails persist without an extra erase strip. The
-             * background has the keyboard guide baked in, so this just
-             * restores the keyboard pixels under any stale braille. */
-            if (settings.input_mode == INPUT_BRAILLE)
-            {
-                SDL_Rect below = {
-                    fish_object[i].x,
-                    fish_object[i].y + fish_sprite->frame[0]->h,
-                    fish_sprite->frame[0]->w * (fish_object[i].len + 1), 32};
-                SDL_BlitSurface(CurrentBkgd(), &below, screen, &below);
-            }
-
             fish_object[i].y += fish_object[i].dy;
 
             if (fish_object[i].y >=
@@ -1802,20 +1785,19 @@ static void MoveFishies(int* fishies, int* splats, int* lifes, int* frame)
         }
     }
 
+    /* Decrement splat lifetime; draw the still-alive ones. Dead splats
+     * just stop being drawn — no erase needed since bg repaints each
+     * frame. */
     for (i = 0; i < *splats; i++)
     {
         if (splat_object[i].alive)
         {
             splat_object[i].alive--;
-            if (splat_object[i].alive > 1)
+            if (splat_object[i].alive > 0)
             {
                 T4K_DrawSprite(splat_sprite, splat_object[i].x,
                                splat_object[i].y);
             }
-        }
-        else
-        {
-            EraseSprite(splat_sprite, splat_object[i].x, splat_object[i].y);
         }
     }
 
@@ -1880,7 +1862,7 @@ perform appropriate action
 ***************************/
 static void CheckCollision(int fishies, int* fish_left, int frame)
 {
-    int i, j;
+    int i;
 
     LOG("\nEntering CheckCollision()\n");
 
@@ -1902,13 +1884,8 @@ static void CheckCollision(int fishies, int* fish_left, int frame)
                 fish_object[i].alive   = 0;
                 fish_object[i].can_eat = 0;
 
-                for (j = 0; j < fish_object[i].len; j++)
-                {
-                    EraseSprite(
-                        fish_sprite,
-                        (fish_object[i].x + (j * fish_sprite->frame[0]->w)),
-                        fish_object[i].y);
-                }
+                /* Eaten fish vanishes naturally next frame — full-screen
+                 * bg blit at top of the main loop wipes its old slot. */
 
                 *fish_left = *fish_left - 1;
 
