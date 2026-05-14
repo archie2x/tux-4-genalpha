@@ -138,8 +138,7 @@ int Phrases(wchar_t* pphrase)
     int          quit                        = 0;
     int          i                           = 0;
     int          cursor                      = 0;
-    int          wrap_pt                     = 0;
-    int          prev_wrap                   = 0;
+    int          scroll_offset_ch            = 0;
     int          total                       = 0;
     int          phrase_just_changed         = 1;
     int          once_only                   = 0;
@@ -223,8 +222,7 @@ int Phrases(wchar_t* pphrase)
             accuracy_str[0]     = '\0';
             total               = 0;
             cursor              = 0;
-            wrap_pt             = 0;
-            prev_wrap           = 0;
+            scroll_offset_ch    = 0;
             correct_chars       = 0;
             wrong_chars         = 0;
             last_keypress_ms    = SDL_GetTicks();
@@ -245,43 +243,65 @@ int Phrases(wchar_t* pphrase)
             }
         }
 
-        /* --- Compute wrap point for the current line --- */
+        /* --- Scroll window. Window starts at scroll_offset_ch. Once
+         * cursor's visual offset exceeds midpoint, slide
+         * scroll_offset_ch forward to pin cursor to middle column.
+         * visible_chars = chars fitting from scroll_offset_ch —
+         * cell-counted in braille, pixel-measured in keyboard. */
         int cell_w        = cell_width_for_row(medfontsize);
-        int phr_cells_cap = (settings.input_mode == INPUT_BRAILLE)
-                                ? (phr_text_rect.w / cell_w)
-                                : 0;
+        int visible_chars = 0;
         if (settings.input_mode == INPUT_BRAILLE)
         {
-            int cells_used    = 0;
-            int prev_word_end = -1;
-            int j             = 0;
-            int wrapped       = 0;
-            for (; phrases[cur_phrase][prev_wrap + j] && j < MAX_PHRASE_LENGTH;
+            int phr_cells_cap  = phr_text_rect.w / cell_w;
+            int midpoint_cells = phr_cells_cap / 2;
+            /* Cursor cell offset within window. */
+            int cursor_cells = 0;
+            for (int j = scroll_offset_ch; j < cursor; j++)
+            {
+                cursor_cells +=
+                    Input_CellsForChar(practice_input, phrases[cur_phrase][j]);
+            }
+            /* Slide forward until cursor pulls back to midpoint. */
+            while (cursor_cells > midpoint_cells && scroll_offset_ch < cursor)
+            {
+                cursor_cells -= Input_CellsForChar(
+                    practice_input, phrases[cur_phrase][scroll_offset_ch]);
+                scroll_offset_ch++;
+            }
+            /* Chars fitting from scroll_offset_ch. */
+            int cells_used = 0;
+            int j          = 0;
+            for (; phrases[cur_phrase][scroll_offset_ch + j] &&
+                   j < MAX_PHRASE_LENGTH;
                  j++)
             {
-                wchar_t ch = phrases[cur_phrase][prev_wrap + j];
-                int     n  = Input_CellsForChar(practice_input, ch);
+                int n = Input_CellsForChar(
+                    practice_input, phrases[cur_phrase][scroll_offset_ch + j]);
                 if (cells_used + n > phr_cells_cap)
                 {
-                    wrap_pt = (prev_word_end >= 0) ? prev_word_end : (j - 1);
-                    wrapped = 1;
                     break;
                 }
                 cells_used += n;
-                if (ch == L' ' && j > 0)
-                {
-                    prev_word_end = j - 1;
-                }
             }
-            if (!wrapped)
-            {
-                wrap_pt = j - 1;
-            }
+            visible_chars = j;
         }
         else
         {
-            wrap_pt = find_next_wrap(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, phrase_draw_width);
+            visible_chars =
+                find_next_wrap(&phrases[cur_phrase][scroll_offset_ch],
+                               medfontsize, phrase_draw_width) +
+                1;
+            int midpoint_chars = visible_chars / 2;
+            while ((cursor - scroll_offset_ch) > midpoint_chars &&
+                   scroll_offset_ch < cursor)
+            {
+                scroll_offset_ch++;
+                visible_chars =
+                    find_next_wrap(&phrases[cur_phrase][scroll_offset_ch],
+                                   medfontsize, phrase_draw_width) +
+                    1;
+                midpoint_chars = visible_chars / 2;
+            }
         }
 
         /* --- Full redraw: background + every element --- */
@@ -295,15 +315,21 @@ int Phrases(wchar_t* pphrase)
         SDL_BlitSurface(errors_label_srfc, NULL, screen, &errors_label);
         SDL_BlitSurface(accuracy_label_srfc, NULL, screen, &accuracy_label);
 
-        /* Prompt + echo + caret */
+        /* Prompt + echo + caret. Both start at scroll_offset_ch, run
+         * for visible_chars; echo clipped at cursor. */
         int typed_w = 0;
         if (settings.input_mode == INPUT_BRAILLE)
         {
-            draw_cell_row_prompt(&phrases[cur_phrase][prev_wrap], wrap_pt + 1,
-                                 phr_text_rect);
+            draw_cell_row_prompt(&phrases[cur_phrase][scroll_offset_ch],
+                                 visible_chars, phr_text_rect);
+            int echo_chars = cursor - scroll_offset_ch;
+            if (echo_chars > visible_chars)
+            {
+                echo_chars = visible_chars;
+            }
             int typed_cells =
-                draw_cell_row_echo(&phrases[cur_phrase][prev_wrap],
-                                   cursor - prev_wrap, user_text_rect);
+                draw_cell_row_echo(&phrases[cur_phrase][scroll_offset_ch],
+                                   echo_chars, user_text_rect);
             int pending_cells = Input_DrawPendingEcho(
                 practice_input, user_text_rect.x + typed_cells * cell_w,
                 user_text_rect.y, cell_w, user_text_rect.h, screen);
@@ -311,8 +337,8 @@ int Phrases(wchar_t* pphrase)
         }
         else
         {
-            tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, &white, wrap_pt + 1);
+            tmpsurf = BlackOutline_w(&phrases[cur_phrase][scroll_offset_ch],
+                                     medfontsize, &white, visible_chars);
             if (tmpsurf)
             {
                 SDL_Rect src = {0, 0,
@@ -323,8 +349,13 @@ int Phrases(wchar_t* pphrase)
                 SDL_DestroySurface(tmpsurf);
                 tmpsurf = NULL;
             }
-            tmpsurf = BlackOutline_w(&phrases[cur_phrase][prev_wrap],
-                                     medfontsize, &white, cursor - prev_wrap);
+            int echo_chars = cursor - scroll_offset_ch;
+            if (echo_chars > visible_chars)
+            {
+                echo_chars = visible_chars;
+            }
+            tmpsurf = BlackOutline_w(&phrases[cur_phrase][scroll_offset_ch],
+                                     medfontsize, &white, echo_chars);
             if (tmpsurf)
             {
                 SDL_Rect src = {0, 0,
@@ -558,18 +589,6 @@ int Phrases(wchar_t* pphrase)
                                 get_next_word_letters(cur_phrase, cursor, 1));
                 }
 
-                /* Line-wrap bookkeeping. */
-                if (cursor >= prev_wrap + wrap_pt + 2)
-                {
-                    prev_wrap = prev_wrap + wrap_pt + 2;
-                }
-                else if ((cursor == prev_wrap + wrap_pt + 1) &&
-                         (phrases[cur_phrase][cursor] == ' '))
-                {
-                    cursor++;
-                    prev_wrap = prev_wrap + wrap_pt + 2;
-                }
-
                 /* Phrase complete → celebrate. */
                 if (cursor == wcslen(phrases[cur_phrase]))
                 {
@@ -679,7 +698,6 @@ int Phrases(wchar_t* pphrase)
                 if (event.key.key != SDLK_RSHIFT &&
                     event.key.key != SDLK_LSHIFT)
                 {
-                    if ((cursor != prev_wrap) || (event.key.key != SDLK_SPACE))
                     {
                         wrong_chars++;
                         T4K_VisibleBell_Trigger(&s_wrong_bell);
@@ -1228,8 +1246,9 @@ static int load_phrases(const char* phrase_file)
     return num_phrases;
 }
 
-/* Returns index relative to wstr of last char to be printed before break.  */
-/* (i.e. end of last full word that fits within 'width'                     */
+/* Returns index (relative to wstr) of last char in longest whole-word
+ * prefix that fits in `width` pixels at font_size. Scroll window in
+ * keyboard mode uses this to size visible range from scroll_offset_ch. */
 static int find_next_wrap(const wchar_t* wstr, int font_size, int width)
 {
     wchar_t      buf[MAX_PHRASE_LENGTH];
